@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LM videodownloader</string>
+    <string name="enter_web">Enter a site or a word to google</string>
 </resources>
