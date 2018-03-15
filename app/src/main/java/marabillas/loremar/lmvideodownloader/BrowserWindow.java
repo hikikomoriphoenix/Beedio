@@ -21,18 +21,27 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
+import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebViewFragment;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.Nullable;
 
-public class BrowserWindow extends WebViewFragment {
+public class BrowserWindow extends Fragment {
     String url;
+    View view;
+    WebView page;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,18 +50,53 @@ public class BrowserWindow extends WebViewFragment {
         url = data.getString("url");
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.browser, container, false);
+        page = view.findViewById(R.id.page);
+        Button prev = view.findViewById(R.id.prevButton);
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WebView page = BrowserWindow.this.page;
+                if(page.canGoBack()) page.goBack();
+            }
+        });
+        Button next = view.findViewById(R.id.nextButton);
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WebView page = BrowserWindow.this.page;
+                if(page.canGoForward()) page.goForward();
+            }
+        });
+        return view;
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        WebSettings webSettings = getWebView().getSettings();
+        WebSettings webSettings = page.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        getWebView().setWebViewClient(new WebViewClient(){//it seems not setting webclient, launches
+        page.setWebViewClient(new WebViewClient(){//it seems not setting webclient, launches
             //default browser instead of opening the page in webview
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return super.shouldOverrideUrlLoading(view, request);
             }
+
+            @Override
+            public void onPageStarted(WebView view, final String url, Bitmap favicon) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView urlBox = BrowserWindow.this.view.findViewById(R.id.urlBox);
+                        urlBox.setText(url);
+                    }
+                });
+                super.onPageStarted(view, url, favicon);
+            }
         });
-        getWebView().loadUrl(url);
+        page.loadUrl(url);
     }
 }

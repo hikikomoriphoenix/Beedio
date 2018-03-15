@@ -21,4 +21,7 @@
 <resources>
     <string name="app_name">LM videodownloader</string>
     <string name="enter_web">Enter a site or a word to google</string>
+    <string name="prev">Back<![CDATA[<]]></string>
+    <string name="next"><![CDATA[>]]>Next</string>
+    <string name="bookmark_this_page">Bookmark This Page</string>
 </resources>
