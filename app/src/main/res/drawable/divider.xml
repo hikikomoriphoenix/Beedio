@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
@@ -18,10 +19,7 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<resources>
-    <string name="app_name">LM videodownloader</string>
-    <string name="enter_web">Enter a site or a word to google</string>
-    <string name="prev">Back</string>
-    <string name="next">Next</string>
-    <string name="bookmark_this_page">Bookmark This Page</string>
-</resources>
+<shape android:shape="rectangle"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/lightGray"/>
+</shape>
