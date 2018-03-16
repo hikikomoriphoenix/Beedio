@@ -60,11 +60,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/prev"
+            android:textColor="@android:color/black"
             style="?android:buttonBarButtonStyle"/>
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@color/lightGray"
+            android:background="@android:color/darker_gray"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"/>
         <Button
@@ -72,17 +73,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/next"
+            android:textColor="@android:color/black"
             style="?android:buttonBarButtonStyle"/>
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@color/lightGray"
+            android:background="@android:color/darker_gray"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bookmark_this_page"
+            android:textColor="@android:color/black"
             style="?android:buttonBarButtonStyle"/>
     </LinearLayout>
 
