@@ -89,4 +89,29 @@
             style="?android:buttonBarButtonStyle"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/videosFoundHUD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/videos_found_bar_bg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.9">
+        <ProgressBar
+            android:id="@+id/findingVideosInProgress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/videosFoundText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="14dp"/>
+    </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>

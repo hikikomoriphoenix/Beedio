@@ -26,8 +26,10 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
@@ -35,6 +37,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +50,8 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-public class BrowserWindow extends Fragment {
+public class BrowserWindow extends Fragment implements View.OnTouchListener, View.OnClickListener {
+    private static final String TAG = "loremarTest";
     private String url;
     private String title;
     private View view;
@@ -55,10 +59,48 @@ public class BrowserWindow extends Fragment {
     private List<Video> videos;
     private SSLSocketFactory defaultSSLSF;
 
-    private static final String TAG = "loremarTest";
+    private View videosFoundHUD;
+    private float prevX;
+    private float prevY;
+    private ProgressBar findingVideoInProgress;
+    private int numLinksInspected;
+    private TextView videosFoundText;
 
-    class Video{
-        String size, type, link, name;
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch(event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                v.performClick();
+                break;
+            case MotionEvent.ACTION_DOWN:
+                prevX = event.getRawX();
+                prevY = event.getRawY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float moveX = event.getRawX() - prevX;
+                videosFoundHUD.setX(videosFoundHUD.getX() + moveX);
+                prevX = event.getRawX();
+                float moveY = event.getRawY() - prevY;
+                videosFoundHUD.setY(videosFoundHUD.getY() + moveY);
+                prevY = event.getRawY();
+                float width = getResources().getDisplayMetrics().widthPixels;
+                float height = getResources().getDisplayMetrics().heightPixels;
+                if((videosFoundHUD.getX() + videosFoundHUD.getWidth()) >= width
+                        || videosFoundHUD.getX() <= 0) {
+                    videosFoundHUD.setX(videosFoundHUD.getX() - moveX);
+                }
+                if((videosFoundHUD.getY() + videosFoundHUD.getHeight()) >= height
+                        || videosFoundHUD.getY() <= 0) {
+                    videosFoundHUD.setY(videosFoundHUD.getY() - moveY);
+                }
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 
     @Override
@@ -90,12 +132,26 @@ public class BrowserWindow extends Fragment {
                 if(page.canGoForward()) page.goForward();
             }
         });
+
+        videosFoundHUD = view.findViewById(R.id.videosFoundHUD);
+        videosFoundHUD.setOnTouchListener(this);
+        videosFoundHUD.setOnClickListener(this);
+
+        findingVideoInProgress = videosFoundHUD.findViewById(R.id.findingVideosInProgress);
+        findingVideoInProgress.setVisibility(View.GONE);
+
+        videos = new ArrayList<>();
+
+        videosFoundText = videosFoundHUD.findViewById(R.id.videosFoundText);
+        String zero = "Videos: 0 found";
+        videosFoundText.setText(zero);
         return view;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        numLinksInspected = 0;
         WebSettings webSettings = page.getSettings();
         webSettings.setJavaScriptEnabled(true);
         page.setWebViewClient(new WebViewClient(){//it seems not setting webclient, launches
@@ -125,6 +181,16 @@ public class BrowserWindow extends Fragment {
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
                         if(urlLowerCase.contains("mp4")||urlLowerCase.contains("video")){
+                            numLinksInspected++;
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(findingVideoInProgress.getVisibility() == View.GONE) {
+                                        findingVideoInProgress.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            });
+
                             Utils.disableSSLCertificateChecking();
                             Log.i(TAG, "retreiving headers from " + url);
                             HttpsURLConnection uCon = null;
@@ -141,6 +207,13 @@ public class BrowserWindow extends Fragment {
                                     if (contentType.contains("video/mp4")) {
                                         Video video = new Video();
                                         video.size = uCon.getHeaderField("content-length");
+                                        if(video.size==null) {
+                                            video.size = "";
+                                        }
+                                        else {
+                                            video.size = Formatter.formatShortFileSize(BrowserWindow
+                                            .this.getActivity(), Long.parseLong(video.size));
+                                        }
                                         String link = uCon.getHeaderField("Location");
                                         if (link == null) {
                                             link = uCon.getURL().toString();
@@ -152,12 +225,30 @@ public class BrowserWindow extends Fragment {
                                             video.name = "video";
                                         }
                                         video.type = "mp4";
-                                        videos.add(video);
-                                        String videoFound = "name:" + video.name + "\n" +
-                                                "link:" + video.link + "\n" +
-                                                "type:" + video.type + "\n" +
-                                                "size" + video.size;
-                                        Log.i(TAG, videoFound);
+                                        boolean duplicate = false;
+                                        for(Video v: videos){
+                                            if(v.link.equals(video.link)) {
+                                                duplicate = true;
+                                                break;
+                                            }
+                                        }
+                                        if(!duplicate) {
+                                            videos.add(video);
+                                            final String videosFound = String.valueOf(videos.size());
+                                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    String videosFoundString = "Videos: " +
+                                                            videosFound + " found";
+                                                    videosFoundText.setText(videosFoundString);
+                                                }
+                                            });
+                                            String videoFound = "name:" + video.name + "\n" +
+                                                    "link:" + video.link + "\n" +
+                                                    "type:" + video.type + "\n" +
+                                                    "size" + video.size;
+                                            Log.i(TAG, videoFound);
+                                        }
                                     }
                                     else Log.i(TAG, "not a video");
                                 }
@@ -169,11 +260,24 @@ public class BrowserWindow extends Fragment {
 
                             //restore default sslsocketfactory
                             HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
+                            numLinksInspected--;
+                            if(numLinksInspected <= 0) {
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        findingVideoInProgress.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
                         }
                     }
                 }.start();
             }
         });
         page.loadUrl(url);
+    }
+
+    class Video{
+        String size, type, link, name;
     }
 }
