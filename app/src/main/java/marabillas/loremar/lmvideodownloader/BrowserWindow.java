@@ -53,6 +53,7 @@ public class BrowserWindow extends Fragment {
     private View view;
     private WebView page;
     private List<Video> videos;
+    private SSLSocketFactory defaultSSLSF;
 
     private static final String TAG = "loremarTest";
 
@@ -66,6 +67,7 @@ public class BrowserWindow extends Fragment {
         Bundle data = getArguments();
         url = data.getString("url");
         videos = new ArrayList<>();
+        defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory();
     }
 
     @Override
@@ -117,22 +119,23 @@ public class BrowserWindow extends Fragment {
             }
 
             @Override
-            public void onLoadResource(WebView view, final String url) {
+            public void onLoadResource(final WebView view, final String url) {
                 new Thread(){
                     @Override
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
                         if(urlLowerCase.contains("mp4")||urlLowerCase.contains("video")){
+                            Utils.disableSSLCertificateChecking();
+                            Log.i(TAG, "retreiving headers from " + url);
                             HttpsURLConnection uCon = null;
                             try {
                                 uCon = (HttpsURLConnection) new URL(url).openConnection();
-                                uCon.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
-                                uCon.connect();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             if (uCon != null) {
                                 String contentType = uCon.getHeaderField("content-type");
+
                                 if(contentType!=null) {
                                     contentType = contentType.toLowerCase();
                                     if (contentType.contains("video/mp4")) {
@@ -156,8 +159,16 @@ public class BrowserWindow extends Fragment {
                                                 "size" + video.size;
                                         Log.i(TAG, videoFound);
                                     }
+                                    else Log.i(TAG, "not a video");
+                                }
+                                else {
+                                    Log.i(TAG, "no content type");
                                 }
                             }
+                            else Log.i(TAG, "no connection");
+
+                            //restore default sslsocketfactory
+                            HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
                         }
                     }
                 }.start();
