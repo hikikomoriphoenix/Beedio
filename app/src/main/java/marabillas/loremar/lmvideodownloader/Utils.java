@@ -20,6 +20,8 @@
 
 package marabillas.loremar.lmvideodownloader;
 
+import android.annotation.SuppressLint;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -48,11 +50,13 @@ class Utils {
                 return null;
             }
 
+            @SuppressLint("TrustAllX509TrustManager")
             @Override
             public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
                 // Not implemented
             }
 
+            @SuppressLint("TrustAllX509TrustManager")
             @Override
             public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
                 // Not implemented
@@ -68,6 +72,7 @@ class Utils {
 
             // Create all-trusting host name verifier
             HostnameVerifier allHostsValid = new HostnameVerifier() {
+                @SuppressLint("BadHostnameVerifier")
                 public boolean verify(String hostname, SSLSession session) {
                     return true;
                 }

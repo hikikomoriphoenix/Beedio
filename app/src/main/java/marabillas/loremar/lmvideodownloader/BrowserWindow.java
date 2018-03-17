@@ -44,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,9 +194,9 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
                             Utils.disableSSLCertificateChecking();
                             Log.i(TAG, "retreiving headers from " + url);
-                            HttpsURLConnection uCon = null;
+                            URLConnection uCon = null;
                             try {
-                                uCon = (HttpsURLConnection) new URL(url).openConnection();
+                                uCon = new URL(url).openConnection();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
