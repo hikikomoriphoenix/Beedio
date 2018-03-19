@@ -23,11 +23,23 @@ package marabillas.loremar.lmvideodownloader;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.format.Formatter;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,6 +49,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -51,10 +64,10 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-public class BrowserWindow extends Fragment implements View.OnTouchListener, View.OnClickListener {
+public class BrowserWindow extends Fragment implements View.OnTouchListener, View
+        .OnClickListener, LMvd.OnBackPressedListener {
     private static final String TAG = "loremarTest";
     private String url;
-    private String title;
     private View view;
     private WebView page;
     private List<Video> videos;
@@ -66,6 +79,9 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private ProgressBar findingVideoInProgress;
     private int numLinksInspected;
     private TextView videosFoundText;
+
+    private View foundVideosWindow;
+    private RecyclerView videoList;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -101,7 +117,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
     @Override
     public void onClick(View v) {
-
+        foundVideosWindow.setVisibility(View.VISIBLE);
+        videoList.getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -114,7 +131,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
         view = inflater.inflate(R.layout.browser, container, false);
         page = view.findViewById(R.id.page);
         Button prev = view.findViewById(R.id.prevButton);
@@ -144,8 +162,29 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         videos = new ArrayList<>();
 
         videosFoundText = videosFoundHUD.findViewById(R.id.videosFoundText);
-        String zero = "Videos: 0 found";
-        videosFoundText.setText(zero);
+        updateFoundVideosBar();
+
+        foundVideosWindow = view.findViewById(R.id.foundVideosWindow);
+        videoList = foundVideosWindow.findViewById(R.id.videoList);
+        videoList.setAdapter(new VideoListAdapter());
+        videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        DividerItemDecoration divider = new DividerItemDecoration(getActivity(),
+                DividerItemDecoration.VERTICAL) {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
+                    .State state) {
+                int verticalSpacing = (int) Math.ceil(TypedValue.applyDimension(TypedValue
+                        .COMPLEX_UNIT_SP, 4, getResources().getDisplayMetrics()));
+                outRect.top = verticalSpacing;
+                outRect.bottom = verticalSpacing;
+            }
+        };
+        divider.setDrawable(getResources().getDrawable(R.drawable.greydivider));
+        videoList.addItemDecoration(divider);
+        videoList.setHasFixedSize(true);
+        foundVideosWindow.setVisibility(View.GONE);
+
+        ((LMvd)getActivity()).setOnBackPressedListener(this);
         return view;
     }
 
@@ -169,7 +208,6 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                     public void run() {
                         TextView urlBox = BrowserWindow.this.view.findViewById(R.id.urlBox);
                         urlBox.setText(url);
-                        BrowserWindow.this.title = view.getTitle();
                     }
                 });
                 super.onPageStarted(view, url, favicon);
@@ -177,6 +215,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
             @Override
             public void onLoadResource(final WebView view, final String url) {
+                final String page = view.getUrl();
+                final String title = view.getTitle();
                 new Thread(){
                     @Override
                     public void run() {
@@ -233,17 +273,16 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                                                 break;
                                             }
                                         }
+                                        video.page = page;
                                         if(!duplicate) {
                                             videos.add(video);
-                                            final String videosFound = String.valueOf(videos.size());
                                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    String videosFoundString = "Videos: " +
-                                                            videosFound + " found";
-                                                    videosFoundText.setText(videosFoundString);
+                                                    videoList.getAdapter().notifyDataSetChanged();
                                                 }
                                             });
+                                            updateFoundVideosBar();
                                             String videoFound = "name:" + video.name + "\n" +
                                                     "link:" + video.link + "\n" +
                                                     "type:" + video.type + "\n" +
@@ -278,7 +317,85 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         page.loadUrl(url);
     }
 
-    class Video{
-        String size, type, link, name;
+    private void updateFoundVideosBar() {
+        final String videosFoundString = "Videos: " + videos.size() + " found";
+        final SpannableStringBuilder sb = new SpannableStringBuilder(videosFoundString);
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0,0, 255));
+        final StyleSpan bss = new StyleSpan(Typeface.BOLD);
+        sb.setSpan(fcs, 8, 10 + videos.size()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 10 + videos.size()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                videosFoundText.setText(sb);
+            }
+        });
+    }
+
+    @Override
+    public void onBackpressedListener() {
+        if(foundVideosWindow.getVisibility() == View.VISIBLE) {
+            foundVideosWindow.setVisibility(View.GONE);
+        }
+        else if(page.canGoBack()) {
+            page.goBack();
+        }
+        else {
+            getFragmentManager().popBackStack();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        ((LMvd)getActivity()).setOnBackPressedListener(null);
+        super.onDestroy();
+    }
+
+    private class Video{
+        String size, type, link, name, page;
+        boolean checked=false;
+    }
+
+
+    private class VideoListAdapter extends RecyclerView.Adapter<VideoItem> {
+        @NonNull
+        @Override
+        public VideoItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            return (new VideoItem(inflater.inflate(R.layout.videos_found_item, parent, false)));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull VideoItem holder, int position) {
+            holder.bind(videos.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return videos.size();
+        }
+    }
+
+    private class VideoItem extends RecyclerView.ViewHolder {
+        TextView size;
+        TextView name;
+        TextView ext;
+        CheckBox check;
+
+        VideoItem(View itemView) {
+            super(itemView);
+            size = itemView.findViewById(R.id.videoFoundSize);
+            name = itemView.findViewById(R.id.videoFoundName);
+            ext = itemView.findViewById(R.id.videoFoundExt);
+            check = itemView.findViewById(R.id.videoFoundCheck);
+        }
+
+        void bind(Video video) {
+            size.setText(video.size);
+            name.setText(video.name);
+            String extStr = "."+video.type;
+            ext.setText(extStr);
+            check.setChecked(video.checked);
+        }
     }
 }

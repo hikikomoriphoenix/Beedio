@@ -114,4 +114,23 @@
             android:layout_margin="14dp"/>
     </LinearLayout>
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/foundVideosWindow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="30dp"
+        android:background="@color/lightGray">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/videoList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
+
+
+
 </android.support.constraint.ConstraintLayout>

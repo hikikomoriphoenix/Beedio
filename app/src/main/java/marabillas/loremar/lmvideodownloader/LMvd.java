@@ -44,4 +44,21 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener {
         new WebConnect(webBox, this).connect();
         return false;
     }
+
+    OnBackPressedListener onBackPressedListener;
+    @Override
+    public void onBackPressed() {
+        if(onBackPressedListener!=null) {
+            onBackPressedListener.onBackpressedListener();
+        }
+        else super.onBackPressed();
+    }
+
+    interface OnBackPressedListener {
+        void onBackpressedListener();
+    }
+
+    void setOnBackPressedListener (OnBackPressedListener onBackPressedListener) {
+        this.onBackPressedListener = onBackPressedListener;
+    }
 }
