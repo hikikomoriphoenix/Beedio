@@ -20,8 +20,11 @@
 
 <resources>
     <string name="app_name">LM videodownloader</string>
-    <string name="enter_web">Enter a site or a word to google</string>
+    <string name="enter_web">Type URL or search</string>
     <string name="prev">Back</string>
     <string name="next">Next</string>
     <string name="bookmark_this_page">Bookmark This Page</string>
+    <string name="rename">Rename</string>
+    <string name="copy">Copy</string>
+    <string name="delete">Delete</string>
 </resources>

@@ -50,6 +50,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -79,21 +80,25 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private ProgressBar findingVideoInProgress;
     private int numLinksInspected;
     private TextView videosFoundText;
+    private boolean moved = false;
 
     private View foundVideosWindow;
     private RecyclerView videoList;
+
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch(event.getAction()) {
             case MotionEvent.ACTION_UP:
-                v.performClick();
+                if(!moved) v.performClick();
+                moved = false;
                 break;
             case MotionEvent.ACTION_DOWN:
                 prevX = event.getRawX();
                 prevY = event.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
+                moved = true;
                 float moveX = event.getRawX() - prevX;
                 videosFoundHUD.setX(videosFoundHUD.getX() + moveX);
                 prevX = event.getRawX();
@@ -353,11 +358,12 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
     private class Video{
         String size, type, link, name, page;
-        boolean checked=false;
+        boolean checked=false, expanded=false;
     }
 
 
-    private class VideoListAdapter extends RecyclerView.Adapter<VideoItem> {
+    private class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.VideoItem> {
+        int expandedItem = -1;
         @NonNull
         @Override
         public VideoItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -374,28 +380,65 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         public int getItemCount() {
             return videos.size();
         }
+
+        class VideoItem extends RecyclerView.ViewHolder implements CompoundButton
+                .OnCheckedChangeListener, View.OnClickListener {
+            TextView size;
+            TextView name;
+            TextView ext;
+            CheckBox check;
+            View expand;
+
+            VideoItem(View itemView) {
+                super(itemView);
+                size = itemView.findViewById(R.id.videoFoundSize);
+                name = itemView.findViewById(R.id.videoFoundName);
+                ext = itemView.findViewById(R.id.videoFoundExt);
+                check = itemView.findViewById(R.id.videoFoundCheck);
+                expand = itemView.findViewById(R.id.videoFoundExpand);
+                check.setOnCheckedChangeListener(this);
+                itemView.setOnClickListener(this);
+            }
+
+            void bind(Video video) {
+                size.setText(video.size);
+                name.setText(video.name);
+                String extStr = "."+video.type;
+                ext.setText(extStr);
+                check.setChecked(video.checked);
+                if(video.expanded) {
+                    expand.setVisibility(View.VISIBLE);
+                }
+                else {
+                    expand.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                videos.get(getAdapterPosition()).checked = isChecked;
+            }
+
+            @Override
+            public void onClick(View v) {
+                if(expandedItem!=-1) {
+                    videos.get(expandedItem).expanded = false;
+                    if (expandedItem != getAdapterPosition()) {
+                        expandedItem = getAdapterPosition();
+                        videos.get(getAdapterPosition()).expanded = true;
+                    }
+                    else {
+                        expandedItem = -1;
+                    }
+                }
+                else {
+                    expandedItem = getAdapterPosition();
+                    videos.get(getAdapterPosition()).expanded = true;
+                }
+                notifyDataSetChanged();
+            }
+        }
     }
 
-    private class VideoItem extends RecyclerView.ViewHolder {
-        TextView size;
-        TextView name;
-        TextView ext;
-        CheckBox check;
 
-        VideoItem(View itemView) {
-            super(itemView);
-            size = itemView.findViewById(R.id.videoFoundSize);
-            name = itemView.findViewById(R.id.videoFoundName);
-            ext = itemView.findViewById(R.id.videoFoundExt);
-            check = itemView.findViewById(R.id.videoFoundCheck);
-        }
-
-        void bind(Video video) {
-            size.setText(video.size);
-            name.setText(video.name);
-            String extStr = "."+video.type;
-            ext.setText(extStr);
-            check.setChecked(video.checked);
-        }
-    }
 }

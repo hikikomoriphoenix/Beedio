@@ -28,16 +28,28 @@
 
    <EditText
        android:id="@+id/web"
-       android:layout_width="match_parent"
+       android:layout_width="0dp"
        android:layout_height="wrap_content"
        android:inputType="text"
        app:layout_constraintStart_toStartOf="parent"
-       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintEnd_toStartOf="@id/go"
        app:layout_constraintTop_toTopOf="parent"
        app:layout_constraintBottom_toBottomOf="parent"
        app:layout_constraintVertical_bias="0.2"
        android:layout_marginStart="20dp"
+       android:layout_marginLeft="20dp"
+       android:hint="@string/enter_web" />
+
+   <ImageButton
+       android:id="@+id/go"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:src="@drawable/ic_arrow_forward_black_24dp"
+       android:tint="@color/green"
+       tools:ignore="ContentDescription"
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintBottom_toBottomOf="@id/web"
        android:layout_marginEnd="20dp"
-       android:hint="@string/enter_web"/>
+       android:layout_marginRight="20dp" />
 
 </android.support.constraint.ConstraintLayout>
