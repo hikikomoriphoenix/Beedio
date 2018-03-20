@@ -40,10 +40,12 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -51,6 +53,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -66,7 +69,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
 public class BrowserWindow extends Fragment implements View.OnTouchListener, View
-        .OnClickListener, LMvd.OnBackPressedListener {
+        .OnClickListener, LMvd.OnBackPressedListener, View.OnLongClickListener {
     private static final String TAG = "loremarTest";
     private String url;
     private View view;
@@ -85,9 +88,18 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private View foundVideosWindow;
     private RecyclerView videoList;
 
+    private float clickX;
+    private float clickY;
+
+    private GestureDetector gesture;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        clickX = event.getRawX();
+        clickY = event.getRawY();
+
+        gesture.onTouchEvent(event);
+
         switch(event.getAction()) {
             case MotionEvent.ACTION_UP:
                 if(!moved) v.performClick();
@@ -160,6 +172,13 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         videosFoundHUD = view.findViewById(R.id.videosFoundHUD);
         videosFoundHUD.setOnTouchListener(this);
         videosFoundHUD.setOnClickListener(this);
+        gesture = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                videosFoundHUD.performClick();
+                return true;
+            }
+        });
 
         findingVideoInProgress = videosFoundHUD.findViewById(R.id.findingVideosInProgress);
         findingVideoInProgress.setVisibility(View.GONE);
@@ -254,7 +273,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                                         Video video = new Video();
                                         video.size = uCon.getHeaderField("content-length");
                                         if(video.size==null) {
-                                            video.size = "";
+                                            video.size = " ";
                                         }
                                         else {
                                             video.size = Formatter.formatShortFileSize(BrowserWindow
@@ -319,6 +338,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 }.start();
             }
         });
+        page.setOnLongClickListener(this);
         page.loadUrl(url);
     }
 
@@ -356,6 +376,23 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         super.onDestroy();
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+        WebView.HitTestResult hit = page.getHitTestResult();
+        if(hit.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
+            if(hit.getExtra()!=null) {
+                Log.i(TAG, "a link!");
+                View view = new View(getActivity());
+                view.setX(clickX);
+                view.setY(clickY);
+                PopupMenu menu = new PopupMenu(getActivity(), view);
+                menu.getMenu().add("Open in new tab");
+                menu.show();
+            }
+        }
+        return true;
+    }
+
     private class Video{
         String size, type, link, name, page;
         boolean checked=false, expanded=false;
@@ -364,11 +401,13 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
     private class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.VideoItem> {
         int expandedItem = -1;
+
         @NonNull
         @Override
         public VideoItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
-            return (new VideoItem(inflater.inflate(R.layout.videos_found_item, parent, false)));
+            return (new VideoItem(inflater.inflate(R.layout.videos_found_item, parent,
+                    false)));
         }
 
         @Override
@@ -382,15 +421,18 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         }
 
         class VideoItem extends RecyclerView.ViewHolder implements CompoundButton
-                .OnCheckedChangeListener, View.OnClickListener {
+                .OnCheckedChangeListener, View.OnClickListener, ViewTreeObserver.OnGlobalLayoutListener {
             TextView size;
             TextView name;
             TextView ext;
             CheckBox check;
             View expand;
 
+            boolean adjustedLayout;
+
             VideoItem(View itemView) {
                 super(itemView);
+                adjustedLayout = false;
                 size = itemView.findViewById(R.id.videoFoundSize);
                 name = itemView.findViewById(R.id.videoFoundName);
                 ext = itemView.findViewById(R.id.videoFoundExt);
@@ -398,20 +440,25 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 expand = itemView.findViewById(R.id.videoFoundExpand);
                 check.setOnCheckedChangeListener(this);
                 itemView.setOnClickListener(this);
+                itemView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+                size.getViewTreeObserver().addOnGlobalLayoutListener(this);
+                ext.getViewTreeObserver().addOnGlobalLayoutListener(this);
+                check.getViewTreeObserver().addOnGlobalLayoutListener(this);
             }
 
             void bind(Video video) {
                 size.setText(video.size);
-                name.setText(video.name);
                 String extStr = "."+video.type;
                 ext.setText(extStr);
                 check.setChecked(video.checked);
+                name.setText(video.name);
                 if(video.expanded) {
                     expand.setVisibility(View.VISIBLE);
                 }
                 else {
                     expand.setVisibility(View.GONE);
                 }
+                expand.findViewById(R.id.videoFoundRename).setOnClickListener(this);
             }
 
             @Override
@@ -421,21 +468,51 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
             @Override
             public void onClick(View v) {
-                if(expandedItem!=-1) {
-                    videos.get(expandedItem).expanded = false;
-                    if (expandedItem != getAdapterPosition()) {
+                if(v == expand.findViewById(R.id.videoFoundRename)) {
+                    new RenameDialog(getActivity()) {
+                        @Override
+                        void onOK(String newName) {
+                            adjustedLayout = false;
+                            videos.get(getAdapterPosition()).name = newName;
+                            notifyItemChanged(getAdapterPosition());
+                        }
+                    };
+                }
+                else {
+                    if (expandedItem != -1) {
+                        videos.get(expandedItem).expanded = false;
+                        if (expandedItem != getAdapterPosition()) {
+                            expandedItem = getAdapterPosition();
+                            videos.get(getAdapterPosition()).expanded = true;
+                        } else {
+                            expandedItem = -1;
+                        }
+                    } else {
                         expandedItem = getAdapterPosition();
                         videos.get(getAdapterPosition()).expanded = true;
                     }
-                    else {
-                        expandedItem = -1;
+                    notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onGlobalLayout() {
+                if(!adjustedLayout) {
+                    if (itemView.getWidth() != 0 && size.getWidth() != 0 && ext.getWidth() != 0 && check
+                            .getWidth() != 0) {
+                        int totalMargin = (int) TypedValue.applyDimension(TypedValue
+                                        .COMPLEX_UNIT_DIP, 12,
+                                getResources().getDisplayMetrics());
+                        int nameMaxWidth = itemView.getMeasuredWidth() - size.getMeasuredWidth() - ext
+                                .getMeasuredWidth() - check.getMeasuredWidth() - totalMargin;
+                        Log.i(TAG, "name-max=" + itemView.getMeasuredWidth() + "-" + size.getMeasuredWidth()
+                                + "-" + ext.getMeasuredWidth() + "-" + check.getMeasuredWidth() + "-" + totalMargin);
+                        name.setMaxWidth(nameMaxWidth);
+                        Log.i(TAG, "maxWidth=" + nameMaxWidth);
+                        adjustedLayout = true;
                     }
                 }
-                else {
-                    expandedItem = getAdapterPosition();
-                    videos.get(getAdapterPosition()).expanded = true;
-                }
-                notifyDataSetChanged();
+
             }
         }
     }

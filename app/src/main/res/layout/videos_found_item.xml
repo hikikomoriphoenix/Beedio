@@ -36,15 +36,13 @@
         android:layout_marginLeft="2dp"/>
     <TextView
         android:id="@+id/videoFoundName"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:ellipsize="end"
         android:singleLine="true"
         app:layout_constraintStart_toEndOf="@id/videoFoundSize"
-        app:layout_constraintEnd_toStartOf="@id/videoFoundExt"
         app:layout_constraintTop_toTopOf="@id/videoFoundCheck"
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
-        app:layout_constraintHorizontal_bias="0"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:gravity="center_vertical"/>
@@ -53,10 +51,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:layout_constraintStart_toEndOf="@id/videoFoundName"
-        app:layout_constraintEnd_toStartOf="@id/videoFoundCheck"
         app:layout_constraintTop_toTopOf="@id/videoFoundCheck"
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
-        app:layout_constraintHorizontal_bias="0"
         android:gravity="center_vertical"/>
     <CheckBox
         android:id="@+id/videoFoundCheck"
@@ -71,8 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/videoFoundCheck"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="5dp">
+        app:layout_constraintBottom_toBottomOf="parent">
         <TextView
             android:id="@+id/videoFoundRename"
             android:layout_width="wrap_content"
@@ -84,6 +79,7 @@
             android:paddingRight="10dp"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@id/videoFoundCopy"
+            app:layout_constraintTop_toTopOf="@id/videoFoundCopy"
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"/>
         <TextView
@@ -97,7 +93,9 @@
             android:paddingRight="10dp"
             android:textSize="12sp"
             app:layout_constraintStart_toEndOf="parent"
-            app:layout_constraintEnd_toStartOf="parent"/>
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="5dp"/>
         <TextView
             android:id="@+id/videoFoundDelete"
             android:layout_width="wrap_content"
@@ -109,6 +107,7 @@
             android:paddingRight="10dp"
             android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@id/videoFoundCopy"
+            app:layout_constraintTop_toTopOf="@id/videoFoundCopy"
             android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"/>
 

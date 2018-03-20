@@ -23,10 +23,12 @@ package marabillas.loremar.lmvideodownloader;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class LMvd extends Activity implements TextView.OnEditorActionListener {
+public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener {
     EditText webBox;
 
     @Override
@@ -36,6 +38,9 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener {
 
         webBox = findViewById(R.id.web);
         webBox.setOnEditorActionListener(this);
+
+        ImageButton go = findViewById(R.id.go);
+        go.setOnClickListener(this);
     }
 
     @Override
@@ -52,6 +57,13 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener {
             onBackPressedListener.onBackpressedListener();
         }
         else super.onBackPressed();
+    }
+
+    @Override
+    public void onClick(View v) {
+        Utils.hideSoftKeyboard(this);
+        System.out.println("opening webview");
+        new WebConnect(webBox, this).connect();
     }
 
     interface OnBackPressedListener {
