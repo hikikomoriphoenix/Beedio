@@ -73,13 +73,12 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private static final String TAG = "loremarTest";
     private String url;
     private View view;
-    private WebView page;
+    private TouchableWebView page;
     private List<Video> videos;
     private SSLSocketFactory defaultSSLSF;
 
     private View videosFoundHUD;
-    private float prevX;
-    private float prevY;
+    private float prevX, prevY;
     private ProgressBar findingVideoInProgress;
     private int numLinksInspected;
     private TextView videosFoundText;
@@ -88,46 +87,42 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private View foundVideosWindow;
     private RecyclerView videoList;
 
-    private float clickX;
-    private float clickY;
-
     private GestureDetector gesture;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        clickX = event.getRawX();
-        clickY = event.getRawY();
+        if(v == videosFoundHUD) {
+            gesture.onTouchEvent(event);
 
-        gesture.onTouchEvent(event);
-
-        switch(event.getAction()) {
-            case MotionEvent.ACTION_UP:
-                if(!moved) v.performClick();
-                moved = false;
-                break;
-            case MotionEvent.ACTION_DOWN:
-                prevX = event.getRawX();
-                prevY = event.getRawY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                moved = true;
-                float moveX = event.getRawX() - prevX;
-                videosFoundHUD.setX(videosFoundHUD.getX() + moveX);
-                prevX = event.getRawX();
-                float moveY = event.getRawY() - prevY;
-                videosFoundHUD.setY(videosFoundHUD.getY() + moveY);
-                prevY = event.getRawY();
-                float width = getResources().getDisplayMetrics().widthPixels;
-                float height = getResources().getDisplayMetrics().heightPixels;
-                if((videosFoundHUD.getX() + videosFoundHUD.getWidth()) >= width
-                        || videosFoundHUD.getX() <= 0) {
-                    videosFoundHUD.setX(videosFoundHUD.getX() - moveX);
-                }
-                if((videosFoundHUD.getY() + videosFoundHUD.getHeight()) >= height
-                        || videosFoundHUD.getY() <= 0) {
-                    videosFoundHUD.setY(videosFoundHUD.getY() - moveY);
-                }
-                break;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_UP:
+                    if (!moved) v.performClick();
+                    moved = false;
+                    break;
+                case MotionEvent.ACTION_DOWN:
+                    prevX = event.getRawX();
+                    prevY = event.getRawY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    moved = true;
+                    float moveX = event.getRawX() - prevX;
+                    videosFoundHUD.setX(videosFoundHUD.getX() + moveX);
+                    prevX = event.getRawX();
+                    float moveY = event.getRawY() - prevY;
+                    videosFoundHUD.setY(videosFoundHUD.getY() + moveY);
+                    prevY = event.getRawY();
+                    float width = getResources().getDisplayMetrics().widthPixels;
+                    float height = getResources().getDisplayMetrics().heightPixels;
+                    if ((videosFoundHUD.getX() + videosFoundHUD.getWidth()) >= width
+                            || videosFoundHUD.getX() <= 0) {
+                        videosFoundHUD.setX(videosFoundHUD.getX() - moveX);
+                    }
+                    if ((videosFoundHUD.getY() + videosFoundHUD.getHeight()) >= height
+                            || videosFoundHUD.getY() <= 0) {
+                        videosFoundHUD.setY(videosFoundHUD.getY() - moveY);
+                    }
+                    break;
+            }
         }
         return true;
     }
@@ -382,10 +377,17 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         if(hit.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
             if(hit.getExtra()!=null) {
                 Log.i(TAG, "a link!");
-                View view = new View(getActivity());
-                view.setX(clickX);
-                view.setY(clickY);
-                PopupMenu menu = new PopupMenu(getActivity(), view);
+                View point = new View(getActivity());
+                point.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams
+                        .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                if (getView() != null) {
+                    ((ViewGroup)getView()).addView(point);
+                }
+                point.getLayoutParams().height = 10;
+                point.getLayoutParams().width = 10;
+                point.setX(page.getClickX());
+                point.setY(page.getClickY());
+                PopupMenu menu = new PopupMenu(getActivity(), point);
                 menu.getMenu().add("Open in new tab");
                 menu.show();
             }
