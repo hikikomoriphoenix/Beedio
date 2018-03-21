@@ -34,11 +34,12 @@ import android.widget.EditText;
 public abstract class RenameDialog implements DialogInterface.OnClickListener {
     private EditText text;
 
-    RenameDialog(Activity activity) {
+    RenameDialog(Activity activity, String hint) {
         AlertDialog dialog = new AlertDialog.Builder(activity).create();
         text = new EditText(activity);
         text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
+        text.setHint(hint);
         dialog.setView(text);
         dialog.setMessage("Type new name:");
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);

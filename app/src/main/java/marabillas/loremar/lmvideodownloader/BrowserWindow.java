@@ -21,7 +21,12 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -461,6 +466,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                     expand.setVisibility(View.GONE);
                 }
                 expand.findViewById(R.id.videoFoundRename).setOnClickListener(this);
+                expand.findViewById(R.id.videoFoundCopy).setOnClickListener(this);
+                expand.findViewById(R.id.videoFoundDelete).setOnClickListener(this);
             }
 
             @Override
@@ -470,8 +477,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
             @Override
             public void onClick(View v) {
-                if(v == expand.findViewById(R.id.videoFoundRename)) {
-                    new RenameDialog(getActivity()) {
+                if (v == expand.findViewById(R.id.videoFoundRename)) {
+                    new RenameDialog(getActivity(), name.getText().toString()) {
                         @Override
                         void onOK(String newName) {
                             adjustedLayout = false;
@@ -479,6 +486,37 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                             notifyItemChanged(getAdapterPosition());
                         }
                     };
+                }
+                else if (v == expand.findViewById(R.id.videoFoundCopy)) {
+                    ClipboardManager clipboardManager = (ClipboardManager) getActivity().
+                            getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData link = ClipData.newPlainText("link address", videos.get
+                            (getAdapterPosition()).link);
+                    if (clipboardManager != null) {
+                        clipboardManager.setPrimaryClip(link);
+                    }
+                }
+                else if (v == expand.findViewById(R.id.videoFoundDelete)) {
+                    AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+                    dialog.setMessage("Delete this item from the list?");
+                    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface
+                            .OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            videos.remove(getAdapterPosition());
+                            expandedItem = -1;
+                            notifyDataSetChanged();
+                            updateFoundVideosBar();
+                        }
+                    });
+                    dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface
+                            .OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    dialog.show();
                 }
                 else {
                     if (expandedItem != -1) {
@@ -507,10 +545,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                                 getResources().getDisplayMetrics());
                         int nameMaxWidth = itemView.getMeasuredWidth() - size.getMeasuredWidth() - ext
                                 .getMeasuredWidth() - check.getMeasuredWidth() - totalMargin;
-                        Log.i(TAG, "name-max=" + itemView.getMeasuredWidth() + "-" + size.getMeasuredWidth()
-                                + "-" + ext.getMeasuredWidth() + "-" + check.getMeasuredWidth() + "-" + totalMargin);
                         name.setMaxWidth(nameMaxWidth);
-                        Log.i(TAG, "maxWidth=" + nameMaxWidth);
                         adjustedLayout = true;
                     }
                 }
