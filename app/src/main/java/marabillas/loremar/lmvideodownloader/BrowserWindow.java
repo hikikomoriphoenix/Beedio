@@ -55,7 +55,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.PopupMenu;
@@ -175,7 +174,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             savedInstanceState) {
         view = inflater.inflate(R.layout.browser, container, false);
         page = view.findViewById(R.id.page);
-        Button prev = view.findViewById(R.id.prevButton);
+        TextView prev = view.findViewById(R.id.prevButton);
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,7 +182,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 if(page.canGoBack()) page.goBack();
             }
         });
-        Button next = view.findViewById(R.id.nextButton);
+        TextView next = view.findViewById(R.id.nextButton);
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

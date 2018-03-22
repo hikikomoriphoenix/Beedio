@@ -63,7 +63,8 @@
             android:textColor="@android:color/black"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:textSize="12sp"/>
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
@@ -78,7 +79,8 @@
             android:textColor="@android:color/black"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:textSize="12sp"/>
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
@@ -92,7 +94,8 @@
             android:textColor="@android:color/black"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:textSize="12sp"/>
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
@@ -106,7 +109,8 @@
             android:textColor="@android:color/black"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:textSize="12sp"/>
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
@@ -120,7 +124,8 @@
             android:textColor="@android:color/black"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:textSize="12sp"/>
     </LinearLayout>
 
     <LinearLayout
