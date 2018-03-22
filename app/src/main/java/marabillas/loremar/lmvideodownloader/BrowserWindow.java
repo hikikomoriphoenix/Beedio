@@ -94,6 +94,10 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
     private GestureDetector gesture;
 
+    private TextView foundVideosQueue;
+    private TextView foundVideosDelete;
+    private TextView foundVideosClose;
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if(v == videosFoundHUD) {
@@ -134,8 +138,27 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
 
     @Override
     public void onClick(View v) {
-        foundVideosWindow.setVisibility(View.VISIBLE);
-        videoList.getAdapter().notifyDataSetChanged();
+        if (v == videosFoundHUD) {
+            foundVideosWindow.setVisibility(View.VISIBLE);
+            videoList.getAdapter().notifyDataSetChanged();
+        }
+        else if (v == foundVideosQueue) {
+            updateFoundVideosBar();
+        }
+        else if (v == foundVideosDelete) {
+            for(int i=0; i<videos.size();) {
+                if(videos.get(i).checked) {
+                    videos.remove(i);
+                }
+                else i++;
+            }
+            ((VideoListAdapter)videoList.getAdapter()).expandedItem = -1;
+            videoList.getAdapter().notifyDataSetChanged();
+            updateFoundVideosBar();
+        }
+        else if (v == foundVideosClose) {
+            foundVideosWindow.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -209,6 +232,14 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         foundVideosWindow.setVisibility(View.GONE);
 
         ((LMvd)getActivity()).setOnBackPressedListener(this);
+
+        foundVideosQueue = foundVideosWindow.findViewById(R.id.foundVideosQueue);
+        foundVideosDelete = foundVideosWindow.findViewById(R.id.foundVideosDelete);
+        foundVideosClose = foundVideosWindow.findViewById(R.id.foundVideosClose);
+        foundVideosQueue.setOnClickListener(this);
+        foundVideosDelete.setOnClickListener(this);
+        foundVideosClose.setOnClickListener(this);
+
         return view;
     }
 
@@ -405,7 +436,6 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         boolean checked=false, expanded=false;
     }
 
-
     private class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.VideoItem> {
         int expandedItem = -1;
 
@@ -553,6 +583,4 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             }
         }
     }
-
-
 }
