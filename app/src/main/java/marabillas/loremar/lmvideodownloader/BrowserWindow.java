@@ -21,22 +21,13 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -44,19 +35,15 @@ import android.text.format.Formatter;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -66,8 +53,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -78,7 +63,6 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private String url;
     private View view;
     private TouchableWebView page;
-    private List<Video> videos;
     private SSLSocketFactory defaultSSLSF;
 
     private View videosFoundHUD;
@@ -87,12 +71,10 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private int numLinksInspected;
     private TextView videosFoundText;
     private boolean moved = false;
-
-    private View foundVideosWindow;
-    private RecyclerView videoList;
-
     private GestureDetector gesture;
 
+    private View foundVideosWindow;
+    private VideoList videoList;
     private TextView foundVideosQueue;
     private TextView foundVideosDelete;
     private TextView foundVideosClose;
@@ -139,20 +121,12 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     public void onClick(View v) {
         if (v == videosFoundHUD) {
             foundVideosWindow.setVisibility(View.VISIBLE);
-            videoList.getAdapter().notifyDataSetChanged();
         }
         else if (v == foundVideosQueue) {
             updateFoundVideosBar();
         }
         else if (v == foundVideosDelete) {
-            for(int i=0; i<videos.size();) {
-                if(videos.get(i).checked) {
-                    videos.remove(i);
-                }
-                else i++;
-            }
-            ((VideoListAdapter)videoList.getAdapter()).expandedItem = -1;
-            videoList.getAdapter().notifyDataSetChanged();
+            videoList.deleteCheckedItems();
             updateFoundVideosBar();
         }
         else if (v == foundVideosClose) {
@@ -165,15 +139,10 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         super.onCreate(savedInstanceState);
         Bundle data = getArguments();
         url = data.getString("url");
-        videos = new ArrayList<>();
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
-        view = inflater.inflate(R.layout.browser, container, false);
-        page = view.findViewById(R.id.page);
+    private void createNavigationBar() {
         TextView prev = view.findViewById(R.id.prevButton);
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +160,16 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             }
         });
 
+        TextView reload = view.findViewById(R.id.reload);
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                page.loadUrl(page.getUrl());
+            }
+        });
+    }
+
+    private void createVideosFoundHUD() {
         videosFoundHUD = view.findViewById(R.id.videosFoundHUD);
         videosFoundHUD.setOnTouchListener(this);
         videosFoundHUD.setOnClickListener(this);
@@ -205,32 +184,20 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         findingVideoInProgress = videosFoundHUD.findViewById(R.id.findingVideosInProgress);
         findingVideoInProgress.setVisibility(View.GONE);
 
-        videos = new ArrayList<>();
-
         videosFoundText = videosFoundHUD.findViewById(R.id.videosFoundText);
-        updateFoundVideosBar();
+    }
 
+    private void createFoundVideosWindow() {
         foundVideosWindow = view.findViewById(R.id.foundVideosWindow);
-        videoList = foundVideosWindow.findViewById(R.id.videoList);
-        videoList.setAdapter(new VideoListAdapter());
-        videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        DividerItemDecoration divider = new DividerItemDecoration(getActivity(),
-                DividerItemDecoration.VERTICAL) {
+        videoList = new VideoList(getActivity(), (RecyclerView) foundVideosWindow.findViewById(R
+                .id.videoList)) {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
-                    .State state) {
-                int verticalSpacing = (int) Math.ceil(TypedValue.applyDimension(TypedValue
-                        .COMPLEX_UNIT_SP, 4, getResources().getDisplayMetrics()));
-                outRect.top = verticalSpacing;
-                outRect.bottom = verticalSpacing;
+            void onItemDeleted() {
+                updateFoundVideosBar();
             }
         };
-        divider.setDrawable(getResources().getDrawable(R.drawable.greydivider));
-        videoList.addItemDecoration(divider);
-        videoList.setHasFixedSize(true);
-        foundVideosWindow.setVisibility(View.GONE);
 
-        ((LMvd)getActivity()).setOnBackPressedListener(this);
+        foundVideosWindow.setVisibility(View.GONE);
 
         foundVideosQueue = foundVideosWindow.findViewById(R.id.foundVideosQueue);
         foundVideosDelete = foundVideosWindow.findViewById(R.id.foundVideosDelete);
@@ -238,6 +205,23 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         foundVideosQueue.setOnClickListener(this);
         foundVideosDelete.setOnClickListener(this);
         foundVideosClose.setOnClickListener(this);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
+        view = inflater.inflate(R.layout.browser, container, false);
+        page = view.findViewById(R.id.page);
+
+        createNavigationBar();
+
+        createVideosFoundHUD();
+
+        createFoundVideosWindow();
+
+        updateFoundVideosBar();
+
+        ((LMvd)getActivity()).setOnBackPressedListener(this);
 
         return view;
     }
@@ -300,49 +284,31 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                                 if(contentType!=null) {
                                     contentType = contentType.toLowerCase();
                                     if (contentType.contains("video/mp4")) {
-                                        Video video = new Video();
-                                        video.size = uCon.getHeaderField("content-length");
-                                        if(video.size==null) {
-                                            video.size = " ";
+                                        String size = uCon.getHeaderField("content-length");
+                                        if(size==null) {
+                                            size = " ";
                                         }
                                         else {
-                                            video.size = Formatter.formatShortFileSize(BrowserWindow
-                                            .this.getActivity(), Long.parseLong(video.size));
+                                            size = Formatter.formatShortFileSize(BrowserWindow
+                                            .this.getActivity(), Long.parseLong(size));
                                         }
                                         String link = uCon.getHeaderField("Location");
                                         if (link == null) {
                                             link = uCon.getURL().toString();
                                         }
-                                        video.link = link;
+                                        String name = "video";
                                         if (title != null) {
-                                            video.name = title;
-                                        } else {
-                                            video.name = "video";
+                                            name = title;
                                         }
-                                        video.type = "mp4";
-                                        boolean duplicate = false;
-                                        for(Video v: videos){
-                                            if(v.link.equals(video.link)) {
-                                                duplicate = true;
-                                                break;
-                                            }
-                                        }
-                                        video.page = page;
-                                        if(!duplicate) {
-                                            videos.add(video);
-                                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    videoList.getAdapter().notifyDataSetChanged();
-                                                }
-                                            });
-                                            updateFoundVideosBar();
-                                            String videoFound = "name:" + video.name + "\n" +
-                                                    "link:" + video.link + "\n" +
-                                                    "type:" + video.type + "\n" +
-                                                    "size" + video.size;
-                                            Log.i(TAG, videoFound);
-                                        }
+                                        String type = "mp4";
+                                        videoList.addItem(size, type, link, name, page);
+
+                                        updateFoundVideosBar();
+                                        String videoFound = "name:" + name + "\n" +
+                                                "link:" + link + "\n" +
+                                                "type:" + type + "\n" +
+                                                "size" + size;
+                                        Log.i(TAG, videoFound);
                                     }
                                     else Log.i(TAG, "not a video");
                                 }
@@ -373,12 +339,12 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     }
 
     private void updateFoundVideosBar() {
-        final String videosFoundString = "Videos: " + videos.size() + " found";
+        final String videosFoundString = "Videos: " + videoList.getSize() + " found";
         final SpannableStringBuilder sb = new SpannableStringBuilder(videosFoundString);
         final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0,0, 255));
         final StyleSpan bss = new StyleSpan(Typeface.BOLD);
-        sb.setSpan(fcs, 8, 10 + videos.size()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        sb.setSpan(bss, 8, 10 + videos.size()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, 8, 10 + videoList.getSize()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 10 + videoList.getSize()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -430,156 +396,5 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         return true;
     }
 
-    private class Video{
-        String size, type, link, name, page;
-        boolean checked=false, expanded=false;
-    }
 
-    private class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.VideoItem> {
-        int expandedItem = -1;
-
-        @NonNull
-        @Override
-        public VideoItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
-            return (new VideoItem(inflater.inflate(R.layout.videos_found_item, parent,
-                    false)));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull VideoItem holder, int position) {
-            holder.bind(videos.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return videos.size();
-        }
-
-        class VideoItem extends RecyclerView.ViewHolder implements CompoundButton
-                .OnCheckedChangeListener, View.OnClickListener, ViewTreeObserver.OnGlobalLayoutListener {
-            TextView size;
-            TextView name;
-            TextView ext;
-            CheckBox check;
-            View expand;
-
-            boolean adjustedLayout;
-
-            VideoItem(View itemView) {
-                super(itemView);
-                adjustedLayout = false;
-                size = itemView.findViewById(R.id.videoFoundSize);
-                name = itemView.findViewById(R.id.videoFoundName);
-                ext = itemView.findViewById(R.id.videoFoundExt);
-                check = itemView.findViewById(R.id.videoFoundCheck);
-                expand = itemView.findViewById(R.id.videoFoundExpand);
-                check.setOnCheckedChangeListener(this);
-                itemView.setOnClickListener(this);
-                itemView.getViewTreeObserver().addOnGlobalLayoutListener(this);
-                size.getViewTreeObserver().addOnGlobalLayoutListener(this);
-                ext.getViewTreeObserver().addOnGlobalLayoutListener(this);
-                check.getViewTreeObserver().addOnGlobalLayoutListener(this);
-            }
-
-            void bind(Video video) {
-                size.setText(video.size);
-                String extStr = "."+video.type;
-                ext.setText(extStr);
-                check.setChecked(video.checked);
-                name.setText(video.name);
-                if(video.expanded) {
-                    expand.setVisibility(View.VISIBLE);
-                }
-                else {
-                    expand.setVisibility(View.GONE);
-                }
-                expand.findViewById(R.id.videoFoundRename).setOnClickListener(this);
-                expand.findViewById(R.id.videoFoundCopy).setOnClickListener(this);
-                expand.findViewById(R.id.videoFoundDelete).setOnClickListener(this);
-            }
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                videos.get(getAdapterPosition()).checked = isChecked;
-            }
-
-            @Override
-            public void onClick(View v) {
-                if (v == expand.findViewById(R.id.videoFoundRename)) {
-                    new RenameDialog(getActivity(), name.getText().toString()) {
-                        @Override
-                        void onOK(String newName) {
-                            adjustedLayout = false;
-                            videos.get(getAdapterPosition()).name = newName;
-                            notifyItemChanged(getAdapterPosition());
-                        }
-                    };
-                }
-                else if (v == expand.findViewById(R.id.videoFoundCopy)) {
-                    ClipboardManager clipboardManager = (ClipboardManager) getActivity().
-                            getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData link = ClipData.newPlainText("link address", videos.get
-                            (getAdapterPosition()).link);
-                    if (clipboardManager != null) {
-                        clipboardManager.setPrimaryClip(link);
-                    }
-                }
-                else if (v == expand.findViewById(R.id.videoFoundDelete)) {
-                    AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
-                    dialog.setMessage("Delete this item from the list?");
-                    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface
-                            .OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            videos.remove(getAdapterPosition());
-                            expandedItem = -1;
-                            notifyDataSetChanged();
-                            updateFoundVideosBar();
-                        }
-                    });
-                    dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface
-                            .OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-                    dialog.show();
-                }
-                else {
-                    if (expandedItem != -1) {
-                        videos.get(expandedItem).expanded = false;
-                        if (expandedItem != getAdapterPosition()) {
-                            expandedItem = getAdapterPosition();
-                            videos.get(getAdapterPosition()).expanded = true;
-                        } else {
-                            expandedItem = -1;
-                        }
-                    } else {
-                        expandedItem = getAdapterPosition();
-                        videos.get(getAdapterPosition()).expanded = true;
-                    }
-                    notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onGlobalLayout() {
-                if(!adjustedLayout) {
-                    if (itemView.getWidth() != 0 && size.getWidth() != 0 && ext.getWidth() != 0 && check
-                            .getWidth() != 0) {
-                        int totalMargin = (int) TypedValue.applyDimension(TypedValue
-                                        .COMPLEX_UNIT_DIP, 12,
-                                getResources().getDisplayMetrics());
-                        int nameMaxWidth = itemView.getMeasuredWidth() - size.getMeasuredWidth() - ext
-                                .getMeasuredWidth() - check.getMeasuredWidth() - totalMargin;
-                        name.setMaxWidth(nameMaxWidth);
-                        adjustedLayout = true;
-                    }
-                }
-
-            }
-        }
-    }
 }
