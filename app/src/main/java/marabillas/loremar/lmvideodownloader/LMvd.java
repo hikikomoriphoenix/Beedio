@@ -29,7 +29,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener {
-    EditText webBox;
+    private EditText webBox;
+    private BrowserManager browserManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,11 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
 
         ImageButton go = findViewById(R.id.go);
         go.setOnClickListener(this);
+
+        if(getFragmentManager().findFragmentByTag("BM")==null) {
+            getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
+                    "BM").commit();
+        }
     }
 
     @Override
@@ -54,7 +60,7 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     @Override
     public void onBackPressed() {
         if(onBackPressedListener!=null) {
-            onBackPressedListener.onBackpressedListener();
+            onBackPressedListener.onBackpressed();
         }
         else super.onBackPressed();
     }
@@ -67,10 +73,14 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     }
 
     interface OnBackPressedListener {
-        void onBackpressedListener();
+        void onBackpressed();
     }
 
     void setOnBackPressedListener (OnBackPressedListener onBackPressedListener) {
         this.onBackPressedListener = onBackPressedListener;
+    }
+
+    BrowserManager getBrowserManager() {
+        return browserManager;
     }
 }

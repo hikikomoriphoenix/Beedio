@@ -22,7 +22,6 @@ package marabillas.loremar.lmvideodownloader;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
@@ -42,7 +41,6 @@ public class TouchableWebView extends WebView implements View.OnTouchListener{
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
-            Log.i("loremarTest", "x="+event.getX()+" y="+event.getY());
             clickX = event.getX();
             clickY = event.getY();
         }

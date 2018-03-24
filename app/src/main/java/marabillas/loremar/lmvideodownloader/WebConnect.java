@@ -21,7 +21,6 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.util.Patterns;
 import android.widget.EditText;
 
@@ -40,22 +39,11 @@ class WebConnect {
             if(!text.startsWith("http://")){
                 text = "http://" + text;
             }
-            openPage(text);
+            ((LMvd)activity).getBrowserManager().newWindow(text);
         }
         else{
             text = "https://google.com/search?q="+text;
-            openPage(text);
+            ((LMvd)activity).getBrowserManager().newWindow(text);
         }
-    }
-
-    private void openPage(String url){
-        Bundle data = new Bundle();
-        data.putString("url", url);
-        BrowserWindow browser = new BrowserWindow();
-        browser.setArguments(data);
-        activity.getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, browser, null)
-                .addToBackStack(null)
-                .commit();
     }
 }

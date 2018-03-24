@@ -21,10 +21,13 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,7 +39,9 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +50,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -78,6 +84,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private TextView foundVideosQueue;
     private TextView foundVideosDelete;
     private TextView foundVideosClose;
+
+    private TextView numWindows;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -167,6 +175,22 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 page.loadUrl(page.getUrl());
             }
         });
+
+        numWindows = view.findViewById(R.id.numWindows);
+        numWindows.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupWindow popupWindow = new PopupWindow(getActivity());
+                popupWindow.setContentView(((LMvd)getActivity()).getBrowserManager().getAllWindows());
+                popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+                popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+                popupWindow.setFocusable(true);
+                popupWindow.setBackgroundDrawable(new ColorDrawable(Color.GRAY));
+
+                popupWindow.showAtLocation(numWindows, Gravity.BOTTOM | Gravity.END, 0,
+                        view.findViewById(R.id.navigationBar).getHeight());
+            }
+        });
     }
 
     private void createVideosFoundHUD() {
@@ -220,8 +244,6 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         createFoundVideosWindow();
 
         updateFoundVideosBar();
-
-        ((LMvd)getActivity()).setOnBackPressedListener(this);
 
         return view;
     }
@@ -354,7 +376,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     }
 
     @Override
-    public void onBackpressedListener() {
+    public void onBackpressed() {
         if(foundVideosWindow.getVisibility() == View.VISIBLE) {
             foundVideosWindow.setVisibility(View.GONE);
         }
@@ -362,39 +384,70 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             page.goBack();
         }
         else {
-            getFragmentManager().popBackStack();
+            AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+            dialog.setMessage("Are you sure you want to close this window?");
+            dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ((LMvd)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
+                }
+            });
+            dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            dialog.show();
         }
     }
 
     @Override
-    public void onDestroy() {
-        ((LMvd)getActivity()).setOnBackPressedListener(null);
-        super.onDestroy();
-    }
-
-    @Override
     public boolean onLongClick(View v) {
-        WebView.HitTestResult hit = page.getHitTestResult();
+        final WebView.HitTestResult hit = page.getHitTestResult();
         if(hit.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
             if(hit.getExtra()!=null) {
-                Log.i(TAG, "a link!");
                 View point = new View(getActivity());
                 point.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams
                         .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                if (getView() != null) {
-                    ((ViewGroup)getView()).addView(point);
+                if (view != null) {
+                    ((ViewGroup)view).addView(point);
                 }
                 point.getLayoutParams().height = 10;
                 point.getLayoutParams().width = 10;
                 point.setX(page.getClickX());
                 point.setY(page.getClickY());
                 PopupMenu menu = new PopupMenu(getActivity(), point);
-                menu.getMenu().add("Open in new tab");
+                menu.getMenu().add("Open in new window");
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        ((LMvd)getActivity()).getBrowserManager().newWindow(hit.getExtra());
+                        return true;
+                    }
+                });
                 menu.show();
             }
         }
         return true;
     }
 
+    public void updateNumWindows(int num) {
+        final String numWindowsString = "Windows(" + num + ")";
+        final SpannableStringBuilder sb = new SpannableStringBuilder(numWindowsString);
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0,0, 255));
+        final StyleSpan bss = new StyleSpan(Typeface.BOLD);
+        sb.setSpan(fcs, 8, 10 + num/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 10 + num/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                numWindows.setText(sb);
+            }
+        });
+    }
 
+    public WebView getWebView() {
+        return page;
+    }
 }
