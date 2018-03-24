@@ -67,9 +67,11 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
 
     @Override
     public void onClick(View v) {
-        Utils.hideSoftKeyboard(this);
-        System.out.println("opening webview");
-        new WebConnect(webBox, this).connect();
+        if(getCurrentFocus()!=null) {
+            Utils.hideSoftKeyboard(this, getCurrentFocus().getWindowToken());
+            System.out.println("opening webview");
+            new WebConnect(webBox, this).connect();
+        }
     }
 
     interface OnBackPressedListener {

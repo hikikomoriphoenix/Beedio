@@ -33,8 +33,23 @@
         android:singleLine="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/closeWindow"
         />
+
+    <TextView
+        android:id="@+id/closeWindow"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/xClose"
+        android:textColor="@android:color/white"
+        android:background="#dd0000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/urlBox"
+        app:layout_constraintTop_toTopOf="@id/urlBox"
+        app:layout_constraintStart_toEndOf="@id/urlBox"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingEnd="10dp"/>
 
     <marabillas.loremar.lmvideodownloader.TouchableWebView
         android:id="@+id/page"
@@ -62,6 +77,7 @@
             android:text="@string/prev"
             android:textColor="@android:color/black"
             android:layout_weight="1"
+            android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
             android:textSize="12sp"/>
@@ -78,6 +94,7 @@
             android:text="@string/next"
             android:textColor="@android:color/black"
             android:layout_weight="1"
+            android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
             android:textSize="12sp"/>
@@ -93,6 +110,7 @@
             android:text="@string/bookmark_this_page"
             android:textColor="@android:color/black"
             android:layout_weight="1"
+            android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
             android:textSize="12sp"/>
@@ -103,11 +121,13 @@
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"/>
         <TextView
+            android:id="@+id/reload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/reload"
             android:textColor="@android:color/black"
             android:layout_weight="1"
+            android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
             android:textSize="12sp"/>
@@ -118,14 +138,27 @@
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"/>
         <TextView
+            android:id="@+id/numWindows"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tabs"
             android:textColor="@android:color/black"
             android:layout_weight="1"
+            android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
             android:textSize="12sp"/>
+        <TextView
+            android:id="@+id/plusWindow"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/plus"
+            android:background="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingEnd="5dp"/>
     </LinearLayout>
 
     <LinearLayout

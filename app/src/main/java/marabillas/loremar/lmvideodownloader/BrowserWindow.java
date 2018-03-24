@@ -40,6 +40,7 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -49,6 +50,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -191,6 +193,44 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                         view.findViewById(R.id.navigationBar).getHeight());
             }
         });
+
+        TextView newWindow = view.findViewById(R.id.plusWindow);
+        newWindow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+                dialog.setMessage(getResources().getString(R.string.enter_web));
+                final EditText text = new EditText(getActivity());
+                text.setSingleLine(true);
+                text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams
+                        .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                text.setHint("type here");
+                text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
+                        dialog.cancel();
+                        new WebConnect(text, getActivity()).connect();
+                        return false;
+                    }
+                });
+                dialog.setView(text);
+                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
+                        new WebConnect(text, getActivity()).connect();
+                    }
+                });
+                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                dialog.show();
+            }
+        });
     }
 
     private void createVideosFoundHUD() {
@@ -236,6 +276,28 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             savedInstanceState) {
         view = inflater.inflate(R.layout.browser, container, false);
         page = view.findViewById(R.id.page);
+
+        TextView close = view.findViewById(R.id.closeWindow);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+                dialog.setMessage("Are you sure you want to close this window?");
+                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ((LMvd)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
+                    }
+                });
+                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                dialog.show();
+            }
+        });
 
         createNavigationBar();
 

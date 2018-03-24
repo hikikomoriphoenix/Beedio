@@ -22,6 +22,7 @@ package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.IBinder;
 import android.view.inputmethod.InputMethodManager;
 
 import java.security.KeyManagementException;
@@ -89,14 +90,12 @@ class Utils {
         }
     }
 
-    static void hideSoftKeyboard(Activity activity) {
+    static void hideSoftKeyboard(Activity activity, IBinder token) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(
                 Activity.INPUT_METHOD_SERVICE);
-        if (inputMethodManager != null && activity.getCurrentFocus() != null
-                && activity.getCurrentFocus().getWindowToken() !=
-                null) {
+        if (inputMethodManager != null && token != null) {
             inputMethodManager.hideSoftInputFromWindow(
-                    activity.getCurrentFocus().getWindowToken(), 0);
+                    token, 0);
         }
     }
 

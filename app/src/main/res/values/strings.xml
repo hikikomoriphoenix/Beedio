@@ -30,4 +30,6 @@
     <string name="queue">Queue</string>
     <string name="close">Close</string>
     <string name="reload">Reload</string>
+    <string name="plus">+</string>
+    <string name="xClose">X</string>
 </resources>
