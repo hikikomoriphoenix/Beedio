@@ -20,6 +20,11 @@
 
 package marabillas.loremar.lmvideodownloader;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.os.IBinder;
+import android.view.inputmethod.InputMethodManager;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -48,11 +53,13 @@ class Utils {
                 return null;
             }
 
+            @SuppressLint("TrustAllX509TrustManager")
             @Override
             public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
                 // Not implemented
             }
 
+            @SuppressLint("TrustAllX509TrustManager")
             @Override
             public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
                 // Not implemented
@@ -68,6 +75,7 @@ class Utils {
 
             // Create all-trusting host name verifier
             HostnameVerifier allHostsValid = new HostnameVerifier() {
+                @SuppressLint("BadHostnameVerifier")
                 public boolean verify(String hostname, SSLSession session) {
                     return true;
                 }
@@ -79,6 +87,15 @@ class Utils {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+        }
+    }
+
+    static void hideSoftKeyboard(Activity activity, IBinder token) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(
+                Activity.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null && token != null) {
+            inputMethodManager.hideSoftInputFromWindow(
+                    token, 0);
         }
     }
 

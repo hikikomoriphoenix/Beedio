@@ -20,30 +20,38 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-import android.app.Activity;
-import android.util.Patterns;
-import android.widget.EditText;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.webkit.WebView;
 
-class WebConnect {
-    private EditText textBox;
-    private Activity activity;
+/**
+ * Created by loremar on 3/21/18.
+ *
+ */
 
-    WebConnect(EditText textBox, Activity activity) {
-        this.textBox = textBox;
-        this.activity = activity;
+public class TouchableWebView extends WebView implements View.OnTouchListener{
+    private float clickX, clickY;
+    public TouchableWebView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setOnTouchListener(this);
     }
 
-    void connect() {
-        String text = textBox.getText().toString();
-        if(Patterns.WEB_URL.matcher(text).matches()){
-            if(!text.startsWith("http://")){
-                text = "http://" + text;
-            }
-            ((LMvd)activity).getBrowserManager().newWindow(text);
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+            clickX = event.getX();
+            clickY = event.getY();
         }
-        else{
-            text = "https://google.com/search?q="+text;
-            ((LMvd)activity).getBrowserManager().newWindow(text);
-        }
+        return false;
+    }
+
+    public float getClickX() {
+        return clickX;
+    }
+
+    public float getClickY() {
+        return clickY;
     }
 }

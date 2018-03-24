@@ -23,11 +23,14 @@ package marabillas.loremar.lmvideodownloader;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class LMvd extends Activity implements TextView.OnEditorActionListener {
-    EditText webBox;
+public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener {
+    private EditText webBox;
+    private BrowserManager browserManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,14 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener {
 
         webBox = findViewById(R.id.web);
         webBox.setOnEditorActionListener(this);
+
+        ImageButton go = findViewById(R.id.go);
+        go.setOnClickListener(this);
+
+        if(getFragmentManager().findFragmentByTag("BM")==null) {
+            getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
+                    "BM").commit();
+        }
     }
 
     @Override
@@ -43,5 +54,35 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener {
         System.out.println("opening webview");
         new WebConnect(webBox, this).connect();
         return false;
+    }
+
+    OnBackPressedListener onBackPressedListener;
+    @Override
+    public void onBackPressed() {
+        if(onBackPressedListener!=null) {
+            onBackPressedListener.onBackpressed();
+        }
+        else super.onBackPressed();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(getCurrentFocus()!=null) {
+            Utils.hideSoftKeyboard(this, getCurrentFocus().getWindowToken());
+            System.out.println("opening webview");
+            new WebConnect(webBox, this).connect();
+        }
+    }
+
+    interface OnBackPressedListener {
+        void onBackpressed();
+    }
+
+    void setOnBackPressedListener (OnBackPressedListener onBackPressedListener) {
+        this.onBackPressedListener = onBackPressedListener;
+    }
+
+    BrowserManager getBrowserManager() {
+        return browserManager;
     }
 }

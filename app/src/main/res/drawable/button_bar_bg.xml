@@ -25,7 +25,4 @@
     <stroke
         android:color="@android:color/black"
         android:width="1dp"/>
-    <corners
-        android:topLeftRadius="20dp"
-        android:topRightRadius="20dp"/>
 </shape>
