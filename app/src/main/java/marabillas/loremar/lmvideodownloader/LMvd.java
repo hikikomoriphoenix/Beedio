@@ -21,6 +21,8 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,6 +33,7 @@ import android.widget.TextView;
 public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener {
     private EditText webBox;
     private BrowserManager browserManager;
+    private Uri appLinkData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +46,14 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
         ImageButton go = findViewById(R.id.go);
         go.setOnClickListener(this);
 
-        if(getFragmentManager().findFragmentByTag("BM")==null) {
+        if (getFragmentManager().findFragmentByTag("BM") == null) {
             getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
                     "BM").commit();
         }
+        // ATTENTION: This was auto-generated to handle app links.
+        Intent appLinkIntent = getIntent();
+        //String appLinkAction = appLinkIntent.getAction();
+        appLinkData = appLinkIntent.getData();
     }
 
     @Override
@@ -84,5 +91,13 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
 
     BrowserManager getBrowserManager() {
         return browserManager;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(appLinkData!=null) {
+            browserManager.newWindow(appLinkData.toString());
+        }
     }
 }

@@ -20,6 +20,7 @@
 
 package marabillas.loremar.lmvideodownloader;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,8 +34,10 @@ import android.widget.EditText;
 
 public abstract class RenameDialog implements DialogInterface.OnClickListener {
     private EditText text;
+    private Context context;
 
     RenameDialog(Context context, String hint) {
+        this.context = context;
         AlertDialog dialog = new AlertDialog.Builder(context).create();
         text = new EditText(context);
         text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -49,6 +52,7 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
 
     @Override
     public final void onClick(DialogInterface dialog, int which) {
+        Utils.hideSoftKeyboard((Activity) context, text.getWindowToken());
         if(which == DialogInterface.BUTTON_POSITIVE) {
             onOK(text.getText().toString());
         }

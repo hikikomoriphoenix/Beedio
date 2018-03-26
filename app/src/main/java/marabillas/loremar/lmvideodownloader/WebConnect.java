@@ -36,7 +36,7 @@ class WebConnect {
     void connect() {
         String text = textBox.getText().toString();
         if(Patterns.WEB_URL.matcher(text).matches()){
-            if(!text.startsWith("http://")){
+            if(!text.startsWith("http")){
                 text = "http://" + text;
             }
             ((LMvd)activity).getBrowserManager().newWindow(text);

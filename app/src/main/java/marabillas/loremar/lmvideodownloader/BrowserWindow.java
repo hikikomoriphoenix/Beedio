@@ -225,7 +225,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
                     }
                 });
                 dialog.show();
