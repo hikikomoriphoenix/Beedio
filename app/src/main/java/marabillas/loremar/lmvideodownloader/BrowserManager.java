@@ -63,7 +63,7 @@ public class BrowserManager extends Fragment {
         BrowserWindow window = new BrowserWindow();
         window.setArguments(data);
         getFragmentManager().beginTransaction()
-                .add(android.R.id.content, window, null)
+                .add(R.id.main, window, null)
                 .commit();
         windows.add(window);
         ((LMvd)getActivity()).setOnBackPressedListener(window);
@@ -116,6 +116,24 @@ public class BrowserManager extends Fragment {
 
     View getAllWindows() {
         return allWindows;
+    }
+
+    void hideCurrentWindow() {
+        if(windows.size()>0) {
+            BrowserWindow topWindow = windows.get(windows.size() - 1);
+            if (topWindow.getView() != null) {
+                topWindow.getView().setVisibility(View.GONE);
+            }
+        }
+    }
+
+    void unhideCurrentWindow() {
+        if(windows.size()>0) {
+            BrowserWindow topWindow = windows.get(windows.size() - 1);
+            if (topWindow.getView() != null) {
+                topWindow.getView().setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private class AllWindowsAdapter extends RecyclerView.Adapter<WindowItem> {

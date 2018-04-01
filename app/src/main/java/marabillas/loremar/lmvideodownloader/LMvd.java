@@ -24,16 +24,23 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener {
+public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     private EditText webBox;
     private BrowserManager browserManager;
     private Uri appLinkData;
+    private DrawerLayout layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +61,18 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
         Intent appLinkIntent = getIntent();
         //String appLinkAction = appLinkIntent.getAction();
         appLinkData = appLinkIntent.getData();
+
+        layout = findViewById(R.id.drawer);
+        ImageView menu = findViewById(R.id.menuButton);
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layout.openDrawer(Gravity.START);
+            }
+        });
+
+        NavigationView navigationView = findViewById(R.id.menu);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -79,6 +98,21 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
             System.out.println("opening webview");
             new WebConnect(webBox, this).connect();
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        item.setChecked(true);
+        layout.closeDrawers();
+        switch (item.getTitle().toString()) {
+            case "Home":
+                browserManager.hideCurrentWindow();
+                break;
+            case "Browser":
+                browserManager.unhideCurrentWindow();
+                break;
+        }
+        return true;
     }
 
     interface OnBackPressedListener {

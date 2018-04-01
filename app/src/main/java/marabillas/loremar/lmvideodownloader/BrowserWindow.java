@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -46,11 +47,13 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -88,6 +91,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
     private TextView foundVideosClose;
 
     private TextView numWindows;
+
+    private ProgressBar loadingPageProgress;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -150,6 +155,39 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         Bundle data = getArguments();
         url = data.getString("url");
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory();
+    }
+
+    private void createTopBar() {
+        final DrawerLayout layout = getActivity().findViewById(R.id.drawer);
+        ImageView menu = view.findViewById(R.id.menuButton);
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layout.openDrawer(Gravity.START);
+            }
+        });
+
+        TextView close = view.findViewById(R.id.closeWindow);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+                dialog.setMessage("Are you sure you want to close this window?");
+                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ((LMvd)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
+                    }
+                });
+                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                dialog.show();
+            }
+        });
     }
 
     private void createNavigationBar() {
@@ -276,28 +314,10 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             savedInstanceState) {
         view = inflater.inflate(R.layout.browser, container, false);
         page = view.findViewById(R.id.page);
+        loadingPageProgress = view.findViewById(R.id.loadingPageProgress);
+        loadingPageProgress.setVisibility(View.GONE);
 
-        TextView close = view.findViewById(R.id.closeWindow);
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
-                dialog.setMessage("Are you sure you want to close this window?");
-                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ((LMvd)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
-                    }
-                });
-                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                dialog.show();
-            }
-        });
+        createTopBar();
 
         createNavigationBar();
 
@@ -332,7 +352,17 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                         urlBox.setText(url);
                     }
                 });
+
+                loadingPageProgress.setVisibility(View.VISIBLE);
+
                 super.onPageStarted(view, url, favicon);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+
+                loadingPageProgress.setVisibility(View.GONE);
             }
 
             @Override
@@ -416,6 +446,12 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                         }
                     }
                 }.start();
+            }
+        });
+        page.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                loadingPageProgress.setProgress(newProgress);
             }
         });
         page.setOnLongClickListener(this);

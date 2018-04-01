@@ -20,36 +20,62 @@
   -->
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/urlBox"
-        android:layout_width="0dp"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/url_box_bg"
-        android:scrollHorizontally="true"
-        android:singleLine="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/closeWindow"
-        />
+        android:background="@drawable/topbar_bg">
+        <ImageView
+            android:id="@+id/menuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_menu_black_24dp"
+            tools:ignore="ContentDescription"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/urlBox"
+            app:layout_constraintBottom_toBottomOf="@id/urlBox"/>
 
-    <TextView
-        android:id="@+id/closeWindow"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="@string/xClose"
-        android:textColor="@android:color/white"
-        android:background="#dd0000"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/urlBox"
-        app:layout_constraintTop_toTopOf="@id/urlBox"
-        app:layout_constraintStart_toEndOf="@id/urlBox"
-        android:paddingStart="10dp"
-        android:paddingLeft="10dp"
-        android:paddingEnd="10dp"/>
+        <TextView
+            android:id="@+id/urlBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            app:layout_constraintStart_toEndOf="@id/menuButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/closeWindow"
+            />
+
+        <TextView
+            android:id="@+id/closeWindow"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:text="@string/xClose"
+            android:textColor="@android:color/white"
+            android:background="#dd0000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/urlBox"
+            app:layout_constraintTop_toTopOf="@id/urlBox"
+            app:layout_constraintStart_toEndOf="@id/urlBox"
+            android:paddingStart="10dp"
+            android:paddingLeft="10dp"
+            android:paddingEnd="10dp"/>
+    </android.support.constraint.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/loadingPageProgress"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:max="100"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        android:background="@drawable/loading_page_progress_background"
+        android:progressDrawable="@drawable/loading_page_progress_status"/>
 
     <marabillas.loremar.lmvideodownloader.TouchableWebView
         android:id="@+id/page"
@@ -59,8 +85,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/urlBox"
+        app:layout_constraintTop_toBottomOf="@id/loadingPageProgress"
         app:layout_constraintVertical_bias="0.0" />
+
     <LinearLayout
         android:id="@+id/navigationBar"
         android:layout_width="match_parent"
