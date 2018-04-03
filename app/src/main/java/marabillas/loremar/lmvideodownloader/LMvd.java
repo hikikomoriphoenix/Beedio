@@ -21,6 +21,7 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -104,12 +105,25 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         item.setChecked(true);
         layout.closeDrawers();
+        Fragment fragment;
         switch (item.getTitle().toString()) {
             case "Home":
                 browserManager.hideCurrentWindow();
+                fragment = getFragmentManager().findFragmentByTag("Downloads");
+                if(fragment!=null) {
+                    getFragmentManager().beginTransaction().remove(fragment).commit();
+                }
                 break;
             case "Browser":
                 browserManager.unhideCurrentWindow();
+                fragment = getFragmentManager().findFragmentByTag("Downloads");
+                if(fragment!=null) {
+                    getFragmentManager().beginTransaction().remove(fragment).commit();
+                }
+                break;
+            case "Downloads":
+                getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
+                        "Downloads").commit();
                 break;
         }
         return true;

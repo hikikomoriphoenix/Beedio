@@ -138,6 +138,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             foundVideosWindow.setVisibility(View.VISIBLE);
         }
         else if (v == foundVideosQueue) {
+            videoList.saveCheckedItemsForDownloading();
+            videoList.deleteCheckedItems();
             updateFoundVideosBar();
         }
         else if (v == foundVideosDelete) {
