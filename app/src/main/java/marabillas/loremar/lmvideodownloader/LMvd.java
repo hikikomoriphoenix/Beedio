@@ -113,6 +113,7 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
                 if(fragment!=null) {
                     getFragmentManager().beginTransaction().remove(fragment).commit();
                 }
+                setOnBackPressedListener(null);
                 break;
             case "Browser":
                 browserManager.unhideCurrentWindow();
@@ -122,6 +123,7 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
                 }
                 break;
             case "Downloads":
+                browserManager.hideCurrentWindow();
                 getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
                         "Downloads").commit();
                 break;

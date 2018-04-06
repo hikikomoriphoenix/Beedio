@@ -29,9 +29,11 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,10 +47,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +94,7 @@ abstract class VideoList {
         videos = new ArrayList<>();
     }
 
-    void addItem(String size, String type, String link, String name, String page) {
+    void addItem(@Nullable String size, String type, String link, String name, String page) {
         Video video  = new Video();
         video.size = size;
         video.type = type;
@@ -187,7 +187,12 @@ abstract class VideoList {
             }
 
             void bind(Video video) {
-                size.setText(video.size);
+                if (video.size!=null) {
+                    String sizeFormatted = Formatter.formatShortFileSize(context,
+                            Long.parseLong(video.size));
+                    size.setText(sizeFormatted);
+                }
+                else size.setText(" ");
                 String extStr = "." + video.type;
                 ext.setText(extStr);
                 check.setChecked(video.checked);
@@ -306,17 +311,9 @@ abstract class VideoList {
                 queues.add(video.size, video.type, video.link, video.name, video.page);
             }
         }
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(queues);
-            objectOutputStream.close();
-            fileOutputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        queues.saveQueues(context);
+
         Toast.makeText(context, "Selected videos are queued for downloading. Go to Downloads " +
                 "panel to start downloading videos", Toast.LENGTH_LONG).show();
     }

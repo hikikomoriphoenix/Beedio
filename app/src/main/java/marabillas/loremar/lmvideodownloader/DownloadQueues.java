@@ -20,6 +20,14 @@
 
 package marabillas.loremar.lmvideodownloader;
 
+import android.content.Context;
+import android.os.Environment;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +40,24 @@ class DownloadQueues implements Serializable {
     }
 
     void add(String size, String type, String link, String name, String page) {
+        int i = 0;
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment
+                .DIRECTORY_DOWNLOADS), name + "." + type);
+        StringBuilder nameBuilder = new StringBuilder(name);
+        while(file.exists()) {
+            i++;
+            nameBuilder = new StringBuilder(name);
+            nameBuilder.append(" ").append(i);
+            file = new File(Environment.getExternalStoragePublicDirectory(Environment
+                    .DIRECTORY_DOWNLOADS), nameBuilder + "." + type);
+        }
+        while(nameAlreadyExists(nameBuilder.toString())) {
+            i++;
+            nameBuilder = new StringBuilder(name);
+            nameBuilder.append(" ").append(i);
+        }
+        name = nameBuilder.toString();
+
         DownloadVideo video = new DownloadVideo();
         video.link = link;
         video.name = name;
@@ -43,6 +69,28 @@ class DownloadQueues implements Serializable {
 
     List<DownloadVideo> getList() {
         return  downloads;
+    }
+
+    private boolean nameAlreadyExists(String name) {
+        for(DownloadVideo video: downloads) {
+            if(video.name.equals(name)) return true;
+        }
+        return false;
+    }
+
+    void saveQueues(Context context) {
+        try {
+            File file = new File(context.getFilesDir(), "downloads.dat");
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(this);
+            objectOutputStream.close();
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
@@ -18,25 +19,19 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<resources>
-    <string name="app_name">LM videodownloader</string>
-    <string name="enter_web">Type URL or search</string>
-    <string name="prev">Back</string>
-    <string name="next">Next</string>
-    <string name="bookmark_this_page">Bookmark This</string>
-    <string name="rename">Rename</string>
-    <string name="copy">Copy</string>
-    <string name="delete">Delete</string>
-    <string name="queue">Queue</string>
-    <string name="close">Close</string>
-    <string name="reload">Reload</string>
-    <string name="plus">+</string>
-    <string name="xClose">X</string>
-    <string name="home">Home</string>
-    <string name="browser">Browser</string>
-    <string name="downloads">Downloads</string>
-    <string name="bookmarks">Bookmarks</string>
-    <string name="history">History</string>
-    <string name="speed_0">Speed: 0KB/s</string>
-    <string name="remaining_undefine">Remaining: —</string>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/lightGray"/>
+            <corners android:radius="2dp"/>
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <solid android:color="@color/blue"/>
+                <corners android:radius="2dp"/>
+            </shape>
+        </clip>
+    </item>
+</layer-list>

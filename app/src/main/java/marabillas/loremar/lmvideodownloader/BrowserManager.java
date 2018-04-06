@@ -132,7 +132,11 @@ public class BrowserManager extends Fragment {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow.getView() != null) {
                 topWindow.getView().setVisibility(View.VISIBLE);
+                ((LMvd)getActivity()).setOnBackPressedListener(topWindow);
             }
+        }
+        else {
+            ((LMvd)getActivity()).setOnBackPressedListener(null);
         }
     }
 

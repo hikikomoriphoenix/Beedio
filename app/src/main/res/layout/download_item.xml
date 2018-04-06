@@ -19,13 +19,73 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:id="@+id/dowloadVideoName"
+        android:id="@+id/downloadVideoName"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="end"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:gravity="center_vertical" />
+    <TextView
+        android:id="@+id/downloadVideoExt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/downloadVideoName"
+        app:layout_constraintTop_toTopOf="@id/downloadVideoName"
+        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+
+    <ImageView
+        android:id="@+id/deleteDownloadItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_close_black_24dp"
+        tools:ignore="ContentDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/downloadVideoName"
+        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+
+    <ImageView
+        android:id="@+id/renameDownloadVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_edit_black_24dp"
+        tools:ignore="ContentDescription"
+        app:layout_constraintEnd_toStartOf="@id/deleteDownloadItem"
+        app:layout_constraintTop_toTopOf="@id/downloadVideoName"
+        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+
+    <ProgressBar
+        android:id="@+id/downloadProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        app:layout_constraintTop_toBottomOf="@id/downloadVideoName"
+        android:layout_marginTop="10dp"
+        android:progressDrawable="@drawable/download_progress_bar"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginEnd="5dp"
+        android:max="100"/>
+
+    <TextView
+        android:id="@+id/downloadProgressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/downloadProgressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp" />
 
 </android.support.constraint.ConstraintLayout>
