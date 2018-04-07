@@ -50,6 +50,9 @@
                     android:host="gogoanime.se" />
             </intent-filter>
         </activity>
+
+        <service android:name=".DownloadManager"
+            android:exported="false"/>
     </application>
 
 </manifest>

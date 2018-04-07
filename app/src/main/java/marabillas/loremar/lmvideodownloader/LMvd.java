@@ -42,6 +42,7 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     private BrowserManager browserManager;
     private Uri appLinkData;
     private DrawerLayout layout;
+    private Intent downloadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,8 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
 
         NavigationView navigationView = findViewById(R.id.menu);
         navigationView.setNavigationItemSelectedListener(this);
+
+        downloadService = new Intent(this, DownloadManager.class);
     }
 
     @Override
@@ -149,5 +152,9 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
         if(appLinkData!=null) {
             browserManager.newWindow(appLinkData.toString());
         }
+    }
+
+    Intent getDownloadService() {
+        return downloadService;
     }
 }

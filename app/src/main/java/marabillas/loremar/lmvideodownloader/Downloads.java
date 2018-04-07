@@ -20,10 +20,15 @@
 
 package marabillas.loremar.lmvideodownloader;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
@@ -31,6 +36,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,10 +57,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
-    RecyclerView downloadsList;
-    List<DownloadVideo> downloads;
-    TextView downloadSpeed;
-    TextView remaining;
+    private List<DownloadVideo> downloads;
+    private RecyclerView downloadsList;
+    private DownloadQueues queues;
+    private TextView downloadSpeed;
+    private TextView remaining;
+    private TextView downloadsStartPauseButton;
+    private Handler mainHandler;
+    private Tracking tracking;
 
     @Nullable
     @Override
@@ -80,7 +90,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
             try {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                DownloadQueues queues = (DownloadQueues) objectInputStream.readObject();
+                queues = (DownloadQueues) objectInputStream.readObject();
                 downloads = queues.getList();
                 objectInputStream.close();
                 fileInputStream.close();
@@ -112,6 +122,41 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
 
         ((LMvd)getActivity()).setOnBackPressedListener(this);
 
+        downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
+        if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
+            downloadsStartPauseButton.setText(R.string.pause);
+        }
+        else downloadsStartPauseButton.setText(R.string.start);
+        downloadsStartPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent downloadService = ((LMvd)getActivity()).getDownloadService();
+                if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
+                    Log.i("loremarTest", "service is running");
+                    getActivity().stopService(downloadService);
+                    downloadsStartPauseButton.setText(R.string.start);
+                    stopTracking();
+                }
+                else {
+                    Log.i("loremarTest", "service is not running");
+                    downloadService = ((LMvd)getActivity()).getDownloadService();
+                    if (downloads.size()>0) {
+                        DownloadVideo topVideo = downloads.get(0);
+                        downloadService.putExtra("link", topVideo.link);
+                        downloadService.putExtra("name", topVideo.name);
+                        downloadService.putExtra("type", topVideo.type);
+                        downloadService.putExtra("size", topVideo.size);
+                        getActivity().startService(downloadService);
+                        downloadsStartPauseButton.setText(R.string.pause);
+                        startTracking();
+                    }
+                }
+            }
+        });
+
+        mainHandler = new Handler(Looper.getMainLooper());
+        tracking = new Tracking();
+
         return view;
     }
 
@@ -119,6 +164,36 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
     public void onBackpressed() {
         ((LMvd)getActivity()).getBrowserManager().unhideCurrentWindow();
         getFragmentManager().beginTransaction().remove(this).commit();
+    }
+
+    class Tracking implements Runnable {
+
+        @Override
+        public void run() {
+            long downloadSpeedValue = DownloadManager.getDownloadSpeed();
+            String downloadSpeedText = Formatter.formatShortFileSize(getActivity(), downloadSpeedValue) + "/s";
+
+            downloadSpeed.setText(downloadSpeedText);
+
+            if (downloadSpeedValue>0) {
+                long remainingMills = DownloadManager.getRemaining();
+                remaining.setText(Utils.getHrsMinsSecs(remainingMills));
+            }
+            else {
+                remaining.setText(R.string.remaining_undefine);
+            }
+
+            downloadsList.getAdapter().notifyItemChanged(0);
+            mainHandler.postDelayed(this, 1000);
+        }
+    }
+
+    private void startTracking() {
+        tracking.run();
+    }
+
+    private void stopTracking() {
+        mainHandler.removeCallbacks(tracking);
     }
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem > {
@@ -165,6 +240,28 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
             rename.getViewTreeObserver().addOnGlobalLayoutListener(this);
             delete.getViewTreeObserver().addOnGlobalLayoutListener(this);
             adjustedlayout = false;
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+                    dialog.setMessage("Remove this item?");
+                    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            downloads.remove(getAdapterPosition());
+                            queues.saveQueues(getActivity());
+                            downloadsList.getAdapter().notifyDataSetChanged();
+                        }
+                    });
+                    dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    dialog.show();
+                }
+            });
         }
 
         void bind(DownloadVideo video) {
@@ -217,7 +314,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
                 if (itemView.getWidth()!=0 && ext.getWidth()!=0 && rename.getWidth()!=0 && delete
                         .getWidth()!=0) {
                     int totalMargin = (int) TypedValue.applyDimension(TypedValue
-                                    .COMPLEX_UNIT_DIP, 15,
+                                    .COMPLEX_UNIT_DIP, 35,
                             getActivity().getResources().getDisplayMetrics());
                     int nameMaxWidth = itemView.getMeasuredWidth() - totalMargin - ext
                             .getMeasuredWidth() - rename.getMeasuredWidth() - delete
