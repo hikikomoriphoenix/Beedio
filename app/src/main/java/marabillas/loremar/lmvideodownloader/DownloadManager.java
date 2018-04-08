@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 
 public class DownloadManager extends IntentService {
     private static File downloadFile = null;
@@ -49,7 +52,6 @@ public class DownloadManager extends IntentService {
         URLConnection connection;
         try {
             if (intent != null) {
-                Log.i("loremarTest", "downloading");
                 totalSize = Long.parseLong(intent.getStringExtra("size"));
                 connection = (new URL(intent.getStringExtra("link"))).openConnection();
                 String filename = intent.getStringExtra("name") + "." + intent.getStringExtra("type");
@@ -60,35 +62,52 @@ public class DownloadManager extends IntentService {
                 directotryExists = directory.exists() || directory.mkdir() || directory
                         .createNewFile();
                 if (directotryExists) {
-                    Log.i("loremarTest", "directory exists");
                     downloadFile = new File(Environment.getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS), filename);
                     if (connection != null) {
+                        Log.i("loremarTest", "downloading will begin");
                         FileOutputStream out = null;
                         if (downloadFile.exists()) {
                             prevDownloaded = downloadFile.length();
-                            connection.setRequestProperty("Range", "bytes=" + downloadFile.length());
+                            connection.setRequestProperty("Range", "bytes=" + downloadFile.length
+                                    () + "-");
                             connection.connect();
-                            out = new FileOutputStream(downloadFile.getAbsolutePath(), true);
+                            out = new FileOutputStream(downloadFile.getAbsolutePath(),true);
                         } else {
                             connection.connect();
                             if (downloadFile.createNewFile()) {
-                                out = new FileOutputStream(downloadFile.getAbsolutePath());
+                                out = new FileOutputStream(downloadFile.getAbsolutePath(),true);
                             }
                         }
-                        if (out != null) {
+                        if (out != null && downloadFile.exists()) {
                             InputStream in = connection.getInputStream();
-                            int read;
-                            while ((read = in.read()) >= 0) {
-                                out.write(read);
+                            ReadableByteChannel readableByteChannel = Channels.newChannel(in);
+                            FileChannel fileChannel = out.getChannel();
+                            while(downloadFile.length() < totalSize) {
+                                if (Thread.currentThread().isInterrupted()) return;
+                                fileChannel.transferFrom(readableByteChannel, 0, 1024);
+                                /*ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+                                int read = readableByteChannel.read(buffer);
+                                if (read!=-1) {
+                                    buffer.flip();
+                                    writableByteChannel.write(buffer);
+                                }
+                                else break;*/
+                                if (downloadFile==null) return;
                             }
+                            Log.i("loremarTest", "download finished");
+                            readableByteChannel.close();
                             in.close();
+                            out.flush();
                             out.close();
+                            fileChannel.close();
+                            //writableByteChannel.close();
+                            onDownloadFinishedListener.onDownloadFinished();
                         }
                     }
                 }
                 else {
-                    Log.i("loremarTest", "directory doesn't exist");
+                    Log.e("loremarTest", "directory doesn't exist");
                 }
             }
         }
@@ -97,10 +116,25 @@ public class DownloadManager extends IntentService {
         }
     }
 
+    interface OnDownloadFinishedListener {
+        void onDownloadFinished();
+    }
+
+    private static OnDownloadFinishedListener onDownloadFinishedListener;
+
+    static void setOnDownloadFinishedListener(OnDownloadFinishedListener listener) {
+        onDownloadFinishedListener = listener;
+    }
+
     @Override
     public void onDestroy() {
         downloadFile = null;
+        Thread.currentThread().interrupt();
         super.onDestroy();
+    }
+
+    static void stopThread() {
+        Thread.currentThread().interrupt();
     }
 
     /**

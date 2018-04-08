@@ -56,7 +56,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
+public class Downloads extends Fragment implements LMvd.OnBackPressedListener, DownloadManager.OnDownloadFinishedListener {
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
     private DownloadQueues queues;
@@ -134,6 +134,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
                 if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
                     Log.i("loremarTest", "service is running");
                     getActivity().stopService(downloadService);
+                    DownloadManager.stopThread();
                     downloadsStartPauseButton.setText(R.string.start);
                     stopTracking();
                 }
@@ -157,6 +158,8 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
         mainHandler = new Handler(Looper.getMainLooper());
         tracking = new Tracking();
 
+        DownloadManager.setOnDownloadFinishedListener(this);
+
         return view;
     }
 
@@ -166,18 +169,31 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
         getFragmentManager().beginTransaction().remove(this).commit();
     }
 
+    @Override
+    public void onDownloadFinished() {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                downloadsStartPauseButton.setText(R.string.start);
+                stopTracking();
+            }
+        });
+    }
+
     class Tracking implements Runnable {
 
         @Override
         public void run() {
             long downloadSpeedValue = DownloadManager.getDownloadSpeed();
-            String downloadSpeedText = Formatter.formatShortFileSize(getActivity(), downloadSpeedValue) + "/s";
+            String downloadSpeedText = "Speed:" + Formatter.formatShortFileSize(getActivity(),
+                    downloadSpeedValue) + "/s";
 
             downloadSpeed.setText(downloadSpeedText);
 
             if (downloadSpeedValue>0) {
                 long remainingMills = DownloadManager.getRemaining();
-                remaining.setText(Utils.getHrsMinsSecs(remainingMills));
+                String remainingText = "Remaining:" + Utils.getHrsMinsSecs(remainingMills);
+                remaining.setText(remainingText);
             }
             else {
                 remaining.setText(R.string.remaining_undefine);
@@ -194,6 +210,9 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
 
     private void stopTracking() {
         mainHandler.removeCallbacks(tracking);
+        downloadSpeed.setText(R.string.speed_0);
+        remaining.setText(R.string.remaining_undefine);
+        downloadsList.getAdapter().notifyItemChanged(0);
     }
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem > {
@@ -274,12 +293,15 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener {
             if (file.exists()) {
                 if (video.size!=null) {
                     long downloadedSize = file.length();
-                    downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
-                    double percent = 100 * downloadedSize/Long.parseLong(video.size);
+                    downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
+                    double percent = 100d * downloadedSize/Long.parseLong(video.size);
+                    if (percent > 100d) {
+                        percent = 100d;
+                    }
                     DecimalFormat percentFormat = new DecimalFormat("00.00");
                     String percentFormatted = percentFormat.format(percent);
                     progress.setProgress((int) percent);
-                    String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
+                    String formattedSize = Formatter.formatFileSize(getActivity(), Long
                             .parseLong(video.size));
                     String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
                             "%";
