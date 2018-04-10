@@ -37,6 +37,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+    //todo add getInstance and replace all instances of "getActivity" or "Activity activity" with
+    //this method
     private EditText webBox;
     private BrowserManager browserManager;
     private Uri appLinkData;
