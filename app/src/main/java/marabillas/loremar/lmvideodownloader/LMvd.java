@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -157,4 +158,19 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     Intent getDownloadService() {
         return downloadService;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        onRequestPermissionsResultCallback.onRequestPermissionsResult(requestCode, permissions,
+                grantResults);
+    }
+
+    ActivityCompat.OnRequestPermissionsResultCallback onRequestPermissionsResultCallback;
+
+    void setOnRequestPermissionsResultListener(ActivityCompat.OnRequestPermissionsResultCallback
+                                                       onRequestPermissionsResultCallback) {
+        this.onRequestPermissionsResultCallback = onRequestPermissionsResultCallback;
+    }
+
 }
