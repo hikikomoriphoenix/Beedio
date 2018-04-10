@@ -40,9 +40,8 @@ class DownloadQueues implements Serializable {
     }
 
     void add(String size, String type, String link, String name, String page) {
-        name = name.replaceAll("[^A-Za-z0-9() \\[\\]\\-\\p{L}]", "");
-        if (name.startsWith(" ")) name = name.substring(1, name.length());
-        if (name.endsWith(" ")) name = name.substring(0, name.length()-1);
+        name = name.replaceAll("[^\\w ()\\[\\]\\-]", "");
+        name = name.trim();
         if (name.equals("")) name = "video";
         int i = 0;
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment
