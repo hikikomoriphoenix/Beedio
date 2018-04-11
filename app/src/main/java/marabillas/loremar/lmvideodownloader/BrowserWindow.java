@@ -35,7 +35,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.format.Formatter;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
@@ -138,6 +137,8 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             foundVideosWindow.setVisibility(View.VISIBLE);
         }
         else if (v == foundVideosQueue) {
+            videoList.saveCheckedItemsForDownloading();
+            videoList.deleteCheckedItems();
             updateFoundVideosBar();
         }
         else if (v == foundVideosDelete) {
@@ -399,13 +400,6 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                                     contentType = contentType.toLowerCase();
                                     if (contentType.contains("video/mp4")) {
                                         String size = uCon.getHeaderField("content-length");
-                                        if(size==null) {
-                                            size = " ";
-                                        }
-                                        else {
-                                            size = Formatter.formatShortFileSize(BrowserWindow
-                                            .this.getActivity(), Long.parseLong(size));
-                                        }
                                         String link = uCon.getHeaderField("Location");
                                         if (link == null) {
                                             link = uCon.getURL().toString();

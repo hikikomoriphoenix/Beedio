@@ -22,6 +22,8 @@ package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.os.IBinder;
 import android.view.inputmethod.InputMethodManager;
 
@@ -29,6 +31,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -42,7 +45,7 @@ import javax.net.ssl.X509TrustManager;
  *
  */
 
-class Utils {
+public class Utils {
     /**
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
      * aid testing on a local box, not for use on production.
@@ -99,4 +102,35 @@ class Utils {
         }
     }
 
+    public static boolean isServiceRunning(Class<?> serviceClass, Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context
+                .ACTIVITY_SERVICE);
+        if (manager != null) {
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static String getHrsMinsSecs(long milliseconds) {
+        long totalHrs = TimeUnit.MILLISECONDS.toHours(milliseconds);
+        long totalHrsInMins = TimeUnit.HOURS.toMinutes(totalHrs);
+        long totalMins = TimeUnit.MILLISECONDS.toMinutes(milliseconds);
+        long extraMins = totalMins - totalHrsInMins;
+        long totalMinsInSecs = TimeUnit.MINUTES.toSeconds(totalMins);
+        long totalSecs = TimeUnit.MILLISECONDS.toSeconds(milliseconds);
+        long extraSecs = totalSecs - totalMinsInSecs;
+        if (totalHrs>0) {
+            return totalHrs + "h " + extraMins + "m " + extraSecs + "s";
+        }
+        else if (totalMins>0) {
+            return totalMins + "m " + extraSecs + "s";
+        }
+        else {
+            return totalSecs + "s";
+        }
+    }
 }

@@ -21,11 +21,13 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -36,6 +38,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
+import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
+
 public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     //todo add getInstance and replace all instances of "getActivity" or "Activity activity" with
     //this method
@@ -43,6 +48,7 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     private BrowserManager browserManager;
     private Uri appLinkData;
     private DrawerLayout layout;
+    private Intent downloadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +81,8 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
 
         NavigationView navigationView = findViewById(R.id.menu);
         navigationView.setNavigationItemSelectedListener(this);
+
+        downloadService = new Intent(this, DownloadManager.class);
     }
 
     @Override
@@ -106,26 +114,41 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         item.setChecked(true);
         layout.closeDrawers();
+        Fragment fragment;
         switch (item.getTitle().toString()) {
             case "Home":
                 browserManager.hideCurrentWindow();
+                fragment = getFragmentManager().findFragmentByTag("Downloads");
+                if(fragment!=null) {
+                    getFragmentManager().beginTransaction().remove(fragment).commit();
+                }
+                setOnBackPressedListener(null);
                 break;
             case "Browser":
                 browserManager.unhideCurrentWindow();
+                fragment = getFragmentManager().findFragmentByTag("Downloads");
+                if(fragment!=null) {
+                    getFragmentManager().beginTransaction().remove(fragment).commit();
+                }
+                break;
+            case "Downloads":
+                browserManager.hideCurrentWindow();
+                getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
+                        "Downloads").commit();
                 break;
         }
         return true;
     }
 
-    interface OnBackPressedListener {
+    public interface OnBackPressedListener {
         void onBackpressed();
     }
 
-    void setOnBackPressedListener (OnBackPressedListener onBackPressedListener) {
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
         this.onBackPressedListener = onBackPressedListener;
     }
 
-    BrowserManager getBrowserManager() {
+    public BrowserManager getBrowserManager() {
         return browserManager;
     }
 
@@ -136,4 +159,23 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
             browserManager.newWindow(appLinkData.toString());
         }
     }
+
+    public Intent getDownloadService() {
+        return downloadService;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        onRequestPermissionsResultCallback.onRequestPermissionsResult(requestCode, permissions,
+                grantResults);
+    }
+
+    ActivityCompat.OnRequestPermissionsResultCallback onRequestPermissionsResultCallback;
+
+    void setOnRequestPermissionsResultListener(ActivityCompat.OnRequestPermissionsResultCallback
+                                                       onRequestPermissionsResultCallback) {
+        this.onRequestPermissionsResultCallback = onRequestPermissionsResultCallback;
+    }
+
 }

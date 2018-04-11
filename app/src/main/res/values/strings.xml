@@ -37,4 +37,8 @@
     <string name="downloads">Downloads</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="history">History</string>
+    <string name="speed_0">Speed: 0KB/s</string>
+    <string name="remaining_undefine">Remaining: —</string>
+    <string name="pause">Pause</string>
+    <string name="start">Start</string>
 </resources>

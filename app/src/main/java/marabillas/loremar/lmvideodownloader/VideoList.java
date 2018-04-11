@@ -29,9 +29,11 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,16 +42,24 @@ import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
 
 /**
  * Created by loremar on 3/23/18.
  *
  */
 
-abstract class VideoList {
+public abstract class VideoList {
     private Context context;
     private RecyclerView view;
     private List<Video> videos;
@@ -86,7 +96,7 @@ abstract class VideoList {
         videos = new ArrayList<>();
     }
 
-    void addItem(String size, String type, String link, String name, String page) {
+    void addItem(@Nullable String size, String type, String link, String name, String page) {
         Video video  = new Video();
         video.size = size;
         video.type = type;
@@ -179,7 +189,12 @@ abstract class VideoList {
             }
 
             void bind(Video video) {
-                size.setText(video.size);
+                if (video.size!=null) {
+                    String sizeFormatted = Formatter.formatShortFileSize(context,
+                            Long.parseLong(video.size));
+                    size.setText(sizeFormatted);
+                }
+                else size.setText(" ");
                 String extStr = "." + video.type;
                 ext.setText(extStr);
                 check.setChecked(video.checked);
@@ -273,5 +288,35 @@ abstract class VideoList {
 
             }
         }
+    }
+
+    void saveCheckedItemsForDownloading() {
+        File file = new File(context.getFilesDir(), "downloads.dat");
+        DownloadQueues queues = new DownloadQueues();
+        if(file.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                queues = (DownloadQueues) objectInputStream.readObject();
+                objectInputStream.close();
+                fileInputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        for(Video video: videos) {
+            if(video.checked) {
+                queues.add(video.size, video.type, video.link, video.name, video.page);
+            }
+        }
+
+        queues.saveQueues(context);
+
+        Toast.makeText(context, "Selected videos are queued for downloading. Go to Downloads " +
+                "panel to start downloading videos", Toast.LENGTH_LONG).show();
     }
 }
