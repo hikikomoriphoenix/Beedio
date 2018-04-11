@@ -42,6 +42,8 @@ import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
 
 public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+    //todo add getInstance and replace all instances of "getActivity" or "Activity activity" with
+    //this method
     private EditText webBox;
     private BrowserManager browserManager;
     private Uri appLinkData;
