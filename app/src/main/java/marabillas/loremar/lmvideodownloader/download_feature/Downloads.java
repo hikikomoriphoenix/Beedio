@@ -59,13 +59,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import marabillas.loremar.lmvideodownloader.LMvd;
+import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.PermissionRequestCodes;
 import marabillas.loremar.lmvideodownloader.PermissionsManager;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.Utils;
 
-public class Downloads extends Fragment implements LMvd.OnBackPressedListener, DownloadManager.OnDownloadFinishedListener {
+public class Downloads extends Fragment implements LMvdActivity.OnBackPressedListener, DownloadManager.OnDownloadFinishedListener {
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
     private DownloadQueues queues;
@@ -129,7 +129,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
         downloadSpeed = view.findViewById(R.id.downloadSpeed);
         remaining = view.findViewById(R.id.remaining);
 
-        ((LMvd)getActivity()).setOnBackPressedListener(this);
+        ((LMvdActivity)getActivity()).setOnBackPressedListener(this);
 
         downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
@@ -255,7 +255,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
     }
 
     private void startDownload() {
-        Intent downloadService = ((LMvd)getActivity()).getDownloadService();
+        Intent downloadService = ((LMvdActivity)getActivity()).getDownloadService();
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
             getActivity().stopService(downloadService);
             DownloadManager.stopThread();
@@ -263,7 +263,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
             stopTracking();
         }
         else {
-            downloadService = ((LMvd)getActivity()).getDownloadService();
+            downloadService = ((LMvdActivity)getActivity()).getDownloadService();
             if (downloads.size()>0) {
                 DownloadVideo topVideo = downloads.get(0);
                 downloadService.putExtra("link", topVideo.link);
@@ -279,7 +279,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
 
     @Override
     public void onBackpressed() {
-        ((LMvd)getActivity()).getBrowserManager().unhideCurrentWindow();
+        ((LMvdActivity)getActivity()).getBrowserManager().unhideCurrentWindow();
         getFragmentManager().beginTransaction().remove(this).commit();
     }
 

@@ -35,7 +35,7 @@ public abstract class PermissionsManager implements ActivityCompat
 
     protected PermissionsManager(Activity activity) {
         this.activity = activity;
-        ((LMvd)activity).setOnRequestPermissionsResultListener(this);
+        ((LMvdActivity)activity).setOnRequestPermissionsResultListener(this);
     }
 
     private boolean notGrantedPermission(String permission) {

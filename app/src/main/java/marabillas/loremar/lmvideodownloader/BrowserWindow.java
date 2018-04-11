@@ -68,7 +68,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
 public class BrowserWindow extends Fragment implements View.OnTouchListener, View
-        .OnClickListener, LMvd.OnBackPressedListener, View.OnLongClickListener {
+        .OnClickListener, LMvdActivity.OnBackPressedListener, View.OnLongClickListener {
     private static final String TAG = "loremarTest";
     private String url;
     private View view;
@@ -177,7 +177,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((LMvd)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
+                        ((LMvdActivity)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
                     }
                 });
                 dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
@@ -222,7 +222,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             @Override
             public void onClick(View v) {
                 PopupWindow popupWindow = new PopupWindow(getActivity());
-                popupWindow.setContentView(((LMvd)getActivity()).getBrowserManager().getAllWindows());
+                popupWindow.setContentView(((LMvdActivity)getActivity()).getBrowserManager().getAllWindows());
                 popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupWindow.setFocusable(true);
@@ -481,7 +481,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ((LMvd)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
+                    ((LMvdActivity)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
                 }
             });
             dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
@@ -514,7 +514,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        ((LMvd)getActivity()).getBrowserManager().newWindow(hit.getExtra());
+                        ((LMvdActivity)getActivity()).getBrowserManager().newWindow(hit.getExtra());
                         return true;
                     }
                 });

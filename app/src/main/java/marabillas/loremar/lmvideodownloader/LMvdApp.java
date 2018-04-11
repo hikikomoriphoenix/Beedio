@@ -20,30 +20,31 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-import android.app.Activity;
-import android.util.Patterns;
-import android.widget.EditText;
+import android.app.Application;
+import android.content.Intent;
 
-public class WebConnect {
-    private EditText textBox;
-    private Activity activity;
+public class LMvdApp extends Application {
+    private static LMvdApp instance;
+    private LMvdActivity activity;
 
-    WebConnect(EditText textBox, Activity activity) {
-        this.textBox = textBox;
+    public static LMvdApp getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        instance = this;
+    }
+
+    public void setActivity(LMvdActivity activity) {
         this.activity = activity;
     }
 
-    void connect() {
-        String text = textBox.getText().toString();
-        if(Patterns.WEB_URL.matcher(text).matches()){
-            if(!text.startsWith("http")){
-                text = "http://" + text;
-            }
-            ((LMvdActivity)activity).getBrowserManager().newWindow(text);
+    public LMvdActivity getActivity() {
+        if(activity==null) {
+            startActivity(new Intent(getApplicationContext(), LMvdActivity.class));
         }
-        else{
-            text = "https://google.com/search?q="+text;
-            ((LMvdActivity)activity).getBrowserManager().newWindow(text);
-        }
+        return activity;
     }
 }
