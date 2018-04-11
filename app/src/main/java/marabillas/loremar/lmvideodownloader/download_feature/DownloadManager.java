@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -65,7 +65,6 @@ public class DownloadManager extends IntentService {
                     downloadFile = new File(Environment.getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS), filename);
                     if (connection != null) {
-                        Log.i("loremarTest", "downloading will begin");
                         FileOutputStream out = null;
                         if (downloadFile.exists()) {
                             prevDownloaded = downloadFile.length();
@@ -95,7 +94,6 @@ public class DownloadManager extends IntentService {
                                 else break;*/
                                 if (downloadFile==null) return;
                             }
-                            Log.i("loremarTest", "download finished");
                             readableByteChannel.close();
                             in.close();
                             out.flush();

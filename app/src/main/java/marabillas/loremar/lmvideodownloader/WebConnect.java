@@ -24,7 +24,7 @@ import android.app.Activity;
 import android.util.Patterns;
 import android.widget.EditText;
 
-class WebConnect {
+public class WebConnect {
     private EditText textBox;
     private Activity activity;
 

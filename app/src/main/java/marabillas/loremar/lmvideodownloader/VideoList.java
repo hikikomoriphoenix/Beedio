@@ -52,12 +52,14 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
+
 /**
  * Created by loremar on 3/23/18.
  *
  */
 
-abstract class VideoList {
+public abstract class VideoList {
     private Context context;
     private RecyclerView view;
     private List<Video> videos;

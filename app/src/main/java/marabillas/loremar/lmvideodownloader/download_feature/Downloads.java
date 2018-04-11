@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -39,7 +39,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -59,6 +58,12 @@ import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import marabillas.loremar.lmvideodownloader.LMvd;
+import marabillas.loremar.lmvideodownloader.PermissionRequestCodes;
+import marabillas.loremar.lmvideodownloader.PermissionsManager;
+import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.Utils;
 
 public class Downloads extends Fragment implements LMvd.OnBackPressedListener, DownloadManager.OnDownloadFinishedListener {
     private List<DownloadVideo> downloads;
@@ -137,7 +142,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     final PermissionsManager downloadPermMngr = new PermissionsManager(getActivity()) {
                         @Override
-                        void showRequestPermissionRationale() {
+                        public void showRequestPermissionRationale() {
                             showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -147,7 +152,7 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
                         }
 
                         @Override
-                        void requestDisallowedAction() {
+                        public void requestDisallowedAction() {
                             showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -182,12 +187,12 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
                         }
 
                         @Override
-                        void onPermissionsGranted() {
+                        public void onPermissionsGranted() {
                             startDownload();
                         }
 
                         @Override
-                        void onPermissionsDenied() {
+                        public void onPermissionsDenied() {
                             Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
                                     " Try again", Toast.LENGTH_LONG).show();
                         }
@@ -224,22 +229,22 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
         if(requestCode == 1337) {
             PermissionsManager downloadsPermMgr = new PermissionsManager(getActivity()) {
                 @Override
-                void showRequestPermissionRationale() {
+                public void showRequestPermissionRationale() {
 
                 }
 
                 @Override
-                void requestDisallowedAction() {
+                public void requestDisallowedAction() {
                     onPermissionsDenied();
                 }
 
                 @Override
-                void onPermissionsGranted() {
+                public void onPermissionsGranted() {
                     startDownload();
                 }
 
                 @Override
-                void onPermissionsDenied() {
+                public void onPermissionsDenied() {
                     Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
                             " Try again", Toast.LENGTH_LONG).show();
                 }
@@ -252,14 +257,12 @@ public class Downloads extends Fragment implements LMvd.OnBackPressedListener, D
     private void startDownload() {
         Intent downloadService = ((LMvd)getActivity()).getDownloadService();
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
-            Log.i("loremarTest", "service is running");
             getActivity().stopService(downloadService);
             DownloadManager.stopThread();
             downloadsStartPauseButton.setText(R.string.start);
             stopTracking();
         }
         else {
-            Log.i("loremarTest", "service is not running");
             downloadService = ((LMvd)getActivity()).getDownloadService();
             if (downloads.size()>0) {
                 DownloadVideo topVideo = downloads.get(0);

@@ -38,6 +38,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
+import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
+
 public class LMvd extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     private EditText webBox;
     private BrowserManager browserManager;
@@ -135,15 +138,15 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
         return true;
     }
 
-    interface OnBackPressedListener {
+    public interface OnBackPressedListener {
         void onBackpressed();
     }
 
-    void setOnBackPressedListener (OnBackPressedListener onBackPressedListener) {
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
         this.onBackPressedListener = onBackPressedListener;
     }
 
-    BrowserManager getBrowserManager() {
+    public BrowserManager getBrowserManager() {
         return browserManager;
     }
 
@@ -155,7 +158,7 @@ public class LMvd extends Activity implements TextView.OnEditorActionListener, V
         }
     }
 
-    Intent getDownloadService() {
+    public Intent getDownloadService() {
         return downloadService;
     }
 

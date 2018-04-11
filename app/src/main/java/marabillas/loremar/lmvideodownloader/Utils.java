@@ -45,7 +45,7 @@ import javax.net.ssl.X509TrustManager;
  *
  */
 
-class Utils {
+public class Utils {
     /**
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
      * aid testing on a local box, not for use on production.
@@ -102,7 +102,7 @@ class Utils {
         }
     }
 
-    static boolean isServiceRunning(Class<?> serviceClass, Context context) {
+    public static boolean isServiceRunning(Class<?> serviceClass, Context context) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context
                 .ACTIVITY_SERVICE);
         if (manager != null) {
@@ -115,7 +115,7 @@ class Utils {
         return false;
     }
 
-    static String getHrsMinsSecs(long milliseconds) {
+    public static String getHrsMinsSecs(long milliseconds) {
         long totalHrs = TimeUnit.MILLISECONDS.toHours(milliseconds);
         long totalHrsInMins = TimeUnit.HOURS.toMinutes(totalHrs);
         long totalMins = TimeUnit.MILLISECONDS.toMinutes(milliseconds);

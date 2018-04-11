@@ -26,14 +26,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-abstract class PermissionsManager implements ActivityCompat
+public abstract class PermissionsManager implements ActivityCompat
         .OnRequestPermissionsResultCallback{
     private Activity activity;
     private boolean grantedPermissions;
     private String[] permissions;
     private int requestCode;
 
-    PermissionsManager(Activity activity) {
+    protected PermissionsManager(Activity activity) {
         this.activity = activity;
         ((LMvd)activity).setOnRequestPermissionsResultListener(this);
     }
@@ -43,11 +43,11 @@ abstract class PermissionsManager implements ActivityCompat
                 .PERMISSION_GRANTED;
     }
 
-    void checkPermissions(String permission, int requestCode) {
+    public void checkPermissions(String permission, int requestCode) {
         checkPermissions(new String[] {permission}, requestCode);
     }
 
-    void checkPermissions(String[] permissions, int requestCode) {
+    public void checkPermissions(String[] permissions, int requestCode) {
         this.permissions = permissions;
         this.requestCode = requestCode;
         for (String permission: permissions) {
@@ -65,7 +65,7 @@ abstract class PermissionsManager implements ActivityCompat
         if(grantedPermissions) onPermissionsGranted();
     }
 
-    void requestPermissions() {
+    public void requestPermissions() {
         ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
 
@@ -94,15 +94,15 @@ abstract class PermissionsManager implements ActivityCompat
      * add code here to tell users what permissions you need granted and why you need each
      * permission. Should call requestPermissions() after showing rationale.
      */
-    abstract void showRequestPermissionRationale();
+    public abstract void showRequestPermissionRationale();
 
     /**
      * add code here when permissions can't be requested. Either disable feature, direct user to
      * settings to allow user to set permissions, ask user to uninstall, or etc.
      */
-    abstract void requestDisallowedAction();
+    public abstract void requestDisallowedAction();
 
-    abstract void onPermissionsGranted();
+    public abstract void onPermissionsGranted();
 
-    abstract void onPermissionsDenied();
+    public abstract void onPermissionsDenied();
 }

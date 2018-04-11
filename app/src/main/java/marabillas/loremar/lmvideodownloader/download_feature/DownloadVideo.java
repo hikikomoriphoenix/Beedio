@@ -18,10 +18,10 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.download_feature;
 
 import java.io.Serializable;
 
-class DownloadVideo implements Serializable {
+public class DownloadVideo implements Serializable {
     String size, type, link, name, page;
 }

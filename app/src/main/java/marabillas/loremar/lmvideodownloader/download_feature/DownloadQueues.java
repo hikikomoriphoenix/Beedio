@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.content.Context;
 import android.os.Environment;
@@ -32,15 +32,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class DownloadQueues implements Serializable {
+public class DownloadQueues implements Serializable {
     private List<DownloadVideo> downloads;
 
-    DownloadQueues() {
+    public DownloadQueues() {
         downloads = new ArrayList<>();
     }
 
-    void add(String size, String type, String link, String name, String page) {
-        name = name.replaceAll("[^\\w ()\\[\\]\\-]", "");
+    public void add(String size, String type, String link, String name, String page) {
+        name = name.replaceAll("[^\\w ()'\\[\\]\\-]", "");
         name = name.trim();
         if (name.equals("")) name = "video";
         int i = 0;
@@ -81,7 +81,7 @@ class DownloadQueues implements Serializable {
         return false;
     }
 
-    void saveQueues(Context context) {
+    public void saveQueues(Context context) {
         try {
             File file = new File(context.getFilesDir(), "downloads.dat");
             FileOutputStream fileOutputStream = new FileOutputStream(file);

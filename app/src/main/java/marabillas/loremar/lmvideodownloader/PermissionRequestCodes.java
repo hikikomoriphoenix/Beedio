@@ -20,6 +20,6 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-interface PermissionRequestCodes {
+public interface PermissionRequestCodes {
     int DOWNLOADS = 4444;
 }

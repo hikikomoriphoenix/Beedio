@@ -51,7 +51,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".DownloadManager"
+        <service android:name=".download_feature.DownloadManager"
             android:exported="false"/>
     </application>
 

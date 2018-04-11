@@ -127,7 +127,7 @@ public class BrowserManager extends Fragment {
         }
     }
 
-    void unhideCurrentWindow() {
+    public void unhideCurrentWindow() {
         if(windows.size()>0) {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow.getView() != null) {
