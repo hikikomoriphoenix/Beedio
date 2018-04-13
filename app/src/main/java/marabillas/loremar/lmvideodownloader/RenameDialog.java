@@ -36,7 +36,7 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
     private EditText text;
     private Context context;
 
-    RenameDialog(Context context, String hint) {
+    protected RenameDialog(Context context, String hint) {
         this.context = context;
         text = new EditText(context);
         text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -58,5 +58,5 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
         }
     }
 
-    abstract void onOK(String newName);
+    public abstract void onOK(String newName);
 }
