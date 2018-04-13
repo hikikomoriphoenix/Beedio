@@ -38,15 +38,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.Utils;
 
 public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, Tracking {
-    private List<DownloadVideo> downloads;
     private TextView downloadSpeed;
     private TextView remaining;
     private Handler mainHandler;
@@ -112,9 +109,12 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsCompleted = new DownloadsCompleted();
         downloadsInactive = new DownloadsInactive();
 
-        getFragmentManager().beginTransaction().add(pager.getId(), downloadsInProgress).commit();
-        getFragmentManager().beginTransaction().add(pager.getId(), downloadsCompleted).commit();
-        getFragmentManager().beginTransaction().add(pager.getId(), downloadsInactive).commit();
+        getFragmentManager().beginTransaction().add(pager.getId(), downloadsInProgress,
+                "downloadsInProgress").commit();
+        getFragmentManager().beginTransaction().add(pager.getId(), downloadsCompleted,
+                "downloadsCompleted").commit();
+        getFragmentManager().beginTransaction().add(pager.getId(), downloadsInactive,
+                "downloadsInactive").commit();
 
         downloadsInProgress.setTracking(this);
 
@@ -148,9 +148,6 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
             if(getFragmentManager().findFragmentByTag("downloadsInProgress")!=null) {
                 downloadsInProgress.updateDownloadItem();
-                if (pager.getCurrentItem() == 0 && pager.getAdapter()!=null) {
-                    pager.getAdapter().notifyDataSetChanged();
-                }
             }
             mainHandler.postDelayed(this, 1000);
         }
@@ -166,9 +163,6 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         remaining.setText(R.string.remaining_undefine);
         if(getFragmentManager().findFragmentByTag("downloadsInProgress")!=null) {
             downloadsInProgress.updateDownloadItem();
-            if (pager.getCurrentItem() == 0 && pager.getAdapter()!=null) {
-                pager.getAdapter().notifyDataSetChanged();
-            }
         }
     }
 

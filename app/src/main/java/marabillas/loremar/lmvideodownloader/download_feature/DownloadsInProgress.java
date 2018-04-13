@@ -38,7 +38,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -362,7 +361,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     new RenameDialog(getActivity(), name.getText().toString()) {
                         @Override
                         public void onOK(String newName) {
-                            name.setText(newName);
+                            downloads.get(getAdapterPosition()).name = newName;
                             downloadsList.getAdapter().notifyItemChanged(0);
                             //todo rename save file and update downloads.dat with the new name
                         }
@@ -372,7 +371,6 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         }
 
         void bind(DownloadVideo video) {
-            Log.i("loremarTest", "item is updated");
             name.setText(video.name);
             String extString = "." + video.type;
             ext.setText(extString);

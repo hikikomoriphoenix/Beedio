@@ -40,7 +40,7 @@ public class DownloadQueues implements Serializable {
     }
 
     public void add(String size, String type, String link, String name, String page) {
-        name = name.replaceAll("[^\\w ()'\\[\\]\\-]", "");
+        name = name.replaceAll("[^\\w ()'!\\[\\]\\-]", "");
         name = name.trim();
         if (name.equals("")) name = "video";
         int i = 0;
