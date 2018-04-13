@@ -22,9 +22,9 @@ package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -60,12 +60,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
+import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.PermissionRequestCodes;
 import marabillas.loremar.lmvideodownloader.PermissionsManager;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.Utils;
 
-public class Downloads extends Fragment implements LMvdActivity.OnBackPressedListener, DownloadManager.OnDownloadFinishedListener {
+public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, DownloadManager.OnDownloadFinishedListener {
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
     private DownloadQueues queues;
@@ -129,7 +130,7 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
         downloadSpeed = view.findViewById(R.id.downloadSpeed);
         remaining = view.findViewById(R.id.remaining);
 
-        ((LMvdActivity)getActivity()).setOnBackPressedListener(this);
+        getLMvdActivity().setOnBackPressedListener(this);
 
         downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
@@ -153,37 +154,47 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
 
                         @Override
                         public void requestDisallowedAction() {
-                            showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    AlertDialog goToSettingsDialog = new AlertDialog.Builder
-                                            (getActivity()).create();
-                                    goToSettingsDialog.setMessage("Go to Settings?");
-                                    goToSettingsDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                                            "Yes", new
-                                                    DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            startActivityForResult(new Intent(android
-                                                                    .provider.Settings
-                                                                    .ACTION_APPLICATION_DETAILS_SETTINGS,
-                                                                    Uri.fromParts("package", getActivity()
-                                                                            .getPackageName(),
-                                                                            null)), 1337);
-                                                        }
-                                                    });
-                                    goToSettingsDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                                            "No", new
-                                                    DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
-                                                                    " Try again", Toast.LENGTH_LONG).show();
-                                                        }
-                                                    });
-                                    goToSettingsDialog.show();
-                                }
-                            });
+                            SharedPreferences prefs = getActivity().getSharedPreferences
+                                    ("settings", 0);
+                            boolean requestDisallowed = prefs.getBoolean("requestDisallowed",
+                                    false);
+                            if (requestDisallowed) {
+                                showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        new AlertDialog.Builder(getActivity())
+                                                .setMessage("Go to Settings?")
+                                                .setPositiveButton("Yes", new
+                                                        DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                startActivityForResult(new Intent(android
+                                                                        .provider.Settings
+                                                                        .ACTION_APPLICATION_DETAILS_SETTINGS,
+                                                                        Uri.fromParts("package", getActivity()
+                                                                                        .getPackageName(),
+                                                                                null)), 1337);
+                                                            }
+                                                        })
+                                                .setNegativeButton(
+                                                        "No", new
+                                                                DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
+                                                                                " Try again", Toast.LENGTH_LONG).show();
+                                                                    }
+                                                                })
+                                                .create()
+                                                .show();
+
+                                    }
+                                });
+                            }
+                            else {
+                                prefs.edit().putBoolean("requestDisallowed", true).apply();
+                                onPermissionsDenied();
+                            }
                         }
 
                         @Override
@@ -199,13 +210,14 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
 
                         private void showPermissionSummaryDialog(DialogInterface.OnClickListener
                                                                          okListener) {
-                            AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
-                            dialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", okListener);
-                            dialog.setMessage("This feature requires WRITE_EXTERNAL_STORAGE " +
-                                    "permission to save downloaded videos into the Download " +
-                                    "folder. Make sure to grant this permission. Otherwise, " +
-                                    "downloading videos is not possible.");
-                            dialog.show();
+                            new AlertDialog.Builder(getActivity())
+                                    .setPositiveButton( "OK", okListener)
+                                    .setMessage("This feature requires WRITE_EXTERNAL_STORAGE " +
+                                            "permission to save downloaded videos into the Download " +
+                                            "folder. Make sure to grant this permission. Otherwise, " +
+                                            "downloading videos is not possible.")
+                                    .create()
+                                    .show();
                         }
                     };
                     downloadPermMngr.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -255,7 +267,7 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
     }
 
     private void startDownload() {
-        Intent downloadService = ((LMvdActivity)getActivity()).getDownloadService();
+        Intent downloadService = getLMvdActivity().getDownloadService();
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
             getActivity().stopService(downloadService);
             DownloadManager.stopThread();
@@ -263,7 +275,7 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
             stopTracking();
         }
         else {
-            downloadService = ((LMvdActivity)getActivity()).getDownloadService();
+            downloadService = getLMvdActivity().getDownloadService();
             if (downloads.size()>0) {
                 DownloadVideo topVideo = downloads.get(0);
                 downloadService.putExtra("link", topVideo.link);
@@ -279,7 +291,7 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
 
     @Override
     public void onBackpressed() {
-        ((LMvdActivity)getActivity()).getBrowserManager().unhideCurrentWindow();
+        getLMvdActivity().getBrowserManager().unhideCurrentWindow();
         getFragmentManager().beginTransaction().remove(this).commit();
     }
 
@@ -377,23 +389,24 @@ public class Downloads extends Fragment implements LMvdActivity.OnBackPressedLis
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
-                    dialog.setMessage("Remove this item?");
-                    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            downloads.remove(getAdapterPosition());
-                            queues.saveQueues(getActivity());
-                            downloadsList.getAdapter().notifyDataSetChanged();
-                        }
-                    });
-                    dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage("Remove this item?")
+                            .setPositiveButton( "Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    downloads.remove(getAdapterPosition());
+                                    queues.saveQueues(getActivity());
+                                    downloadsList.getAdapter().notifyDataSetChanged();
+                                }
+                            })
+                            .setNegativeButton( "No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                        }
-                    });
-                    dialog.show();
+                                }
+                            })
+                            .create()
+                            .show();
                 }
             });
         }

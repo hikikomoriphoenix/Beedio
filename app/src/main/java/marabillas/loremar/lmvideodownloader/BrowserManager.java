@@ -20,7 +20,6 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -41,7 +40,7 @@ import java.util.List;
  *
  */
 
-public class BrowserManager extends Fragment {
+public class BrowserManager extends LMvdFragment {
     private List<BrowserWindow> windows;
     private RecyclerView allWindows;
     @Override
@@ -66,7 +65,7 @@ public class BrowserManager extends Fragment {
                 .add(R.id.main, window, null)
                 .commit();
         windows.add(window);
-        ((LMvdActivity)getActivity()).setOnBackPressedListener(window);
+        getLMvdActivity().setOnBackPressedListener(window);
         if(windows.size()>1) {
             window = windows.get(windows.size() - 2);
             if (window != null && window.getView() != null) {
@@ -85,10 +84,10 @@ public class BrowserManager extends Fragment {
             if (topWindow != null && topWindow.getView() != null) {
                 topWindow.getView().setVisibility(View.VISIBLE);
             }
-            ((LMvdActivity)getActivity()).setOnBackPressedListener(topWindow);
+            getLMvdActivity().setOnBackPressedListener(topWindow);
         }
         else {
-            ((LMvdActivity)getActivity()).setOnBackPressedListener(null);
+            getLMvdActivity().setOnBackPressedListener(null);
         }
         updateNumWindows();
     }
@@ -103,7 +102,7 @@ public class BrowserManager extends Fragment {
         windows.add(window);
         if(window.getView()!=null) {
             window.getView().setVisibility(View.VISIBLE);
-            ((LMvdActivity)getActivity()).setOnBackPressedListener(window);
+            getLMvdActivity().setOnBackPressedListener(window);
         }
         allWindows.getAdapter().notifyDataSetChanged();
     }
@@ -132,11 +131,11 @@ public class BrowserManager extends Fragment {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow.getView() != null) {
                 topWindow.getView().setVisibility(View.VISIBLE);
-                ((LMvdActivity)getActivity()).setOnBackPressedListener(topWindow);
+                getLMvdActivity().setOnBackPressedListener(topWindow);
             }
         }
         else {
-            ((LMvdActivity)getActivity()).setOnBackPressedListener(null);
+            getLMvdActivity().setOnBackPressedListener(null);
         }
     }
 

@@ -38,16 +38,16 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
 
     RenameDialog(Context context, String hint) {
         this.context = context;
-        AlertDialog dialog = new AlertDialog.Builder(context).create();
         text = new EditText(context);
         text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         text.setHint(hint);
-        dialog.setView(text);
-        dialog.setMessage("Type new name:");
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", this);
-        dialog.show();
+        new AlertDialog.Builder(context)
+                .setView(text).setMessage("Type new name:")
+                .setPositiveButton("OK", this)
+                .setNegativeButton("CANCEL", this)
+                .create()
+                .show();
     }
 
     @Override

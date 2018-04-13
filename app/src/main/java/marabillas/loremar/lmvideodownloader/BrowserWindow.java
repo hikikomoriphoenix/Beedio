@@ -22,7 +22,6 @@ package marabillas.loremar.lmvideodownloader;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -67,7 +66,7 @@ import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-public class BrowserWindow extends Fragment implements View.OnTouchListener, View
+public class BrowserWindow extends LMvdFragment implements View.OnTouchListener, View
         .OnClickListener, LMvdActivity.OnBackPressedListener, View.OnLongClickListener {
     private static final String TAG = "loremarTest";
     private String url;
@@ -172,21 +171,22 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
-                dialog.setMessage("Are you sure you want to close this window?");
-                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ((LMvdActivity)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
-                    }
-                });
-                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("Are you sure you want to close this window?")
+                        .setPositiveButton( "YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                getLMvdActivity().getBrowserManager().closeWindow(BrowserWindow.this);
+                            }
+                        })
+                        .setNegativeButton( "NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                    }
-                });
-                dialog.show();
+                            }
+                        })
+                        .create()
+                        .show();
             }
         });
     }
@@ -222,7 +222,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             @Override
             public void onClick(View v) {
                 PopupWindow popupWindow = new PopupWindow(getActivity());
-                popupWindow.setContentView(((LMvdActivity)getActivity()).getBrowserManager().getAllWindows());
+                popupWindow.setContentView(getLMvdActivity().getBrowserManager().getAllWindows());
                 popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupWindow.setFocusable(true);
@@ -249,7 +249,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                         Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
                         dialog.cancel();
-                        new WebConnect(text, getActivity()).connect();
+                        new WebConnect(text, getLMvdActivity()).connect();
                         return false;
                     }
                 });
@@ -258,7 +258,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
-                        new WebConnect(text, getActivity()).connect();
+                        new WebConnect(text, getLMvdActivity()).connect();
                     }
                 });
                 dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
@@ -476,21 +476,22 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
             page.goBack();
         }
         else {
-            AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
-            dialog.setMessage("Are you sure you want to close this window?");
-            dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    ((LMvdActivity)getActivity()).getBrowserManager().closeWindow(BrowserWindow.this);
-                }
-            });
-            dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage("Are you sure you want to close this window?")
+                    .setPositiveButton( "YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getLMvdActivity().getBrowserManager().closeWindow(BrowserWindow.this);
+                        }
+                    })
+                    .setNegativeButton( "NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                }
-            });
-            dialog.show();
+                        }
+                    })
+                    .create()
+                    .show();
         }
     }
 
@@ -514,7 +515,7 @@ public class BrowserWindow extends Fragment implements View.OnTouchListener, Vie
                 menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        ((LMvdActivity)getActivity()).getBrowserManager().newWindow(hit.getExtra());
+                        getLMvdActivity().getBrowserManager().newWindow(hit.getExtra());
                         return true;
                     }
                 });

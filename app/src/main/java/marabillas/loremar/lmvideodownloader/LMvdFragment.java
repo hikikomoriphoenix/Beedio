@@ -20,31 +20,10 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-import android.app.Application;
-import android.content.Intent;
+import android.app.Fragment;
 
-public class LMvdApp extends Application {
-    private static LMvdApp instance;
-    private LMvdActivity activity;
-
-    public static LMvdApp getInstance() {
-        return instance;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        instance = this;
-    }
-
-    public void setActivity(LMvdActivity activity) {
-        this.activity = activity;
-    }
-
-    public LMvdActivity getActivity() {
-        if(activity==null) {
-            startActivity(new Intent(getApplicationContext(), LMvdActivity.class));
-        }
-        return activity;
+public class LMvdFragment extends Fragment {
+    public LMvdActivity getLMvdActivity() {
+        return (LMvdActivity) getActivity();
     }
 }

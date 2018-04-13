@@ -20,15 +20,14 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-import android.app.Activity;
 import android.util.Patterns;
 import android.widget.EditText;
 
 public class WebConnect {
     private EditText textBox;
-    private Activity activity;
+    private LMvdActivity activity;
 
-    WebConnect(EditText textBox, Activity activity) {
+    WebConnect(EditText textBox, LMvdActivity activity) {
         this.textBox = textBox;
         this.activity = activity;
     }
@@ -39,11 +38,11 @@ public class WebConnect {
             if(!text.startsWith("http")){
                 text = "http://" + text;
             }
-            ((LMvdActivity)activity).getBrowserManager().newWindow(text);
+            activity.getBrowserManager().newWindow(text);
         }
         else{
             text = "https://google.com/search?q="+text;
-            ((LMvdActivity)activity).getBrowserManager().newWindow(text);
+            activity.getBrowserManager().newWindow(text);
         }
     }
 }

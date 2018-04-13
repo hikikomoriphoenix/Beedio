@@ -234,26 +234,27 @@ public abstract class VideoList {
                         clipboardManager.setPrimaryClip(link);
                     }
                 } else if (v == expand.findViewById(R.id.videoFoundDelete)) {
-                    AlertDialog dialog = new AlertDialog.Builder(context).create();
-                    dialog.setMessage("Delete this item from the list?");
-                    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "YES", new DialogInterface
-                            .OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            videos.remove(getAdapterPosition());
-                            expandedItem = -1;
-                            notifyDataSetChanged();
-                            onItemDeleted();
-                        }
-                    });
-                    dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "NO", new DialogInterface
-                            .OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    new AlertDialog.Builder(context)
+                            .setMessage("Delete this item from the list?")
+                            .setPositiveButton( "YES", new DialogInterface
+                                    .OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    videos.remove(getAdapterPosition());
+                                    expandedItem = -1;
+                                    notifyDataSetChanged();
+                                    onItemDeleted();
+                                }
+                            })
+                            .setNegativeButton( "NO", new DialogInterface
+                                    .OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                        }
-                    });
-                    dialog.show();
+                                }
+                            })
+                            .create()
+                            .show();
                 } else {
                     if (expandedItem != -1) {
                         videos.get(expandedItem).expanded = false;
