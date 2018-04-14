@@ -21,7 +21,6 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.Fragment;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -83,8 +82,6 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         tabs.addTab(tabs.newTab().setText("In Progress"));
         tabs.addTab(tabs.newTab().setText("Completed"));
         tabs.addTab(tabs.newTab().setText("Inactive"));
-        tabs.setTabGravity(TabLayout.GRAVITY_CENTER);
-        tabs.setTabTextColors(Color.BLACK, Color.BLUE);
 
         pager.setAdapter(new PagerAdapter());
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
@@ -119,6 +116,17 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsInProgress.setTracking(this);
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        getFragmentManager().beginTransaction().remove(downloadsInProgress).commit();
+        getFragmentManager().beginTransaction().remove(downloadsCompleted).commit();
+        getFragmentManager().beginTransaction().remove(downloadsInactive).commit();
+        downloadsInProgress = null;
+        downloadsCompleted = null;
+        downloadsInactive = null;
+        super.onDestroyView();
     }
 
     @Override

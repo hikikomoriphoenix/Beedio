@@ -40,6 +40,18 @@ public class DownloadQueues implements Serializable {
     }
 
     public void add(String size, String type, String link, String name, String page) {
+        name = getValidName(name, type);
+
+        DownloadVideo video = new DownloadVideo();
+        video.link = link;
+        video.name = name;
+        video.page = page;
+        video.size = size;
+        video.type = type;
+        downloads.add(video);
+    }
+
+    private String getValidName(String name, String type) {
         name = name.replaceAll("[^\\w ()'!\\[\\]\\-]", "");
         name = name.trim();
         if (name.equals("")) name = "video";
@@ -59,15 +71,7 @@ public class DownloadQueues implements Serializable {
             nameBuilder = new StringBuilder(name);
             nameBuilder.append(" ").append(i);
         }
-        name = nameBuilder.toString();
-
-        DownloadVideo video = new DownloadVideo();
-        video.link = link;
-        video.name = name;
-        video.page = page;
-        video.size = size;
-        video.type = type;
-        downloads.add(video);
+        return nameBuilder.toString();
     }
 
     List<DownloadVideo> getList() {
@@ -93,6 +97,12 @@ public class DownloadQueues implements Serializable {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void renameItem(int index, String newName) {
+        if(!downloads.get(index).name.equals(newName)) {
+            downloads.get(index).name = getValidName(newName, downloads.get(index).type);
         }
     }
 }

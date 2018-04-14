@@ -361,9 +361,30 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     new RenameDialog(getActivity(), name.getText().toString()) {
                         @Override
                         public void onOK(String newName) {
-                            downloads.get(getAdapterPosition()).name = newName;
-                            downloadsList.getAdapter().notifyItemChanged(0);
-                            //todo rename save file and update downloads.dat with the new name
+                            queues.renameItem(getAdapterPosition(), newName);
+                            File renamedFile = new File(Environment
+                                    .getExternalStoragePublicDirectory
+                                    (Environment.DIRECTORY_DOWNLOADS), downloads.get
+                                    (getAdapterPosition()).name + ext.getText().toString());
+                            File file = new File(Environment.getExternalStoragePublicDirectory
+                                    (Environment.DIRECTORY_DOWNLOADS), name.getText().toString()
+                                    + ext.getText().toString());
+                            if (file.exists()) {
+                                if (file.renameTo(renamedFile)) {
+                                    queues.saveQueues(getActivity());
+                                    downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                                }
+                                else {
+                                    downloads.get(getAdapterPosition()).name = name.getText()
+                                            .toString();
+                                    Toast.makeText(getActivity(), "Failed: Cannot rename file",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            else {
+                                queues.saveQueues(getActivity());
+                                downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                            }
                         }
                     };
                 }

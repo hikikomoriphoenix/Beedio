@@ -71,7 +71,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/downloadsTopBar"
-        android:theme="@style/Theme.AppCompat"/>
+        android:theme="@style/Theme.AppCompat"
+        app:tabMode="scrollable"
+        app:tabGravity="fill"
+        app:tabTextColor="@android:color/black"
+        app:tabSelectedTextColor="@color/blue"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/downloadsPager"
