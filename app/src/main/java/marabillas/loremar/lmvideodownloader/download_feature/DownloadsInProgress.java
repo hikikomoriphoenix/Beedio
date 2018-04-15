@@ -295,7 +295,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         public DownloadItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-            return new DownloadItem(inflater.inflate(R.layout.download_item, parent, false));
+            return new DownloadItem(inflater.inflate(R.layout.downloads_in_progress_item, parent, false));
         }
 
         @Override

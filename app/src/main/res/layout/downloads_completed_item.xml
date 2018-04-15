@@ -29,7 +29,7 @@
     android:layout_margin="5dp">
 
     <TextView
-        android:id="@+id/downloadVideoName"
+        android:id="@+id/downloadCompletedName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:singleLine="true"
@@ -41,54 +41,58 @@
         android:layout_marginLeft="5dp"
         android:gravity="center_vertical" />
     <TextView
-        android:id="@+id/downloadVideoExt"
+        android:id="@+id/downloadCompletedExt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/downloadVideoName"
-        app:layout_constraintTop_toTopOf="@id/downloadVideoName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+        app:layout_constraintStart_toEndOf="@id/downloadCompletedName"
+        app:layout_constraintTop_toTopOf="@id/downloadCompletedName"
+        app:layout_constraintBottom_toBottomOf="@id/downloadCompletedName"/>
 
     <ImageView
-        android:id="@+id/deleteDownloadItem"
+        android:id="@+id/deleteDownloadCompletedItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_close_black_24dp"
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/downloadVideoName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+        app:layout_constraintTop_toTopOf="@id/downloadCompletedName"
+        app:layout_constraintBottom_toBottomOf="@id/downloadCompletedName"/>
 
     <ImageView
-        android:id="@+id/renameDownloadVideo"
+        android:id="@+id/renameDownloadCompletedVideo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_edit_black_24dp"
         tools:ignore="ContentDescription"
-        app:layout_constraintEnd_toStartOf="@id/deleteDownloadItem"
-        app:layout_constraintTop_toTopOf="@id/downloadVideoName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
-
-    <ProgressBar
-        android:id="@+id/downloadProgressBar"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        app:layout_constraintTop_toBottomOf="@id/downloadVideoName"
-        android:layout_marginTop="10dp"
-        android:progressDrawable="@drawable/download_progress_bar"
-        android:layout_marginStart="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginEnd="5dp"
-        android:max="100"/>
+        app:layout_constraintEnd_toStartOf="@id/deleteDownloadCompletedItem"
+        app:layout_constraintTop_toTopOf="@id/downloadCompletedName"
+        app:layout_constraintBottom_toBottomOf="@id/downloadCompletedName"/>
 
     <TextView
-        android:id="@+id/downloadProgressText"
+        android:id="@+id/downloadCompletedSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/downloadProgressBar"
+        app:layout_constraintTop_toBottomOf="@id/downloadCompletedName"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:id="@+id/playVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/play_video"
+        android:background="@drawable/white_button"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintStart_toEndOf="@id/downloadCompletedSize"
+        app:layout_constraintTop_toTopOf="@id/downloadCompletedSize"
+        app:layout_constraintBottom_toBottomOf="@id/downloadCompletedSize"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp" />
 
 </android.support.constraint.ConstraintLayout>
