@@ -93,7 +93,10 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     OnBackPressedListener onBackPressedListener;
     @Override
     public void onBackPressed() {
-        if(onBackPressedListener!=null) {
+        if (layout.isDrawerVisible(Gravity.START)) {
+            layout.closeDrawer(Gravity.START);
+        }
+        else if (onBackPressedListener!=null) {
             onBackPressedListener.onBackpressed();
         }
         else super.onBackPressed();
@@ -130,9 +133,11 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 }
                 break;
             case "Downloads":
-                browserManager.hideCurrentWindow();
-                getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
-                        "Downloads").commit();
+                if (getFragmentManager().findFragmentByTag("Downloads")==null) {
+                    browserManager.hideCurrentWindow();
+                    getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
+                            "Downloads").commit();
+                }
                 break;
         }
         return true;
