@@ -45,7 +45,10 @@ import javax.net.ssl.X509TrustManager;
  *
  */
 
-public class Utils {
+public final class Utils {
+
+    private Utils() {}
+
     /**
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
      * aid testing on a local box, not for use on production.
