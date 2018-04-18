@@ -34,7 +34,7 @@ import java.util.List;
 public class CompletedVideos implements Serializable {
     private List<String> videos;
 
-    public CompletedVideos() {
+    CompletedVideos() {
         videos = new ArrayList<>();
     }
 

@@ -115,6 +115,8 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
         downloadsInProgress.setTracking(this);
 
+        downloadsInProgress.setOnTopItemRemovedListener(downloadsCompleted);
+
         return view;
     }
 
@@ -162,16 +164,21 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     }
 
     public void startTracking() {
-        tracking.run();
+        getActivity().runOnUiThread(tracking);
     }
 
     public void stopTracking() {
         mainHandler.removeCallbacks(tracking);
-        downloadSpeed.setText(R.string.speed_0);
-        remaining.setText(R.string.remaining_undefine);
-        if(getFragmentManager().findFragmentByTag("downloadsInProgress")!=null) {
-            downloadsInProgress.updateDownloadItem();
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                downloadSpeed.setText(R.string.speed_0);
+                remaining.setText(R.string.remaining_undefine);
+                if(getFragmentManager().findFragmentByTag("downloadsInProgress")!=null) {
+                    downloadsInProgress.updateDownloadItem();
+                }
+            }
+        });
     }
 
     class PagerAdapter extends android.support.v4.view.PagerAdapter{
