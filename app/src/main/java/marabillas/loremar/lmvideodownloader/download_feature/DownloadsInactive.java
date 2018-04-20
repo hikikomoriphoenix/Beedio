@@ -20,8 +20,269 @@
 
 package marabillas.loremar.lmvideodownloader.download_feature;
 
-import marabillas.loremar.lmvideodownloader.LMvdFragment;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Rect;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class DownloadsInactive extends LMvdFragment {
-    //todo implement DownloadsInactive class
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import marabillas.loremar.lmvideodownloader.LMvdFragment;
+import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.RenameDialog;
+
+public class DownloadsInactive extends LMvdFragment implements DownloadsInProgress.OnAddDownloadItemToInactiveListener {
+    private RecyclerView downloadsList;
+    private List<DownloadVideo> downloads;
+    private InactiveDownloads inactiveDownloads;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.downloads_inactive, container, false);
+        downloadsList = view.findViewById(R.id.downloadsInactiveList);
+
+        downloads = new ArrayList<>();
+
+        File file = new File(getActivity().getFilesDir(), "inactive.dat");
+        if (file.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                inactiveDownloads = (InactiveDownloads) objectInputStream.readObject();
+                downloads = inactiveDownloads.getInactiveDownloads();
+                Log.i("loremarTest", "inactives:" + downloads.size());
+                objectInputStream.close();
+                fileInputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        downloadsList.setAdapter(new DownloadAdapter());
+        downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        downloadsList.setHasFixedSize(true);
+
+        DividerItemDecoration divider = new DividerItemDecoration(getActivity(),
+                DividerItemDecoration.VERTICAL) {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
+                    .State state) {
+                int verticalSpacing = (int) Math.ceil(TypedValue.applyDimension(TypedValue
+                        .COMPLEX_UNIT_SP, 4, getActivity().getResources()
+                        .getDisplayMetrics()));
+                outRect.top = verticalSpacing;
+                outRect.bottom = verticalSpacing;
+            }
+        };
+        divider.setDrawable(getActivity().getResources().getDrawable(R.drawable.greydivider));
+        downloadsList.addItemDecoration(divider);
+
+        return view;
+    }
+
+    @Override
+    public void onAddDownloadItemToInactive(DownloadVideo inactiveDownload) {
+        if (inactiveDownloads==null) {
+            inactiveDownloads = new InactiveDownloads();
+        }
+        inactiveDownloads.add(getActivity(), inactiveDownload);
+        downloads = inactiveDownloads.getInactiveDownloads();
+        downloadsList.getAdapter().notifyItemInserted(downloads.size()-1);
+    }
+
+    private class DownloadAdapter extends RecyclerView.Adapter<DownloadItem> {
+        @NonNull
+        @Override
+        public DownloadItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View view = inflater.inflate(R.layout.downloads_inactive_item, parent, false);
+            return new DownloadItem(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DownloadItem holder, int position) {
+            holder.bind(downloads.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return downloads.size();
+        }
+    }
+
+    private class DownloadItem extends RecyclerView.ViewHolder implements View.OnClickListener, ViewTreeObserver.OnGlobalLayoutListener {
+        private TextView name;
+        private TextView ext;
+        private ImageView delete;
+        private ImageView rename;
+        private TextView progress;
+        private TextView gotopage;
+
+        private boolean adjustedLayout;
+
+        DownloadItem(View itemView) {
+            super(itemView);
+            Log.i("loremarTest", "creating inactive item");
+            name = itemView.findViewById(R.id.downloadInactiveName);
+            ext = itemView.findViewById(R.id.downloadInactiveExt);
+            delete = itemView.findViewById(R.id.deleteDownloadInactiveItem);
+            rename = itemView.findViewById(R.id.renameDownloadInactiveVideo);
+            progress = itemView.findViewById(R.id.downloadInactiveProgressText);
+            gotopage = itemView.findViewById(R.id.goToPageButton);
+
+            itemView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+            ext.getViewTreeObserver().addOnGlobalLayoutListener(this);
+            rename.getViewTreeObserver().addOnGlobalLayoutListener(this);
+            delete.getViewTreeObserver().addOnGlobalLayoutListener(this);
+            adjustedLayout = false;
+
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage("Delete?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    int position = getAdapterPosition();
+                                    downloads.remove(position);
+                                    inactiveDownloads.save(getActivity());
+                                    downloadsList.getAdapter().notifyItemRemoved(position);
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+            });
+
+            rename.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new RenameDialog(getActivity(), name.getText().toString()) {
+                        @Override
+                        public void onOK(String newName) {
+                            File downloadsFolder = Environment.getExternalStoragePublicDirectory
+                                    (Environment.DIRECTORY_DOWNLOADS);
+                            File renamedFile = new File(downloadsFolder, newName+"."+ext.getText());
+                            File file = new File(downloadsFolder, name.getText()+"" + "."+ext
+                                    .getText());
+                            if (file.renameTo(renamedFile)) {
+                                downloads.get(getAdapterPosition()).name = newName;
+                                inactiveDownloads.save(getActivity());
+                                downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                            }
+                            else {
+                                Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
+                                        .LENGTH_SHORT).show();
+                            }
+                        }
+                    };
+                }
+            });
+
+            gotopage.setOnClickListener(this);
+        }
+
+        void bind(DownloadVideo download) {
+            Log.i("loremarTest", "binding item for inactive downloads");
+            name.setText(download.name);
+            String extString = "." + download.type;
+            ext.setText(extString);
+            String downloaded;
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment
+                    .DIRECTORY_DOWNLOADS), download.name + extString);
+            if (file.exists()) {
+                if (download.size!=null) {
+                    long downloadedSize = file.length();
+                    downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
+                    double percent = 100d * downloadedSize/Long.parseLong(download.size);
+                    if (percent > 100d) {
+                        percent = 100d;
+                    }
+                    DecimalFormat percentFormat = new DecimalFormat("00.00");
+                    String percentFormatted = percentFormat.format(percent);
+                    String formattedSize = Formatter.formatFileSize(getActivity(), Long
+                            .parseLong(download.size));
+                    String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
+                            "%";
+                    progress.setText(statusString);
+                }
+                else {
+                    long downloadedSize = file.length();
+                    downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
+                    progress.setText(downloaded);
+                }
+            }
+            else {
+                if (download.size!=null) {
+                    String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
+                            .parseLong(download.size));
+                    String statusString = "0KB / " + formattedSize + " 0%";
+                    progress.setText(statusString);
+                }
+                else {
+                    String statusString = "0kB";
+                    progress.setText(statusString);
+                }
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            //todo open a webview from the given url in downloads.get(getAdapterPosition).page
+            //checks for videos loaded and compare size with the value in downloads.get
+            // (getAdapterPosition).size. If matches, update with new url
+        }
+
+        @Override
+        public void onGlobalLayout() {
+            if (!adjustedLayout) {
+                if (itemView.getWidth()!=0 && ext.getWidth()!=0 && rename.getWidth()!=0 && delete
+                        .getWidth()!=0) {
+                    int totalMargin = (int) TypedValue.applyDimension(TypedValue
+                                    .COMPLEX_UNIT_DIP, 35,
+                            getActivity().getResources().getDisplayMetrics());
+                    int nameMaxWidth = itemView.getMeasuredWidth() - totalMargin - ext
+                            .getMeasuredWidth() - rename.getMeasuredWidth() - delete
+                            .getMeasuredWidth();
+                    name.setMaxWidth(nameMaxWidth);
+                    adjustedLayout = true;
+                }
+            }
+        }
+    }
 }

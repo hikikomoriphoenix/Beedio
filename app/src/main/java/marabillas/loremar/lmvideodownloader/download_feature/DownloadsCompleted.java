@@ -55,7 +55,7 @@ import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.RenameDialog;
 
-public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgress.OnTopItemRemovedListener {
+public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgress.OnAddDownloadedVideoToCompletedListener {
     private RecyclerView downloadsList;
     private List<String> videos;
     private CompletedVideos completedVideos;
@@ -145,7 +145,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     }
 
     @Override
-    public void onTopItemInProgressRemoved(final String name, final String type) {
+    public void onAddDownloadedVideoToCompleted(final String name, final String type) {
         if (completedVideos==null) {
             completedVideos = new CompletedVideos();
         }

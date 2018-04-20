@@ -101,6 +101,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
             }
         });
+        pager.setOffscreenPageLimit(2);//default is 1 which would make Inactive tab not diplay
 
         downloadsInProgress = new DownloadsInProgress();
         downloadsCompleted = new DownloadsCompleted();
@@ -115,7 +116,8 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
         downloadsInProgress.setTracking(this);
 
-        downloadsInProgress.setOnTopItemRemovedListener(downloadsCompleted);
+        downloadsInProgress.setOnAddDownloadedVideoToCompletedListener(downloadsCompleted);
+        downloadsInProgress.setOnAddDownloadItemToInactiveListener(downloadsInactive);
 
         return view;
     }
@@ -128,6 +130,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsInProgress = null;
         downloadsCompleted = null;
         downloadsInactive = null;
+
         super.onDestroyView();
     }
 

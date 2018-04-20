@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,6 +110,10 @@ public class DownloadManager extends IntentService {
                 }
             }
         }
+        catch (FileNotFoundException e) {
+            Log.i("loremarTest", "link:"+intent.getStringExtra("link")+" not found");
+            onLinkNotFoundListener.onLinkNotFound();
+        }
         catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,6 +127,17 @@ public class DownloadManager extends IntentService {
 
     static void setOnDownloadFinishedListener(OnDownloadFinishedListener listener) {
         onDownloadFinishedListener = listener;
+    }
+
+
+    interface OnLinkNotFoundListener {
+        void onLinkNotFound();
+    }
+
+    private static OnLinkNotFoundListener onLinkNotFoundListener;
+
+    static void setOnLinkNotFoundListener(OnLinkNotFoundListener listener) {
+        onLinkNotFoundListener = listener;
     }
 
     @Override

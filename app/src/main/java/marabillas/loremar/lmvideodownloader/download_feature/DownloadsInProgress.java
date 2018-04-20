@@ -36,6 +36,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,7 +63,7 @@ import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.RenameDialog;
 import marabillas.loremar.lmvideodownloader.Utils;
 
-public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener {
+public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener, DownloadManager.OnLinkNotFoundListener {
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
     private DownloadQueues queues;
@@ -70,10 +71,15 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
     private Tracking tracking;
 
-    private OnTopItemRemovedListener onTopItemRemovedListener;
+    private OnAddDownloadedVideoToCompletedListener onAddDownloadedVideoToCompletedListener;
+    private OnAddDownloadItemToInactiveListener onAddDownloadItemToInactiveListener;
 
-    public interface OnTopItemRemovedListener {
-        void onTopItemInProgressRemoved(String name, String type);
+    public interface OnAddDownloadedVideoToCompletedListener {
+        void onAddDownloadedVideoToCompleted(String name, String type);
+    }
+
+    public interface OnAddDownloadItemToInactiveListener {
+        void onAddDownloadItemToInactive(DownloadVideo inactiveDownload);
     }
 
     @Nullable
@@ -219,9 +225,8 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             }
         });
 
-        DownloadManager.setOnDownloadFinishedListener(this);
-
-
+        DownloadManager.setOnDownloadFinishedListener(this);        
+        DownloadManager.setOnLinkNotFoundListener(this);
 
         return view;
     }
@@ -292,10 +297,35 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     String type = downloads.get(0).type;
                     downloads.remove(0);
                     queues.saveQueues(getActivity());
-                    onTopItemRemovedListener.onTopItemInProgressRemoved(name, type);
+                    onAddDownloadedVideoToCompletedListener.onAddDownloadedVideoToCompleted(name, type);
                     downloadsList.getAdapter().notifyItemRemoved(0);
                 }
                 startDownload();
+            }
+        });
+    }
+
+    @Override
+    public void onLinkNotFound() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                downloadsStartPauseButton.setText(R.string.start);
+                tracking.stopTracking();
+                if (downloads.size()>0) {
+                    DownloadVideo video = downloads.get(0);
+                    DownloadVideo inactiveDownload = new DownloadVideo();
+                    inactiveDownload.name = video.name;
+                    inactiveDownload.link = video.link;
+                    inactiveDownload.page = video.page;
+                    inactiveDownload.size = video.size;
+                    inactiveDownload.type = video.type;
+                    downloads.remove(0);
+                    queues.saveQueues(getActivity());
+                    onAddDownloadItemToInactiveListener.onAddDownloadItemToInactive(inactiveDownload);
+                    downloadsList.getAdapter().notifyItemRemoved(0);
+                }
+                startDownload();    
             }
         });
     }
@@ -304,8 +334,14 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         downloadsList.getAdapter().notifyItemChanged(0);
     }
 
-    public void setOnTopItemRemovedListener(OnTopItemRemovedListener onTopItemRemovedListener) {
-        this.onTopItemRemovedListener = onTopItemRemovedListener;
+    public void setOnAddDownloadedVideoToCompletedListener
+            (OnAddDownloadedVideoToCompletedListener onAddDownloadedVideoToCompletedListener) {
+        this.onAddDownloadedVideoToCompletedListener = onAddDownloadedVideoToCompletedListener;
+    }
+
+    public void setOnAddDownloadItemToInactiveListener(OnAddDownloadItemToInactiveListener
+                                                               onAddDownloadItemToInactiveListener) {
+        this.onAddDownloadItemToInactiveListener = onAddDownloadItemToInactiveListener;
     }
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem > {
