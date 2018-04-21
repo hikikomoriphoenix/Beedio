@@ -91,20 +91,22 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     }
 
     OnBackPressedListener onBackPressedListener;
+
     @Override
     public void onBackPressed() {
-        if (layout.isDrawerVisible(Gravity.START)) {
+        Fragment sourcePage = getFragmentManager().findFragmentByTag("updateSourcePage");
+        if (sourcePage != null) {
+            getFragmentManager().beginTransaction().remove(sourcePage).commit();
+        } else if (layout.isDrawerVisible(Gravity.START)) {
             layout.closeDrawer(Gravity.START);
-        }
-        else if (onBackPressedListener!=null) {
+        } else if (onBackPressedListener != null) {
             onBackPressedListener.onBackpressed();
-        }
-        else super.onBackPressed();
+        } else super.onBackPressed();
     }
 
     @Override
     public void onClick(View v) {
-        if(getCurrentFocus()!=null) {
+        if (getCurrentFocus() != null) {
             Utils.hideSoftKeyboard(this, getCurrentFocus().getWindowToken());
             System.out.println("opening webview");
             new WebConnect(webBox, this).connect();
@@ -120,7 +122,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             case "Home":
                 browserManager.hideCurrentWindow();
                 fragment = getFragmentManager().findFragmentByTag("Downloads");
-                if(fragment!=null) {
+                if (fragment != null) {
                     getFragmentManager().beginTransaction().remove(fragment).commit();
                 }
                 setOnBackPressedListener(null);
@@ -128,12 +130,12 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             case "Browser":
                 browserManager.unhideCurrentWindow();
                 fragment = getFragmentManager().findFragmentByTag("Downloads");
-                if(fragment!=null) {
+                if (fragment != null) {
                     getFragmentManager().beginTransaction().remove(fragment).commit();
                 }
                 break;
             case "Downloads":
-                if (getFragmentManager().findFragmentByTag("Downloads")==null) {
+                if (getFragmentManager().findFragmentByTag("Downloads") == null) {
                     browserManager.hideCurrentWindow();
                     getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
                             "Downloads").commit();
@@ -158,7 +160,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     @Override
     protected void onStart() {
         super.onStart();
-        if(appLinkData!=null) {
+        if (appLinkData != null) {
             browserManager.newWindow(appLinkData.toString());
         }
     }

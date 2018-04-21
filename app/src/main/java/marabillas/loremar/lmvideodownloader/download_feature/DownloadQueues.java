@@ -40,26 +40,7 @@ public class DownloadQueues implements Serializable {
     }
 
     public void add(String size, String type, String link, String name, String page) {
-        name = name.replaceAll("[^\\w ()'\\[\\]\\-]", "");
-        name = name.trim();
-        if (name.equals("")) name = "video";
-        int i = 0;
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                .DIRECTORY_DOWNLOADS), name + "." + type);
-        StringBuilder nameBuilder = new StringBuilder(name);
-        while(file.exists()) {
-            i++;
-            nameBuilder = new StringBuilder(name);
-            nameBuilder.append(" ").append(i);
-            file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                    .DIRECTORY_DOWNLOADS), nameBuilder + "." + type);
-        }
-        while(nameAlreadyExists(nameBuilder.toString())) {
-            i++;
-            nameBuilder = new StringBuilder(name);
-            nameBuilder.append(" ").append(i);
-        }
-        name = nameBuilder.toString();
+        name = getValidName(name, type);
 
         DownloadVideo video = new DownloadVideo();
         video.link = link;
@@ -70,13 +51,36 @@ public class DownloadQueues implements Serializable {
         downloads.add(video);
     }
 
+    private String getValidName(String name, String type) {
+        name = name.replaceAll("[^\\w ()'!\\[\\]\\-]", "");
+        name = name.trim();
+        if (name.equals("")) name = "video";
+        int i = 0;
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment
+                .DIRECTORY_DOWNLOADS), name + "." + type);
+        StringBuilder nameBuilder = new StringBuilder(name);
+        while (file.exists()) {
+            i++;
+            nameBuilder = new StringBuilder(name);
+            nameBuilder.append(" ").append(i);
+            file = new File(Environment.getExternalStoragePublicDirectory(Environment
+                    .DIRECTORY_DOWNLOADS), nameBuilder + "." + type);
+        }
+        while (nameAlreadyExists(nameBuilder.toString())) {
+            i++;
+            nameBuilder = new StringBuilder(name);
+            nameBuilder.append(" ").append(i);
+        }
+        return nameBuilder.toString();
+    }
+
     List<DownloadVideo> getList() {
-        return  downloads;
+        return downloads;
     }
 
     private boolean nameAlreadyExists(String name) {
-        for(DownloadVideo video: downloads) {
-            if(video.name.equals(name)) return true;
+        for (DownloadVideo video : downloads) {
+            if (video.name.equals(name)) return true;
         }
         return false;
     }
@@ -93,6 +97,12 @@ public class DownloadQueues implements Serializable {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void renameItem(int index, String newName) {
+        if (!downloads.get(index).name.equals(newName)) {
+            downloads.get(index).name = getValidName(newName, downloads.get(index).type);
         }
     }
 }

@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,18 +72,18 @@ public class DownloadManager extends IntentService {
                             connection.setRequestProperty("Range", "bytes=" + downloadFile.length
                                     () + "-");
                             connection.connect();
-                            out = new FileOutputStream(downloadFile.getAbsolutePath(),true);
+                            out = new FileOutputStream(downloadFile.getAbsolutePath(), true);
                         } else {
                             connection.connect();
                             if (downloadFile.createNewFile()) {
-                                out = new FileOutputStream(downloadFile.getAbsolutePath(),true);
+                                out = new FileOutputStream(downloadFile.getAbsolutePath(), true);
                             }
                         }
                         if (out != null && downloadFile.exists()) {
                             InputStream in = connection.getInputStream();
                             ReadableByteChannel readableByteChannel = Channels.newChannel(in);
                             FileChannel fileChannel = out.getChannel();
-                            while(downloadFile.length() < totalSize) {
+                            while (downloadFile.length() < totalSize) {
                                 if (Thread.currentThread().isInterrupted()) return;
                                 fileChannel.transferFrom(readableByteChannel, 0, 1024);
                                 /*ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
@@ -92,7 +93,7 @@ public class DownloadManager extends IntentService {
                                     writableByteChannel.write(buffer);
                                 }
                                 else break;*/
-                                if (downloadFile==null) return;
+                                if (downloadFile == null) return;
                             }
                             readableByteChannel.close();
                             in.close();
@@ -103,13 +104,14 @@ public class DownloadManager extends IntentService {
                             onDownloadFinishedListener.onDownloadFinished();
                         }
                     }
-                }
-                else {
+                } else {
                     Log.e("loremarTest", "directory doesn't exist");
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (FileNotFoundException e) {
+            Log.i("loremarTest", "link:" + intent.getStringExtra("link") + " not found");
+            onLinkNotFoundListener.onLinkNotFound();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -122,6 +124,17 @@ public class DownloadManager extends IntentService {
 
     static void setOnDownloadFinishedListener(OnDownloadFinishedListener listener) {
         onDownloadFinishedListener = listener;
+    }
+
+
+    interface OnLinkNotFoundListener {
+        void onLinkNotFound();
+    }
+
+    private static OnLinkNotFoundListener onLinkNotFoundListener;
+
+    static void setOnLinkNotFoundListener(OnLinkNotFoundListener listener) {
+        onLinkNotFoundListener = listener;
     }
 
     @Override
@@ -137,10 +150,11 @@ public class DownloadManager extends IntentService {
 
     /**
      * Should be called every second
+     *
      * @return download speed in bytes per second
      */
     static long getDownloadSpeed() {
-        if (downloadFile!=null) {
+        if (downloadFile != null) {
             long downloaded = downloadFile.length();
             downloadSpeed = downloaded - prevDownloaded;
             prevDownloaded = downloaded;
@@ -150,7 +164,6 @@ public class DownloadManager extends IntentService {
     }
 
     /**
-     *
      * @return remaining time to download video in milliseconds
      */
     static long getRemaining() {

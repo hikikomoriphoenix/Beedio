@@ -41,4 +41,9 @@
     <string name="remaining_undefine">Remaining: —</string>
     <string name="pause">Pause</string>
     <string name="start">Start</string>
+    <string name="downloads_inactive_instruction">Press the Go to Page Button. When the page is
+        loaded, play the required video. Wait until app gets the new updated link</string>
+    <string name="clear_all_finished">Clear All Finished</string>
+    <string name="play_video">Play Video</string>
+    <string name="go_to_page">Go to Page</string>
 </resources>
