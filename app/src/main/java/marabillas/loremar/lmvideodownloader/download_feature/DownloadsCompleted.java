@@ -60,6 +60,21 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     private List<String> videos;
     private CompletedVideos completedVideos;
 
+    private OnNumDownloadsCompletedChangeListener onNumDownloadsCompletedChangeListener;
+
+    public interface OnNumDownloadsCompletedChangeListener {
+        void onNumDownloadsCompletedChange();
+    }
+
+    public void setOnNumDownloadsCompletedChangeListener(OnNumDownloadsCompletedChangeListener
+                                                                 onNumDownloadsCompletedChangeListener) {
+        this.onNumDownloadsCompletedChangeListener = onNumDownloadsCompletedChangeListener;
+    }
+
+    public int getNumDownloadsCompleted() {
+        return videos.size();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -128,6 +143,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                                 videos.clear();
                                 completedVideos.save(getActivity());
                                 downloadsList.getAdapter().notifyItemRangeRemoved(0, length);
+                                onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -141,6 +157,8 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
             }
         });
 
+        onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
+
         return view;
     }
 
@@ -152,6 +170,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
         completedVideos.addVideo(getActivity(), name + "." + type);
         videos = completedVideos.getVideos();
         downloadsList.getAdapter().notifyItemInserted(0);
+        onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
     }
 
     private class DownloadedVideoAdapter extends RecyclerView.Adapter<VideoItem> {
@@ -215,6 +234,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                                     videos.remove(position);
                                     completedVideos.save(getActivity());
                                     downloadsList.getAdapter().notifyItemRemoved(position);
+                                    onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -281,6 +301,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 videos.remove(position);
                 completedVideos.save(getActivity());
                 downloadsList.getAdapter().notifyItemRemoved(position);
+                onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
             }
         }
 

@@ -73,6 +73,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
     private OnAddDownloadedVideoToCompletedListener onAddDownloadedVideoToCompletedListener;
     private OnAddDownloadItemToInactiveListener onAddDownloadItemToInactiveListener;
+    private OnNumDownloadsInProgressChangeListener onNumDownloadsInProgressChangeListener;
 
     public interface OnAddDownloadedVideoToCompletedListener {
         void onAddDownloadedVideoToCompleted(String name, String type);
@@ -80,6 +81,14 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
     public interface OnAddDownloadItemToInactiveListener {
         void onAddDownloadItemToInactive(DownloadVideo inactiveDownload);
+    }
+
+    public interface OnNumDownloadsInProgressChangeListener {
+        void onNumDownloadsInProgressChange();
+    }
+
+    public int getNumDownloadsInProgress() {
+        return downloads.size();
     }
 
     @Nullable
@@ -227,6 +236,8 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         DownloadManager.setOnDownloadFinishedListener(this);
         DownloadManager.setOnLinkNotFoundListener(this);
 
+        onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
+
         return view;
     }
 
@@ -298,6 +309,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     queues.saveQueues(getActivity());
                     onAddDownloadedVideoToCompletedListener.onAddDownloadedVideoToCompleted(name, type);
                     downloadsList.getAdapter().notifyItemRemoved(0);
+                    onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 }
                 startDownload();
             }
@@ -323,6 +335,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     queues.saveQueues(getActivity());
                     onAddDownloadItemToInactiveListener.onAddDownloadItemToInactive(inactiveDownload);
                     downloadsList.getAdapter().notifyItemRemoved(0);
+                    onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 }
                 startDownload();
             }
@@ -343,6 +356,11 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         this.onAddDownloadItemToInactiveListener = onAddDownloadItemToInactiveListener;
     }
 
+    public void setOnNumDownloadsInProgressChangeListener(OnNumDownloadsInProgressChangeListener
+                                                                  onNumDownloadsInProgressChangeListener) {
+        this.onNumDownloadsInProgressChangeListener = onNumDownloadsInProgressChangeListener;
+    }
+
     @Override
     public void onDownloadWithNewLink(final DownloadVideo download) {
         Log.i("loremarTest", "download with new link");
@@ -350,12 +368,16 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
             getActivity().stopService(downloadService);
             DownloadManager.stopThread();
+            downloadsStartPauseButton.setText(R.string.start);
+            tracking.stopTracking();
         }
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 downloads.add(0, download);
                 queues.saveQueues(getActivity());
+                downloadsList.getAdapter().notifyItemInserted(0);
+                onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 startDownload();
             }
         });
@@ -425,6 +447,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                                         downloadsList.getAdapter().notifyItemRemoved(position);
                                         startDownload();
                                     }
+                                    onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
