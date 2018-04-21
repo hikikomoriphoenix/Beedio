@@ -29,7 +29,6 @@ import android.widget.EditText;
 
 /**
  * Created by loremar on 3/20/18.
- *
  */
 
 public abstract class RenameDialog implements DialogInterface.OnClickListener {
@@ -53,7 +52,7 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
     @Override
     public final void onClick(DialogInterface dialog, int which) {
         Utils.hideSoftKeyboard((Activity) context, text.getWindowToken());
-        if(which == DialogInterface.BUTTON_POSITIVE) {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
             onOK(text.getText().toString());
         }
     }

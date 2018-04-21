@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
   ~     Copyright (C) 2018 Loremar Marabillas
@@ -23,6 +22,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <TextView
         android:id="@+id/videoFoundSize"
         android:layout_width="wrap_content"
@@ -33,7 +33,8 @@
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
         android:gravity="center_vertical"
         android:layout_marginStart="2dp"
-        android:layout_marginLeft="2dp"/>
+        android:layout_marginLeft="2dp" />
+
     <TextView
         android:id="@+id/videoFoundName"
         android:layout_width="wrap_content"
@@ -45,7 +46,8 @@
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
-        android:gravity="center_vertical"/>
+        android:gravity="center_vertical" />
+
     <TextView
         android:id="@+id/videoFoundExt"
         android:layout_width="wrap_content"
@@ -53,14 +55,15 @@
         app:layout_constraintStart_toEndOf="@id/videoFoundName"
         app:layout_constraintTop_toTopOf="@id/videoFoundCheck"
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
-        android:gravity="center_vertical"/>
+        android:gravity="center_vertical" />
+
     <CheckBox
         android:id="@+id/videoFoundCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/videoFoundExpand"/>
+        app:layout_constraintBottom_toTopOf="@id/videoFoundExpand" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/videoFoundExpand"
@@ -68,6 +71,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/videoFoundCheck"
         app:layout_constraintBottom_toBottomOf="parent">
+
         <TextView
             android:id="@+id/videoFoundRename"
             android:layout_width="wrap_content"
@@ -81,7 +85,8 @@
             app:layout_constraintEnd_toStartOf="@id/videoFoundCopy"
             app:layout_constraintTop_toTopOf="@id/videoFoundCopy"
             android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"/>
+            android:layout_marginRight="10dp" />
+
         <TextView
             android:id="@+id/videoFoundCopy"
             android:layout_width="wrap_content"
@@ -95,7 +100,8 @@
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="5dp" />
+
         <TextView
             android:id="@+id/videoFoundDelete"
             android:layout_width="wrap_content"
@@ -109,7 +115,7 @@
             app:layout_constraintStart_toEndOf="@id/videoFoundCopy"
             app:layout_constraintTop_toTopOf="@id/videoFoundCopy"
             android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="10dp" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

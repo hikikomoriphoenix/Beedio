@@ -37,12 +37,12 @@ import java.util.List;
 
 /**
  * Created by loremar on 3/23/18.
- *
  */
 
 public class BrowserManager extends LMvdFragment {
     private List<BrowserWindow> windows;
     private RecyclerView allWindows;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +66,7 @@ public class BrowserManager extends LMvdFragment {
                 .commit();
         windows.add(window);
         getLMvdActivity().setOnBackPressedListener(window);
-        if(windows.size()>1) {
+        if (windows.size() > 1) {
             window = windows.get(windows.size() - 2);
             if (window != null && window.getView() != null) {
                 window.getView().setVisibility(View.GONE);
@@ -79,28 +79,27 @@ public class BrowserManager extends LMvdFragment {
     void closeWindow(BrowserWindow window) {
         windows.remove(window);
         getFragmentManager().beginTransaction().remove(window).commit();
-        if(windows.size()>0) {
+        if (windows.size() > 0) {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow != null && topWindow.getView() != null) {
                 topWindow.getView().setVisibility(View.VISIBLE);
             }
             getLMvdActivity().setOnBackPressedListener(topWindow);
-        }
-        else {
+        } else {
             getLMvdActivity().setOnBackPressedListener(null);
         }
         updateNumWindows();
     }
 
     void switchWindow(int index) {
-        BrowserWindow topWindow = windows.get(windows.size()-1);
-        if(topWindow.getView()!=null) {
+        BrowserWindow topWindow = windows.get(windows.size() - 1);
+        if (topWindow.getView() != null) {
             topWindow.getView().setVisibility(View.GONE);
         }
         BrowserWindow window = windows.get(index);
         windows.remove(index);
         windows.add(window);
-        if(window.getView()!=null) {
+        if (window.getView() != null) {
             window.getView().setVisibility(View.VISIBLE);
             getLMvdActivity().setOnBackPressedListener(window);
         }
@@ -108,7 +107,7 @@ public class BrowserManager extends LMvdFragment {
     }
 
     private void updateNumWindows() {
-        for (BrowserWindow window: windows) {
+        for (BrowserWindow window : windows) {
             window.updateNumWindows(windows.size());
         }
     }
@@ -118,7 +117,7 @@ public class BrowserManager extends LMvdFragment {
     }
 
     void hideCurrentWindow() {
-        if(windows.size()>0) {
+        if (windows.size() > 0) {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow.getView() != null) {
                 topWindow.getView().setVisibility(View.GONE);
@@ -127,14 +126,13 @@ public class BrowserManager extends LMvdFragment {
     }
 
     public void unhideCurrentWindow() {
-        if(windows.size()>0) {
+        if (windows.size() > 0) {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow.getView() != null) {
                 topWindow.getView().setVisibility(View.VISIBLE);
                 getLMvdActivity().setOnBackPressedListener(topWindow);
             }
-        }
-        else {
+        } else {
             getLMvdActivity().setOnBackPressedListener(null);
         }
     }
@@ -145,7 +143,7 @@ public class BrowserManager extends LMvdFragment {
         @Override
         public WindowItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
-            View item = inflater.inflate(R.layout.all_windows_popup_item, parent,false);
+            View item = inflater.inflate(R.layout.all_windows_popup_item, parent, false);
             return new WindowItem(item);
         }
 
@@ -156,7 +154,7 @@ public class BrowserManager extends LMvdFragment {
 
         @Override
         public int getItemCount() {
-            return windows.size()-1;
+            return windows.size() - 1;
         }
     }
 

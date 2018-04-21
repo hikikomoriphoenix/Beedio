@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
   ~     Copyright (C) 2018 Loremar Marabillas
@@ -22,15 +21,15 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
-            <solid android:color="@color/lightGray"/>
-            <corners android:radius="2dp"/>
+            <solid android:color="@color/lightGray" />
+            <corners android:radius="2dp" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape android:shape="rectangle">
-                <solid android:color="@color/blue"/>
-                <corners android:radius="2dp"/>
+                <solid android:color="@color/blue" />
+                <corners android:radius="2dp" />
             </shape>
         </clip>
     </item>

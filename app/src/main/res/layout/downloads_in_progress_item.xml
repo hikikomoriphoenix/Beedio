@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
   ~     Copyright (C) 2018 Loremar Marabillas
@@ -40,13 +39,14 @@
         android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"
         android:gravity="center_vertical" />
+
     <TextView
         android:id="@+id/downloadVideoExt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@id/downloadVideoName"
         app:layout_constraintTop_toTopOf="@id/downloadVideoName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName" />
 
     <ImageView
         android:id="@+id/deleteDownloadItem"
@@ -56,7 +56,7 @@
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadVideoName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName" />
 
     <ImageView
         android:id="@+id/renameDownloadVideo"
@@ -66,7 +66,7 @@
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toStartOf="@id/deleteDownloadItem"
         app:layout_constraintTop_toTopOf="@id/downloadVideoName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName"/>
+        app:layout_constraintBottom_toBottomOf="@id/downloadVideoName" />
 
     <ProgressBar
         android:id="@+id/downloadProgressBar"
@@ -79,7 +79,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"
         android:layout_marginEnd="5dp"
-        android:max="100"/>
+        android:max="100" />
 
     <TextView
         android:id="@+id/downloadProgressText"

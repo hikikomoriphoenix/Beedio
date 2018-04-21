@@ -51,8 +51,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".download_feature.DownloadManager"
-            android:exported="false"/>
+        <service
+            android:name=".download_feature.DownloadManager"
+            android:exported="false" />
 
         <provider
             android:authorities="marabillas.loremar.lmvideodownloader.fileprovider"
@@ -61,7 +62,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/paths"/>
+                android:resource="@xml/paths" />
         </provider>
     </application>
 

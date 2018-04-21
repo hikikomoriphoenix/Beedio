@@ -34,14 +34,13 @@ public class WebConnect {
 
     void connect() {
         String text = textBox.getText().toString();
-        if(Patterns.WEB_URL.matcher(text).matches()){
-            if(!text.startsWith("http")){
+        if (Patterns.WEB_URL.matcher(text).matches()) {
+            if (!text.startsWith("http")) {
                 text = "http://" + text;
             }
             activity.getBrowserManager().newWindow(text);
-        }
-        else{
-            text = "https://google.com/search?q="+text;
+        } else {
+            text = "https://google.com/search?q=" + text;
             activity.getBrowserManager().newWindow(text);
         }
     }

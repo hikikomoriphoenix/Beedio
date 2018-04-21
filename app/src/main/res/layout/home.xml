@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
   ~     Copyright (C) 2018 Loremar Marabillas
@@ -24,8 +23,8 @@
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/main"
+
+    <android.support.constraint.ConstraintLayout android:id="@+id/main"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -57,7 +56,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/web"
             android:layout_marginEnd="20dp"
-            android:layout_marginRight="20dp"/>
+            android:layout_marginRight="20dp" />
 
         <ImageView
             android:id="@+id/menuButton"
@@ -66,10 +65,10 @@
             android:src="@drawable/ic_menu_black_24dp"
             tools:ignore="ContentDescription"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
-    
+
     <android.support.design.widget.NavigationView
         android:id="@+id/menu"
         android:layout_width="wrap_content"
@@ -77,6 +76,6 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_view"
-        android:theme="@style/Theme.AppCompat"/>
+        android:theme="@style/Theme.AppCompat" />
 
 </android.support.v4.widget.DrawerLayout>

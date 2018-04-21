@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     LM videodownloader is a browser app for android, made to easily
   ~     download videos.
   ~     Copyright (C) 2018 Loremar Marabillas
@@ -40,13 +39,14 @@
         android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"
         android:gravity="center_vertical" />
+
     <TextView
         android:id="@+id/downloadInactiveExt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@id/downloadInactiveName"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadInactiveName"/>
+        app:layout_constraintBottom_toBottomOf="@id/downloadInactiveName" />
 
     <ImageView
         android:id="@+id/deleteDownloadInactiveItem"
@@ -56,7 +56,7 @@
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadInactiveName"/>
+        app:layout_constraintBottom_toBottomOf="@id/downloadInactiveName" />
 
     <ImageView
         android:id="@+id/renameDownloadInactiveVideo"
@@ -66,7 +66,7 @@
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toStartOf="@id/deleteDownloadInactiveItem"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveName"
-        app:layout_constraintBottom_toBottomOf="@id/downloadInactiveName"/>
+        app:layout_constraintBottom_toBottomOf="@id/downloadInactiveName" />
 
     <TextView
         android:id="@+id/downloadInactiveProgressText"

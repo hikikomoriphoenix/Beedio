@@ -56,7 +56,6 @@ import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
 
 /**
  * Created by loremar on 3/23/18.
- *
  */
 
 public abstract class VideoList {
@@ -97,7 +96,7 @@ public abstract class VideoList {
     }
 
     void addItem(@Nullable String size, String type, String link, String name, String page) {
-        Video video  = new Video();
+        Video video = new Video();
         video.size = size;
         video.type = type;
         video.link = link;
@@ -105,13 +104,13 @@ public abstract class VideoList {
         video.page = page;
 
         boolean duplicate = false;
-        for(Video v: videos){
-            if(v.link.equals(video.link)) {
+        for (Video v : videos) {
+            if (v.link.equals(video.link)) {
                 duplicate = true;
                 break;
             }
         }
-        if(!duplicate) {
+        if (!duplicate) {
             videos.add(video);
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
@@ -127,13 +126,12 @@ public abstract class VideoList {
     }
 
     void deleteCheckedItems() {
-        for(int i=0; i<videos.size();) {
-            if(videos.get(i).checked) {
+        for (int i = 0; i < videos.size(); ) {
+            if (videos.get(i).checked) {
                 videos.remove(i);
-            }
-            else i++;
+            } else i++;
         }
-        ((VideoListAdapter)view.getAdapter()).expandedItem = -1;
+        ((VideoListAdapter) view.getAdapter()).expandedItem = -1;
         view.getAdapter().notifyDataSetChanged();
     }
 
@@ -189,12 +187,11 @@ public abstract class VideoList {
             }
 
             void bind(Video video) {
-                if (video.size!=null) {
+                if (video.size != null) {
                     String sizeFormatted = Formatter.formatShortFileSize(context,
                             Long.parseLong(video.size));
                     size.setText(sizeFormatted);
-                }
-                else size.setText(" ");
+                } else size.setText(" ");
                 String extStr = "." + video.type;
                 ext.setText(extStr);
                 check.setChecked(video.checked);
@@ -236,7 +233,7 @@ public abstract class VideoList {
                 } else if (v == expand.findViewById(R.id.videoFoundDelete)) {
                     new AlertDialog.Builder(context)
                             .setMessage("Delete this item from the list?")
-                            .setPositiveButton( "YES", new DialogInterface
+                            .setPositiveButton("YES", new DialogInterface
                                     .OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -246,7 +243,7 @@ public abstract class VideoList {
                                     onItemDeleted();
                                 }
                             })
-                            .setNegativeButton( "NO", new DialogInterface
+                            .setNegativeButton("NO", new DialogInterface
                                     .OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -294,7 +291,7 @@ public abstract class VideoList {
     void saveCheckedItemsForDownloading() {
         File file = new File(context.getFilesDir(), "downloads.dat");
         DownloadQueues queues = new DownloadQueues();
-        if(file.exists()) {
+        if (file.exists()) {
             try {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
@@ -309,8 +306,8 @@ public abstract class VideoList {
                 e.printStackTrace();
             }
         }
-        for(Video video: videos) {
-            if(video.checked) {
+        for (Video video : videos) {
+            if (video.checked) {
                 queues.add(video.size, video.type, video.link, video.name, video.page);
             }
         }

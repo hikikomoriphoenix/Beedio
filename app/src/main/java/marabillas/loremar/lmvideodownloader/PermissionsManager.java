@@ -27,7 +27,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 public abstract class PermissionsManager implements ActivityCompat
-        .OnRequestPermissionsResultCallback{
+        .OnRequestPermissionsResultCallback {
     private Activity activity;
     private boolean grantedPermissions;
     private String[] permissions;
@@ -35,7 +35,7 @@ public abstract class PermissionsManager implements ActivityCompat
 
     protected PermissionsManager(Activity activity) {
         this.activity = activity;
-        ((LMvdActivity)activity).setOnRequestPermissionsResultListener(this);
+        ((LMvdActivity) activity).setOnRequestPermissionsResultListener(this);
     }
 
     private boolean notGrantedPermission(String permission) {
@@ -44,25 +44,23 @@ public abstract class PermissionsManager implements ActivityCompat
     }
 
     public void checkPermissions(String permission, int requestCode) {
-        checkPermissions(new String[] {permission}, requestCode);
+        checkPermissions(new String[]{permission}, requestCode);
     }
 
     public void checkPermissions(String[] permissions, int requestCode) {
         this.permissions = permissions;
         this.requestCode = requestCode;
-        for (String permission: permissions) {
-            if(notGrantedPermission(permission)) {
-                if(ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+        for (String permission : permissions) {
+            if (notGrantedPermission(permission)) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
                     showRequestPermissionRationale();
-                }
-                else {
+                } else {
                     requestPermissions();
                 }
                 break;
-            }
-            else grantedPermissions = true;
+            } else grantedPermissions = true;
         }
-        if(grantedPermissions) onPermissionsGranted();
+        if (grantedPermissions) onPermissionsGranted();
     }
 
     public void requestPermissions() {
@@ -72,20 +70,18 @@ public abstract class PermissionsManager implements ActivityCompat
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[]
             permissions, @NonNull int[] grantResults) {
-        for (int i=0; i<permissions.length; i++) {
+        for (int i = 0; i < permissions.length; i++) {
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 if (!ActivityCompat.shouldShowRequestPermissionRationale(activity,
                         permissions[i])) {
                     grantedPermissions = false;
                     requestDisallowedAction();
-                }
-                else {
+                } else {
                     grantedPermissions = false;
                     onPermissionsDenied();
                 }
                 break;
-            }
-            else grantedPermissions = true;
+            } else grantedPermissions = true;
         }
         if (grantedPermissions) onPermissionsGranted();
     }

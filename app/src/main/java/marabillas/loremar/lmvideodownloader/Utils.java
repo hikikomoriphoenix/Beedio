@@ -42,19 +42,19 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by loremar on 3/17/18.
- *
  */
 
 public final class Utils {
 
-    private Utils() {}
+    private Utils() {
+    }
 
     /**
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
      * aid testing on a local box, not for use on production.
      */
     public static void disableSSLCertificateChecking() {
-        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
             public X509Certificate[] getAcceptedIssuers() {
                 return null;
             }
@@ -70,7 +70,7 @@ public final class Utils {
             public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
                 // Not implemented
             }
-        } };
+        }};
 
         try {
             SSLContext sc = SSLContext.getInstance("TLS");
@@ -126,13 +126,11 @@ public final class Utils {
         long totalMinsInSecs = TimeUnit.MINUTES.toSeconds(totalMins);
         long totalSecs = TimeUnit.MILLISECONDS.toSeconds(milliseconds);
         long extraSecs = totalSecs - totalMinsInSecs;
-        if (totalHrs>0) {
+        if (totalHrs > 0) {
             return totalHrs + "h " + extraMins + "m " + extraSecs + "s";
-        }
-        else if (totalMins>0) {
+        } else if (totalMins > 0) {
             return totalMins + "m " + extraSecs + "s";
-        }
-        else {
+        } else {
             return totalSecs + "s";
         }
     }

@@ -28,11 +28,11 @@ import android.webkit.WebView;
 
 /**
  * Created by loremar on 3/21/18.
- *
  */
 
-public class TouchableWebView extends WebView implements View.OnTouchListener{
+public class TouchableWebView extends WebView implements View.OnTouchListener {
     private float clickX, clickY;
+
     public TouchableWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnTouchListener(this);
@@ -40,7 +40,7 @@ public class TouchableWebView extends WebView implements View.OnTouchListener{
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
             clickX = event.getX();
             clickY = event.getY();
         }

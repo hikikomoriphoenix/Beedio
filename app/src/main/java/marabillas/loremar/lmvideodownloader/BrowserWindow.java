@@ -94,7 +94,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if(v == videosFoundHUD) {
+        if (v == videosFoundHUD) {
             gesture.onTouchEvent(event);
 
             switch (event.getAction()) {
@@ -134,17 +134,14 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     public void onClick(View v) {
         if (v == videosFoundHUD) {
             foundVideosWindow.setVisibility(View.VISIBLE);
-        }
-        else if (v == foundVideosQueue) {
+        } else if (v == foundVideosQueue) {
             videoList.saveCheckedItemsForDownloading();
             videoList.deleteCheckedItems();
             updateFoundVideosBar();
-        }
-        else if (v == foundVideosDelete) {
+        } else if (v == foundVideosDelete) {
             videoList.deleteCheckedItems();
             updateFoundVideosBar();
-        }
-        else if (v == foundVideosClose) {
+        } else if (v == foundVideosClose) {
             foundVideosWindow.setVisibility(View.GONE);
         }
     }
@@ -173,13 +170,13 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             public void onClick(View v) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage("Are you sure you want to close this window?")
-                        .setPositiveButton( "YES", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 getLMvdActivity().getBrowserManager().closeWindow(BrowserWindow.this);
                             }
                         })
-                        .setNegativeButton( "NO", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
@@ -197,7 +194,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             @Override
             public void onClick(View v) {
                 WebView page = BrowserWindow.this.page;
-                if(page.canGoBack()) page.goBack();
+                if (page.canGoBack()) page.goBack();
             }
         });
         TextView next = view.findViewById(R.id.nextButton);
@@ -205,7 +202,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             @Override
             public void onClick(View v) {
                 WebView page = BrowserWindow.this.page;
-                if(page.canGoForward()) page.goForward();
+                if (page.canGoForward()) page.goForward();
             }
         });
 
@@ -337,7 +334,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         numLinksInspected = 0;
         WebSettings webSettings = page.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        page.setWebViewClient(new WebViewClient(){//it seems not setting webclient, launches
+        page.setWebViewClient(new WebViewClient() {//it seems not setting webclient, launches
             //default browser instead of opening the page in webview
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -370,16 +367,16 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             public void onLoadResource(final WebView view, final String url) {
                 final String page = view.getUrl();
                 final String title = view.getTitle();
-                new Thread(){
+                new Thread() {
                     @Override
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
-                        if(urlLowerCase.contains("mp4")||urlLowerCase.contains("video")){
+                        if (urlLowerCase.contains("mp4") || urlLowerCase.contains("video")) {
                             numLinksInspected++;
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if(findingVideoInProgress.getVisibility() == View.GONE) {
+                                    if (findingVideoInProgress.getVisibility() == View.GONE) {
                                         findingVideoInProgress.setVisibility(View.VISIBLE);
                                     }
                                 }
@@ -396,7 +393,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                             if (uCon != null) {
                                 String contentType = uCon.getHeaderField("content-type");
 
-                                if(contentType!=null) {
+                                if (contentType != null) {
                                     contentType = contentType.toLowerCase();
                                     if (contentType.contains("video/mp4")) {
                                         String size = uCon.getHeaderField("content-length");
@@ -417,19 +414,16 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                                 "type:" + type + "\n" +
                                                 "size" + size;
                                         Log.i(TAG, videoFound);
-                                    }
-                                    else Log.i(TAG, "not a video");
-                                }
-                                else {
+                                    } else Log.i(TAG, "not a video");
+                                } else {
                                     Log.i(TAG, "no content type");
                                 }
-                            }
-                            else Log.i(TAG, "no connection");
+                            } else Log.i(TAG, "no connection");
 
                             //restore default sslsocketfactory
                             HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
                             numLinksInspected--;
-                            if(numLinksInspected <= 0) {
+                            if (numLinksInspected <= 0) {
                                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -455,10 +449,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     private void updateFoundVideosBar() {
         final String videosFoundString = "Videos: " + videoList.getSize() + " found";
         final SpannableStringBuilder sb = new SpannableStringBuilder(videosFoundString);
-        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0,0, 255));
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255));
         final StyleSpan bss = new StyleSpan(Typeface.BOLD);
-        sb.setSpan(fcs, 8, 10 + videoList.getSize()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        sb.setSpan(bss, 8, 10 + videoList.getSize()/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, 8, 10 + videoList.getSize() / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 10 + videoList.getSize() / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -469,22 +463,20 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
     @Override
     public void onBackpressed() {
-        if(foundVideosWindow.getVisibility() == View.VISIBLE) {
+        if (foundVideosWindow.getVisibility() == View.VISIBLE) {
             foundVideosWindow.setVisibility(View.GONE);
-        }
-        else if(page.canGoBack()) {
+        } else if (page.canGoBack()) {
             page.goBack();
-        }
-        else {
+        } else {
             new AlertDialog.Builder(getActivity())
                     .setMessage("Are you sure you want to close this window?")
-                    .setPositiveButton( "YES", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             getLMvdActivity().getBrowserManager().closeWindow(BrowserWindow.this);
                         }
                     })
-                    .setNegativeButton( "NO", new DialogInterface.OnClickListener() {
+                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
@@ -498,13 +490,13 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @Override
     public boolean onLongClick(View v) {
         final WebView.HitTestResult hit = page.getHitTestResult();
-        if(hit.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
-            if(hit.getExtra()!=null) {
+        if (hit.getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
+            if (hit.getExtra() != null) {
                 View point = new View(getActivity());
                 point.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams
                         .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 if (view != null) {
-                    ((ViewGroup)view).addView(point);
+                    ((ViewGroup) view).addView(point);
                 }
                 point.getLayoutParams().height = 10;
                 point.getLayoutParams().width = 10;
@@ -528,10 +520,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     public void updateNumWindows(int num) {
         final String numWindowsString = "Windows(" + num + ")";
         final SpannableStringBuilder sb = new SpannableStringBuilder(numWindowsString);
-        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0,0, 255));
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255));
         final StyleSpan bss = new StyleSpan(Typeface.BOLD);
-        sb.setSpan(fcs, 8, 10 + num/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        sb.setSpan(bss, 8, 10 + num/10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, 8, 10 + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 10 + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
