@@ -63,7 +63,7 @@ import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.RenameDialog;
 import marabillas.loremar.lmvideodownloader.Utils;
 
-public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener, DownloadManager.OnLinkNotFoundListener {
+public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener, DownloadManager.OnLinkNotFoundListener, OnDownloadWithNewLinkListener {
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
     private DownloadQueues queues;
@@ -93,7 +93,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         downloadsList.setHasFixedSize(true);
         downloads = new ArrayList<>();
         File file = new File(getActivity().getFilesDir(), "downloads.dat");
-        if(file.exists()) {
+        if (file.exists()) {
             try {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
@@ -127,8 +127,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
             downloadsStartPauseButton.setText(R.string.pause);
-        }
-        else downloadsStartPauseButton.setText(R.string.start);
+        } else downloadsStartPauseButton.setText(R.string.start);
         downloadsStartPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,7 +224,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             }
         });
 
-        DownloadManager.setOnDownloadFinishedListener(this);        
+        DownloadManager.setOnDownloadFinishedListener(this);
         DownloadManager.setOnLinkNotFoundListener(this);
 
         return view;
@@ -234,7 +233,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1337) {
+        if (requestCode == 1337) {
             PermissionsManager downloadsPermMgr = new PermissionsManager(getActivity()) {
                 @Override
                 public void showRequestPermissionRationale() {
@@ -268,7 +267,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
     private void startDownload() {
         Intent downloadService = getLMvdActivity().getDownloadService();
-        if (downloads.size()>0) {
+        if (downloads.size() > 0) {
             DownloadVideo topVideo = downloads.get(0);
             downloadService.putExtra("link", topVideo.link);
             downloadService.putExtra("name", topVideo.name);
@@ -292,7 +291,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             public void run() {
                 downloadsStartPauseButton.setText(R.string.start);
                 tracking.stopTracking();
-                if (downloads.size()>0) {
+                if (downloads.size() > 0) {
                     String name = downloads.get(0).name;
                     String type = downloads.get(0).type;
                     downloads.remove(0);
@@ -312,7 +311,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             public void run() {
                 downloadsStartPauseButton.setText(R.string.start);
                 tracking.stopTracking();
-                if (downloads.size()>0) {
+                if (downloads.size() > 0) {
                     DownloadVideo video = downloads.get(0);
                     DownloadVideo inactiveDownload = new DownloadVideo();
                     inactiveDownload.name = video.name;
@@ -325,7 +324,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     onAddDownloadItemToInactiveListener.onAddDownloadItemToInactive(inactiveDownload);
                     downloadsList.getAdapter().notifyItemRemoved(0);
                 }
-                startDownload();    
+                startDownload();
             }
         });
     }
@@ -344,7 +343,26 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         this.onAddDownloadItemToInactiveListener = onAddDownloadItemToInactiveListener;
     }
 
-    class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem > {
+    @Override
+    public void onDownloadWithNewLink(final DownloadVideo download) {
+        Log.i("loremarTest", "download with new link");
+        Intent downloadService = getLMvdActivity().getDownloadService();
+        if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
+            getActivity().stopService(downloadService);
+            DownloadManager.stopThread();
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                downloads.add(0, download);
+                queues.saveQueues(getActivity());
+                startDownload();
+            }
+        });
+    }
+
+
+    class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem> {
 
         @NonNull
         @Override
@@ -393,16 +411,15 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                 public void onClick(View v) {
                     new AlertDialog.Builder(getActivity())
                             .setMessage("Remove this item?")
-                            .setPositiveButton( "Yes", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     int position = getAdapterPosition();
-                                    if (position!=0) {
+                                    if (position != 0) {
                                         downloads.remove(position);
                                         queues.saveQueues(getActivity());
                                         downloadsList.getAdapter().notifyItemRemoved(position);
-                                    }
-                                    else {
+                                    } else {
                                         downloads.remove(position);
                                         queues.saveQueues(getActivity());
                                         downloadsList.getAdapter().notifyItemRemoved(position);
@@ -410,7 +427,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                                     }
                                 }
                             })
-                            .setNegativeButton( "No", new DialogInterface.OnClickListener() {
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
@@ -429,7 +446,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                             queues.renameItem(getAdapterPosition(), newName);
                             File renamedFile = new File(Environment
                                     .getExternalStoragePublicDirectory
-                                    (Environment.DIRECTORY_DOWNLOADS), downloads.get
+                                            (Environment.DIRECTORY_DOWNLOADS), downloads.get
                                     (getAdapterPosition()).name + ext.getText().toString());
                             File file = new File(Environment.getExternalStoragePublicDirectory
                                     (Environment.DIRECTORY_DOWNLOADS), name.getText().toString()
@@ -438,15 +455,13 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                                 if (file.renameTo(renamedFile)) {
                                     queues.saveQueues(getActivity());
                                     downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
-                                }
-                                else {
+                                } else {
                                     downloads.get(getAdapterPosition()).name = name.getText()
                                             .toString();
                                     Toast.makeText(getActivity(), "Failed: Cannot rename file",
                                             Toast.LENGTH_SHORT).show();
                                 }
-                            }
-                            else {
+                            } else {
                                 queues.saveQueues(getActivity());
                                 downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
                             }
@@ -464,10 +479,10 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment
                     .DIRECTORY_DOWNLOADS), video.name + extString);
             if (file.exists()) {
-                if (video.size!=null) {
+                if (video.size != null) {
                     long downloadedSize = file.length();
                     downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
-                    double percent = 100d * downloadedSize/Long.parseLong(video.size);
+                    double percent = 100d * downloadedSize / Long.parseLong(video.size);
                     if (percent > 100d) {
                         percent = 100d;
                     }
@@ -479,23 +494,20 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
                             "%";
                     status.setText(statusString);
-                }
-                else {
+                } else {
                     long downloadedSize = file.length();
                     downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
                     status.setText(downloaded);
                     progress.setProgress(0);
                 }
-            }
-            else {
-                if (video.size!=null) {
+            } else {
+                if (video.size != null) {
                     String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
                             .parseLong(video.size));
                     String statusString = "0KB / " + formattedSize + " 0%";
                     status.setText(statusString);
                     progress.setProgress(0);
-                }
-                else {
+                } else {
                     String statusString = "0kB";
                     status.setText(statusString);
                     progress.setProgress(0);
@@ -506,8 +518,8 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         @Override
         public void onGlobalLayout() {
             if (!adjustedlayout) {
-                if (itemView.getWidth()!=0 && ext.getWidth()!=0 && rename.getWidth()!=0 && delete
-                        .getWidth()!=0) {
+                if (itemView.getWidth() != 0 && ext.getWidth() != 0 && rename.getWidth() != 0 && delete
+                        .getWidth() != 0) {
                     int totalMargin = (int) TypedValue.applyDimension(TypedValue
                                     .COMPLEX_UNIT_DIP, 35,
                             getActivity().getResources().getDisplayMetrics());

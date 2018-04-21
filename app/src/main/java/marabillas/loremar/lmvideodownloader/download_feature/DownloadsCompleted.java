@@ -63,7 +63,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.downloads_completed, container,false);
+        View view = inflater.inflate(R.layout.downloads_completed, container, false);
 
         downloadsList = view.findViewById(R.id.downloadsCompletedList);
         TextView clearAllFinishedButton = view.findViewById(R.id.clearAllFinishedButton);
@@ -79,14 +79,14 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 objectInputStream.close();
                 fileInputStream.close();
                 List<String> nonExistentFiles = new ArrayList<>();
-                for (String video: videos) {
+                for (String video : videos) {
                     File videoFile = new File(Environment.getExternalStoragePublicDirectory
                             (Environment.DIRECTORY_DOWNLOADS), video);
                     if (!videoFile.exists()) {
                         nonExistentFiles.add(video);
                     }
                 }
-                for (String nonExistentVideo: nonExistentFiles) {
+                for (String nonExistentVideo : nonExistentFiles) {
                     videos.remove(nonExistentVideo);
                 }
             } catch (FileNotFoundException e) {
@@ -146,10 +146,10 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
 
     @Override
     public void onAddDownloadedVideoToCompleted(final String name, final String type) {
-        if (completedVideos==null) {
+        if (completedVideos == null) {
             completedVideos = new CompletedVideos();
         }
-        completedVideos.addVideo(getActivity(), name+"."+type);
+        completedVideos.addVideo(getActivity(), name + "." + type);
         videos = completedVideos.getVideos();
         downloadsList.getAdapter().notifyItemInserted(0);
     }
@@ -236,14 +236,13 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                         public void onOK(String newName) {
                             File downloadsFolder = Environment.getExternalStoragePublicDirectory
                                     (Environment.DIRECTORY_DOWNLOADS);
-                            File renamedFile = new File(downloadsFolder, newName+"."+type);
-                            File file = new File(downloadsFolder, baseName+"."+type);
+                            File renamedFile = new File(downloadsFolder, newName + "." + type);
+                            File file = new File(downloadsFolder, baseName + "." + type);
                             if (file.renameTo(renamedFile)) {
-                                videos.set(getAdapterPosition(), newName+"."+type);
+                                videos.set(getAdapterPosition(), newName + "." + type);
                                 completedVideos.save(getActivity());
                                 downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
-                            }
-                            else {
+                            } else {
                                 Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
                                         .LENGTH_SHORT).show();
                             }
@@ -257,7 +256,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 public void onClick(View v) {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     File file = new File(Environment.getExternalStoragePublicDirectory
-                            (Environment.DIRECTORY_DOWNLOADS), baseName+"."+type);
+                            (Environment.DIRECTORY_DOWNLOADS), baseName + "." + type);
                     Uri fileUri = FileProvider.getUriForFile(getActivity(), "marabillas.loremar" +
                             ".lmvideodownloader.fileprovider", file);
                     intent.setDataAndType(fileUri, "video/*");
@@ -269,7 +268,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
 
         void bind(String video) {
             baseName = video.substring(0, video.lastIndexOf("."));
-            type = video.substring(video.lastIndexOf(".")+1, video.length());
+            type = video.substring(video.lastIndexOf(".") + 1, video.length());
             name.setText(baseName);
             ext.setText(type);
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment
@@ -277,8 +276,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
             if (file.exists()) {
                 String length = Formatter.formatFileSize(getActivity(), file.length());
                 size.setText(length);
-            }
-            else {
+            } else {
                 int position = getAdapterPosition();
                 videos.remove(position);
                 completedVideos.save(getActivity());
@@ -289,8 +287,8 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
         @Override
         public void onGlobalLayout() {
             if (!adjustedlayout) {
-                if (itemView.getWidth()!=0 && ext.getWidth()!=0 && rename.getWidth()!=0 && delete
-                        .getWidth()!=0) {
+                if (itemView.getWidth() != 0 && ext.getWidth() != 0 && rename.getWidth() != 0 && delete
+                        .getWidth() != 0) {
                     int totalMargin = (int) TypedValue.applyDimension(TypedValue
                                     .COMPLEX_UNIT_DIP, 35,
                             getActivity().getResources().getDisplayMetrics());

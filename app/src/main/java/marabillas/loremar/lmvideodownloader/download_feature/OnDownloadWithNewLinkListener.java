@@ -20,8 +20,7 @@
 
 package marabillas.loremar.lmvideodownloader.download_feature;
 
-public interface Tracking {
-    void startTracking();
-
-    void stopTracking();
+//interface created outside DownloadsInactive in a different file to avoid cyclic inheritance
+interface OnDownloadWithNewLinkListener {
+    void onDownloadWithNewLink(DownloadVideo download);
 }

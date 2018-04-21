@@ -74,7 +74,6 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 inactiveDownloads = (InactiveDownloads) objectInputStream.readObject();
                 downloads = inactiveDownloads.getInactiveDownloads();
-                Log.i("loremarTest", "inactives:" + downloads.size());
                 objectInputStream.close();
                 fileInputStream.close();
             } catch (FileNotFoundException e) {
@@ -110,12 +109,12 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
 
     @Override
     public void onAddDownloadItemToInactive(DownloadVideo inactiveDownload) {
-        if (inactiveDownloads==null) {
+        if (inactiveDownloads == null) {
             inactiveDownloads = new InactiveDownloads();
         }
         inactiveDownloads.add(getActivity(), inactiveDownload);
         downloads = inactiveDownloads.getInactiveDownloads();
-        downloadsList.getAdapter().notifyItemInserted(downloads.size()-1);
+        downloadsList.getAdapter().notifyItemInserted(downloads.size() - 1);
     }
 
     private class DownloadAdapter extends RecyclerView.Adapter<DownloadItem> {
@@ -138,7 +137,7 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
         }
     }
 
-    private class DownloadItem extends RecyclerView.ViewHolder implements View.OnClickListener, ViewTreeObserver.OnGlobalLayoutListener {
+    private class DownloadItem extends RecyclerView.ViewHolder implements View.OnClickListener, ViewTreeObserver.OnGlobalLayoutListener, SourcePage.OnUpdateLinkListener {
         private TextView name;
         private TextView ext;
         private ImageView delete;
@@ -150,7 +149,6 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
 
         DownloadItem(View itemView) {
             super(itemView);
-            Log.i("loremarTest", "creating inactive item");
             name = itemView.findViewById(R.id.downloadInactiveName);
             ext = itemView.findViewById(R.id.downloadInactiveExt);
             delete = itemView.findViewById(R.id.deleteDownloadInactiveItem);
@@ -197,15 +195,14 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                         public void onOK(String newName) {
                             File downloadsFolder = Environment.getExternalStoragePublicDirectory
                                     (Environment.DIRECTORY_DOWNLOADS);
-                            File renamedFile = new File(downloadsFolder, newName+"."+ext.getText());
-                            File file = new File(downloadsFolder, name.getText()+"" + "."+ext
+                            File renamedFile = new File(downloadsFolder, newName + "." + ext.getText());
+                            File file = new File(downloadsFolder, name.getText() + "" + "." + ext
                                     .getText());
                             if (file.renameTo(renamedFile)) {
                                 downloads.get(getAdapterPosition()).name = newName;
                                 inactiveDownloads.save(getActivity());
                                 downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
-                            }
-                            else {
+                            } else {
                                 Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
                                         .LENGTH_SHORT).show();
                             }
@@ -218,7 +215,6 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
         }
 
         void bind(DownloadVideo download) {
-            Log.i("loremarTest", "binding item for inactive downloads");
             name.setText(download.name);
             String extString = "." + download.type;
             ext.setText(extString);
@@ -226,10 +222,10 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment
                     .DIRECTORY_DOWNLOADS), download.name + extString);
             if (file.exists()) {
-                if (download.size!=null) {
+                if (download.size != null) {
                     long downloadedSize = file.length();
                     downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
-                    double percent = 100d * downloadedSize/Long.parseLong(download.size);
+                    double percent = 100d * downloadedSize / Long.parseLong(download.size);
                     if (percent > 100d) {
                         percent = 100d;
                     }
@@ -240,21 +236,18 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                     String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
                             "%";
                     progress.setText(statusString);
-                }
-                else {
+                } else {
                     long downloadedSize = file.length();
                     downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
                     progress.setText(downloaded);
                 }
-            }
-            else {
-                if (download.size!=null) {
+            } else {
+                if (download.size != null) {
                     String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
                             .parseLong(download.size));
                     String statusString = "0KB / " + formattedSize + " 0%";
                     progress.setText(statusString);
-                }
-                else {
+                } else {
                     String statusString = "0kB";
                     progress.setText(statusString);
                 }
@@ -263,16 +256,21 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
 
         @Override
         public void onClick(View v) {
-            //todo open a webview from the given url in downloads.get(getAdapterPosition).page
-            //checks for videos loaded and compare size with the value in downloads.get
-            // (getAdapterPosition).size. If matches, update with new url
+            Bundle data = new Bundle();
+            data.putLong("size", Long.parseLong(downloads.get(getAdapterPosition()).size));
+            data.putString("page", downloads.get(getAdapterPosition()).page);
+            SourcePage sourcePage = new SourcePage();
+            sourcePage.setArguments(data);
+            sourcePage.setOnUpdateLinkListener(this);
+            getFragmentManager().beginTransaction().add(android.R.id.content,
+                    sourcePage, "updateSourcePage").commit();
         }
 
         @Override
         public void onGlobalLayout() {
             if (!adjustedLayout) {
-                if (itemView.getWidth()!=0 && ext.getWidth()!=0 && rename.getWidth()!=0 && delete
-                        .getWidth()!=0) {
+                if (itemView.getWidth() != 0 && ext.getWidth() != 0 && rename.getWidth() != 0 && delete
+                        .getWidth() != 0) {
                     int totalMargin = (int) TypedValue.applyDimension(TypedValue
                                     .COMPLEX_UNIT_DIP, 35,
                             getActivity().getResources().getDisplayMetrics());
@@ -284,5 +282,34 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                 }
             }
         }
+
+        @Override
+        public void updateLink(final String link) {
+            Log.i("loremarTest", "update link");
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    int position = getAdapterPosition();
+                    DownloadVideo item = downloads.get(position);
+                    DownloadVideo download = new DownloadVideo();
+                    download.link = link;
+                    download.type = item.type;
+                    download.size = item.size;
+                    download.page = item.page;
+                    download.name = item.name;
+                    downloads.remove(position);
+                    inactiveDownloads.save(getActivity());
+                    downloadsList.getAdapter().notifyItemRemoved(position);
+                    onDownloadWithNewLinkListener.onDownloadWithNewLink(download);
+                }
+            });
+        }
+    }
+
+    private OnDownloadWithNewLinkListener onDownloadWithNewLinkListener;
+
+    void setOnDownloadWithNewLinkListener(OnDownloadWithNewLinkListener
+                                                  onDownloadWithNewLinkListener) {
+        this.onDownloadWithNewLinkListener = onDownloadWithNewLinkListener;
     }
 }

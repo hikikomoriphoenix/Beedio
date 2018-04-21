@@ -118,6 +118,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
         downloadsInProgress.setOnAddDownloadedVideoToCompletedListener(downloadsCompleted);
         downloadsInProgress.setOnAddDownloadItemToInactiveListener(downloadsInactive);
+        downloadsInactive.setOnDownloadWithNewLinkListener(downloadsInProgress);
 
         return view;
     }
@@ -150,16 +151,15 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
             downloadSpeed.setText(downloadSpeedText);
 
-            if (downloadSpeedValue>0) {
+            if (downloadSpeedValue > 0) {
                 long remainingMills = DownloadManager.getRemaining();
                 String remainingText = "Remaining:" + Utils.getHrsMinsSecs(remainingMills);
                 remaining.setText(remainingText);
-            }
-            else {
+            } else {
                 remaining.setText(R.string.remaining_undefine);
             }
 
-            if(getFragmentManager().findFragmentByTag("downloadsInProgress")!=null) {
+            if (getFragmentManager().findFragmentByTag("downloadsInProgress") != null) {
                 downloadsInProgress.updateDownloadItem();
             }
             mainHandler.postDelayed(this, 1000);
@@ -177,14 +177,14 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
             public void run() {
                 downloadSpeed.setText(R.string.speed_0);
                 remaining.setText(R.string.remaining_undefine);
-                if(getFragmentManager().findFragmentByTag("downloadsInProgress")!=null) {
+                if (getFragmentManager().findFragmentByTag("downloadsInProgress") != null) {
                     downloadsInProgress.updateDownloadItem();
                 }
             }
         });
     }
 
-    class PagerAdapter extends android.support.v4.view.PagerAdapter{
+    class PagerAdapter extends android.support.v4.view.PagerAdapter {
         @NonNull
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
@@ -211,7 +211,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
         @Override
         public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-            return ((Fragment)object).getView() == view;
+            return ((Fragment) object).getView() == view;
         }
     }
 }

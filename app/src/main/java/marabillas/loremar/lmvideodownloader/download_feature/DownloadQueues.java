@@ -59,14 +59,14 @@ public class DownloadQueues implements Serializable {
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment
                 .DIRECTORY_DOWNLOADS), name + "." + type);
         StringBuilder nameBuilder = new StringBuilder(name);
-        while(file.exists()) {
+        while (file.exists()) {
             i++;
             nameBuilder = new StringBuilder(name);
             nameBuilder.append(" ").append(i);
             file = new File(Environment.getExternalStoragePublicDirectory(Environment
                     .DIRECTORY_DOWNLOADS), nameBuilder + "." + type);
         }
-        while(nameAlreadyExists(nameBuilder.toString())) {
+        while (nameAlreadyExists(nameBuilder.toString())) {
             i++;
             nameBuilder = new StringBuilder(name);
             nameBuilder.append(" ").append(i);
@@ -75,12 +75,12 @@ public class DownloadQueues implements Serializable {
     }
 
     List<DownloadVideo> getList() {
-        return  downloads;
+        return downloads;
     }
 
     private boolean nameAlreadyExists(String name) {
-        for(DownloadVideo video: downloads) {
-            if(video.name.equals(name)) return true;
+        for (DownloadVideo video : downloads) {
+            if (video.name.equals(name)) return true;
         }
         return false;
     }
@@ -101,7 +101,7 @@ public class DownloadQueues implements Serializable {
     }
 
     public void renameItem(int index, String newName) {
-        if(!downloads.get(index).name.equals(newName)) {
+        if (!downloads.get(index).name.equals(newName)) {
             downloads.get(index).name = getValidName(newName, downloads.get(index).type);
         }
     }

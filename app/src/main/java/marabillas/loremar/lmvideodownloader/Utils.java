@@ -53,7 +53,7 @@ public final class Utils {
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
      * aid testing on a local box, not for use on production.
      */
-    static void disableSSLCertificateChecking() {
+    public static void disableSSLCertificateChecking() {
         TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
             public X509Certificate[] getAcceptedIssuers() {
                 return null;
@@ -96,7 +96,7 @@ public final class Utils {
         }
     }
 
-    static void hideSoftKeyboard(Activity activity, IBinder token) {
+    public static void hideSoftKeyboard(Activity activity, IBinder token) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(
                 Activity.INPUT_METHOD_SERVICE);
         if (inputMethodManager != null && token != null) {
