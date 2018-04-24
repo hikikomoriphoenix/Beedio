@@ -91,4 +91,21 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp" />
 
+    <TextView
+        android:id="@+id/moveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/white_button"
+        android:text="@string/move"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/downloadProgressText"
+        app:layout_constraintBottom_toBottomOf="@id/downloadProgressText"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp" />
+
 </android.support.constraint.ConstraintLayout>

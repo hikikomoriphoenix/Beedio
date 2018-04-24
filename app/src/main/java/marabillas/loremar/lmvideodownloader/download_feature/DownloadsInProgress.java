@@ -21,24 +21,24 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -70,6 +70,9 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     private TextView downloadsStartPauseButton;
 
     private Tracking tracking;
+
+    private DownloadRearranger downloadRearranger;
+    private RecyclerView.OnItemTouchListener downloadsListItemTouchDisabler;
 
     private OnAddDownloadedVideoToCompletedListener onAddDownloadedVideoToCompletedListener;
     private OnAddDownloadItemToInactiveListener onAddDownloadItemToInactiveListener;
@@ -118,7 +121,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                 e.printStackTrace();
             }
         }
-        DividerItemDecoration divider = new DividerItemDecoration(getActivity(),
+        /*DividerItemDecoration divider = new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL) {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
@@ -131,7 +134,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             }
         };
         divider.setDrawable(getActivity().getResources().getDrawable(R.drawable.greydivider));
-        downloadsList.addItemDecoration(divider);
+        downloadsList.addItemDecoration(divider);*/
 
         downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
@@ -241,6 +244,28 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         return view;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        downloadRearranger = new DownloadRearranger(getActivity(), this);
+        downloadsListItemTouchDisabler = new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        };
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -308,7 +333,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     downloads.remove(0);
                     queues.saveQueues(getActivity());
                     onAddDownloadedVideoToCompletedListener.onAddDownloadedVideoToCompleted(name, type);
-                    downloadsList.getAdapter().notifyItemRemoved(0);
+                    getAdapter().notifyItemRemoved(0);
                     onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 }
                 startDownload();
@@ -334,7 +359,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     downloads.remove(0);
                     queues.saveQueues(getActivity());
                     onAddDownloadItemToInactiveListener.onAddDownloadItemToInactive(inactiveDownload);
-                    downloadsList.getAdapter().notifyItemRemoved(0);
+                    getAdapter().notifyItemRemoved(0);
                     onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 }
                 startDownload();
@@ -343,7 +368,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     }
 
     public void updateDownloadItem() {
-        downloadsList.getAdapter().notifyItemChanged(0);
+        getAdapter().notifyItemChanged(0);
     }
 
     public void setOnAddDownloadedVideoToCompletedListener
@@ -376,15 +401,35 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             public void run() {
                 downloads.add(0, download);
                 queues.saveQueues(getActivity());
-                downloadsList.getAdapter().notifyItemInserted(0);
+                getAdapter().notifyItemInserted(0);
                 onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 startDownload();
             }
         });
     }
 
+    public DownloadListAdapter getAdapter() {
+        return (DownloadListAdapter) downloadsList.getAdapter();
+    }
+
+    public List<DownloadVideo> getDownloads() {
+        return downloads;
+    }
+
+    public float getDownloadListHeight() {
+        return downloadsList.getHeight();
+    }
+
+    public void disableDownloadListTouch() {
+        downloadsList.addOnItemTouchListener(downloadsListItemTouchDisabler);
+    }
+
+    public void enableDownloadListTouch() {
+        downloadsList.removeOnItemTouchListener(downloadsListItemTouchDisabler);
+    }
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem> {
+        private int selectedItemPosition = -1;
 
         @NonNull
         @Override
@@ -403,6 +448,14 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         public int getItemCount() {
             return downloads.size();
         }
+
+        public int getSelectedItemPosition() {
+            return selectedItemPosition;
+        }
+
+        public void setSelectedItemPosition(int position) {
+            selectedItemPosition = position;
+        }
     }
 
     class DownloadItem extends RecyclerView.ViewHolder implements ViewTreeObserver.OnGlobalLayoutListener {
@@ -412,10 +465,12 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         private ImageView delete;
         private ProgressBar progress;
         private TextView status;
+        private TextView move;
 
-        boolean adjustedlayout;
+        private boolean adjustedlayout;
+        private int nameMaxWidth;
 
-        DownloadItem(View itemView) {
+        DownloadItem(final View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.downloadVideoName);
             ext = itemView.findViewById(R.id.downloadVideoExt);
@@ -423,6 +478,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             delete = itemView.findViewById(R.id.deleteDownloadItem);
             progress = itemView.findViewById(R.id.downloadProgressBar);
             status = itemView.findViewById(R.id.downloadProgressText);
+            move = itemView.findViewById(R.id.moveButton);
             itemView.getViewTreeObserver().addOnGlobalLayoutListener(this);
             ext.getViewTreeObserver().addOnGlobalLayoutListener(this);
             rename.getViewTreeObserver().addOnGlobalLayoutListener(this);
@@ -440,11 +496,11 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                                     if (position != 0) {
                                         downloads.remove(position);
                                         queues.saveQueues(getActivity());
-                                        downloadsList.getAdapter().notifyItemRemoved(position);
+                                        getAdapter().notifyItemRemoved(position);
                                     } else {
                                         downloads.remove(position);
                                         queues.saveQueues(getActivity());
-                                        downloadsList.getAdapter().notifyItemRemoved(position);
+                                        getAdapter().notifyItemRemoved(position);
                                         startDownload();
                                     }
                                     onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
@@ -477,7 +533,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                             if (file.exists()) {
                                 if (file.renameTo(renamedFile)) {
                                     queues.saveQueues(getActivity());
-                                    downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                                    getAdapter().notifyItemChanged(getAdapterPosition());
                                 } else {
                                     downloads.get(getAdapterPosition()).name = name.getText()
                                             .toString();
@@ -486,10 +542,18 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                                 }
                             } else {
                                 queues.saveQueues(getActivity());
-                                downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                                getAdapter().notifyItemChanged(getAdapterPosition());
                             }
                         }
                     };
+                }
+            });
+
+            move.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    downloadRearranger.start(DownloadItem.this, downloads.get(getAdapterPosition
+                            ()));
                 }
             });
         }
@@ -536,6 +600,24 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     progress.setProgress(0);
                 }
             }
+
+            if (getAdapter().getSelectedItemPosition() == getAdapterPosition()) {
+                itemView.setVisibility(View.INVISIBLE);
+            } else {
+                itemView.setVisibility(View.VISIBLE);
+            }
+        }
+
+        public String getStatus() {
+            return status.getText().toString();
+        }
+
+        public int getProgress() {
+            return progress.getProgress();
+        }
+
+        public int getNameMaxWidth() {
+            return nameMaxWidth;
         }
 
         @Override
@@ -546,7 +628,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     int totalMargin = (int) TypedValue.applyDimension(TypedValue
                                     .COMPLEX_UNIT_DIP, 35,
                             getActivity().getResources().getDisplayMetrics());
-                    int nameMaxWidth = itemView.getMeasuredWidth() - totalMargin - ext
+                    nameMaxWidth = itemView.getMeasuredWidth() - totalMargin - ext
                             .getMeasuredWidth() - rename.getMeasuredWidth() - delete
                             .getMeasuredWidth();
                     name.setMaxWidth(nameMaxWidth);
