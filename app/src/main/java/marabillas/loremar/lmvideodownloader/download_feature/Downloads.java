@@ -21,6 +21,7 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,7 +30,10 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.format.Formatter;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +46,7 @@ import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.Utils;
 
-public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, Tracking {
+public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, Tracking, DownloadsInProgress.OnNumDownloadsInProgressChangeListener, DownloadsCompleted.OnNumDownloadsCompletedChangeListener, DownloadsInactive.OnNumDownloadsInactiveChangeListener {
     private TextView downloadSpeed;
     private TextView remaining;
     private Handler mainHandler;
@@ -79,9 +83,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         tabs = view.findViewById(R.id.downloadsTabs);
         pager = view.findViewById(R.id.downloadsPager);
 
-        tabs.addTab(tabs.newTab().setText("In Progress"));
-        tabs.addTab(tabs.newTab().setText("Completed"));
-        tabs.addTab(tabs.newTab().setText("Inactive"));
+        tabs.addTab(tabs.newTab());
+        tabs.addTab(tabs.newTab());
+        tabs.addTab(tabs.newTab());
 
         pager.setAdapter(new PagerAdapter());
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
@@ -120,6 +124,10 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsInProgress.setOnAddDownloadItemToInactiveListener(downloadsInactive);
         downloadsInactive.setOnDownloadWithNewLinkListener(downloadsInProgress);
 
+        downloadsInProgress.setOnNumDownloadsInProgressChangeListener(this);
+        downloadsCompleted.setOnNumDownloadsCompletedChangeListener(this);
+        downloadsInactive.setOnNumDownloadsInactiveChangeListener(this);
+
         return view;
     }
 
@@ -139,6 +147,66 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     public void onBackpressed() {
         getLMvdActivity().getBrowserManager().unhideCurrentWindow();
         getFragmentManager().beginTransaction().remove(this).commit();
+    }
+
+    @Override
+    public void onNumDownloadsInProgressChange() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TabLayout.Tab tab = tabs.getTabAt(0);
+                if (tab != null) {
+                    SpannableStringBuilder tabText = createStyledTabText(12, 13,
+                            downloadsInProgress.getNumDownloadsInProgress(), "In Progress " +
+                                    downloadsInProgress.getNumDownloadsInProgress());
+                    tab.setText(tabText);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onNumDownloadsCompletedChange() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TabLayout.Tab tab = tabs.getTabAt(1);
+                if (tab != null) {
+                    SpannableStringBuilder tabText = createStyledTabText(10, 11,
+                            downloadsCompleted.getNumDownloadsCompleted(), "Completed " +
+                                    downloadsCompleted.getNumDownloadsCompleted());
+                    tab.setText(tabText);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onNumDownloadsInactiveChange() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TabLayout.Tab tab = tabs.getTabAt(2);
+                if (tab != null) {
+                    SpannableStringBuilder tabText = createStyledTabText(9, 10,
+                            downloadsInactive.getNumDownloadsInactive(), "Inactive " +
+                                    downloadsInactive.getNumDownloadsInactive());
+                    tab.setText(tabText);
+                }
+            }
+        });
+    }
+
+    private SpannableStringBuilder createStyledTabText(int start, int end, int num, String text) {
+        SpannableStringBuilder sb = new SpannableStringBuilder(text);
+        ForegroundColorSpan fcs;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            fcs = new ForegroundColorSpan(getResources().getColor(R.color.green));
+        } else {
+            fcs = new ForegroundColorSpan(getResources().getColor(R.color.green, null));
+        }
+        sb.setSpan(fcs, start, end + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        return sb;
     }
 
     class Tracking implements Runnable {

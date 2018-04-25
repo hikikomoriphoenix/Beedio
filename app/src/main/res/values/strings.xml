@@ -46,4 +46,8 @@
     <string name="clear_all_finished">Clear All Finished</string>
     <string name="play_video">Play Video</string>
     <string name="go_to_page">Go to Page</string>
+    <string name="rearrange_instructions">Click Move and drag the item to rearrange
+        its position</string>
+    <string name="move">Move</string>
+    <string name="go_to_folder">Go to Folder</string>
 </resources>

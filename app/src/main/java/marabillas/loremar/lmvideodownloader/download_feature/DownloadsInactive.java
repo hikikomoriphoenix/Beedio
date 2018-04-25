@@ -59,6 +59,21 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
     private List<DownloadVideo> downloads;
     private InactiveDownloads inactiveDownloads;
 
+    private OnNumDownloadsInactiveChangeListener onNumDownloadsInactiveChangeListener;
+
+    public interface OnNumDownloadsInactiveChangeListener {
+        void onNumDownloadsInactiveChange();
+    }
+
+    public void setOnNumDownloadsInactiveChangeListener(OnNumDownloadsInactiveChangeListener
+                                                                onNumDownloadsInactiveChangeListener) {
+        this.onNumDownloadsInactiveChangeListener = onNumDownloadsInactiveChangeListener;
+    }
+
+    public int getNumDownloadsInactive() {
+        return downloads.size();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -104,6 +119,8 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
         divider.setDrawable(getActivity().getResources().getDrawable(R.drawable.greydivider));
         downloadsList.addItemDecoration(divider);
 
+        onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
+
         return view;
     }
 
@@ -115,6 +132,7 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
         inactiveDownloads.add(getActivity(), inactiveDownload);
         downloads = inactiveDownloads.getInactiveDownloads();
         downloadsList.getAdapter().notifyItemInserted(downloads.size() - 1);
+        onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
     }
 
     private class DownloadAdapter extends RecyclerView.Adapter<DownloadItem> {
@@ -174,6 +192,7 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                                     downloads.remove(position);
                                     inactiveDownloads.save(getActivity());
                                     downloadsList.getAdapter().notifyItemRemoved(position);
+                                    onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -300,6 +319,7 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                     downloads.remove(position);
                     inactiveDownloads.save(getActivity());
                     downloadsList.getAdapter().notifyItemRemoved(position);
+                    onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
                     onDownloadWithNewLinkListener.onDownloadWithNewLink(download);
                 }
             });

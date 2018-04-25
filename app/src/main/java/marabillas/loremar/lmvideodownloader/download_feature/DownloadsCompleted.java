@@ -21,6 +21,7 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -60,6 +61,21 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     private List<String> videos;
     private CompletedVideos completedVideos;
 
+    private OnNumDownloadsCompletedChangeListener onNumDownloadsCompletedChangeListener;
+
+    public interface OnNumDownloadsCompletedChangeListener {
+        void onNumDownloadsCompletedChange();
+    }
+
+    public void setOnNumDownloadsCompletedChangeListener(OnNumDownloadsCompletedChangeListener
+                                                                 onNumDownloadsCompletedChangeListener) {
+        this.onNumDownloadsCompletedChangeListener = onNumDownloadsCompletedChangeListener;
+    }
+
+    public int getNumDownloadsCompleted() {
+        return videos.size();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -67,6 +83,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
 
         downloadsList = view.findViewById(R.id.downloadsCompletedList);
         TextView clearAllFinishedButton = view.findViewById(R.id.clearAllFinishedButton);
+        TextView goToFolderButton = view.findViewById(R.id.goToFolder);
 
         videos = new ArrayList<>();
         File file = new File(getActivity().getFilesDir(), "completed.dat");
@@ -128,6 +145,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                                 videos.clear();
                                 completedVideos.save(getActivity());
                                 downloadsList.getAdapter().notifyItemRangeRemoved(0, length);
+                                onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -141,6 +159,16 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
             }
         });
 
+        goToFolderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+                startActivity(intent);
+            }
+        });
+
+        onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
+
         return view;
     }
 
@@ -152,6 +180,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
         completedVideos.addVideo(getActivity(), name + "." + type);
         videos = completedVideos.getVideos();
         downloadsList.getAdapter().notifyItemInserted(0);
+        onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
     }
 
     private class DownloadedVideoAdapter extends RecyclerView.Adapter<VideoItem> {
@@ -215,6 +244,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                                     videos.remove(position);
                                     completedVideos.save(getActivity());
                                     downloadsList.getAdapter().notifyItemRemoved(position);
+                                    onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -281,6 +311,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 videos.remove(position);
                 completedVideos.save(getActivity());
                 downloadsList.getAdapter().notifyItemRemoved(position);
+                onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
             }
         }
 

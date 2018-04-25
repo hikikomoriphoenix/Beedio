@@ -73,7 +73,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/downloadsTopBar"
         android:theme="@style/Theme.AppCompat"
-        app:tabMode="scrollable"
+        app:tabMode="fixed"
         app:tabGravity="fill"
         app:tabTextColor="@android:color/black"
         app:tabSelectedTextColor="@color/blue" />

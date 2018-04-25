@@ -28,10 +28,20 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/downloadsFooter"
+        app:layout_constraintBottom_toTopOf="@id/rearrangeInstruction"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp" />
+
+    <TextView
+        android:id="@+id/rearrangeInstruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/downloadsFooter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/rearrange_instructions"
+        android:gravity="center" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/downloadsFooter"
