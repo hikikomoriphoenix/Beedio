@@ -32,6 +32,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.Utils;
 
 public class DownloadRearranger implements View.OnTouchListener {
     private Context context;
@@ -104,6 +105,7 @@ public class DownloadRearranger implements View.OnTouchListener {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 y0 = event.getRawY();
+                moveY = 0;
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -135,17 +137,28 @@ public class DownloadRearranger implements View.OnTouchListener {
                         downloadsInProgress.getDownloads().remove(position);
                         downloadsInProgress.getAdapter().notifyItemRemoved(position);
                         downloadsInProgress.getDownloads().add(position - 1, item);
-                        downloadsInProgress.getAdapter().notifyItemInserted(position - 1);
+                        if (anchorView.getY() < height) {
+                            //notifyItemInserted doesn't seem to move the top item
+                            downloadsInProgress.getAdapter().notifyDataSetChanged();
+                        } else {
+                            downloadsInProgress.getAdapter().notifyItemInserted(position - 1);
+                        }
                         position--;
                     }
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
+                moveY = 0;
                 anchorView.setVisibility(View.GONE);
                 downloadsInProgress.getAdapter().setSelectedItemPosition(-1);
                 downloadsInProgress.getAdapter().notifyItemChanged(position);
                 downloadsInProgress.enableDownloadListTouch();
+                downloadsInProgress.saveQueues();
+                if (position == 0 && Utils.isServiceRunning(DownloadManager.class, context)) {
+                    downloadsInProgress.pauseDownload();
+                    downloadsInProgress.startDownload();
+                }
                 break;
         }
         return true;
