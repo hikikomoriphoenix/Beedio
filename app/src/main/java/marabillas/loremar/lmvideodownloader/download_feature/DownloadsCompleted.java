@@ -21,6 +21,7 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -82,6 +83,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
 
         downloadsList = view.findViewById(R.id.downloadsCompletedList);
         TextView clearAllFinishedButton = view.findViewById(R.id.clearAllFinishedButton);
+        TextView goToFolderButton = view.findViewById(R.id.goToFolder);
 
         videos = new ArrayList<>();
         File file = new File(getActivity().getFilesDir(), "completed.dat");
@@ -154,6 +156,14 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                         })
                         .create()
                         .show();
+            }
+        });
+
+        goToFolderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+                startActivity(intent);
             }
         });
 
