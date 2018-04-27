@@ -87,6 +87,8 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         tabs.addTab(tabs.newTab());
         tabs.addTab(tabs.newTab());
 
+        //todo use linearlayout instead of tablayout
+
         pager.setAdapter(new PagerAdapter());
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
