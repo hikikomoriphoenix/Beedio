@@ -21,6 +21,8 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.Fragment;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,6 +41,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
@@ -53,6 +56,10 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     private Tracking tracking;
 
     private TabLayout tabs;
+    private TextView inProgressTab;
+    private TextView completedTab;
+    private TextView inactiveTab;
+    private TextView pageSelected;
     private ViewPager pager;
     private DownloadsInProgress downloadsInProgress;
     private DownloadsCompleted downloadsCompleted;
@@ -80,33 +87,85 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         mainHandler = new Handler(Looper.getMainLooper());
         tracking = new Tracking();
 
-        tabs = view.findViewById(R.id.downloadsTabs);
         pager = view.findViewById(R.id.downloadsPager);
-
-        tabs.addTab(tabs.newTab());
-        tabs.addTab(tabs.newTab());
-        tabs.addTab(tabs.newTab());
-
-        //todo use linearlayout instead of tablayout
-
         pager.setAdapter(new PagerAdapter());
-        pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                pager.setCurrentItem(tab.getPosition());
-            }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+        if (Build.VERSION.SDK_INT >= 22) {
+            tabs = view.findViewById(R.id.downloadsTabs);
+            tabs.addTab(tabs.newTab());
+            tabs.addTab(tabs.newTab());
+            tabs.addTab(tabs.newTab());
 
-            }
+            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+            tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    pager.setCurrentItem(tab.getPosition());
+                }
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
 
-            }
-        });
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
+        } else {
+            LinearLayout tabs0 = view.findViewById(R.id.downloadsTabs);
+            inProgressTab = tabs0.findViewById(R.id.inProgressTab);
+            completedTab = tabs0.findViewById(R.id.completedTab);
+            inactiveTab = tabs0.findViewById(R.id.inactiveTab);
+
+            pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    switch (position) {
+                        case 0:
+                            unboxPreviousSelectedPageTab();
+                            boxNewSelectedPageTab(inProgressTab);
+                            break;
+                        case 1:
+                            unboxPreviousSelectedPageTab();
+                            boxNewSelectedPageTab(completedTab);
+                            break;
+                        case 2:
+                            unboxPreviousSelectedPageTab();
+                            boxNewSelectedPageTab(inactiveTab);
+                    }
+                }
+            });
+
+            inProgressTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unboxPreviousSelectedPageTab();
+                    boxNewSelectedPageTab(inProgressTab);
+                    pager.setCurrentItem(0);
+                }
+            });
+
+            completedTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unboxPreviousSelectedPageTab();
+                    boxNewSelectedPageTab(completedTab);
+                    pager.setCurrentItem(1);
+                }
+            });
+
+            inactiveTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unboxPreviousSelectedPageTab();
+                    boxNewSelectedPageTab(inactiveTab);
+                    pager.setCurrentItem(2);
+                }
+            });
+        }
         pager.setOffscreenPageLimit(2);//default is 1 which would make Inactive tab not diplay
 
         downloadsInProgress = new DownloadsInProgress();
@@ -133,6 +192,26 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         return view;
     }
 
+    private void unboxPreviousSelectedPageTab() {
+        if (pageSelected != null) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                pageSelected.setBackground(null);
+            } else {
+                pageSelected.setBackgroundDrawable(null);
+            }
+            pageSelected = null;
+        }
+    }
+
+    private void boxNewSelectedPageTab(TextView selected) {
+        pageSelected = selected;
+        if (Build.VERSION.SDK_INT >= 16) {
+            pageSelected.setBackground(new ColorDrawable(Color.GRAY));
+        } else {
+            pageSelected.setBackgroundDrawable(new ColorDrawable(Color.GRAY));
+        }
+    }
+
     @Override
     public void onDestroyView() {
         getFragmentManager().beginTransaction().remove(downloadsInProgress).commit();
@@ -156,12 +235,16 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TabLayout.Tab tab = tabs.getTabAt(0);
-                if (tab != null) {
-                    SpannableStringBuilder tabText = createStyledTabText(12, 13,
-                            downloadsInProgress.getNumDownloadsInProgress(), "In Progress " +
-                                    downloadsInProgress.getNumDownloadsInProgress());
-                    tab.setText(tabText);
+                SpannableStringBuilder tabText = createStyledTabText(12, 13,
+                        downloadsInProgress.getNumDownloadsInProgress(), "In Progress " +
+                                downloadsInProgress.getNumDownloadsInProgress());
+                if (Build.VERSION.SDK_INT >= 22) {
+                    TabLayout.Tab tab = tabs.getTabAt(0);
+                    if (tab != null) {
+                        tab.setText(tabText);
+                    }
+                } else {
+                    inProgressTab.setText(tabText);
                 }
             }
         });
@@ -172,12 +255,16 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TabLayout.Tab tab = tabs.getTabAt(1);
-                if (tab != null) {
-                    SpannableStringBuilder tabText = createStyledTabText(10, 11,
-                            downloadsCompleted.getNumDownloadsCompleted(), "Completed " +
-                                    downloadsCompleted.getNumDownloadsCompleted());
-                    tab.setText(tabText);
+                SpannableStringBuilder tabText = createStyledTabText(10, 11,
+                        downloadsCompleted.getNumDownloadsCompleted(), "Completed " +
+                                downloadsCompleted.getNumDownloadsCompleted());
+                if (Build.VERSION.SDK_INT >= 22) {
+                    TabLayout.Tab tab = tabs.getTabAt(1);
+                    if (tab != null) {
+                        tab.setText(tabText);
+                    }
+                } else {
+                    completedTab.setText(tabText);
                 }
             }
         });
@@ -188,12 +275,16 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TabLayout.Tab tab = tabs.getTabAt(2);
-                if (tab != null) {
-                    SpannableStringBuilder tabText = createStyledTabText(9, 10,
-                            downloadsInactive.getNumDownloadsInactive(), "Inactive " +
-                                    downloadsInactive.getNumDownloadsInactive());
-                    tab.setText(tabText);
+                SpannableStringBuilder tabText = createStyledTabText(9, 10,
+                        downloadsInactive.getNumDownloadsInactive(), "Inactive " +
+                                downloadsInactive.getNumDownloadsInactive());
+                if (Build.VERSION.SDK_INT >= 22) {
+                    TabLayout.Tab tab = tabs.getTabAt(2);
+                    if (tab != null) {
+                        tab.setText(tabText);
+                    }
+                } else {
+                    inactiveTab.setText(tabText);
                 }
             }
         });
