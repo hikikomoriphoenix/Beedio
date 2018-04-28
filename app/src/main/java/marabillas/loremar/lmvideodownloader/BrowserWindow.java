@@ -365,13 +365,15 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
             @Override
             public void onLoadResource(final WebView view, final String url) {
+                //Log.i("loremarTest", getClass().getEnclosingMethod().getName()+ "=url:" + url);
                 final String page = view.getUrl();
                 final String title = view.getTitle();
                 new Thread() {
                     @Override
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
-                        if (urlLowerCase.contains("mp4") || urlLowerCase.contains("video")) {
+                        if (urlLowerCase.contains("mp4") || urlLowerCase.contains("video") ||
+                                urlLowerCase.contains("embed")) {
                             numLinksInspected++;
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
@@ -384,9 +386,11 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                             Utils.disableSSLCertificateChecking();
                             Log.i(TAG, "retreiving headers from " + url);
+
                             URLConnection uCon = null;
                             try {
                                 uCon = new URL(url).openConnection();
+                                uCon.connect();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -394,6 +398,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                 String contentType = uCon.getHeaderField("content-type");
 
                                 if (contentType != null) {
+
+                                    //todo if url points to an html document, parse for video content
+
                                     contentType = contentType.toLowerCase();
                                     if (contentType.contains("video/mp4")) {
                                         String size = uCon.getHeaderField("content-length");
@@ -414,7 +421,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                                 "type:" + type + "\n" +
                                                 "size" + size;
                                         Log.i(TAG, videoFound);
-                                    } else Log.i(TAG, "not a video");
+                                    } else Log.i(TAG, "Not a video. Content type = " +
+                                            contentType);
                                 } else {
                                     Log.i(TAG, "no content type");
                                 }
