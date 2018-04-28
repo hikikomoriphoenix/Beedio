@@ -89,6 +89,7 @@
         android:paddingStart="10dp"
         android:paddingLeft="10dp"
         android:paddingEnd="10dp"
+        android:paddingRight="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveProgressText"
         app:layout_constraintBottom_toBottomOf="@id/downloadInactiveProgressText"

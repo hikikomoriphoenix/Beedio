@@ -206,9 +206,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     private void boxNewSelectedPageTab(TextView selected) {
         pageSelected = selected;
         if (Build.VERSION.SDK_INT >= 16) {
-            pageSelected.setBackground(new ColorDrawable(Color.GRAY));
+            pageSelected.setBackground(new ColorDrawable(Color.LTGRAY));
         } else {
-            pageSelected.setBackgroundDrawable(new ColorDrawable(Color.GRAY));
+            pageSelected.setBackgroundDrawable(new ColorDrawable(Color.LTGRAY));
         }
     }
 
