@@ -73,39 +73,44 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/downloadsTopBar"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/inProgressTab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="5dp"
-            android:gravity="center"/>
+            android:gravity="center" />
+
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:background="@android:color/darker_gray"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
+
         <TextView
             android:id="@+id/completedTab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="5dp"
-            android:gravity="center"/>
+            android:gravity="center" />
+
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:background="@android:color/darker_gray"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
+
         <TextView
             android:id="@+id/inactiveTab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="5dp"
-            android:gravity="center"/>
+            android:gravity="center" />
     </LinearLayout>
 
     <android.support.v4.view.ViewPager

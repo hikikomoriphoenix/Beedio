@@ -89,7 +89,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             navigationView.setNavigationItemSelectedListener(this);
         } else {
             ListView listView = findViewById(R.id.menu);
-            String[] menuItems = new String[] {"Home", "Browser", "Downloads", "Bookmarks",
+            String[] menuItems = new String[]{"Home", "Browser", "Downloads", "Bookmarks",
                     "History"};
             ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout
                     .simple_list_item_1, menuItems) {

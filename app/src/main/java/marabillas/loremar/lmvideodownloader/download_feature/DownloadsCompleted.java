@@ -143,7 +143,9 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                             public void onClick(DialogInterface dialog, int which) {
                                 int length = videos.size();
                                 videos.clear();
-                                completedVideos.save(getActivity());
+                                if (completedVideos != null) {
+                                    completedVideos.save(getActivity());
+                                }
                                 downloadsList.getAdapter().notifyItemRangeRemoved(0, length);
                                 onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
                             }

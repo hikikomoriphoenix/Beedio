@@ -75,6 +75,6 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_view"
-        android:theme="@style/Theme.AppCompat"/>
+        android:theme="@style/Theme.AppCompat" />
 
 </android.support.v4.widget.DrawerLayout>
