@@ -102,6 +102,7 @@
         android:paddingStart="10dp"
         android:paddingLeft="10dp"
         android:paddingEnd="10dp"
+        android:paddingRight="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadProgressText"
         app:layout_constraintBottom_toBottomOf="@id/downloadProgressText"

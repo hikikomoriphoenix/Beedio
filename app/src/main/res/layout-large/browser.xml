@@ -63,7 +63,8 @@
             app:layout_constraintStart_toEndOf="@id/urlBox"
             android:paddingStart="10dp"
             android:paddingLeft="10dp"
-            android:paddingEnd="10dp" />
+            android:paddingEnd="10dp"
+            android:paddingRight="10dp"/>
     </android.support.constraint.ConstraintLayout>
 
     <ProgressBar
@@ -194,7 +195,8 @@
             android:gravity="center"
             android:paddingStart="5dp"
             android:paddingLeft="5dp"
-            android:paddingEnd="5dp" />
+            android:paddingEnd="5dp"
+            android:paddingRight="5dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -228,8 +230,7 @@
         android:id="@+id/foundVideosWindow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="30dp"
-        android:background="@color/lightGray">
+        android:layout_margin="30dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/videoList"
@@ -299,7 +300,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/foundVideosDelete"
-                app:layout_constraintEnd_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:paddingStart="14dp"
                 android:paddingLeft="14dp"
                 android:paddingEnd="14dp"

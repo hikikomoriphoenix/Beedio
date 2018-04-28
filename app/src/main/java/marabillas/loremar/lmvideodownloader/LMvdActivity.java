@@ -23,9 +23,12 @@ package marabillas.loremar.lmvideodownloader;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -33,15 +36,19 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
 
-public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
     private EditText webBox;
     private BrowserManager browserManager;
     private Uri appLinkData;
@@ -77,8 +84,27 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             }
         });
 
-        NavigationView navigationView = findViewById(R.id.menu);
-        navigationView.setNavigationItemSelectedListener(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            NavigationView navigationView = findViewById(R.id.menu);
+            navigationView.setNavigationItemSelectedListener(this);
+        } else {
+            ListView listView = findViewById(R.id.menu);
+            String[] menuItems = new String[] {"Home", "Browser", "Downloads", "Bookmarks",
+                    "History"};
+            ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout
+                    .simple_list_item_1, menuItems) {
+                @NonNull
+                @Override
+                public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                    View view = super.getView(position, convertView, parent);
+                    TextView textView = view.findViewById(android.R.id.text1);
+                    textView.setTextColor(Color.WHITE);
+                    return view;
+                }
+            };
+            listView.setAdapter(listAdapter);
+            listView.setOnItemClickListener(this);
+        }
 
         downloadService = new Intent(this, DownloadManager.class);
     }
@@ -113,36 +139,65 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         }
     }
 
+    private void homeClicked() {
+        Fragment fragment;
+        browserManager.hideCurrentWindow();
+        fragment = getFragmentManager().findFragmentByTag("Downloads");
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        setOnBackPressedListener(null);
+    }
+
+    private void browserClicked() {
+        Fragment fragment;
+        browserManager.unhideCurrentWindow();
+        fragment = getFragmentManager().findFragmentByTag("Downloads");
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    private void downloadsClicked() {
+        if (getFragmentManager().findFragmentByTag("Downloads") == null) {
+            browserManager.hideCurrentWindow();
+            getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
+                    "Downloads").commit();
+        }
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         item.setChecked(true);
         layout.closeDrawers();
-        Fragment fragment;
         switch (item.getTitle().toString()) {
             case "Home":
-                browserManager.hideCurrentWindow();
-                fragment = getFragmentManager().findFragmentByTag("Downloads");
-                if (fragment != null) {
-                    getFragmentManager().beginTransaction().remove(fragment).commit();
-                }
-                setOnBackPressedListener(null);
+                homeClicked();
                 break;
             case "Browser":
-                browserManager.unhideCurrentWindow();
-                fragment = getFragmentManager().findFragmentByTag("Downloads");
-                if (fragment != null) {
-                    getFragmentManager().beginTransaction().remove(fragment).commit();
-                }
+                browserClicked();
                 break;
             case "Downloads":
-                if (getFragmentManager().findFragmentByTag("Downloads") == null) {
-                    browserManager.hideCurrentWindow();
-                    getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
-                            "Downloads").commit();
-                }
+                downloadsClicked();
                 break;
         }
         return true;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        layout.closeDrawers();
+        switch (position) {
+            case 0:
+                homeClicked();
+                break;
+            case 1:
+                browserClicked();
+                break;
+            case 2:
+                downloadsClicked();
+                break;
+        }
     }
 
     public interface OnBackPressedListener {
