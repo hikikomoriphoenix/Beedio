@@ -70,7 +70,7 @@ public class SourcePage extends WebViewFragment {
         getWebView().setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return false;
+                return true;
             }
 
             @Override
