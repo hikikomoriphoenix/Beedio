@@ -116,7 +116,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         return false;
     }
 
-    OnBackPressedListener onBackPressedListener;
+    private OnBackPressedListener onBackPressedListener;
 
     @Override
     public void onBackPressed() {
@@ -231,7 +231,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 grantResults);
     }
 
-    ActivityCompat.OnRequestPermissionsResultCallback onRequestPermissionsResultCallback;
+    private ActivityCompat.OnRequestPermissionsResultCallback onRequestPermissionsResultCallback;
 
     void setOnRequestPermissionsResultListener(ActivityCompat.OnRequestPermissionsResultCallback
                                                        onRequestPermissionsResultCallback) {
