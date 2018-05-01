@@ -22,7 +22,6 @@ package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -69,13 +68,8 @@ public class DownloadRearranger implements View.OnTouchListener {
         anchorView.findViewById(R.id.renameDownloadVideo).setVisibility(View.INVISIBLE);
         anchorView.findViewById(R.id.moveButton).setVisibility(View.INVISIBLE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            anchorView.setBackground(context.getResources().getDrawable(R.drawable
-                    .download_item_dragged_background));
-        } else {
-            anchorView.setBackgroundDrawable(context.getResources().getDrawable(R.drawable
-                    .download_item_dragged_background));
-        }
+        anchorView.setBackground(context.getResources().getDrawable(R.drawable
+                .download_item_dragged_background));
         anchorView.setVisibility(View.GONE);
         anchorView.setOnTouchListener(this);
     }
