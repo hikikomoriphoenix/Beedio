@@ -20,7 +20,10 @@
 
 package marabillas.loremar.lmvideodownloader.download_feature;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -40,6 +43,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -67,7 +72,8 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.downloads, container, false);
 
         final DrawerLayout layout = getActivity().findViewById(R.id.drawer);
@@ -189,6 +195,35 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsCompleted.setOnNumDownloadsCompletedChangeListener(this);
         downloadsInactive.setOnNumDownloadsInactiveChangeListener(this);
 
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 1) {
+                    final SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
+                    if (prefs.getBoolean("showDownloadNotice", true)) {
+                        View view = inflater.inflate(R.layout.download_notice_checkbox,
+                                container, false);
+                        final CheckBox showNoticeCheckbox = view.findViewById(R.id.showNoticeCheckbox);
+                        showNoticeCheckbox.setChecked(false);
+                        new AlertDialog.Builder(getActivity())
+                                .setMessage("Downloaded videos are saved in the external storage's Download folder")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (showNoticeCheckbox.isChecked()) {
+                                            prefs.edit().putBoolean("showDownloadNotice", false)
+                                                    .apply();
+                                        }
+                                    }
+                                })
+                                .setView(view)
+                                .create()
+                                .show();
+                    }
+                }
+            }
+        });
+
         return view;
     }
 
@@ -212,6 +247,10 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsInProgress = null;
         downloadsCompleted = null;
         downloadsInactive = null;
+        pager.clearOnPageChangeListeners();
+        tabs.clearOnTabSelectedListeners();
+        pager = null;
+        tabs = null;
 
         super.onDestroyView();
     }
