@@ -210,7 +210,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         reload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                page.loadUrl(page.getUrl());
+                page.reload();
             }
         });
 
@@ -334,6 +334,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         numLinksInspected = 0;
         WebSettings webSettings = page.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         page.setWebViewClient(new WebViewClient() {//it seems not setting webclient, launches
             //default browser instead of opening the page in webview
             @Override
@@ -398,29 +401,50 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                 String contentType = uCon.getHeaderField("content-type");
 
                                 if (contentType != null) {
-
-                                    //todo if url points to an html document, parse for video content
-
                                     contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video/mp4")) {
-                                        String size = uCon.getHeaderField("content-length");
-                                        String link = uCon.getHeaderField("Location");
-                                        if (link == null) {
-                                            link = uCon.getURL().toString();
-                                        }
-                                        String name = "video";
-                                        if (title != null) {
-                                            name = title;
-                                        }
-                                        String type = "mp4";
-                                        videoList.addItem(size, type, link, name, page);
+                                    if (contentType.contains("video/mp4") || contentType.contains
+                                            ("video/webm")) {
+                                        try {
+                                            String size = uCon.getHeaderField("content-length");
+                                            String link = uCon.getHeaderField("Location");
+                                            if (link == null) {
+                                                link = uCon.getURL().toString();
+                                            }
+                                            if (page.contains("youtube.com")) {
+                                                //link  = link.replaceAll("(range=)+(.*)+(&)",
+                                                // "");
+                                                link = link.substring(0, link.lastIndexOf
+                                                        ("&range"));
+                                                URLConnection ytCon;
+                                                ytCon = new URL(link).openConnection();
+                                                ytCon.connect();
+                                                size = ytCon.getHeaderField("content-length");
+                                            }
+                                            String name = "video";
+                                            if (title != null) {
+                                                name = title;
+                                            }
+                                            String type = "mp4";
+                                            switch (contentType) {
+                                                case "video/mp4":
+                                                    type = "mp4";
+                                                    break;
+                                                case "video/webm":
+                                                    type = "webm";
+                                                    break;
+                                            }
+                                            videoList.addItem(size, type, link, name, page);
 
-                                        updateFoundVideosBar();
-                                        String videoFound = "name:" + name + "\n" +
-                                                "link:" + link + "\n" +
-                                                "type:" + type + "\n" +
-                                                "size" + size;
-                                        Log.i(TAG, videoFound);
+                                            updateFoundVideosBar();
+                                            String videoFound = "name:" + name + "\n" +
+                                                    "link:" + link + "\n" +
+                                                    "type:" + type + "\n" +
+                                                    "size" + size;
+                                            Log.i(TAG, videoFound);
+                                        } catch (IOException e) {
+                                            Log.e("loremarTest", "Exception in adding video to " +
+                                                    "list");
+                                        }
                                     } else Log.i(TAG, "Not a video. Content type = " +
                                             contentType);
                                 } else {
@@ -452,6 +476,13 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         });
         page.setOnLongClickListener(this);
         page.loadUrl(url);
+    }
+
+    @Override
+    public void onDestroy() {
+        page.stopLoading();
+        page.destroy();
+        super.onDestroy();
     }
 
     private void updateFoundVideosBar() {
