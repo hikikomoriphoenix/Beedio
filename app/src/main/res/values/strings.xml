@@ -50,4 +50,5 @@
         its position</string>
     <string name="move">Move</string>
     <string name="go_to_folder">Go to Folder</string>
+    <string name="never_show_download_notice">Never show again</string>
 </resources>
