@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -65,6 +65,12 @@ import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+
+import marabillas.loremar.lmvideodownloader.LMvdActivity;
+import marabillas.loremar.lmvideodownloader.LMvdFragment;
+import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.WebConnect;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class BrowserWindow extends LMvdFragment implements View.OnTouchListener, View
         .OnClickListener, LMvdActivity.OnBackPressedListener, View.OnLongClickListener {

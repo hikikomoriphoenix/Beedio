@@ -43,7 +43,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
@@ -52,7 +51,7 @@ import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
-import marabillas.loremar.lmvideodownloader.RenameDialog;
+import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 
 public class DownloadsInactive extends LMvdFragment implements DownloadsInProgress.OnAddDownloadItemToInactiveListener {
     private RecyclerView downloadsList;
@@ -91,11 +90,7 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
                 downloads = inactiveDownloads.getInactiveDownloads();
                 objectInputStream.close();
                 fileInputStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }

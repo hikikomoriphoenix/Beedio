@@ -27,12 +27,12 @@ public class WebConnect {
     private EditText textBox;
     private LMvdActivity activity;
 
-    WebConnect(EditText textBox, LMvdActivity activity) {
+    public WebConnect(EditText textBox, LMvdActivity activity) {
         this.textBox = textBox;
         this.activity = activity;
     }
 
-    void connect() {
+    public void connect() {
         String text = textBox.getText().toString();
         if (Patterns.WEB_URL.matcher(text).matches()) {
             if (!text.startsWith("http")) {

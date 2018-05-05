@@ -18,13 +18,15 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.utils;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+
+import marabillas.loremar.lmvideodownloader.LMvdActivity;
 
 public abstract class PermissionsManager implements ActivityCompat
         .OnRequestPermissionsResultCallback {

@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -34,6 +34,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import marabillas.loremar.lmvideodownloader.LMvdFragment;
+import marabillas.loremar.lmvideodownloader.R;
 
 /**
  * Created by loremar on 3/23/18.
@@ -56,7 +59,7 @@ public class BrowserManager extends LMvdFragment {
         allWindows.setAdapter(new AllWindowsAdapter());
     }
 
-    void newWindow(String url) {
+    public void newWindow(String url) {
         Bundle data = new Bundle();
         data.putString("url", url);
         BrowserWindow window = new BrowserWindow();
@@ -76,7 +79,7 @@ public class BrowserManager extends LMvdFragment {
         allWindows.getAdapter().notifyDataSetChanged();
     }
 
-    void closeWindow(BrowserWindow window) {
+    public void closeWindow(BrowserWindow window) {
         windows.remove(window);
         getFragmentManager().beginTransaction().remove(window).commit();
         if (windows.size() > 0) {
@@ -112,11 +115,11 @@ public class BrowserManager extends LMvdFragment {
         }
     }
 
-    View getAllWindows() {
+    public View getAllWindows() {
         return allWindows;
     }
 
-    void hideCurrentWindow() {
+    public void hideCurrentWindow() {
         if (windows.size() > 0) {
             BrowserWindow topWindow = windows.get(windows.size() - 1);
             if (topWindow.getView() != null) {
