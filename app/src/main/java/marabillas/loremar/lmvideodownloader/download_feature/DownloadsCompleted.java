@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -46,7 +47,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -106,11 +106,7 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 for (String nonExistentVideo : nonExistentFiles) {
                     videos.remove(nonExistentVideo);
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -168,6 +164,11 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 startActivity(intent);
             }
         });
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            goToFolderButton.setVisibility(View.GONE);
+            clearAllFinishedButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        }
 
         onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
 

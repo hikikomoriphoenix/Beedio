@@ -247,9 +247,11 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         downloadsCompleted = null;
         downloadsInactive = null;
         pager.clearOnPageChangeListeners();
-        tabs.clearOnTabSelectedListeners();
         pager = null;
-        tabs = null;
+        if (tabs != null) {
+            tabs.clearOnTabSelectedListeners();
+            tabs = null;
+        }
 
         super.onDestroyView();
     }
