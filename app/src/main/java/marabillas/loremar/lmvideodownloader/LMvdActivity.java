@@ -45,8 +45,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
     private EditText webBox;
@@ -233,7 +235,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
 
     private ActivityCompat.OnRequestPermissionsResultCallback onRequestPermissionsResultCallback;
 
-    void setOnRequestPermissionsResultListener(ActivityCompat.OnRequestPermissionsResultCallback
+    public void setOnRequestPermissionsResultListener(ActivityCompat
+                                                              .OnRequestPermissionsResultCallback
                                                        onRequestPermissionsResultCallback) {
         this.onRequestPermissionsResultCallback = onRequestPermissionsResultCallback;
     }

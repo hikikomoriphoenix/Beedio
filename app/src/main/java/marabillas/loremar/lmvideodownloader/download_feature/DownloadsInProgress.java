@@ -49,7 +49,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
@@ -58,10 +57,10 @@ import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.PermissionRequestCodes;
-import marabillas.loremar.lmvideodownloader.PermissionsManager;
 import marabillas.loremar.lmvideodownloader.R;
-import marabillas.loremar.lmvideodownloader.RenameDialog;
-import marabillas.loremar.lmvideodownloader.Utils;
+import marabillas.loremar.lmvideodownloader.utils.PermissionsManager;
+import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener, DownloadManager.OnLinkNotFoundListener, OnDownloadWithNewLinkListener {
     private List<DownloadVideo> downloads;
@@ -113,11 +112,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                 downloads = queues.getList();
                 objectInputStream.close();
                 fileInputStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }

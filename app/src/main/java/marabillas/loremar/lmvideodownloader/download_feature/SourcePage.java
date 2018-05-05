@@ -34,14 +34,13 @@ import android.webkit.WebViewClient;
 import android.webkit.WebViewFragment;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-import marabillas.loremar.lmvideodownloader.Utils;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class SourcePage extends WebViewFragment {
     private long size;
@@ -85,8 +84,6 @@ public class SourcePage extends WebViewFragment {
                             URLConnection uCon = null;
                             try {
                                 uCon = new URL(url).openConnection();
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

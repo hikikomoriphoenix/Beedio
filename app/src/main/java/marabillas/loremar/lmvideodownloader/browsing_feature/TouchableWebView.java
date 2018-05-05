@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -18,7 +18,7 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader;
+package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -46,13 +46,14 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
+import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 
 /**
  * Created by loremar on 3/23/18.
@@ -298,11 +299,7 @@ public abstract class VideoList {
                 queues = (DownloadQueues) objectInputStream.readObject();
                 objectInputStream.close();
                 fileInputStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }

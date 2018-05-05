@@ -51,7 +51,7 @@ import android.widget.TextView;
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
-import marabillas.loremar.lmvideodownloader.Utils;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, Tracking, DownloadsInProgress.OnNumDownloadsInProgressChangeListener, DownloadsCompleted.OnNumDownloadsCompletedChangeListener, DownloadsInactive.OnNumDownloadsInactiveChangeListener {
     private TextView downloadSpeed;

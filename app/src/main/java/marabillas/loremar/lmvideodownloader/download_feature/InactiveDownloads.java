@@ -23,7 +23,6 @@ package marabillas.loremar.lmvideodownloader.download_feature;
 import android.content.Context;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -51,8 +50,6 @@ class InactiveDownloads implements Serializable {
             objectOutputStream.writeObject(this);
             objectOutputStream.close();
             fileOutputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

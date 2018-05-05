@@ -24,7 +24,6 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -93,8 +92,6 @@ public class DownloadQueues implements Serializable {
             objectOutputStream.writeObject(this);
             objectOutputStream.close();
             fileOutputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

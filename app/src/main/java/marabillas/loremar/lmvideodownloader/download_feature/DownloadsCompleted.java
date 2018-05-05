@@ -54,7 +54,7 @@ import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
-import marabillas.loremar.lmvideodownloader.RenameDialog;
+import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 
 public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgress.OnAddDownloadedVideoToCompletedListener {
     private RecyclerView downloadsList;
