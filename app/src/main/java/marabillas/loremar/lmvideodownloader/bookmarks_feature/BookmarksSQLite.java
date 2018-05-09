@@ -21,30 +21,24 @@
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class BookmarksSQLite extends SQLiteOpenHelper {
     private String currentTable;
+    private SQLiteDatabase bookmarksDB;
 
     public BookmarksSQLite(Context context) {
         super(context, "bookmarks.db", null, 1);
-        currentTable = "bookmarks_root";
+        currentTable = "bookmarks";
+        bookmarksDB = getWritableDatabase();
     }
-
-    /*public static class BookmarkItem implements BaseColumns {
-        public static final String TYPE = "type";
-        public static final String ICON = "icon";
-        public static final String CONTENTS = "contents";
-        public static final String TITLE = "title";
-        public static final String LINK = "link";
-    }*/
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE bookmarks_root (position LONG, type TEXT, icon TEXT, contents" +
-                " TEXT, title TEXT, link TEXT);");
+        db.execSQL("CREATE TABLE bookmarks (type TEXT, icon TEXT, title TEXT, link TEXT);");
     }
 
     @Override
@@ -52,16 +46,80 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
 
     }
 
-    public void insertNewEntryToEnd(String type, String icon, String contents,
-                                    String title, String link) {
-        long numRows = DatabaseUtils.queryNumEntries(getWritableDatabase(), currentTable);
-        getWritableDatabase().execSQL(
-                "INSERT into " + currentTable + " (position, type, icon, contents, title, link)" +
-                        " VALUES(" + numRows + ", " + type + ", " + icon + ", " + contents + ", " + title +
-                        ", " + link + ");");
+    public void add(String type, String icon, String title, String link) {
+        bookmarksDB.execSQL(
+                "INSERT into " + currentTable + " VALUES ('" + type + "', '" + icon + "', " +
+                        title + "', '" + link + "')");
+        if (type.equals("folder")) {
+            long numEntries = DatabaseUtils.queryNumEntries(bookmarksDB, currentTable);
+            bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + (numEntries + 1) + "(type " +
+                    "TEXT, icon TEXT, title TEXT, link TEXT)");
+        }
+    }
+
+    public void insert(int position, String type, String icon, String title, String link) {
+        if (getType(position).equals("link")) {
+            for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, currentTable); i
+                    >= position; i--) {
+                bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
+                        "WHERE oid = " + i);
+            }
+            bookmarksDB.execSQL("INSERT INTO " + currentTable + "(oid, type, icon, title, link)" +
+                    " VALUES (" + position + ", '" + type + "', '" + icon + "', '" + title + "', '" +
+                    link + "')");
+            if (type.equals("folder")) {
+                bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + position + " (type " +
+                        "TEXT, icon TEXT, title TEXT, link TEXT);");
+            }
+        } else {
+            String folderContents = currentTable + "_" + position;
+            bookmarksDB.execSQL("INSERT INTO " + folderContents + " VALUES (type, icon," +
+                    " title, link)");
+            if (type.equals("folder")) {
+                long numEntries = DatabaseUtils.queryNumEntries(bookmarksDB, folderContents);
+                bookmarksDB.execSQL("CREATE TABLE " + folderContents + "_" + (numEntries + 1) +
+                        " (type TEXT, icon TEXT, title TEXT, link TEXT);");
+            }
+        }
+    }
+
+    public void delete(int position) {
+        if (getType(position).equals("folder")) {
+            deleteFolder(currentTable + "_" + position);
+        }
+        bookmarksDB.execSQL("DELETE FROM " + currentTable + " WHERE oid = " + position);
+        bookmarksDB.execSQL("VACUUM");
+    }
+
+    private void deleteFolder(String table) {
+        Cursor c = bookmarksDB.query(table, new String[]{"oid"}, "type = " +
+                "folder", null, null, null, null);
+        while (c.moveToNext()) {
+            int index = c.getInt(c.getColumnIndex("oid"));
+            deleteFolder(table + "_" + index);
+        }
+        bookmarksDB.execSQL("DROP TABLE " + table);
+        c.close();
+    }
+
+    public void moveItem() {
+        //todo bookmarks:move an item
+    }
+
+    private String getType(int position) {
+        Cursor c = bookmarksDB.query(currentTable, new String[]{"type"}, "oid = " +
+                position, null, null, null, null);
+        c.moveToNext();
+        String type = c.getString(c.getColumnIndex("type"));
+        c.close();
+        return type;
     }
 
     public void setCurrentTable(String tableName) {
         currentTable = tableName;
+    }
+
+    public Cursor getBookmarks() {
+        return bookmarksDB.query(currentTable, null, null, null, null, null, null);
     }
 }
