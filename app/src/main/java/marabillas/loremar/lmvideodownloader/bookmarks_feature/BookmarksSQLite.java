@@ -84,10 +84,14 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     }
 
     public void delete(int position) {
+        delete(currentTable, position);
+    }
+
+    private void delete(String table, int position) {
         if (getType(position).equals("folder")) {
-            deleteFolder(currentTable + "_" + position);
+            deleteFolder(table + "_" + position);
         }
-        bookmarksDB.execSQL("DELETE FROM " + currentTable + " WHERE oid = " + position);
+        bookmarksDB.execSQL("DELETE FROM " + table + " WHERE oid = " + position);
         bookmarksDB.execSQL("VACUUM");
     }
 
@@ -102,8 +106,15 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
         c.close();
     }
 
-    public void moveItem() {
-        //todo bookmarks:move an item
+    public void moveItem(String sourceTable, int sourcePosition, int destPosition) {
+        Cursor c = bookmarksDB.query(sourceTable, null, "oid = " + sourcePosition, null,
+                null, null, null);
+        c.moveToNext();
+        insert(destPosition, c.getString(c.getColumnIndex("type")), c.getString(c.getColumnIndex
+                ("icon")), c.getString(c.getColumnIndex("title")), c.getString(c.getColumnIndex
+                ("link")));
+        delete(sourceTable, sourcePosition);
+        c.close();
     }
 
     private String getType(int position) {
