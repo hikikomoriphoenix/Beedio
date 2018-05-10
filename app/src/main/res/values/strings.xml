@@ -51,4 +51,9 @@
     <string name="move">Move</string>
     <string name="go_to_folder">Go to Folder</string>
     <string name="never_show_download_notice">Never show again</string>
+    <string name="add_bookmark_title_label">Title:</string>
+    <string name="add_bookmark_url_label">URL:</string>
+    <string name="add_bookmark_dest_folder_label">Destination Folder:</string>
+    <string name="add_bookmark_new_folder">New Folder</string>
+    <string name="add_bookmark_save">Save</string>
 </resources>

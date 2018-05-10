@@ -20,5 +20,25 @@
 
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
-public class AddBookmarkDialog {
+import android.app.Dialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+
+import marabillas.loremar.lmvideodownloader.R;
+
+public class AddBookmarkDialog extends Dialog {
+    private Context context;
+
+    public AddBookmarkDialog(Context context) {
+        super(context);
+        this.context = context;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        View view = View.inflate(context, R.layout.add_bookmark_dialog, null);
+        setTitle("Add Bookmark");
+        setContentView(view);
+    }
 }

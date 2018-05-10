@@ -217,7 +217,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         bookmarkThis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AddBookmarkDialog();
+                new AddBookmarkDialog(getActivity()).show();
             }
         });
 
