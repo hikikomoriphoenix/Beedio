@@ -56,4 +56,5 @@
     <string name="add_bookmark_dest_folder_label">Destination Folder:</string>
     <string name="add_bookmark_new_folder">New Folder</string>
     <string name="add_bookmark_save">Save</string>
+    <string name="bookmarks_root_folder">bookmarks</string>
 </resources>

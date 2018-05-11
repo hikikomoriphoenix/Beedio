@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@id/addBookmarksDestFolderLabel" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/BookmarkFoldersList"
+        android:id="@+id/addBookmarkFoldersList"
         android:layout_width="300dp"
         android:layout_height="0dp"
         android:background="@drawable/darkgraybounds"

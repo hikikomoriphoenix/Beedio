@@ -71,6 +71,7 @@ import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.WebConnect;
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.AddBookmarkDialog;
+import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmark;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class BrowserWindow extends LMvdFragment implements View.OnTouchListener, View
@@ -217,7 +218,11 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         bookmarkThis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AddBookmarkDialog(getActivity()).show();
+                Bookmark bookmark = new Bookmark();
+                bookmark.icon = null;
+                bookmark.title = page.getTitle();
+                bookmark.url = page.getUrl();
+                new AddBookmarkDialog(getActivity(), bookmark).show();
             }
         });
 

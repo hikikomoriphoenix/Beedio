@@ -26,13 +26,15 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import marabillas.loremar.lmvideodownloader.R;
+
 public class BookmarksSQLite extends SQLiteOpenHelper {
     private String currentTable;
     private SQLiteDatabase bookmarksDB;
 
     public BookmarksSQLite(Context context) {
         super(context, "bookmarks.db", null, 1);
-        currentTable = "bookmarks";
+        currentTable = context.getResources().getString(R.string.bookmarks_root_folder);
         bookmarksDB = getWritableDatabase();
     }
 
@@ -46,40 +48,27 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
 
     }
 
-    public void add(String type, String icon, String title, String link) {
+    public void add(String icon, String title, String link) {
         bookmarksDB.execSQL(
-                "INSERT into " + currentTable + " VALUES ('" + type + "', '" + icon + "', " +
-                        title + "', '" + link + "')");
-        if (type.equals("folder")) {
-            long numEntries = DatabaseUtils.queryNumEntries(bookmarksDB, currentTable);
-            bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + (numEntries + 1) + "(type " +
-                    "TEXT, icon TEXT, title TEXT, link TEXT)");
-        }
+                "INSERT INTO " + currentTable + " VALUES ('link', '" + icon + "', " + title +
+                        "', '" + link + "')");
     }
 
     public void insert(int position, String type, String icon, String title, String link) {
-        if (getType(position).equals("link")) {
-            for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, currentTable); i
-                    >= position; i--) {
-                bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
-                        "WHERE oid = " + i);
-            }
-            bookmarksDB.execSQL("INSERT INTO " + currentTable + "(oid, type, icon, title, link)" +
+        for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, currentTable); i
+                >= position; i--) {
+            bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
+                    "WHERE oid = " + i);
+        }
+        if (type.equals("folder")) {
+            bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, title) VALUES (" +
+                    position + ", '" + type + "', '" + title + "')");
+            bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + position + " (type " +
+                    "TEXT, icon TEXT, title TEXT, link TEXT);");
+        } else {
+            bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, icon, title, link)" +
                     " VALUES (" + position + ", '" + type + "', '" + icon + "', '" + title + "', '" +
                     link + "')");
-            if (type.equals("folder")) {
-                bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + position + " (type " +
-                        "TEXT, icon TEXT, title TEXT, link TEXT);");
-            }
-        } else {
-            String folderContents = currentTable + "_" + position;
-            bookmarksDB.execSQL("INSERT INTO " + folderContents + " VALUES (type, icon," +
-                    " title, link)");
-            if (type.equals("folder")) {
-                long numEntries = DatabaseUtils.queryNumEntries(bookmarksDB, folderContents);
-                bookmarksDB.execSQL("CREATE TABLE " + folderContents + "_" + (numEntries + 1) +
-                        " (type TEXT, icon TEXT, title TEXT, link TEXT);");
-            }
         }
     }
 
@@ -96,8 +85,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     }
 
     private void deleteFolder(String table) {
-        Cursor c = bookmarksDB.query(table, new String[]{"oid"}, "type = " +
-                "folder", null, null, null, null);
+        Cursor c = getFolders(table);
         while (c.moveToNext()) {
             int index = c.getInt(c.getColumnIndex("oid"));
             deleteFolder(table + "_" + index);
@@ -130,7 +118,26 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
         currentTable = tableName;
     }
 
+    public String getCurrentTable() {
+        return currentTable;
+    }
+
     public Cursor getBookmarks() {
         return bookmarksDB.query(currentTable, null, null, null, null, null, null);
+    }
+
+    public Cursor getFolders(String table) {
+        return bookmarksDB.query(table, new String[]{"oid"}, "type = " +
+                "'folder'", null, null, null, null);
+    }
+
+    public Cursor getFolders() {
+        return bookmarksDB.query(currentTable, new String[]{"oid"}, "type = " +
+                "'folder'", null, null, null, null);
+    }
+
+    public void addFolder(String name) {
+        Cursor c = getFolders();
+        insert(c.getCount(), "folder", null, name, null);
     }
 }
