@@ -28,8 +28,7 @@
         android:id="@+id/addBookmarkFolderIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_folder_black_24dp"
-        android:tint="@android:color/holo_orange_light"
+        android:src="@drawable/ic_folder_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />

@@ -20,8 +20,10 @@
 
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
+import android.graphics.Bitmap;
+
 public class Bookmark {
-    public String icon;
+    public Bitmap icon;
     public String title;
     public String url;
 }

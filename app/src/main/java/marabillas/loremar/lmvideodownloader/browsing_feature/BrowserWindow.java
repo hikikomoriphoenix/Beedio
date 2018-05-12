@@ -219,7 +219,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             @Override
             public void onClick(View v) {
                 Bookmark bookmark = new Bookmark();
-                bookmark.icon = null;
+                bookmark.icon = page.getFavicon();
                 bookmark.title = page.getTitle();
                 bookmark.url = page.getUrl();
                 new AddBookmarkDialog(getActivity(), bookmark).show();

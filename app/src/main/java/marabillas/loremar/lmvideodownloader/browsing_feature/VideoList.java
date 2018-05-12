@@ -25,12 +25,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
@@ -54,6 +52,7 @@ import java.util.List;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 /**
  * Created by loremar on 3/23/18.
@@ -77,20 +76,7 @@ public abstract class VideoList {
 
         view.setAdapter(new VideoListAdapter());
         view.setLayoutManager(new LinearLayoutManager(context));
-        DividerItemDecoration divider = new DividerItemDecoration(context,
-                DividerItemDecoration.VERTICAL) {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
-                    .State state) {
-                int verticalSpacing = (int) Math.ceil(TypedValue.applyDimension(TypedValue
-                        .COMPLEX_UNIT_SP, 4, VideoList.this.context.getResources()
-                        .getDisplayMetrics()));
-                outRect.top = verticalSpacing;
-                outRect.bottom = verticalSpacing;
-            }
-        };
-        divider.setDrawable(context.getResources().getDrawable(R.drawable.greydivider));
-        view.addItemDecoration(divider);
+        view.addItemDecoration(Utils.createDivider(context));
         view.setHasFixedSize(true);
 
         videos = new ArrayList<>();

@@ -20,6 +20,7 @@
 
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -40,7 +41,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE bookmarks (type TEXT, icon TEXT, title TEXT, link TEXT);");
+        db.execSQL("CREATE TABLE bookmarks (type TEXT, icon BLOB, title TEXT, link TEXT);");
     }
 
     @Override
@@ -48,13 +49,16 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
 
     }
 
-    public void add(String icon, String title, String link) {
-        bookmarksDB.execSQL(
-                "INSERT INTO " + currentTable + " VALUES ('link', '" + icon + "', " + title +
-                        "', '" + link + "')");
+    public void add(byte[] icon, String title, String link) {
+        ContentValues v = new ContentValues();
+        v.put("type", "link");
+        v.put("icon", icon);
+        v.put("title", title);
+        v.put("link", link);
+        bookmarksDB.insert(currentTable, null, v);
     }
 
-    public void insert(int position, String type, String icon, String title, String link) {
+    public void insert(int position, String type, byte[] icon, String title, String link) {
         for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, currentTable); i
                 >= position; i--) {
             bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
@@ -66,9 +70,13 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
             bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + position + " (type " +
                     "TEXT, icon TEXT, title TEXT, link TEXT);");
         } else {
-            bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, icon, title, link)" +
-                    " VALUES (" + position + ", '" + type + "', '" + icon + "', '" + title + "', '" +
-                    link + "')");
+            ContentValues v = new ContentValues();
+            v.put("oid", position);
+            v.put("type", type);
+            v.put("icon", icon);
+            v.put("title", title);
+            v.put("link", link);
+            bookmarksDB.insert(currentTable, null, v);
         }
     }
 
@@ -98,7 +106,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
         Cursor c = bookmarksDB.query(sourceTable, null, "oid = " + sourcePosition, null,
                 null, null, null);
         c.moveToNext();
-        insert(destPosition, c.getString(c.getColumnIndex("type")), c.getString(c.getColumnIndex
+        insert(destPosition, c.getString(c.getColumnIndex("type")), c.getBlob(c.getColumnIndex
                 ("icon")), c.getString(c.getColumnIndex("title")), c.getString(c.getColumnIndex
                 ("link")));
         delete(sourceTable, sourcePosition);
@@ -139,5 +147,6 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     public void addFolder(String name) {
         Cursor c = getFolders();
         insert(c.getCount(), "folder", null, name, null);
+        c.close();
     }
 }

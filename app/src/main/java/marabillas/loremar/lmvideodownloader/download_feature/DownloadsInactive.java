@@ -22,12 +22,10 @@ package marabillas.loremar.lmvideodownloader.download_feature;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
@@ -52,6 +50,7 @@ import java.util.List;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadsInactive extends LMvdFragment implements DownloadsInProgress.OnAddDownloadItemToInactiveListener {
     private RecyclerView downloadsList;
@@ -98,21 +97,7 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
         downloadsList.setAdapter(new DownloadAdapter());
         downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
         downloadsList.setHasFixedSize(true);
-
-        DividerItemDecoration divider = new DividerItemDecoration(getActivity(),
-                DividerItemDecoration.VERTICAL) {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
-                    .State state) {
-                int verticalSpacing = (int) Math.ceil(TypedValue.applyDimension(TypedValue
-                        .COMPLEX_UNIT_SP, 4, getActivity().getResources()
-                        .getDisplayMetrics()));
-                outRect.top = verticalSpacing;
-                outRect.bottom = verticalSpacing;
-            }
-        };
-        divider.setDrawable(getActivity().getResources().getDrawable(R.drawable.greydivider));
-        downloadsList.addItemDecoration(divider);
+        downloadsList.addItemDecoration(Utils.createDivider(getActivity()));
 
         onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
 

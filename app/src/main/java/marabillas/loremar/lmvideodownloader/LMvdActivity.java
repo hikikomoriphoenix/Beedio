@@ -45,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
@@ -141,30 +142,48 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         }
     }
 
-    private void homeClicked() {
-        Fragment fragment;
-        browserManager.hideCurrentWindow();
-        fragment = getFragmentManager().findFragmentByTag("Downloads");
+    private void closeDownloads() {
+        Fragment fragment = getFragmentManager().findFragmentByTag("Downloads");
         if (fragment != null) {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
+    }
+
+    private void closeBookmarks() {
+        Fragment fragment = getFragmentManager().findFragmentByTag("Bookmarks");
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    private void homeClicked() {
+        browserManager.hideCurrentWindow();
+        closeDownloads();
+        closeBookmarks();
         setOnBackPressedListener(null);
     }
 
     private void browserClicked() {
-        Fragment fragment;
         browserManager.unhideCurrentWindow();
-        fragment = getFragmentManager().findFragmentByTag("Downloads");
-        if (fragment != null) {
-            getFragmentManager().beginTransaction().remove(fragment).commit();
-        }
+        closeDownloads();
+        closeBookmarks();
     }
 
     private void downloadsClicked() {
+        closeBookmarks();
         if (getFragmentManager().findFragmentByTag("Downloads") == null) {
             browserManager.hideCurrentWindow();
             getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
                     "Downloads").commit();
+        }
+    }
+
+    private void bookmarksClicked() {
+        closeDownloads();
+        if (getFragmentManager().findFragmentByTag("Bookmarks") == null) {
+            browserManager.hideCurrentWindow();
+            getFragmentManager().beginTransaction().add(R.id.main, new Bookmarks(), "Bookmarks")
+                    .commit();
         }
     }
 
@@ -182,6 +201,9 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             case "Downloads":
                 downloadsClicked();
                 break;
+            case "Bookmarks":
+                bookmarksClicked();
+                break;
         }
         return true;
     }
@@ -198,6 +220,9 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 break;
             case 2:
                 downloadsClicked();
+                break;
+            case 3:
+                bookmarksClicked();
                 break;
         }
     }

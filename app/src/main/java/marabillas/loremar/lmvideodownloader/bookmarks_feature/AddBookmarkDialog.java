@@ -23,26 +23,31 @@ package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.R;
 
-public class AddBookmarkDialog extends Dialog {
+public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
     private Context context;
     private TextView destFolder;
     private List<String> folders;
     private Bookmark bookmark;
-    private BookmarksSQLite bookmarksDB;
+    private BookmarksSQLite bookmarksSQLite;
     private Cursor cursor;
+    private TextView save;
 
     public AddBookmarkDialog(Context context, Bookmark bookmark) {
         super(context);
@@ -56,23 +61,47 @@ public class AddBookmarkDialog extends Dialog {
         setTitle("Add Bookmark");
         setContentView(view);
 
-        bookmarksDB = new BookmarksSQLite(context);
+        bookmarksSQLite = new BookmarksSQLite(context);
 
         TextView title = view.findViewById(R.id.addBookmarkTitle);
         TextView url = view.findViewById(R.id.addBookmarkURL);
         destFolder = view.findViewById(R.id.addBookmarkDestFolder);
         RecyclerView folderList = view.findViewById(R.id.addBookmarkFoldersList);
+        save = view.findViewById(R.id.addBookmarkSave);
 
         title.setText(bookmark.title);
         url.setText(bookmark.url);
-        destFolder.setText(" ");
-        cursor = bookmarksDB.getFolders();
+        destFolder.setText(context.getResources().getString(R.string.bookmarks_root_folder));
+        cursor = bookmarksSQLite.getFolders();
+        folders = new ArrayList<>();
         while (cursor.moveToNext()) {
             folders.add(cursor.getString(cursor.getColumnIndex("title")));
         }
+        cursor.close();
 
         folderList.setAdapter(new FoldersAdapter());
         folderList.setLayoutManager(new LinearLayoutManager(context));
+
+        save.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == save) {
+            byte[] bytes;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (bookmark.icon != null && bookmark.icon.compress(Bitmap.CompressFormat.PNG, 100,
+                    out)) {
+                bytes = out.toByteArray();
+                Log.i("loremarTest", "an icon is saved");
+            } else {
+                bytes = null;
+                Log.i("loremarTest", "icon is null");
+            }
+            bookmarksSQLite.add(bytes, bookmark.title, bookmark.url);
+            dismiss();
+            Log.i("loremarTest", "a bookmark is saved");
+        }
     }
 
     private class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FolderViewHolder> {
@@ -91,19 +120,25 @@ public class AddBookmarkDialog extends Dialog {
 
         @Override
         public int getItemCount() {
-            return 0;
+            return folders.size();
         }
 
-        class FolderViewHolder extends RecyclerView.ViewHolder {
+        class FolderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             TextView nameView;
 
             FolderViewHolder(View itemView) {
                 super(itemView);
                 nameView = itemView.findViewById(R.id.addBookmarkFolderName);
+                itemView.setOnClickListener(this);
             }
 
             void bind(String name) {
                 nameView.setText(name);
+            }
+
+            @Override
+            public void onClick(View v) {
+
             }
         }
     }
