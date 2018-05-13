@@ -21,13 +21,16 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/addBookmarkTitleLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_bookmark_title_label"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,6 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_bookmark_url_label"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addBookmarkTitle" />
 
@@ -60,6 +65,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_bookmark_dest_folder_label"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addBookmarkURL" />
 
@@ -74,30 +81,47 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/addBookmarkFoldersList"
         android:layout_width="300dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/darkgraybounds"
-        app:layout_constraintBottom_toTopOf="@id/addBookmarkNewFolder"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addBookmarkDestFolder">
-
-    </android.support.v7.widget.RecyclerView>
+        app:layout_constraintTop_toBottomOf="@id/addBookmarkDestFolder" />
 
     <TextView
         android:id="@+id/addBookmarkNewFolder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/add_bookmark_new_folder"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:background="@drawable/white_button"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/addBookmarkSave"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/addBookmarkFoldersList" />
 
     <TextView
         android:id="@+id/addBookmarkSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/add_bookmark_save"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:background="@drawable/white_button"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/addBookmarkNewFolder" />
+        app:layout_constraintStart_toEndOf="@id/addBookmarkNewFolder"
+        app:layout_constraintTop_toBottomOf="@id/addBookmarkFoldersList" />
 </android.support.constraint.ConstraintLayout>

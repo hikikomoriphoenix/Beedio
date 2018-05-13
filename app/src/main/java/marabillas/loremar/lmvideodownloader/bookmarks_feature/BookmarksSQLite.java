@@ -68,7 +68,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
             bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, title) VALUES (" +
                     position + ", '" + type + "', '" + title + "')");
             bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + position + " (type " +
-                    "TEXT, icon TEXT, title TEXT, link TEXT);");
+                    "TEXT, icon BLOB, title TEXT, link TEXT);");
         } else {
             ContentValues v = new ContentValues();
             v.put("oid", position);
@@ -135,18 +135,22 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     }
 
     public Cursor getFolders(String table) {
-        return bookmarksDB.query(table, new String[]{"oid"}, "type = " +
+        return bookmarksDB.query(table, new String[]{"oid", "title"}, "type = " +
                 "'folder'", null, null, null, null);
     }
 
     public Cursor getFolders() {
-        return bookmarksDB.query(currentTable, new String[]{"oid"}, "type = " +
+        return bookmarksDB.query(currentTable, new String[]{"oid", "title"}, "type = " +
                 "'folder'", null, null, null, null);
     }
 
     public void addFolder(String name) {
         Cursor c = getFolders();
-        insert(c.getCount(), "folder", null, name, null);
+        insert(c.getCount() + 1, "folder", null, name, null);
         c.close();
+    }
+
+    public SQLiteDatabase getBookmarksDatabase() {
+        return bookmarksDB;
     }
 }

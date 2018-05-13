@@ -20,8 +20,10 @@
 
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -32,7 +34,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -43,11 +47,13 @@ import marabillas.loremar.lmvideodownloader.R;
 public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
     private Context context;
     private TextView destFolder;
+    private RecyclerView folderList;
     private List<String> folders;
     private Bookmark bookmark;
     private BookmarksSQLite bookmarksSQLite;
     private Cursor cursor;
     private TextView save;
+    private TextView newFolder;
 
     public AddBookmarkDialog(Context context, Bookmark bookmark) {
         super(context);
@@ -66,23 +72,40 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
         TextView title = view.findViewById(R.id.addBookmarkTitle);
         TextView url = view.findViewById(R.id.addBookmarkURL);
         destFolder = view.findViewById(R.id.addBookmarkDestFolder);
-        RecyclerView folderList = view.findViewById(R.id.addBookmarkFoldersList);
+        folderList = view.findViewById(R.id.addBookmarkFoldersList);
         save = view.findViewById(R.id.addBookmarkSave);
+        newFolder = view.findViewById(R.id.addBookmarkNewFolder);
 
         title.setText(bookmark.title);
         url.setText(bookmark.url);
         destFolder.setText(context.getResources().getString(R.string.bookmarks_root_folder));
-        cursor = bookmarksSQLite.getFolders();
-        folders = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            folders.add(cursor.getString(cursor.getColumnIndex("title")));
-        }
-        cursor.close();
+
+        updateFolders();
 
         folderList.setAdapter(new FoldersAdapter());
         folderList.setLayoutManager(new LinearLayoutManager(context));
 
         save.setOnClickListener(this);
+        newFolder.setOnClickListener(this);
+    }
+
+    private void updateFolders() {
+        cursor = bookmarksSQLite.getFolders();
+        folders = new ArrayList<>();
+        if (!bookmarksSQLite.getCurrentTable().equals(context.getResources().getString(R.string
+                .bookmarks_root_folder))) {
+            folders.add("...");
+        }
+        while (cursor.moveToNext()) {
+            folders.add(cursor.getString(cursor.getColumnIndex("title")));
+        }
+        cursor.close();
+
+        cursor = bookmarksSQLite.getBookmarksDatabase().query("sqlite_master", new
+                String[]{"name"}, "type='table'", null, null, null, null);
+        while (cursor.moveToNext()) {
+            Log.i("loremarTest", cursor.getString(cursor.getColumnIndex("name")));
+        }
     }
 
     @Override
@@ -93,14 +116,36 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
             if (bookmark.icon != null && bookmark.icon.compress(Bitmap.CompressFormat.PNG, 100,
                     out)) {
                 bytes = out.toByteArray();
-                Log.i("loremarTest", "an icon is saved");
             } else {
                 bytes = null;
-                Log.i("loremarTest", "icon is null");
             }
             bookmarksSQLite.add(bytes, bookmark.title, bookmark.url);
             dismiss();
-            Log.i("loremarTest", "a bookmark is saved");
+            Toast.makeText(context, "Page saved into bookmarks", Toast.LENGTH_SHORT).show();
+        } else if (v == newFolder) {
+            final EditText text = new EditText(context);
+            text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            new AlertDialog.Builder(context)
+                    .setMessage("Enter name of new folder.")
+                    .setPositiveButton("OK", new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            bookmarksSQLite.addFolder(text.getText().toString());
+                            updateFolders();
+                            folderList.getAdapter().notifyDataSetChanged();
+                            Toast.makeText(context, "New folder added", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("CANCEL", new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .setView(text)
+                    .create()
+                    .show();
         }
     }
 
@@ -138,7 +183,44 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
 
             @Override
             public void onClick(View v) {
-
+                if (bookmarksSQLite.getCurrentTable().equals(context.getResources().getString(R
+                        .string.bookmarks_root_folder))) {
+                    bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() + "_" +
+                            (getAdapterPosition() + 1));
+                    destFolder.setText(nameView.getText());
+                    updateFolders();
+                    folderList.getAdapter().notifyDataSetChanged();
+                } else {
+                    if (getAdapterPosition() == 0) {
+                        String upperTable = bookmarksSQLite.getCurrentTable()
+                                .substring(0, bookmarksSQLite.getCurrentTable().lastIndexOf
+                                        ("_"));
+                        bookmarksSQLite.setCurrentTable(upperTable);
+                        updateFolders();
+                        folderList.getAdapter().notifyDataSetChanged();
+                        if (upperTable.equals(context.getResources().getString(R.string
+                                .bookmarks_root_folder))) {
+                            destFolder.setText(upperTable);
+                        } else {
+                            String positionInParentTable = upperTable.substring(upperTable.lastIndexOf
+                                    ("_") + 1, upperTable.length());
+                            String parentTable = upperTable.substring(0, upperTable.lastIndexOf("_"));
+                            Cursor c = bookmarksSQLite.getBookmarksDatabase().query(parentTable,
+                                    new String[]{"title"}, "oid = " + positionInParentTable,
+                                    null, null, null, null);
+                            c.moveToNext();
+                            String dest = c.getString(c.getColumnIndex("title"));
+                            c.close();
+                            destFolder.setText(dest);
+                        }
+                    } else {
+                        bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() + "_" +
+                                getAdapterPosition());
+                        destFolder.setText(nameView.getText());
+                        updateFolders();
+                        folderList.getAdapter().notifyDataSetChanged();
+                    }
+                }
             }
         }
     }
