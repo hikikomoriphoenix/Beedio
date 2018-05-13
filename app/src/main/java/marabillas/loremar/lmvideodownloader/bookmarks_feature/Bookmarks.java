@@ -45,6 +45,7 @@ import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPressedListener {
+    private RecyclerView bookmarksView;
     private List<BookmarksItem> bookmarks;
     private BookmarksSQLite bookmarksSQLite;
 
@@ -65,7 +66,7 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.bookmarks, container, false);
-        RecyclerView bookmarksView = view.findViewById(R.id.bookmarks);
+        bookmarksView = view.findViewById(R.id.bookmarks);
 
         getLMvdActivity().setOnBackPressedListener(this);
 
@@ -83,6 +84,14 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
 
     private void loadBookmarksData() {
         bookmarks = new ArrayList<>();
+        if (!bookmarksSQLite.getCurrentTable().equals(getResources().getString(R.string
+                .bookmarks_root_folder))) {
+            BookmarksItem b = new BookmarksItem();
+            b.type = "upFolder";
+            b.icon = getResources().getDrawable(R.drawable.ic_folder_24dp);
+            b.title = "...";
+            bookmarks.add(b);
+        }
         Cursor cursor = bookmarksSQLite.getBookmarks();
         while (cursor.moveToNext()) {
             BookmarksItem b = new BookmarksItem();
@@ -100,8 +109,8 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                     b.icon = getResources().getDrawable(R.drawable.ic_bookmark_24dp);
                 }
                 b.url = cursor.getString(cursor.getColumnIndex("link"));
-                bookmarks.add(b);
             }
+            bookmarks.add(b);
         }
         cursor.close();
     }
@@ -124,7 +133,7 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
             return bookmarks.size();
         }
 
-        class BookmarkItem extends RecyclerView.ViewHolder {
+        class BookmarkItem extends RecyclerView.ViewHolder implements View.OnClickListener {
             private ImageView icon;
             private TextView title;
 
@@ -132,11 +141,47 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                 super(itemView);
                 icon = itemView.findViewById(R.id.bookmarkIcon);
                 title = itemView.findViewById(R.id.bookmarkTitle);
+                itemView.setOnClickListener(this);
             }
 
             void bind(BookmarksItem bookmark) {
                 icon.setImageDrawable(bookmark.icon);
                 title.setText(bookmark.title);
+                if (bookmark.type.equals("upFolder")) {
+                    itemView.findViewById(R.id.bookmarkMenu).setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onClick(View v) {
+                switch (bookmarks.get(getAdapterPosition()).type) {
+                    case "upFolder":
+                        bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable()
+                                .substring(0, bookmarksSQLite.getCurrentTable().lastIndexOf
+                                        ("_")));
+                        loadBookmarksData();
+                        bookmarksView.getAdapter().notifyDataSetChanged();
+                        break;
+                    case "folder":
+                        if (bookmarksSQLite.getCurrentTable().equals(getResources().getString(R.string
+                                .bookmarks_root_folder))) {
+                            bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() +
+                                    "_" + (getAdapterPosition() + 1));
+                            loadBookmarksData();
+                            bookmarksView.getAdapter().notifyDataSetChanged();
+                        } else {
+                            bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() +
+                                    "_" + getAdapterPosition());
+                            loadBookmarksData();
+                            bookmarksView.getAdapter().notifyDataSetChanged();
+                        }
+                        break;
+                    case "link":
+                        getLMvdActivity().browserClicked();
+                        getLMvdActivity().getBrowserManager().newWindow(bookmarks.get
+                                (getAdapterPosition()).url);
+                        break;
+                }
             }
         }
     }

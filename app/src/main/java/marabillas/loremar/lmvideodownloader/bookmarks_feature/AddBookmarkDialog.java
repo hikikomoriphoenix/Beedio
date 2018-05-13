@@ -30,7 +30,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,12 +99,6 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
             folders.add(cursor.getString(cursor.getColumnIndex("title")));
         }
         cursor.close();
-
-        cursor = bookmarksSQLite.getBookmarksDatabase().query("sqlite_master", new
-                String[]{"name"}, "type='table'", null, null, null, null);
-        while (cursor.moveToNext()) {
-            Log.i("loremarTest", cursor.getString(cursor.getColumnIndex("name")));
-        }
     }
 
     @Override

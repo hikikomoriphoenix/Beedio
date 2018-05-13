@@ -163,7 +163,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         setOnBackPressedListener(null);
     }
 
-    private void browserClicked() {
+    public void browserClicked() {
         browserManager.unhideCurrentWindow();
         closeDownloads();
         closeBookmarks();
