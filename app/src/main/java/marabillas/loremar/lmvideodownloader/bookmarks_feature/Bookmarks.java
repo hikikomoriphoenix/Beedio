@@ -20,6 +20,8 @@
 
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,13 +30,20 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +57,7 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
     private RecyclerView bookmarksView;
     private List<BookmarksItem> bookmarks;
     private BookmarksSQLite bookmarksSQLite;
+    private BookmarksClipboardManager bookmarksClipboardManager;
 
     @Override
     public void onBackpressed() {
@@ -67,10 +77,16 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.bookmarks, container, false);
         bookmarksView = view.findViewById(R.id.bookmarks);
-
-        getLMvdActivity().setOnBackPressedListener(this);
-
         bookmarksSQLite = new BookmarksSQLite(getActivity());
+        bookmarksClipboardManager = new BookmarksClipboardManager(bookmarksSQLite);
+
+        view.findViewById(R.id.bookmarksMenuButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((DrawerLayout) getActivity().findViewById(R.id.drawer)).openDrawer(Gravity.START);
+            }
+        });
+        getLMvdActivity().setOnBackPressedListener(this);
 
         loadBookmarksData();
 
@@ -79,6 +95,35 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
         bookmarksView.setHasFixedSize(true);
         bookmarksView.addItemDecoration(Utils.createDivider(getActivity()));
 
+        view.findViewById(R.id.bookmarksNewFolder).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText text = new EditText(getActivity());
+                text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("Enter name of new folder.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                bookmarksSQLite.addFolder(text.getText().toString());
+                                loadBookmarksData();
+                                bookmarksView.getAdapter().notifyDataSetChanged();
+                                Toast.makeText(getActivity(), "New folder added", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setView(text)
+                        .create()
+                        .show();
+            }
+        });
+        
         return view;
     }
 
@@ -115,6 +160,11 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
         cursor.close();
     }
 
+    boolean isCurrentTableRoot() {
+        return bookmarksSQLite.getCurrentTable().equals(getResources().getString(R.string
+                .bookmarks_root_folder));
+    }
+
     private class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.BookmarkItem> {
         @NonNull
         @Override
@@ -136,12 +186,15 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
         class BookmarkItem extends RecyclerView.ViewHolder implements View.OnClickListener {
             private ImageView icon;
             private TextView title;
+            private ImageView menu;
 
             BookmarkItem(View itemView) {
                 super(itemView);
                 icon = itemView.findViewById(R.id.bookmarkIcon);
                 title = itemView.findViewById(R.id.bookmarkTitle);
+                menu = itemView.findViewById(R.id.bookmarkMenu);
                 itemView.setOnClickListener(this);
+                menu.setOnClickListener(this);
             }
 
             void bind(BookmarksItem bookmark) {
@@ -149,38 +202,107 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                 title.setText(bookmark.title);
                 if (bookmark.type.equals("upFolder")) {
                     itemView.findViewById(R.id.bookmarkMenu).setVisibility(View.GONE);
+                } else {
+                    itemView.findViewById(R.id.bookmarkMenu).setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onClick(View v) {
-                switch (bookmarks.get(getAdapterPosition()).type) {
-                    case "upFolder":
-                        bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable()
-                                .substring(0, bookmarksSQLite.getCurrentTable().lastIndexOf
-                                        ("_")));
-                        loadBookmarksData();
-                        bookmarksView.getAdapter().notifyDataSetChanged();
-                        break;
-                    case "folder":
-                        if (bookmarksSQLite.getCurrentTable().equals(getResources().getString(R.string
-                                .bookmarks_root_folder))) {
-                            bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() +
-                                    "_" + (getAdapterPosition() + 1));
+                if (v == itemView) {
+                    switch (bookmarks.get(getAdapterPosition()).type) {
+                        case "upFolder":
+                            bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable()
+                                    .substring(0, bookmarksSQLite.getCurrentTable().lastIndexOf
+                                            ("_")));
                             loadBookmarksData();
-                            bookmarksView.getAdapter().notifyDataSetChanged();
-                        } else {
-                            bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() +
-                                    "_" + getAdapterPosition());
-                            loadBookmarksData();
-                            bookmarksView.getAdapter().notifyDataSetChanged();
+                            notifyDataSetChanged();
+                            break;
+                        case "folder":
+                            if (isCurrentTableRoot()) {
+                                bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() +
+                                        "_" + (getAdapterPosition() + 1));
+                                loadBookmarksData();
+                                notifyDataSetChanged();
+                            } else {
+                                bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() +
+                                        "_" + getAdapterPosition());
+                                loadBookmarksData();
+                                notifyDataSetChanged();
+                            }
+                            break;
+                        case "link":
+                            getLMvdActivity().browserClicked();
+                            getLMvdActivity().getBrowserManager().newWindow(bookmarks.get
+                                    (getAdapterPosition()).url);
+                            break;
+                    }
+                } else if (v == menu) {
+                    //todo bookmark menu
+                    PopupMenu bookmarksMenu = new PopupMenu(getActivity(), v, Gravity.END);
+                    bookmarksMenu.getMenu().add("Copy");
+                    bookmarksMenu.getMenu().add("Cut");
+                    bookmarksMenu.getMenu().add("Delete");
+
+                    if (!bookmarksClipboardManager.isClipboardEmpty() &&
+                            bookmarksClipboardManager.getClipBoard().type.equals(bookmarks.get
+                                    (getAdapterPosition()).type)) {
+                        //todo if clipboard is storing folder, check if item is first bookmark.
+                        // If it is , then paste is available.
+                        bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 2, "Paste");
+                    }
+
+                    bookmarksMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getTitle().toString()) {
+                                case "Copy":
+                                    if (isCurrentTableRoot()) {
+                                        bookmarksClipboardManager.copy(getAdapterPosition() + 1);
+                                    } else {
+                                        bookmarksClipboardManager.copy(getAdapterPosition());
+                                    }
+                                    break;
+                                case "Cut":
+                                    if (isCurrentTableRoot()) {
+                                        bookmarksClipboardManager.cut(getAdapterPosition() + 1);
+                                    } else {
+                                        bookmarksClipboardManager.cut(getAdapterPosition());
+                                    }
+                                    break;
+                                case "Paste":
+                                    boolean pasted;
+                                    if (isCurrentTableRoot()) {
+                                        pasted = bookmarksClipboardManager.paste(getAdapterPosition
+                                                () + 1);
+                                    } else {
+                                        pasted = bookmarksClipboardManager.paste(getAdapterPosition
+                                                ());
+                                    }
+
+                                    if (!pasted) {
+                                        Toast.makeText(getActivity(), "Bookmark to move no " +
+                                                "longer exist", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        loadBookmarksData();
+                                        notifyDataSetChanged();
+                                    }
+                                    break;
+                                case "Delete":
+                                    if (isCurrentTableRoot()) {
+                                        bookmarksSQLite.delete(getAdapterPosition() + 1);
+                                    } else {
+                                        bookmarksSQLite.delete(getAdapterPosition());
+                                    }
+                                    loadBookmarksData();
+                                    notifyDataSetChanged();
+                                    break;
+                            }
+                            return true;
                         }
-                        break;
-                    case "link":
-                        getLMvdActivity().browserClicked();
-                        getLMvdActivity().getBrowserManager().newWindow(bookmarks.get
-                                (getAdapterPosition()).url);
-                        break;
+                    });
+
+                    bookmarksMenu.show();
                 }
             }
         }

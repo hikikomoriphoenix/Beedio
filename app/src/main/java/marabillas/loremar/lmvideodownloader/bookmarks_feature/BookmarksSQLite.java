@@ -63,6 +63,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
                 >= position; i--) {
             bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
                     "WHERE oid = " + i);
+            //todo if folder, update its associated table's name
         }
         if (type.equals("folder")) {
             bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, title) VALUES (" +
@@ -99,6 +100,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
             deleteFolder(table + "_" + index);
         }
         bookmarksDB.execSQL("DROP TABLE " + table);
+        //todo update all succeeding folder's associated table's name
         c.close();
     }
 
