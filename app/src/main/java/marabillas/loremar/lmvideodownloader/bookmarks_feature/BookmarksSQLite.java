@@ -61,9 +61,17 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     public void insert(int position, String type, byte[] icon, String title, String link) {
         for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, currentTable); i
                 >= position; i--) {
+            Cursor c = bookmarksDB.query(currentTable, new String[]{"type"}, "oid = " + i, null,
+                    null, null, null);
+            if (c.moveToNext() && c.getString(c.getColumnIndex("type")).equals("folder")) {
+                String tablename = currentTable + "_" + i;
+                String newTablename = currentTable + "_" + (i + 1);
+                bookmarksDB.execSQL("ALTER TABLE " + tablename + " RENAME TO " + newTablename);
+            }
+            c.close();
+
             bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
                     "WHERE oid = " + i);
-            //todo if folder, update its associated table's name
         }
         if (type.equals("folder")) {
             bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, title) VALUES (" +
@@ -89,6 +97,18 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
         if (getType(position).equals("folder")) {
             deleteFolder(table + "_" + position);
         }
+
+        for (int i = position + 1; i <= DatabaseUtils.queryNumEntries(bookmarksDB, table); i++) {
+            Cursor c = bookmarksDB.query(table, new String[]{"type"}, "oid = " + i, null,
+                    null, null, null);
+            if (c.moveToNext() && c.getString(c.getColumnIndex("type")).equals("folder")) {
+                String tablename = table + "_" + i;
+                String newTablename = table + "_" + (i - 1);
+                bookmarksDB.execSQL("ALTER TABLE " + tablename + " RENAME TO " + newTablename);
+            }
+            c.close();
+        }
+
         bookmarksDB.execSQL("DELETE FROM " + table + " WHERE oid = " + position);
         bookmarksDB.execSQL("VACUUM");
     }
@@ -100,7 +120,6 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
             deleteFolder(table + "_" + index);
         }
         bookmarksDB.execSQL("DROP TABLE " + table);
-        //todo update all succeeding folder's associated table's name
         c.close();
     }
 

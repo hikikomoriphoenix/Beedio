@@ -69,6 +69,7 @@ class BookmarksClipboardManager {
             sqLite.insert(position, clipBoard.type, clipBoard.icon, clipBoard.title, clipBoard.link);
             return true;
         } else {
+            //todo fix: folder dont have links
             Cursor c = sqLite.getBookmarksDatabase().query(clipBoard.table, new String[]{"link"},
                     "oid = " + clipBoard.position, null, null, null, null, null);
             c.moveToNext();

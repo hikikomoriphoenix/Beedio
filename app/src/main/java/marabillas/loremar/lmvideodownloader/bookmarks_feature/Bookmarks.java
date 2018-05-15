@@ -110,12 +110,13 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                                 loadBookmarksData();
                                 bookmarksView.getAdapter().notifyDataSetChanged();
                                 Toast.makeText(getActivity(), "New folder added", Toast.LENGTH_SHORT).show();
+                                Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
                             }
                         })
                         .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
+                                Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
                             }
                         })
                         .setView(text)

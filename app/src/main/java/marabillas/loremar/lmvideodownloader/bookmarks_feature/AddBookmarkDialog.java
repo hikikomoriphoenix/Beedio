@@ -20,9 +20,9 @@
 
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -42,9 +42,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
-    private Context context;
+    private Activity activity;
     private TextView destFolder;
     private RecyclerView folderList;
     private List<String> folders;
@@ -54,19 +55,19 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
     private TextView save;
     private TextView newFolder;
 
-    public AddBookmarkDialog(Context context, Bookmark bookmark) {
-        super(context);
-        this.context = context;
+    public AddBookmarkDialog(Activity activity, Bookmark bookmark) {
+        super(activity);
+        this.activity = activity;
         this.bookmark = bookmark;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        View view = View.inflate(context, R.layout.add_bookmark_dialog, null);
+        View view = View.inflate(activity, R.layout.add_bookmark_dialog, null);
         setTitle("Add Bookmark");
         setContentView(view);
 
-        bookmarksSQLite = new BookmarksSQLite(context);
+        bookmarksSQLite = new BookmarksSQLite(activity);
 
         TextView title = view.findViewById(R.id.addBookmarkTitle);
         TextView url = view.findViewById(R.id.addBookmarkURL);
@@ -77,12 +78,12 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
 
         title.setText(bookmark.title);
         url.setText(bookmark.url);
-        destFolder.setText(context.getResources().getString(R.string.bookmarks_root_folder));
+        destFolder.setText(activity.getResources().getString(R.string.bookmarks_root_folder));
 
         updateFolders();
 
         folderList.setAdapter(new FoldersAdapter());
-        folderList.setLayoutManager(new LinearLayoutManager(context));
+        folderList.setLayoutManager(new LinearLayoutManager(activity));
 
         save.setOnClickListener(this);
         newFolder.setOnClickListener(this);
@@ -91,7 +92,7 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
     private void updateFolders() {
         cursor = bookmarksSQLite.getFolders();
         folders = new ArrayList<>();
-        if (!bookmarksSQLite.getCurrentTable().equals(context.getResources().getString(R.string
+        if (!bookmarksSQLite.getCurrentTable().equals(activity.getResources().getString(R.string
                 .bookmarks_root_folder))) {
             folders.add("...");
         }
@@ -114,12 +115,12 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
             }
             bookmarksSQLite.add(bytes, bookmark.title, bookmark.url);
             dismiss();
-            Toast.makeText(context, "Page saved into bookmarks", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Page saved into bookmarks", Toast.LENGTH_SHORT).show();
         } else if (v == newFolder) {
-            final EditText text = new EditText(context);
+            final EditText text = new EditText(activity);
             text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
-            new AlertDialog.Builder(context)
+            new AlertDialog.Builder(activity)
                     .setMessage("Enter name of new folder.")
                     .setPositiveButton("OK", new OnClickListener() {
                         @Override
@@ -127,13 +128,14 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
                             bookmarksSQLite.addFolder(text.getText().toString());
                             updateFolders();
                             folderList.getAdapter().notifyDataSetChanged();
-                            Toast.makeText(context, "New folder added", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "New folder added", Toast.LENGTH_SHORT).show();
+                            Utils.hideSoftKeyboard(activity, text.getWindowToken());
                         }
                     })
                     .setNegativeButton("CANCEL", new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
+                            Utils.hideSoftKeyboard(activity, text.getWindowToken());
                         }
                     })
                     .setView(text)
@@ -146,7 +148,7 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
         @NonNull
         @Override
         public FolderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(context);
+            LayoutInflater inflater = LayoutInflater.from(activity);
             return new FolderViewHolder(inflater.inflate(R.layout.add_bookmark_folders_list_item,
                     parent, false));
         }
@@ -176,7 +178,7 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
 
             @Override
             public void onClick(View v) {
-                if (bookmarksSQLite.getCurrentTable().equals(context.getResources().getString(R
+                if (bookmarksSQLite.getCurrentTable().equals(activity.getResources().getString(R
                         .string.bookmarks_root_folder))) {
                     bookmarksSQLite.setCurrentTable(bookmarksSQLite.getCurrentTable() + "_" +
                             (getAdapterPosition() + 1));
@@ -191,7 +193,7 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
                         bookmarksSQLite.setCurrentTable(upperTable);
                         updateFolders();
                         folderList.getAdapter().notifyDataSetChanged();
-                        if (upperTable.equals(context.getResources().getString(R.string
+                        if (upperTable.equals(activity.getResources().getString(R.string
                                 .bookmarks_root_folder))) {
                             destFolder.setText(upperTable);
                         } else {

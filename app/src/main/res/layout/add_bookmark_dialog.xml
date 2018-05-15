@@ -78,6 +78,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addBookmarksDestFolderLabel" />
 
+    <!--todo fix: height of folderlist needs to be fixed instead of wrap content
+    Or instead of fixed, maybe setMaxHeight?-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/addBookmarkFoldersList"
         android:layout_width="300dp"
