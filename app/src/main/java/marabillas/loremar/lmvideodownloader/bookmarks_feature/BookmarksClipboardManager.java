@@ -93,6 +93,10 @@ class BookmarksClipboardManager implements BookmarksSQLite.OnBookmarkPositionCha
         if (clipBoard != null) {
             if (!clipBoard.move) {
                 sqLite.insert(position, clipBoard.type, clipBoard.icon, clipBoard.title, clipBoard.link);
+                if (clipBoard.type.equals("folder")) {
+                    sqLite.copyFolderContents(clipBoard.table + "_" + clipBoard.position, sqLite
+                            .getCurrentTable() + "_" + position);
+                }
                 return true;
             } else {
                 sqLite.moveItem(clipBoard.table, clipBoard.position, position);

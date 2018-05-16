@@ -263,9 +263,9 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                 } else if (v == menu) {
                     //todo bookmark menu
                     PopupMenu bookmarksMenu = new PopupMenu(getActivity(), v, Gravity.END);
-                    bookmarksMenu.getMenu().add("Copy");
-                    bookmarksMenu.getMenu().add("Cut");
-                    bookmarksMenu.getMenu().add("Delete");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 0, "Copy");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 1, "Cut");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 3, "Delete");
 
                     if (!bookmarksClipboardManager.isClipboardEmpty() &&
                             bookmarksClipboardManager.getClipBoard().type.equals(bookmarks.get
