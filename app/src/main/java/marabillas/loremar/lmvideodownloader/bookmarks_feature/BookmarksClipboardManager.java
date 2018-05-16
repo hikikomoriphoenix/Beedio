@@ -21,8 +21,9 @@
 package marabillas.loremar.lmvideodownloader.bookmarks_feature;
 
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 
-class BookmarksClipboardManager {
+class BookmarksClipboardManager implements BookmarksSQLite.OnBookmarkPositionChangedListener {
     private ClipBoard clipBoard;
     private BookmarksSQLite sqLite;
 
@@ -38,6 +39,18 @@ class BookmarksClipboardManager {
 
     BookmarksClipboardManager(BookmarksSQLite sqLite) {
         this.sqLite = sqLite;
+        this.sqLite.setOnBookmarkPositionChangedListener(this);
+    }
+
+    @Override
+    public void onBookmarkPositionChanged(int oldPosition, int newPosition) {
+        if (clipBoard != null && clipBoard.position == oldPosition) {
+            if (newPosition > 0) {
+                clipBoard.position = newPosition;
+            } else {
+                clipBoard = null;
+            }
+        }
     }
 
     private void storeToClipboard(int position) {
@@ -64,25 +77,30 @@ class BookmarksClipboardManager {
         clipBoard.move = true;
     }
 
-    boolean paste(int position) {
-        if (!clipBoard.move) {
-            sqLite.insert(position, clipBoard.type, clipBoard.icon, clipBoard.title, clipBoard.link);
-            return true;
+    boolean paste() {
+        if (clipBoard.type.equals("link")) {
+            return paste((int) (DatabaseUtils.queryNumEntries(sqLite.getBookmarksDatabase(), sqLite
+                    .getCurrentTable())) + 1);
         } else {
-            //todo fix: folder dont have links
-            Cursor c = sqLite.getBookmarksDatabase().query(clipBoard.table, new String[]{"link"},
-                    "oid = " + clipBoard.position, null, null, null, null, null);
-            c.moveToNext();
-            if (clipBoard.link.equals(c.getString(c.getColumnIndex("link")))) {
-                sqLite.moveItem(clipBoard.table, clipBoard.position, position);
-                c.close();
-                clipBoard = null;
+            Cursor c = sqLite.getFolders();
+            boolean pasted = paste(c.getCount() + 1);
+            c.close();
+            return pasted;
+        }
+    }
+
+    boolean paste(int position) {
+        if (clipBoard != null) {
+            if (!clipBoard.move) {
+                sqLite.insert(position, clipBoard.type, clipBoard.icon, clipBoard.title, clipBoard.link);
                 return true;
             } else {
-                c.close();
+                sqLite.moveItem(clipBoard.table, clipBoard.position, position);
                 clipBoard = null;
-                return false;
+                return true;
             }
+        } else {
+            return false;
         }
     }
 

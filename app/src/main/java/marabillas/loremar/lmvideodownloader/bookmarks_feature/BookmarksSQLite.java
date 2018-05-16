@@ -50,33 +50,47 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     }
 
     public void add(byte[] icon, String title, String link) {
+        add(currentTable, icon, title, link);
+    }
+
+    public void add(String table, byte[] icon, String title, String link) {
         ContentValues v = new ContentValues();
         v.put("type", "link");
         v.put("icon", icon);
         v.put("title", title);
         v.put("link", link);
-        bookmarksDB.insert(currentTable, null, v);
+        bookmarksDB.insert(table, null, v);
     }
 
     public void insert(int position, String type, byte[] icon, String title, String link) {
-        for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, currentTable); i
+        insert(currentTable, position, type, icon, title, link);
+    }
+
+    public void insert(String table, int position, String type, byte[] icon, String title, String
+            link) {
+        for (int i = (int) DatabaseUtils.queryNumEntries(bookmarksDB, table); i
                 >= position; i--) {
-            Cursor c = bookmarksDB.query(currentTable, new String[]{"type"}, "oid = " + i, null,
+            Cursor c = bookmarksDB.query(table, new String[]{"type"}, "oid = " + i, null,
                     null, null, null);
             if (c.moveToNext() && c.getString(c.getColumnIndex("type")).equals("folder")) {
-                String tablename = currentTable + "_" + i;
-                String newTablename = currentTable + "_" + (i + 1);
+                String tablename = table + "_" + i;
+                String newTablename = table + "_" + (i + 1);
                 bookmarksDB.execSQL("ALTER TABLE " + tablename + " RENAME TO " + newTablename);
+                renameSubFolderTables(tablename, newTablename);
             }
             c.close();
 
-            bookmarksDB.execSQL("UPDATE " + currentTable + " SET " + "oid = oid + 1 " +
+            bookmarksDB.execSQL("UPDATE " + table + " SET " + "oid = oid + 1 " +
                     "WHERE oid = " + i);
+
+            if (onBookmarkPositionChangedListener != null) {
+                onBookmarkPositionChangedListener.onBookmarkPositionChanged(i, i + 1);
+            }
         }
         if (type.equals("folder")) {
-            bookmarksDB.execSQL("INSERT INTO " + currentTable + " (oid, type, title) VALUES (" +
+            bookmarksDB.execSQL("INSERT INTO " + table + " (oid, type, title) VALUES (" +
                     position + ", '" + type + "', '" + title + "')");
-            bookmarksDB.execSQL("CREATE TABLE " + currentTable + "_" + position + " (type " +
+            bookmarksDB.execSQL("CREATE TABLE " + table + "_" + position + " (type " +
                     "TEXT, icon BLOB, title TEXT, link TEXT);");
         } else {
             ContentValues v = new ContentValues();
@@ -85,7 +99,7 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
             v.put("icon", icon);
             v.put("title", title);
             v.put("link", link);
-            bookmarksDB.insert(currentTable, null, v);
+            bookmarksDB.insert(table, null, v);
         }
     }
 
@@ -94,8 +108,8 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     }
 
     private void delete(String table, int position) {
-        if (getType(position).equals("folder")) {
-            deleteFolder(table + "_" + position);
+        if (getType(table, position).equals("folder")) {
+            deleteFolderContents(table + "_" + position);
         }
 
         for (int i = position + 1; i <= DatabaseUtils.queryNumEntries(bookmarksDB, table); i++) {
@@ -105,22 +119,42 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
                 String tablename = table + "_" + i;
                 String newTablename = table + "_" + (i - 1);
                 bookmarksDB.execSQL("ALTER TABLE " + tablename + " RENAME TO " + newTablename);
+                renameSubFolderTables(tablename, newTablename);
+                if (tablename.equals(currentTable)) {
+                    currentTable = newTablename;
+                }
             }
             c.close();
+            onBookmarkPositionChangedListener.onBookmarkPositionChanged(i, i - 1);
         }
 
         bookmarksDB.execSQL("DELETE FROM " + table + " WHERE oid = " + position);
         bookmarksDB.execSQL("VACUUM");
+        onBookmarkPositionChangedListener.onBookmarkPositionChanged(position, -1);
     }
 
-    private void deleteFolder(String table) {
+    private void deleteFolderContents(String table) {
         Cursor c = getFolders(table);
         while (c.moveToNext()) {
-            int index = c.getInt(c.getColumnIndex("oid"));
-            deleteFolder(table + "_" + index);
+            int index = c.getInt(0);//apparently getColumnIndex("oid") returns -1(!?)
+            deleteFolderContents(table + "_" + index);
         }
         bookmarksDB.execSQL("DROP TABLE " + table);
         c.close();
+    }
+
+    private void renameSubFolderTables(String oldBasename, String newBasename) {
+        Cursor c = getFolders(newBasename);
+        while (c.moveToNext()) {
+            int position = c.getInt(0);
+            String oldTablename = oldBasename + "_" + position;
+            String newTablename = newBasename + "_" + position;
+            bookmarksDB.execSQL("ALTER TABLE " + oldTablename + " RENAME TO " + newTablename);
+            renameSubFolderTables(oldTablename, newTablename);
+            if (oldTablename.equals(currentTable)) {
+                currentTable = newTablename;
+            }
+        }
     }
 
     public void moveItem(String sourceTable, int sourcePosition, int destPosition) {
@@ -130,12 +164,54 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
         insert(destPosition, c.getString(c.getColumnIndex("type")), c.getBlob(c.getColumnIndex
                 ("icon")), c.getString(c.getColumnIndex("title")), c.getString(c.getColumnIndex
                 ("link")));
-        delete(sourceTable, sourcePosition);
+        if (sourceTable.equals(currentTable) && sourcePosition >= destPosition) {
+            if (c.getString(c.getColumnIndex("type")).equals("folder")) {
+                copyFolderContents(sourceTable + "_" + sourcePosition, currentTable + "_" + destPosition);
+            }
+            delete(sourceTable, sourcePosition + 1);
+        } else {
+            if (c.getString(c.getColumnIndex("type")).equals("folder")) {
+                copyFolderContents(sourceTable + "_" + sourcePosition, currentTable + "_" + destPosition);
+            }
+            delete(sourceTable, sourcePosition);
+        }
         c.close();
     }
 
-    private String getType(int position) {
-        Cursor c = bookmarksDB.query(currentTable, new String[]{"type"}, "oid = " +
+    public void copyFolderContents(String sourceTable, String destTable) {
+        Cursor source = bookmarksDB.query(sourceTable, new String[]{"oid", "type", "icon",
+                "title", "link"}, null, null, null, null, null);
+        while (source.moveToNext()) {
+            if (source.getString(source.getColumnIndex("type")).equals("folder")) {
+                Cursor dest = getFolders(destTable);
+                int destPosition = dest.getCount() + 1;
+                insert(destTable, destPosition, "folder", null, source.getString(source
+                        .getColumnIndex("title")), null);
+                dest.close();
+                int sourcePosition = source.getInt(0);
+                copyFolderContents(sourceTable + "_" + sourcePosition, destTable + "_" + destPosition);
+            } else {
+                add(destTable, source.getBlob(source.getColumnIndex("icon")), source.getString
+                        (source.getColumnIndex("title")), source.getString(source.getColumnIndex
+                        ("link")));
+            }
+        }
+        source.close();
+    }
+
+    private OnBookmarkPositionChangedListener onBookmarkPositionChangedListener;
+
+    public interface OnBookmarkPositionChangedListener {
+        void onBookmarkPositionChanged(int oldPosition, int newPosition);
+    }
+
+    public void setOnBookmarkPositionChangedListener(OnBookmarkPositionChangedListener
+                                                             onBookmarkPositionChangedListener) {
+        this.onBookmarkPositionChangedListener = onBookmarkPositionChangedListener;
+    }
+
+    private String getType(String table, int position) {
+        Cursor c = bookmarksDB.query(table, new String[]{"type"}, "oid = " +
                 position, null, null, null, null);
         c.moveToNext();
         String type = c.getString(c.getColumnIndex("type"));

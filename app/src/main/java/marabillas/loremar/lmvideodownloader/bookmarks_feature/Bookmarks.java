@@ -58,6 +58,7 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
     private List<BookmarksItem> bookmarks;
     private BookmarksSQLite bookmarksSQLite;
     private BookmarksClipboardManager bookmarksClipboardManager;
+    private TextView pasteButton;
 
     @Override
     public void onBackpressed() {
@@ -124,6 +125,27 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                         .show();
             }
         });
+
+        pasteButton = view.findViewById(R.id.bookmarksPaste);
+        pasteButton.setOnClickListener(new View
+                .OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean pasted;
+                pasted = bookmarksClipboardManager.paste();
+                if (!pasted) {
+                    Toast.makeText(getActivity(), "Bookmark to move no " +
+                            "longer exist", Toast.LENGTH_SHORT).show();
+                } else {
+                    loadBookmarksData();
+                    bookmarksView.getAdapter().notifyDataSetChanged();
+                }
+                if (bookmarksClipboardManager.isClipboardEmpty()) {
+                    pasteButton.setVisibility(View.GONE);
+                }
+            }
+        });
+        pasteButton.setVisibility(View.GONE);
         
         return view;
     }
@@ -263,6 +285,7 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                                     } else {
                                         bookmarksClipboardManager.copy(getAdapterPosition());
                                     }
+                                    pasteButton.setVisibility(View.VISIBLE);
                                     break;
                                 case "Cut":
                                     if (isCurrentTableRoot()) {
@@ -270,6 +293,7 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                                     } else {
                                         bookmarksClipboardManager.cut(getAdapterPosition());
                                     }
+                                    pasteButton.setVisibility(View.VISIBLE);
                                     break;
                                 case "Paste":
                                     boolean pasted;
@@ -288,15 +312,39 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                                         loadBookmarksData();
                                         notifyDataSetChanged();
                                     }
+
+                                    if (bookmarksClipboardManager.isClipboardEmpty()) {
+                                        pasteButton.setVisibility(View.GONE);
+                                    }
+
                                     break;
                                 case "Delete":
-                                    if (isCurrentTableRoot()) {
-                                        bookmarksSQLite.delete(getAdapterPosition() + 1);
-                                    } else {
-                                        bookmarksSQLite.delete(getAdapterPosition());
-                                    }
-                                    loadBookmarksData();
-                                    notifyDataSetChanged();
+                                    new AlertDialog.Builder(getActivity())
+                                            .setMessage("Delete?")
+                                            .setPositiveButton("YES", new DialogInterface
+                                                    .OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    if (isCurrentTableRoot()) {
+                                                        bookmarksSQLite.delete(getAdapterPosition() + 1);
+                                                    } else {
+                                                        bookmarksSQLite.delete(getAdapterPosition());
+                                                    }
+                                                    loadBookmarksData();
+                                                    notifyDataSetChanged();
+                                                    if (bookmarksClipboardManager.isClipboardEmpty()) {
+                                                        pasteButton.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                            })
+                                            .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            })
+                                            .create()
+                                            .show();
                                     break;
                             }
                             return true;
