@@ -137,6 +137,7 @@
             android:layout_marginBottom="5dp" />
 
         <TextView
+            android:id="@+id/bookmarkButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bookmark_this_page"

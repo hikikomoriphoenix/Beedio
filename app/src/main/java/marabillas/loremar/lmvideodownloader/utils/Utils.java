@@ -24,7 +24,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.IBinder;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import java.security.KeyManagementException;
@@ -39,6 +44,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import marabillas.loremar.lmvideodownloader.R;
 
 /**
  * Created by loremar on 3/17/18.
@@ -131,5 +138,22 @@ public final class Utils {
         } else {
             return totalSecs + "s";
         }
+    }
+
+    public static DividerItemDecoration createDivider(final Context context) {
+        DividerItemDecoration divider = new DividerItemDecoration(context,
+                DividerItemDecoration.VERTICAL) {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView
+                    .State state) {
+                int verticalSpacing = (int) Math.ceil(TypedValue.applyDimension(TypedValue
+                        .COMPLEX_UNIT_SP, 4, context.getResources()
+                        .getDisplayMetrics()));
+                outRect.top = verticalSpacing;
+                outRect.bottom = verticalSpacing;
+            }
+        };
+        divider.setDrawable(context.getResources().getDrawable(R.drawable.greydivider));
+        return divider;
     }
 }
