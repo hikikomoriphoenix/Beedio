@@ -20,6 +20,7 @@
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="8dp">
@@ -36,11 +37,22 @@
 
     <TextView
         android:id="@+id/addBookmarkTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
+        app:layout_constraintEnd_toStartOf="@id/addBookmarkRenameTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addBookmarkTitleLabel" />
+
+    <ImageView
+        android:id="@+id/addBookmarkRenameTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_edit_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@id/addBookmarkTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/addBookmarkTitle"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/addBookmarkURLLabel"
@@ -54,9 +66,10 @@
 
     <TextView
         android:id="@+id/addBookmarkURL"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addBookmarkURLLabel" />
 
@@ -72,24 +85,25 @@
 
     <TextView
         android:id="@+id/addBookmarkDestFolder"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addBookmarksDestFolderLabel" />
 
-    <!--todo fix: height of folderlist needs to be fixed instead of wrap content
-    Or instead of fixed, maybe setMaxHeight?-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/addBookmarkFoldersList"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/darkgraybounds"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/darkgraybounds"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addBookmarkDestFolder" />
+        app:layout_constraintTop_toBottomOf="@id/addBookmarkDestFolder"
+        app:layout_constraintBottom_toTopOf="@id/addBookmarkNewFolder" />
 
     <TextView
         android:id="@+id/addBookmarkNewFolder"
@@ -106,8 +120,7 @@
         android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/addBookmarkSave"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addBookmarkFoldersList" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/addBookmarkSave"
@@ -124,6 +137,5 @@
         android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/addBookmarkNewFolder"
-        app:layout_constraintTop_toBottomOf="@id/addBookmarkFoldersList" />
+        app:layout_constraintStart_toEndOf="@id/addBookmarkNewFolder" />
 </android.support.constraint.ConstraintLayout>

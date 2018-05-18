@@ -250,4 +250,9 @@ public class BookmarksSQLite extends SQLiteOpenHelper {
     public SQLiteDatabase getBookmarksDatabase() {
         return bookmarksDB;
     }
+
+    public void renameBookmarkTitle(int position, String newTitle) {
+        bookmarksDB.execSQL("UPDATE " + currentTable + " SET title = '" + newTitle + "' WHERE oid" +
+                " = " + position);
+    }
 }

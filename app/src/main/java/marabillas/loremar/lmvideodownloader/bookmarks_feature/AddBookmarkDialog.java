@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,10 +43,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
     private Activity activity;
+    private TextView title;
     private TextView destFolder;
     private RecyclerView folderList;
     private List<String> folders;
@@ -54,6 +57,7 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
     private Cursor cursor;
     private TextView save;
     private TextView newFolder;
+    private ImageView renameTitle;
 
     public AddBookmarkDialog(Activity activity, Bookmark bookmark) {
         super(activity);
@@ -66,15 +70,19 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
         View view = View.inflate(activity, R.layout.add_bookmark_dialog, null);
         setTitle("Add Bookmark");
         setContentView(view);
+        if (getWindow() != null) {
+            getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
 
         bookmarksSQLite = new BookmarksSQLite(activity);
 
-        TextView title = view.findViewById(R.id.addBookmarkTitle);
+        title = view.findViewById(R.id.addBookmarkTitle);
         TextView url = view.findViewById(R.id.addBookmarkURL);
         destFolder = view.findViewById(R.id.addBookmarkDestFolder);
         folderList = view.findViewById(R.id.addBookmarkFoldersList);
         save = view.findViewById(R.id.addBookmarkSave);
         newFolder = view.findViewById(R.id.addBookmarkNewFolder);
+        renameTitle = view.findViewById(R.id.addBookmarkRenameTitle);
 
         title.setText(bookmark.title);
         url.setText(bookmark.url);
@@ -87,6 +95,7 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
 
         save.setOnClickListener(this);
         newFolder.setOnClickListener(this);
+        renameTitle.setOnClickListener(this);
     }
 
     private void updateFolders() {
@@ -141,6 +150,14 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
                     .setView(text)
                     .create()
                     .show();
+        } else if (v == renameTitle) {
+            new RenameDialog(activity, bookmark.title) {
+                @Override
+                public void onOK(String newName) {
+                    bookmark.title = newName;
+                    title.setText(newName);
+                }
+            };
         }
     }
 

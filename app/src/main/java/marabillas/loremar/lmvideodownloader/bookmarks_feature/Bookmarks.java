@@ -51,6 +51,7 @@ import java.util.List;
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPressedListener {
@@ -261,24 +262,39 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                             break;
                     }
                 } else if (v == menu) {
-                    //todo bookmark menu
                     PopupMenu bookmarksMenu = new PopupMenu(getActivity(), v, Gravity.END);
-                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 0, "Copy");
-                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 1, "Cut");
-                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 3, "Delete");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 0, "Rename");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 1, "Copy");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 2, "Cut");
+                    bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 4, "Delete");
 
                     if (!bookmarksClipboardManager.isClipboardEmpty() &&
                             bookmarksClipboardManager.getClipBoard().type.equals(bookmarks.get
                                     (getAdapterPosition()).type)) {
-                        //todo if clipboard is storing folder, check if item is first bookmark.
-                        // If it is , then paste is available.
-                        bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 2, "Paste");
+                        bookmarksMenu.getMenu().add(Menu.NONE, Menu.NONE, 3, "Paste");
                     }
 
                     bookmarksMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getTitle().toString()) {
+                                case "Rename":
+                                    final int position;
+                                    if (isCurrentTableRoot()) {
+                                        position = getAdapterPosition() + 1;
+                                    } else {
+                                        position = getAdapterPosition();
+                                    }
+                                    new RenameDialog(getActivity(), title.getText().toString()) {
+                                        @Override
+                                        public void onOK(String newName) {
+
+                                            bookmarksSQLite.renameBookmarkTitle(position, newName);
+                                            bookmarks.get(getAdapterPosition()).title = newName;
+                                            notifyItemChanged(getAdapterPosition());
+                                        }
+                                    };
+                                    break;
                                 case "Copy":
                                     if (isCurrentTableRoot()) {
                                         bookmarksClipboardManager.copy(getAdapterPosition() + 1);
