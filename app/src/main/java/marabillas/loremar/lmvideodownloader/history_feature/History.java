@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,9 +42,7 @@ import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class History extends LMvdFragment implements LMvdActivity.OnBackPressedListener {
     private EditText searchText;
-    private ImageView searchButton;
     private RecyclerView visitedPagesView;
-    private TextView clearHistory;
 
     private List<VisitedPage> visitedPages;
     private HistorySQLite historySQLite;
@@ -55,9 +54,9 @@ public class History extends LMvdFragment implements LMvdActivity.OnBackPressedL
 
         View view = inflater.inflate(R.layout.history, container, false);
         searchText = view.findViewById(R.id.historySearchText);
-        searchButton = view.findViewById(R.id.historySearchIcon);
+        ImageView searchButton = view.findViewById(R.id.historySearchIcon);
         visitedPagesView = view.findViewById(R.id.visitedPages);
-        clearHistory = view.findViewById(R.id.clearHistory);
+        TextView clearHistory = view.findViewById(R.id.clearHistory);
 
         historySQLite = new HistorySQLite(getActivity());
         visitedPages = historySQLite.getAllVisitedPages();
@@ -66,7 +65,40 @@ public class History extends LMvdFragment implements LMvdActivity.OnBackPressedL
         visitedPagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
         visitedPagesView.addItemDecoration(Utils.createDivider(getActivity()));
 
+        clearHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                historySQLite.clearHistory();
+                visitedPages.clear();
+                visitedPagesView.getAdapter().notifyDataSetChanged();
+            }
+        });
+
+        searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                searchGo();
+                return false;
+            }
+        });
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchGo();
+            }
+        });
+
         return view;
+    }
+
+    private void searchGo() {
+        if (getActivity().getCurrentFocus() != null) {
+            Utils.hideSoftKeyboard(getActivity(), getActivity().getCurrentFocus().getWindowToken());
+            visitedPages = historySQLite.getVisitedPagesByKeyword(searchText.getText()
+                    .toString());
+            visitedPagesView.getAdapter().notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -110,7 +142,9 @@ public class History extends LMvdFragment implements LMvdActivity.OnBackPressedL
                 itemView.findViewById(R.id.visitedPageDelete).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        historySQLite.deleteFromHistory(visitedPages.get(getAdapterPosition()).link);
+                        visitedPages.remove(getAdapterPosition());
+                        notifyItemRemoved(getAdapterPosition());
                     }
                 });
             }

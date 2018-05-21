@@ -64,6 +64,14 @@ public class HistorySQLite extends SQLiteOpenHelper {
         }
     }
 
+    public void deleteFromHistory(String link) {
+        dB.delete("visited_page", "link = '" + link + "'", null);
+    }
+
+    public void clearHistory() {
+        dB.execSQL("DELETE FROM visited_pages");
+    }
+
     public List<VisitedPage> getAllVisitedPages() {
         Cursor c = dB.query("visited_pages", new String[]{"title", "link"}, null, null, null,
                 null, "time DESC");
@@ -77,4 +85,20 @@ public class HistorySQLite extends SQLiteOpenHelper {
         c.close();
         return pages;
     }
+
+    public List<VisitedPage> getVisitedPagesByKeyword(String keyword) {
+        Cursor c = dB.query("visited_pages", new String[]{"title", "link"}, "title LIKE '%" +
+                keyword + "%'", null, null, null, "time DESC");
+        List<VisitedPage> pages = new ArrayList<>();
+        while (c.moveToNext()) {
+            VisitedPage page = new VisitedPage();
+            page.title = c.getString(c.getColumnIndex("title"));
+            page.link = c.getString(c.getColumnIndex("link"));
+            pages.add(page);
+        }
+        c.close();
+        return pages;
+    }
+
+    /*todo Add methods that allows one to delete or get items from a specific range of time*/
 }
