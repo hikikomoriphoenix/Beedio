@@ -58,4 +58,6 @@
     <string name="add_bookmark_save">Save</string>
     <string name="bookmarks_root_folder">bookmarks</string>
     <string name="bookmarks_new_folder">+ New Folder</string>
+    <string name="search">Search</string>
+    <string name="clear_history">Clear History</string>
 </resources>
