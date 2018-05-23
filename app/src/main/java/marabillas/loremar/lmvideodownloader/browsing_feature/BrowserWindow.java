@@ -397,8 +397,15 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     @Override
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
-                        if (urlLowerCase.contains("mp4") || urlLowerCase.contains("video") ||
-                                urlLowerCase.contains("embed")) {
+                        String[] filters = getResources().getStringArray(R.array.videourl_filters);
+                        boolean urlMightBeVideo = false;
+                        for (String filter : filters) {
+                            if (urlLowerCase.contains(filter)) {
+                                urlMightBeVideo = true;
+                                break;
+                            }
+                        }
+                        if (urlMightBeVideo) {
                             numLinksInspected++;
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
