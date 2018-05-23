@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -488,6 +490,36 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                         }
                     }
                 }.start();
+            }
+
+            @android.support.annotation.Nullable
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                if ((url.contains("ad") ||
+                        url.contains("banner") ||
+                        url.contains("pop")) &&
+                        getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
+                    Log.i("loremarTest", "Ads detected: " + url);
+                    return new WebResourceResponse(null, null, null);
+                }
+                return super.shouldInterceptRequest(view, url);
+            }
+
+            @android.support.annotation.Nullable
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if ((request.getUrl().toString().contains("ad") ||
+                            request.getUrl().toString().contains("banner") ||
+                            request.getUrl().toString().contains("pop"))
+                            && getLMvdActivity().getBrowserManager().checkUrlIfAds(request.getUrl()
+                            .toString())) {
+                        Log.i("loremarTest", "Ads detected: " + request.getUrl().toString());
+                        return new WebResourceResponse(null, null, null);
+                    } else return null;
+                } else {
+                    return shouldInterceptRequest(view, request.getUrl().toString());
+                }
             }
         });
         page.setWebChromeClient(new WebChromeClient() {

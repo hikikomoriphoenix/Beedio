@@ -32,6 +32,12 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +51,7 @@ import marabillas.loremar.lmvideodownloader.R;
 public class BrowserManager extends LMvdFragment {
     private List<BrowserWindow> windows;
     private RecyclerView allWindows;
+    private AdBlocker adBlocker;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +64,26 @@ public class BrowserManager extends LMvdFragment {
                 getActivity().findViewById(android.R.id.content), false);
         allWindows.setLayoutManager(new LinearLayoutManager(getActivity()));
         allWindows.setAdapter(new AllWindowsAdapter());
+
+        File file = new File(getActivity().getFilesDir(), "ad_filters.dat");
+        try {
+            if (file.exists()) {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                adBlocker = (AdBlocker) objectInputStream.readObject();
+                objectInputStream.close();
+                fileInputStream.close();
+            } else {
+                adBlocker = new AdBlocker();
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                objectOutputStream.writeObject(adBlocker);
+                objectOutputStream.close();
+                fileOutputStream.close();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void newWindow(String url) {
@@ -138,6 +165,14 @@ public class BrowserManager extends LMvdFragment {
         } else {
             getLMvdActivity().setOnBackPressedListener(null);
         }
+    }
+
+    public void updateAdFilters() {
+        adBlocker.update(getActivity());
+    }
+
+    public boolean checkUrlIfAds(String url) {
+        return adBlocker.checkThroughFilters(url);
     }
 
     private class AllWindowsAdapter extends RecyclerView.Adapter<WindowItem> {

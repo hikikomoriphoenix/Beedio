@@ -74,6 +74,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
                     "BM").commit();
         }
+
         // ATTENTION: This was auto-generated to handle app links.
         Intent appLinkIntent = getIntent();
         //String appLinkAction = appLinkIntent.getAction();
@@ -273,6 +274,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         if (appLinkData != null) {
             browserManager.newWindow(appLinkData.toString());
         }
+        browserManager.updateAdFilters();
     }
 
     public Intent getDownloadService() {
