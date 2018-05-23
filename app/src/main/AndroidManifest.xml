@@ -47,6 +47,27 @@
 
                 <data
                     android:scheme="https"
+                    android:host="youtube.com" />
+                <data
+                    android:scheme="https"
+                    android:host="veoh.com" />
+                <data
+                    android:scheme="https"
+                    android:host="fc2.com" />
+                <data
+                    android:scheme="https"
+                    android:host="vimeo.com" />
+                <data
+                    android:scheme="https"
+                    android:host="dailymotion.com" />
+                <data
+                    android:scheme="https"
+                    android:host="vlive.tv" />
+                <data
+                    android:scheme="https"
+                    android:host="kissasian.ch" />
+                <data
+                    android:scheme="https"
                     android:host="gogoanime.se" />
             </intent-filter>
         </activity>
