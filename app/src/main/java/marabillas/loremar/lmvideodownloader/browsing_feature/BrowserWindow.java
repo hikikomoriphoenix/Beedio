@@ -495,10 +495,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             @android.support.annotation.Nullable
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                if ((url.contains("ad") ||
-                        url.contains("banner") ||
-                        url.contains("pop")) &&
-                        getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
+                if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString(R
+                        .string.adBlockON), true)
+                        && (url.contains("ad") || url.contains("banner") || url.contains("pop"))
+                        && getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
                     Log.i("loremarTest", "Ads detected: " + url);
                     return new WebResourceResponse(null, null, null);
                 }
@@ -509,7 +509,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if ((request.getUrl().toString().contains("ad") ||
+                    if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString
+                            (R.string.adBlockON), true)
+                            && (request.getUrl().toString().contains("ad") ||
                             request.getUrl().toString().contains("banner") ||
                             request.getUrl().toString().contains("pop"))
                             && getLMvdActivity().getBrowserManager().checkUrlIfAds(request.getUrl()
