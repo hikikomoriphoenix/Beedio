@@ -23,4 +23,5 @@
     <color name="blue">#0000ff</color>
     <color name="green">#004400</color>
     <color name="darkGray">#555555</color>
+    <color name="drawerColor">#2b4a69</color>
 </resources>

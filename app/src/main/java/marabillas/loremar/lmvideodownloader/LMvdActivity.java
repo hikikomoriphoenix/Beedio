@@ -23,26 +23,26 @@ package marabillas.loremar.lmvideodownloader;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
@@ -52,7 +52,7 @@ import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
 import marabillas.loremar.lmvideodownloader.history_feature.History;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
-public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
+public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, AdapterView.OnItemClickListener {
     private EditText webBox;
     private BrowserManager browserManager;
     private Uri appLinkData;
@@ -74,6 +74,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
                     "BM").commit();
         }
+
         // ATTENTION: This was auto-generated to handle app links.
         Intent appLinkIntent = getIntent();
         //String appLinkAction = appLinkIntent.getAction();
@@ -88,27 +89,33 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            NavigationView navigationView = findViewById(R.id.menu);
-            navigationView.setNavigationItemSelectedListener(this);
-        } else {
-            ListView listView = findViewById(R.id.menu);
-            String[] menuItems = new String[]{"Home", "Browser", "Downloads", "Bookmarks",
-                    "History"};
-            ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout
-                    .simple_list_item_1, menuItems) {
-                @NonNull
-                @Override
-                public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                    View view = super.getView(position, convertView, parent);
-                    TextView textView = view.findViewById(android.R.id.text1);
-                    textView.setTextColor(Color.WHITE);
-                    return view;
-                }
-            };
-            listView.setAdapter(listAdapter);
-            listView.setOnItemClickListener(this);
-        }
+        ListView listView = findViewById(R.id.menu);
+        String[] menuItems = new String[]{"Home", "Browser", "Downloads", "Bookmarks",
+                "History"};
+        ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout
+                .simple_list_item_1, menuItems) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.WHITE);
+                return view;
+            }
+        };
+        listView.setAdapter(listAdapter);
+        listView.setOnItemClickListener(this);
+
+        Switch adBlockerSwitch = findViewById(R.id.adBlockerSwitch);
+        final SharedPreferences prefs = getSharedPreferences("settings", 0);
+        boolean adBlockOn = prefs.getBoolean(getString(R.string.adBlockON), true);
+        adBlockerSwitch.setChecked(adBlockOn);
+        adBlockerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.edit().putBoolean(getString(R.string.adBlockON), isChecked).apply();
+            }
+        });
 
         downloadService = new Intent(this, DownloadManager.class);
     }
@@ -210,30 +217,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        item.setChecked(true);
-        layout.closeDrawers();
-        switch (item.getTitle().toString()) {
-            case "Home":
-                homeClicked();
-                break;
-            case "Browser":
-                browserClicked();
-                break;
-            case "Downloads":
-                downloadsClicked();
-                break;
-            case "Bookmarks":
-                bookmarksClicked();
-                break;
-            case "History":
-                historyClicked();
-                break;
-        }
-        return true;
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         layout.closeDrawers();
         switch (position) {
@@ -273,6 +256,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         if (appLinkData != null) {
             browserManager.newWindow(appLinkData.toString());
         }
+        browserManager.updateAdFilters();
     }
 
     public Intent getDownloadService() {

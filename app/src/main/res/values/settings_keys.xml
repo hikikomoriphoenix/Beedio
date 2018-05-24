@@ -18,12 +18,7 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item android:title="@string/home" />
-        <item android:title="@string/browser" />
-        <item android:title="@string/downloads" />
-        <item android:title="@string/bookmarks" />
-        <item android:title="@string/history" />
-    </group>
-</menu>
+<resources>
+    <string name="adBlockON">adBlockOn</string>
+    <string name="showDownloadNotice">showDownloadNotice</string>
+</resources>

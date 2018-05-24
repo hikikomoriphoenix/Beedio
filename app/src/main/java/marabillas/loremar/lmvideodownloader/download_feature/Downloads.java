@@ -199,7 +199,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
             public void onPageSelected(int position) {
                 if (position == 1) {
                     final SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
-                    if (prefs.getBoolean("showDownloadNotice", true)) {
+                    if (prefs.getBoolean(getString(R.string.showDownloadNotice), true)) {
                         View view = inflater.inflate(R.layout.download_notice_checkbox,
                                 container, false);
                         final CheckBox showNoticeCheckbox = view.findViewById(R.id.showNoticeCheckbox);
@@ -210,7 +210,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (showNoticeCheckbox.isChecked()) {
-                                            prefs.edit().putBoolean("showDownloadNotice", false)
+                                            prefs.edit().putBoolean(getString(R.string.showDownloadNotice), false)
                                                     .apply();
                                         }
                                     }
