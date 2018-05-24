@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class HistorySQLite extends SQLiteOpenHelper {
+    private final String VISITED_PAGES = "visited_pages";
     private SQLiteDatabase dB;
 
     public HistorySQLite(Context context) {
@@ -59,13 +60,13 @@ public class HistorySQLite extends SQLiteOpenHelper {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy MM dd HH mm ss SSS",
                 Locale.getDefault());
         v.put("time", simpleDateFormat.format(time));
-        if (dB.update("visited_pages", v, "link = '" + page.link + "'", null) <= 0) {
-            dB.insert("visited_pages", null, v);
+        if (dB.update(VISITED_PAGES, v, "link = '" + page.link + "'", null) <= 0) {
+            dB.insert(VISITED_PAGES, null, v);
         }
     }
 
     public void deleteFromHistory(String link) {
-        dB.delete("visited_page", "link = '" + link + "'", null);
+        dB.delete(VISITED_PAGES, "link = '" + link + "'", null);
     }
 
     public void clearHistory() {
@@ -73,7 +74,7 @@ public class HistorySQLite extends SQLiteOpenHelper {
     }
 
     public List<VisitedPage> getAllVisitedPages() {
-        Cursor c = dB.query("visited_pages", new String[]{"title", "link"}, null, null, null,
+        Cursor c = dB.query(VISITED_PAGES, new String[]{"title", "link"}, null, null, null,
                 null, "time DESC");
         List<VisitedPage> pages = new ArrayList<>();
         while (c.moveToNext()) {
@@ -87,7 +88,7 @@ public class HistorySQLite extends SQLiteOpenHelper {
     }
 
     public List<VisitedPage> getVisitedPagesByKeyword(String keyword) {
-        Cursor c = dB.query("visited_pages", new String[]{"title", "link"}, "title LIKE '%" +
+        Cursor c = dB.query(VISITED_PAGES, new String[]{"title", "link"}, "title LIKE '%" +
                 keyword + "%'", null, null, null, "time DESC");
         List<VisitedPage> pages = new ArrayList<>();
         while (c.moveToNext()) {
