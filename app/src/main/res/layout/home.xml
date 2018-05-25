@@ -43,7 +43,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias="0.2"
             android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
             android:hint="@string/enter_web" />
 
         <ImageButton
@@ -55,8 +54,7 @@
             tools:ignore="ContentDescription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/web"
-            android:layout_marginEnd="20dp"
-            android:layout_marginRight="20dp" />
+            android:layout_marginEnd="20dp" />
 
         <ImageView
             android:id="@+id/menuButton"
@@ -69,12 +67,35 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <ListView
-        android:id="@+id/menu"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        android:background="@color/darkGray" />
+        android:background="@color/drawerColor">
+
+        <ListView
+            android:id="@+id/menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:divider="@null"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/adBlockerSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ad_blocker"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/menu"
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"
+            android:gravity="center_vertical"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+            android:minHeight="?android:attr/listPreferredItemHeightSmall"
+            android:textColor="@android:color/white" />
+    </android.support.constraint.ConstraintLayout>
+
 
 </android.support.v4.widget.DrawerLayout>
