@@ -64,8 +64,8 @@ public abstract class VideoList {
     private List<Video> videos;
 
     class Video {
-        String size, type, link, name, page;
-        boolean checked = false, expanded = false;
+        String size, type, link, name, page, website;
+        boolean chunked = false, checked = false, expanded = false;
     }
 
     abstract void onItemDeleted();
@@ -82,13 +82,16 @@ public abstract class VideoList {
         videos = new ArrayList<>();
     }
 
-    void addItem(@Nullable String size, String type, String link, String name, String page) {
+    void addItem(@Nullable String size, String type, String link, String name, String page,
+                 boolean chunked, String website) {
         Video video = new Video();
         video.size = size;
         video.type = type;
         video.link = link;
         video.name = name;
         video.page = page;
+        video.chunked = chunked;
+        video.website = website;
 
         boolean duplicate = false;
         for (Video v : videos) {
@@ -291,7 +294,8 @@ public abstract class VideoList {
         }
         for (Video video : videos) {
             if (video.checked) {
-                queues.add(video.size, video.type, video.link, video.name, video.page);
+                queues.add(video.size, video.type, video.link, video.name, video.page, video
+                        .chunked, video.website);
             }
         }
 

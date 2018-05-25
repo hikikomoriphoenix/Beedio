@@ -23,5 +23,6 @@ package marabillas.loremar.lmvideodownloader.download_feature;
 import java.io.Serializable;
 
 public class DownloadVideo implements Serializable {
-    String size, type, link, name, page;
+    String size, type, link, name, page, website;
+    boolean chunked;
 }

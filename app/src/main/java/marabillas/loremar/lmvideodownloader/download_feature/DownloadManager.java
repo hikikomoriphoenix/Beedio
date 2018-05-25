@@ -49,10 +49,22 @@ public class DownloadManager extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        prevDownloaded = 0;
-        URLConnection connection;
-        try {
-            if (intent != null) {
+        //todo support downloading chunked videos from video streaming sites that plays video
+        // segment by segment. Download from first segment until filenotfoundexception appending
+        // every segment after another in the outputstream. Each site have different rules. For
+        // example, for vimeo, to download next segment, find substring "segment" and increment the
+        // number after it
+
+        if (intent != null) {
+            boolean chunked = intent.getBooleanExtra("chunked", false);
+
+            if (chunked) {
+                handleChunkedDownload(intent);
+            }
+
+            prevDownloaded = 0;
+            URLConnection connection;
+            try {
                 totalSize = Long.parseLong(intent.getStringExtra("size"));
                 connection = (new URL(intent.getStringExtra("link"))).openConnection();
                 String filename = intent.getStringExtra("name") + "." + intent.getStringExtra("type");
@@ -107,13 +119,28 @@ public class DownloadManager extends IntentService {
                 } else {
                     Log.e("loremarTest", "directory doesn't exist");
                 }
+            } catch (FileNotFoundException e) {
+                Log.i("loremarTest", "link:" + intent.getStringExtra("link") + " not found");
+                onLinkNotFoundListener.onLinkNotFound();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (FileNotFoundException e) {
-            Log.i("loremarTest", "link:" + intent.getStringExtra("link") + " not found");
-            onLinkNotFoundListener.onLinkNotFound();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+
+    private void handleChunkedDownload(Intent intent) {
+        String website = intent.getStringExtra("website");
+
+        switch (website) {
+            case "dailymotion.com"://todo dailymotion download
+                break;
+            case "veoh.com": //todo veoh download
+                break;
+        }
+    }
+
+    private void downloadFromDailymotion(Intent intent) {
+        //todo implement downloadFromDailymotion
     }
 
     interface OnDownloadFinishedListener {

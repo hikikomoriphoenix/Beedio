@@ -433,49 +433,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                                 if (contentType != null) {
                                     contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video/mp4") || contentType.contains
-                                            ("video/webm")) {
-                                        try {
-                                            String size = uCon.getHeaderField("content-length");
-                                            String link = uCon.getHeaderField("Location");
-                                            if (link == null) {
-                                                link = uCon.getURL().toString();
-                                            }
-                                            if (page.contains("youtube.com")) {
-                                                //link  = link.replaceAll("(range=)+(.*)+(&)",
-                                                // "");
-                                                link = link.substring(0, link.lastIndexOf
-                                                        ("&range"));
-                                                URLConnection ytCon;
-                                                ytCon = new URL(link).openConnection();
-                                                ytCon.connect();
-                                                size = ytCon.getHeaderField("content-length");
-                                            }
-                                            String name = "video";
-                                            if (title != null) {
-                                                name = title;
-                                            }
-                                            String type = "mp4";
-                                            switch (contentType) {
-                                                case "video/mp4":
-                                                    type = "mp4";
-                                                    break;
-                                                case "video/webm":
-                                                    type = "webm";
-                                                    break;
-                                            }
-                                            videoList.addItem(size, type, link, name, page);
-
-                                            updateFoundVideosBar();
-                                            String videoFound = "name:" + name + "\n" +
-                                                    "link:" + link + "\n" +
-                                                    "type:" + type + "\n" +
-                                                    "size" + size;
-                                            Log.i(TAG, videoFound);
-                                        } catch (IOException e) {
-                                            Log.e("loremarTest", "Exception in adding video to " +
-                                                    "list");
-                                        }
+                                    if (contentType.contains("video")) {
+                                        addVideoToList(uCon, page, title, contentType);
                                     } else Log.i(TAG, "Not a video. Content type = " +
                                             contentType);
                                 } else {
@@ -548,6 +507,68 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         });
         page.setOnLongClickListener(this);
         page.loadUrl(url);
+    }
+
+    private void addVideoToList(URLConnection uCon, String page, String title, String contentType) {
+        try {
+            String size = uCon.getHeaderField("content-length");
+            String link = uCon.getHeaderField("Location");
+            if (link == null) {
+                link = uCon.getURL().toString();
+            }
+
+            String host = new URL(page).getHost();
+            String website = null;
+            boolean chunked = false;
+
+            if (host.contains("youtube.com")) {
+                //link  = link.replaceAll("(range=)+(.*)+(&)",
+                // "");
+                link = link.substring(0, link.lastIndexOf("&range"));
+                URLConnection ytCon;
+                ytCon = new URL(link).openConnection();
+                ytCon.connect();
+                size = ytCon.getHeaderField("content-length");
+            }
+
+            if (host.contains("dailymotion.com")) {
+                chunked = true;
+                website = "dailymotion.com";
+                link = link.replaceAll("(frag\\()+(\\d+)+(\\))", "FRAGMENT");
+            }
+
+            String name = "video";
+            if (title != null) {
+                name = title;
+            }
+            String type;
+            switch (contentType) {
+                case "video/mp4":
+                    type = "mp4";
+                    break;
+                case "video/webm":
+                    type = "webm";
+                    break;
+                case "video/mp2t":
+                    type = "ts";
+                    break;
+                default:
+                    type = "mp4";
+                    break;
+            }
+
+            videoList.addItem(size, type, link, name, page, chunked, website);
+
+            updateFoundVideosBar();
+            String videoFound = "name:" + name + "\n" +
+                    "link:" + link + "\n" +
+                    "type:" + type + "\n" +
+                    "size:" + size;
+            Log.i(TAG, videoFound);
+        } catch (IOException e) {
+            Log.e("loremarTest", "Exception in adding video to " +
+                    "list");
+        }
     }
 
     @Override
