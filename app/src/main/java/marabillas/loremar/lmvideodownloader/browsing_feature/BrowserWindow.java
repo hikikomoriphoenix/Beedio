@@ -529,12 +529,16 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 ytCon = new URL(link).openConnection();
                 ytCon.connect();
                 size = ytCon.getHeaderField("content-length");
-            }
-
-            if (host.contains("dailymotion.com")) {
+            } else if (host.contains("dailymotion.com")) {
                 chunked = true;
                 website = "dailymotion.com";
                 link = link.replaceAll("(frag\\()+(\\d+)+(\\))", "FRAGMENT");
+                size = null;
+            } else if (host.contains("vimeo.com") && link.endsWith("m4s")) {
+                chunked = true;
+                website = "vimeo.com";
+                link = link.replaceAll("(segment-)+(\\d+)", "SEGMENT");
+                size = null;
             }
 
             String name = "video";
@@ -553,7 +557,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     type = "ts";
                     break;
                 default:
-                    type = "mp4";
+                    type = contentType;
                     break;
             }
 

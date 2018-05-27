@@ -26,6 +26,7 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -49,6 +50,7 @@ public class DownloadManager extends IntentService {
     private static long totalSize = 0;
 
     private static boolean chunked;
+    private static ByteArrayOutputStream bytesOfChunk;
 
     public DownloadManager() {
         super("DownloadManager");
@@ -56,12 +58,6 @@ public class DownloadManager extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        //todo support downloading chunked videos from video streaming sites that plays video
-        // segment by segment. Download from first segment until filenotfoundexception appending
-        // every segment after another in the outputstream. Each site have different rules. For
-        // example, for vimeo, to download next segment, find substring "segment" and increment the
-        // number after it
-
         if (intent != null) {
             chunked = intent.getBooleanExtra("chunked", false);
 
@@ -139,7 +135,6 @@ public class DownloadManager extends IntentService {
         try {
             String name = intent.getStringExtra("name");
             String type = intent.getStringExtra("type");
-            FileOutputStream out;
             File directory = new File(Environment.getExternalStorageDirectory()
                     .getAbsolutePath(), "Download");
 
@@ -176,25 +171,25 @@ public class DownloadManager extends IntentService {
                 }
 
                 if (videoFile.exists() && progressFile.exists()) {
-                    //todo set downloadFile to be the next chunk of download as a temp file
-                    //prevDownloaded = videoFile.length();
                     while (true) {
+                        prevDownloaded = 0;
                         String website = intent.getStringExtra("website");
                         String chunkUrl = null;
                         switch (website) {
-                            case "dailymotion.com"://todo dailymotion download
+                            case "dailymotion.com":
                                 chunkUrl = getNextChunkWithDailymotionRule(intent, totalChunks);
                                 break;
-                            case "veoh.com": //todo veoh download
+                            case "vimeo.com":
+                                chunkUrl = getNextChunkWithVimeoRule(intent, totalChunks);
                                 break;
                         }
-                        out = new FileOutputStream(videoFile, true);
+                        bytesOfChunk = new ByteArrayOutputStream();
                         try {
                             URLConnection uCon = new URL(chunkUrl).openConnection();
                             if (uCon != null) {
                                 InputStream in = uCon.getInputStream();
                                 ReadableByteChannel readableByteChannel = Channels.newChannel(in);
-                                WritableByteChannel writableByteChannel = Channels.newChannel(out);
+                                WritableByteChannel writableByteChannel = Channels.newChannel(bytesOfChunk);
                                 int read;
                                 while (true) {
                                     ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
@@ -203,7 +198,9 @@ public class DownloadManager extends IntentService {
                                         buffer.flip();
                                         writableByteChannel.write(buffer);
                                     } else {
-                                        //todo append downloadFile to videoFile
+                                        FileOutputStream vAddChunk = new FileOutputStream
+                                                (videoFile, true);
+                                        vAddChunk.write(bytesOfChunk.toByteArray());
                                         FileOutputStream outputStream = new FileOutputStream
                                                 (progressFile, false);
                                         DataOutputStream dataOutputStream = new DataOutputStream
@@ -216,8 +213,7 @@ public class DownloadManager extends IntentService {
                                 }
                                 readableByteChannel.close();
                                 in.close();
-                                out.flush();
-                                out.close();
+                                bytesOfChunk.close();
                             }
                         } catch (FileNotFoundException e) {
                             if (!progressFile.delete()) {
@@ -242,6 +238,11 @@ public class DownloadManager extends IntentService {
     private String getNextChunkWithDailymotionRule(Intent intent, long totalChunks) {
         String link = intent.getStringExtra("link");
         return link.replaceAll("FRAGMENT", "frag(" + (totalChunks + 1) + ")");
+    }
+
+    private String getNextChunkWithVimeoRule(Intent intent, long totalChunks) {
+        String link = intent.getStringExtra("link");
+        return link.replaceAll("SEGMENT", "segment-" + (totalChunks + 1));
     }
 
     interface OnDownloadFinishedListener {
@@ -282,13 +283,23 @@ public class DownloadManager extends IntentService {
      * @return download speed in bytes per second
      */
     static long getDownloadSpeed() {
-        if (downloadFile != null) {
-            long downloaded = downloadFile.length();
-            downloadSpeed = downloaded - prevDownloaded;
-            prevDownloaded = downloaded;
-            return downloadSpeed;
+        if (!chunked) {
+            if (downloadFile != null) {
+                long downloaded = downloadFile.length();
+                downloadSpeed = downloaded - prevDownloaded;
+                prevDownloaded = downloaded;
+                return downloadSpeed;
+            }
+            return 0;
+        } else {
+            if (bytesOfChunk != null) {
+                long downloaded = bytesOfChunk.size();
+                downloadSpeed = downloaded - prevDownloaded;
+                prevDownloaded = downloaded;
+                return downloadSpeed;
+            }
+            return 0;
         }
-        return 0;
     }
 
     /**
