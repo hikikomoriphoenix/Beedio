@@ -577,7 +577,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     long downloadedSize = file.length();
                     downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
                     status.setText(downloaded);
-                    progress.setProgress(0);//todo show indeterminate progress
+                    progress.setIndeterminate(true);
                 }
             } else {
                 if (video.size != null) {
