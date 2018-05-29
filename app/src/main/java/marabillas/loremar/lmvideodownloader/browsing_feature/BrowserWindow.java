@@ -61,7 +61,10 @@ import android.widget.TextView;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -435,6 +438,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                     contentType = contentType.toLowerCase();
                                     if (contentType.contains("video")) {
                                         addVideoToList(uCon, page, title, contentType);
+                                    } else if (contentType.equals("application/x-mpegurl") ||
+                                            contentType.equals("application/vnd.apple.mpegurl")) {
+                                        addVideosToListFromM3u8(uCon, page, title, contentType);
                                     } else Log.i(TAG, "Not a video. Content type = " +
                                             contentType);
                                 } else {
@@ -557,7 +563,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     type = "ts";
                     break;
                 default:
-                    type = contentType;
+                    type = "mp4";
                     break;
             }
 
@@ -566,13 +572,116 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             updateFoundVideosBar();
             String videoFound = "name:" + name + "\n" +
                     "link:" + link + "\n" +
-                    "type:" + type + "\n" +
+                    "type:" + contentType + "\n" +
                     "size:" + size;
             Log.i(TAG, videoFound);
         } catch (IOException e) {
             Log.e("loremarTest", "Exception in adding video to " +
                     "list");
         }
+    }
+
+    private void addVideosToListFromM3u8(URLConnection uCon, String page, String title, String
+            contentType) {
+        try {
+            String host;
+            host = new URL(page).getHost();
+            if (host.contains("twitter.com")) {
+                InputStream in = uCon.getInputStream();
+                InputStreamReader inReader = new InputStreamReader(in);
+                BufferedReader buffReader = new BufferedReader(inReader);
+                String line;
+                String prefix = null;
+                String type = null;
+                String name = "video";
+                String website = null;
+                if (title != null) {
+                    name = title;
+                }
+                if (host.contains("twitter")) {
+                    prefix = "https://video.twimg.com";
+                    type = "ts";
+                    website = "twitter.com";
+                }
+                while ((line = buffReader.readLine()) != null) {
+                    if (line.endsWith(".m3u8")) {
+                        String link = prefix + line;
+                        videoList.addItem(null, type, link, name, page, true, website);
+
+                        updateFoundVideosBar();
+                        String videoFound = "name:" + name + "\n" +
+                                "link:" + link + "\n" +
+                                "type:" + contentType + "\n" +
+                                "size: null";
+                        Log.i(TAG, videoFound);
+                    }
+                }
+            } else {
+                Log.i("loremarTest", "Content type is " + contentType + " but site is not " +
+                        "supported");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //todo if host is twitter, parse data from m3u8 url. get each m3u8 element, append to
+        // https://video.twimg.com, and parse. Get all ts elements and again append to
+        // https://video.twimg.com. The resulting urls are the links to videos.
+
+        //todo if host is metacafe, parse data from m3u8 url.
+        /*try {
+            final String host = new URL(page).getHost();
+            if (host.contains("twitter.com")) {
+                class M3u8 {
+                    private void findVideos(String url) {
+                        InputStream in;
+                        try {
+                            in = new URL(url).openStream();
+                            if (in != null) {
+                                InputStreamReader inReader = new InputStreamReader(in);
+                                BufferedReader buffReader = new BufferedReader(inReader);
+                                String line;
+                                String prefix = null;
+                                if (host.contains("twitter")) {
+                                    prefix = "https://video.twimg.com";
+                                }
+                                while ((line = buffReader.readLine()) != null) {
+                                    if (line.endsWith(".m3u8")) {
+                                        findVideos(prefix + line);
+                                    } else if (line.endsWith(".ts")) {
+                                        URLConnection tsCon = new URL(prefix + line)
+                                                .openConnection();
+                                        if (tsCon != null) {
+                                            String size = tsCon.getHeaderField("content-length");
+                                            String link = prefix + line;
+                                            String name = "video";
+                                            if (title != null) {
+                                                name = title;
+                                            }
+                                            videoList.addItem(size, "ts", link, name, page,
+                                                    false, null);
+                                            updateFoundVideosBar();
+                                            String videoFound = "name:" + name + "\n" +
+                                                    "link:" + link + "\n" +
+                                                    "type:" + tsCon.getHeaderField
+                                                    ("content-type") + "\n" +
+                                                    "size:" + size;
+                                            Log.i(TAG, videoFound);
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                new M3u8().findVideos(uCon.getURL().toString());
+            } else {
+                Log.i("loremarTest", "Not a video. Content type = application/x-mpegurl");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 
     @Override
