@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -397,8 +399,15 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     @Override
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
-                        if (urlLowerCase.contains("mp4") || urlLowerCase.contains("video") ||
-                                urlLowerCase.contains("embed")) {
+                        String[] filters = getResources().getStringArray(R.array.videourl_filters);
+                        boolean urlMightBeVideo = false;
+                        for (String filter : filters) {
+                            if (urlLowerCase.contains(filter)) {
+                                urlMightBeVideo = true;
+                                break;
+                            }
+                        }
+                        if (urlMightBeVideo) {
                             numLinksInspected++;
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
@@ -424,49 +433,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                                 if (contentType != null) {
                                     contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video/mp4") || contentType.contains
-                                            ("video/webm")) {
-                                        try {
-                                            String size = uCon.getHeaderField("content-length");
-                                            String link = uCon.getHeaderField("Location");
-                                            if (link == null) {
-                                                link = uCon.getURL().toString();
-                                            }
-                                            if (page.contains("youtube.com")) {
-                                                //link  = link.replaceAll("(range=)+(.*)+(&)",
-                                                // "");
-                                                link = link.substring(0, link.lastIndexOf
-                                                        ("&range"));
-                                                URLConnection ytCon;
-                                                ytCon = new URL(link).openConnection();
-                                                ytCon.connect();
-                                                size = ytCon.getHeaderField("content-length");
-                                            }
-                                            String name = "video";
-                                            if (title != null) {
-                                                name = title;
-                                            }
-                                            String type = "mp4";
-                                            switch (contentType) {
-                                                case "video/mp4":
-                                                    type = "mp4";
-                                                    break;
-                                                case "video/webm":
-                                                    type = "webm";
-                                                    break;
-                                            }
-                                            videoList.addItem(size, type, link, name, page);
-
-                                            updateFoundVideosBar();
-                                            String videoFound = "name:" + name + "\n" +
-                                                    "link:" + link + "\n" +
-                                                    "type:" + type + "\n" +
-                                                    "size" + size;
-                                            Log.i(TAG, videoFound);
-                                        } catch (IOException e) {
-                                            Log.e("loremarTest", "Exception in adding video to " +
-                                                    "list");
-                                        }
+                                    if (contentType.contains("video")) {
+                                        addVideoToList(uCon, page, title, contentType);
                                     } else Log.i(TAG, "Not a video. Content type = " +
                                             contentType);
                                 } else {
@@ -489,6 +457,38 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     }
                 }.start();
             }
+
+            @android.support.annotation.Nullable
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString(R
+                        .string.adBlockON), true)
+                        && (url.contains("ad") || url.contains("banner") || url.contains("pop"))
+                        && getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
+                    Log.i("loremarTest", "Ads detected: " + url);
+                    return new WebResourceResponse(null, null, null);
+                }
+                return super.shouldInterceptRequest(view, url);
+            }
+
+            @android.support.annotation.Nullable
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString
+                            (R.string.adBlockON), true)
+                            && (request.getUrl().toString().contains("ad") ||
+                            request.getUrl().toString().contains("banner") ||
+                            request.getUrl().toString().contains("pop"))
+                            && getLMvdActivity().getBrowserManager().checkUrlIfAds(request.getUrl()
+                            .toString())) {
+                        Log.i("loremarTest", "Ads detected: " + request.getUrl().toString());
+                        return new WebResourceResponse(null, null, null);
+                    } else return null;
+                } else {
+                    return shouldInterceptRequest(view, request.getUrl().toString());
+                }
+            }
         });
         page.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -507,6 +507,72 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         });
         page.setOnLongClickListener(this);
         page.loadUrl(url);
+    }
+
+    private void addVideoToList(URLConnection uCon, String page, String title, String contentType) {
+        try {
+            String size = uCon.getHeaderField("content-length");
+            String link = uCon.getHeaderField("Location");
+            if (link == null) {
+                link = uCon.getURL().toString();
+            }
+
+            String host = new URL(page).getHost();
+            String website = null;
+            boolean chunked = false;
+
+            if (host.contains("youtube.com")) {
+                //link  = link.replaceAll("(range=)+(.*)+(&)",
+                // "");
+                link = link.substring(0, link.lastIndexOf("&range"));
+                URLConnection ytCon;
+                ytCon = new URL(link).openConnection();
+                ytCon.connect();
+                size = ytCon.getHeaderField("content-length");
+            } else if (host.contains("dailymotion.com")) {
+                chunked = true;
+                website = "dailymotion.com";
+                link = link.replaceAll("(frag\\()+(\\d+)+(\\))", "FRAGMENT");
+                size = null;
+            } else if (host.contains("vimeo.com") && link.endsWith("m4s")) {
+                chunked = true;
+                website = "vimeo.com";
+                link = link.replaceAll("(segment-)+(\\d+)", "SEGMENT");
+                size = null;
+            }
+
+            String name = "video";
+            if (title != null) {
+                name = title;
+            }
+            String type;
+            switch (contentType) {
+                case "video/mp4":
+                    type = "mp4";
+                    break;
+                case "video/webm":
+                    type = "webm";
+                    break;
+                case "video/mp2t":
+                    type = "ts";
+                    break;
+                default:
+                    type = contentType;
+                    break;
+            }
+
+            videoList.addItem(size, type, link, name, page, chunked, website);
+
+            updateFoundVideosBar();
+            String videoFound = "name:" + name + "\n" +
+                    "link:" + link + "\n" +
+                    "type:" + type + "\n" +
+                    "size:" + size;
+            Log.i(TAG, videoFound);
+        } catch (IOException e) {
+            Log.e("loremarTest", "Exception in adding video to " +
+                    "list");
+        }
     }
 
     @Override
