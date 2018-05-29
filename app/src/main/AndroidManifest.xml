@@ -47,28 +47,49 @@
 
                 <data
                     android:scheme="https"
-                    android:host="youtube.com" />
+                    android:host="m.youtube.com" />
                 <data
-                    android:scheme="https"
+                    android:scheme="http"
+                    android:host="www.veoh.com" />
+                <data
+                    android:scheme="http"
                     android:host="veoh.com" />
                 <data
+                    android:scheme="http"
+                    android:host="video.fc2.com" />
+                <data
                     android:scheme="https"
-                    android:host="fc2.com" />
+                    android:host="video.fc2.com" />
                 <data
                     android:scheme="https"
                     android:host="vimeo.com" />
                 <data
                     android:scheme="https"
+                    android:host="www.dailymotion.com" />
+                <data
+                    android:scheme="https"
                     android:host="dailymotion.com" />
                 <data
-                    android:scheme="https"
-                    android:host="vlive.tv" />
+                    android:scheme="http"
+                    android:host="m.vlive.tv" />
                 <data
                     android:scheme="https"
-                    android:host="kissasian.ch" />
+                    android:host="m.vlive.tv" />
+                <data
+                    android:scheme="http"
+                    android:host="m.youku.com" />
                 <data
                     android:scheme="https"
-                    android:host="gogoanime.se" />
+                    android:host="m.youku.com" />
+                <data
+                    android:scheme="https"
+                    android:host="www.instagram.com" />
+                <data
+                    android:scheme="https"
+                    android:host="instagram.com" />
+                <data
+                    android:scheme="https"
+                    android:host="m.tv.naver.com" />
             </intent-filter>
         </activity>
 
