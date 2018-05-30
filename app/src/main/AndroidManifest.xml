@@ -52,17 +52,22 @@
                 <data android:host="www.veoh.com" />
                 <data android:host="veoh.com" />
                 <data android:host="video.fc2.com" />
-                <data android:host="video.fc2.com" />
                 <data android:host="vimeo.com" />
                 <data android:host="www.dailymotion.com" />
                 <data android:host="dailymotion.com" />
                 <data android:host="m.vlive.tv" />
-                <data android:host="m.vlive.tv" />
-                <data android:host="m.youku.com" />
-                <data android:host="m.youku.com" />
                 <data android:host="www.instagram.com" />
                 <data android:host="instagram.com" />
                 <data android:host="m.tv.naver.com" />
+                <data android:host="www.metacafe.com" />
+                <data android:host="metacafe.com" />
+                <data android:host="mobile.twitter.com" />
+                <data android:host="compaign.tudou.com" />
+                <data android:host="video.tudou.com" />
+                <data android:host="www.tudou.com" />
+                <data android:host="m.youku.com" />
+                <data android:host="youku.com" />
+
             </intent-filter>
         </activity>
 
