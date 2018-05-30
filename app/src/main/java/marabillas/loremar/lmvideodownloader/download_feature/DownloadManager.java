@@ -185,8 +185,10 @@ public class DownloadManager extends IntentService {
                                 chunkUrl = getNextChunkWithVimeoRule(intent, totalChunks);
                                 break;
                             case "twitter.com":
-                                chunkUrl = getNextChunkWithTwitterRule(intent, totalChunks);
+                                chunkUrl = getNextChunkWithM3U8Rule(intent, totalChunks);
                                 break;
+                            case "metacafe.com":
+                                chunkUrl = getNextChunkWithM3U8Rule(intent, totalChunks);
                         }
                         if (chunkUrl == null) {
                             if (!progressFile.delete()) {
@@ -259,15 +261,19 @@ public class DownloadManager extends IntentService {
         return link.replaceAll("SEGMENT", "segment-" + (totalChunks + 1));
     }
 
-    private String getNextChunkWithTwitterRule(Intent intent, long totalChunks) {
+    private String getNextChunkWithM3U8Rule(Intent intent, long totalChunks) {
         String link = intent.getStringExtra("link");
+        String website = intent.getStringExtra("website");
         String line = null;
         try {
-            InputStream in = new URL(link).openStream();
+            URLConnection m3u8Con = new URL(link).openConnection();
+            InputStream in = m3u8Con.getInputStream();
             InputStreamReader inReader = new InputStreamReader(in);
             BufferedReader buffReader = new BufferedReader(inReader);
             while ((line = buffReader.readLine()) != null) {
-                if (line.endsWith(".ts")) {
+                if (website.equals("twitter.com") && line.endsWith(".ts")) {
+                    break;
+                } else if (website.equals("metacafe.com") && line.endsWith(".mp4")) {
                     break;
                 }
             }
@@ -287,9 +293,19 @@ public class DownloadManager extends IntentService {
             e.printStackTrace();
         }
         if (line != null) {
-            Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " +
-                    "https://video.twimg.com" + line);
-            return "https://video.twimg.com" + line;
+            switch (website) {
+                case "twitter.com":
+                    Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " +
+                            "https://video.twimg.com" + line);
+                    return "https://video.twimg.com" + line;
+                case "metacafe.com":
+                    String prefix = link.substring(0, link.lastIndexOf("/") + 1);
+                    Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " + prefix +
+                            line);
+                    return prefix + line;
+                default:
+                    return null;
+            }
         } else {
             return null;
         }
