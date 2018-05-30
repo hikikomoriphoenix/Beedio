@@ -67,7 +67,7 @@
                 <data android:host="www.tudou.com" />
                 <data android:host="m.youku.com" />
                 <data android:host="youku.com" />
-
+                <data android:host="myspace.com" />
             </intent-filter>
         </activity>
 
