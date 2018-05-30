@@ -38,7 +38,8 @@ public class DownloadQueues implements Serializable {
         downloads = new ArrayList<>();
     }
 
-    public void add(String size, String type, String link, String name, String page) {
+    public void add(String size, String type, String link, String name, String page, boolean
+            chunked, String website) {
         name = getValidName(name, type);
 
         DownloadVideo video = new DownloadVideo();
@@ -47,6 +48,8 @@ public class DownloadQueues implements Serializable {
         video.page = page;
         video.size = size;
         video.type = type;
+        video.chunked = chunked;
+        video.website = website;
         downloads.add(video);
     }
 

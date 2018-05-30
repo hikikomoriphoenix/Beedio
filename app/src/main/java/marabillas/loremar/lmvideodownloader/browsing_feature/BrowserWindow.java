@@ -61,7 +61,10 @@ import android.widget.TextView;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -399,8 +402,15 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     @Override
                     public void run() {
                         String urlLowerCase = url.toLowerCase();
-                        if (urlLowerCase.contains("mp4") || urlLowerCase.contains("video") ||
-                                urlLowerCase.contains("embed")) {
+                        String[] filters = getResources().getStringArray(R.array.videourl_filters);
+                        boolean urlMightBeVideo = false;
+                        for (String filter : filters) {
+                            if (urlLowerCase.contains(filter)) {
+                                urlMightBeVideo = true;
+                                break;
+                            }
+                        }
+                        if (urlMightBeVideo) {
                             numLinksInspected++;
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
@@ -426,49 +436,11 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                                 if (contentType != null) {
                                     contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video/mp4") || contentType.contains
-                                            ("video/webm")) {
-                                        try {
-                                            String size = uCon.getHeaderField("content-length");
-                                            String link = uCon.getHeaderField("Location");
-                                            if (link == null) {
-                                                link = uCon.getURL().toString();
-                                            }
-                                            if (page.contains("youtube.com")) {
-                                                //link  = link.replaceAll("(range=)+(.*)+(&)",
-                                                // "");
-                                                link = link.substring(0, link.lastIndexOf
-                                                        ("&range"));
-                                                URLConnection ytCon;
-                                                ytCon = new URL(link).openConnection();
-                                                ytCon.connect();
-                                                size = ytCon.getHeaderField("content-length");
-                                            }
-                                            String name = "video";
-                                            if (title != null) {
-                                                name = title;
-                                            }
-                                            String type = "mp4";
-                                            switch (contentType) {
-                                                case "video/mp4":
-                                                    type = "mp4";
-                                                    break;
-                                                case "video/webm":
-                                                    type = "webm";
-                                                    break;
-                                            }
-                                            videoList.addItem(size, type, link, name, page);
-
-                                            updateFoundVideosBar();
-                                            String videoFound = "name:" + name + "\n" +
-                                                    "link:" + link + "\n" +
-                                                    "type:" + type + "\n" +
-                                                    "size" + size;
-                                            Log.i(TAG, videoFound);
-                                        } catch (IOException e) {
-                                            Log.e("loremarTest", "Exception in adding video to " +
-                                                    "list");
-                                        }
+                                    if (contentType.contains("video")) {
+                                        addVideoToList(uCon, page, title, contentType);
+                                    } else if (contentType.equals("application/x-mpegurl") ||
+                                            contentType.equals("application/vnd.apple.mpegurl")) {
+                                        addVideosToListFromM3U8(uCon, page, title, contentType);
                                     } else Log.i(TAG, "Not a video. Content type = " +
                                             contentType);
                                 } else {
@@ -541,6 +513,126 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         });
         page.setOnLongClickListener(this);
         page.loadUrl(url);
+    }
+
+    private void addVideoToList(URLConnection uCon, String page, String title, String contentType) {
+        try {
+            String size = uCon.getHeaderField("content-length");
+            String link = uCon.getHeaderField("Location");
+            if (link == null) {
+                link = uCon.getURL().toString();
+            }
+
+            String host = new URL(page).getHost();
+            String website = null;
+            boolean chunked = false;
+
+            if (host.contains("youtube.com")) {
+                //link  = link.replaceAll("(range=)+(.*)+(&)",
+                // "");
+                link = link.substring(0, link.lastIndexOf("&range"));
+                URLConnection ytCon;
+                ytCon = new URL(link).openConnection();
+                ytCon.connect();
+                size = ytCon.getHeaderField("content-length");
+            } else if (host.contains("dailymotion.com")) {
+                chunked = true;
+                website = "dailymotion.com";
+                link = link.replaceAll("(frag\\()+(\\d+)+(\\))", "FRAGMENT");
+                size = null;
+            } else if (host.contains("vimeo.com") && link.endsWith("m4s")) {
+                chunked = true;
+                website = "vimeo.com";
+                link = link.replaceAll("(segment-)+(\\d+)", "SEGMENT");
+                size = null;
+            }
+
+            String name = "video";
+            if (title != null) {
+                name = title;
+            }
+            String type;
+            switch (contentType) {
+                case "video/mp4":
+                    type = "mp4";
+                    break;
+                case "video/webm":
+                    type = "webm";
+                    break;
+                case "video/mp2t":
+                    type = "ts";
+                    break;
+                default:
+                    type = "mp4";
+                    break;
+            }
+
+            videoList.addItem(size, type, link, name, page, chunked, website);
+
+            updateFoundVideosBar();
+            String videoFound = "name:" + name + "\n" +
+                    "link:" + link + "\n" +
+                    "type:" + contentType + "\n" +
+                    "size:" + size;
+            Log.i(TAG, videoFound);
+        } catch (IOException e) {
+            Log.e("loremarTest", "Exception in adding video to " +
+                    "list");
+        }
+    }
+
+    private void addVideosToListFromM3U8(URLConnection uCon, String page, String title, String
+            contentType) {
+        try {
+            String host;
+            host = new URL(page).getHost();
+            if (host.contains("twitter.com") || host.contains("metacafe.com")) {
+                InputStream in = uCon.getInputStream();
+                InputStreamReader inReader = new InputStreamReader(in);
+                BufferedReader buffReader = new BufferedReader(inReader);
+                String line;
+                String prefix = null;
+                String type = null;
+                String name = "video";
+                String website = null;
+                if (title != null) {
+                    name = title;
+                }
+                if (host.contains("twitter.com")) {
+                    prefix = "https://video.twimg.com";
+                    type = "ts";
+                    website = "twitter.com";
+                } else if (host.contains("metacafe.com")) {
+                    String link = uCon.getURL().toString();
+                    prefix = link.substring(0, link.lastIndexOf("/") + 1);
+                    website = "metacafe.com";
+                    type = "mp4";
+                }
+                while ((line = buffReader.readLine()) != null) {
+                    if (line.endsWith(".m3u8")) {
+                        String link = prefix + line;
+                        videoList.addItem(null, type, link, name, page, true, website);
+
+                        updateFoundVideosBar();
+                        String videoFound = "name:" + name + "\n" +
+                                "link:" + link + "\n" +
+                                "type:" + contentType + "\n" +
+                                "size: null";
+                        Log.i(TAG, videoFound);
+                    }
+                }
+            } else {
+                Log.i("loremarTest", "Content type is " + contentType + " but site is not " +
+                        "supported");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //todo if host is twitter, parse data from m3u8 url. get each m3u8 element, append to
+        // https://video.twimg.com, and parse. Get all ts elements and again append to
+        // https://video.twimg.com. The resulting urls are the links to videos.
+
+        //todo if host is metacafe, parse data from m3u8 url.
     }
 
     @Override
