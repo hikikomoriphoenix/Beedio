@@ -189,6 +189,10 @@ public class DownloadManager extends IntentService {
                                 break;
                             case "metacafe.com":
                                 chunkUrl = getNextChunkWithM3U8Rule(intent, totalChunks);
+                                break;
+                            case "myspace.com":
+                                chunkUrl = getNextChunkWithM3U8Rule(intent, totalChunks);
+                                break;
                         }
                         if (chunkUrl == null) {
                             if (!progressFile.delete()) {
@@ -206,6 +210,8 @@ public class DownloadManager extends IntentService {
                                 WritableByteChannel writableByteChannel = Channels.newChannel(bytesOfChunk);
                                 int read;
                                 while (true) {
+                                    if (Thread.currentThread().isInterrupted()) return;
+
                                     ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
                                     read = readableByteChannel.read(buffer);
                                     if (read != -1) {
@@ -271,7 +277,8 @@ public class DownloadManager extends IntentService {
             InputStreamReader inReader = new InputStreamReader(in);
             BufferedReader buffReader = new BufferedReader(inReader);
             while ((line = buffReader.readLine()) != null) {
-                if (website.equals("twitter.com") && line.endsWith(".ts")) {
+                if ((website.equals("twitter.com") || website.equals("myspace.com")) && line
+                        .endsWith(".ts")) {
                     break;
                 } else if (website.equals("metacafe.com") && line.endsWith(".mp4")) {
                     break;
@@ -285,7 +292,6 @@ public class DownloadManager extends IntentService {
                     l++;
                 }
             }
-            Log.i("loremarTest", "reading " + link);
             buffReader.close();
             inReader.close();
             in.close();
@@ -293,13 +299,19 @@ public class DownloadManager extends IntentService {
             e.printStackTrace();
         }
         if (line != null) {
+            String prefix;
             switch (website) {
                 case "twitter.com":
                     Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " +
                             "https://video.twimg.com" + line);
                     return "https://video.twimg.com" + line;
                 case "metacafe.com":
-                    String prefix = link.substring(0, link.lastIndexOf("/") + 1);
+                    prefix = link.substring(0, link.lastIndexOf("/") + 1);
+                    Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " + prefix +
+                            line);
+                    return prefix + line;
+                case "myspace.com":
+                    prefix = link.substring(0, link.lastIndexOf("/") + 1);
                     Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " + prefix +
                             line);
                     return prefix + line;

@@ -586,7 +586,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         try {
             String host;
             host = new URL(page).getHost();
-            if (host.contains("twitter.com") || host.contains("metacafe.com")) {
+            if (host.contains("twitter.com") || host.contains("metacafe.com") || host.contains
+                    ("myspace.com")) {
                 InputStream in = uCon.getInputStream();
                 InputStreamReader inReader = new InputStreamReader(in);
                 BufferedReader buffReader = new BufferedReader(inReader);
@@ -607,6 +608,19 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     prefix = link.substring(0, link.lastIndexOf("/") + 1);
                     website = "metacafe.com";
                     type = "mp4";
+                } else if (host.contains("myspace.com")) {
+                    String link = uCon.getURL().toString();
+                    website = "myspace.com";
+                    type = "ts";
+                    videoList.addItem(null, type, link, name, page, true, website);
+
+                    updateFoundVideosBar();
+                    String videoFound = "name:" + name + "\n" +
+                            "link:" + link + "\n" +
+                            "type:" + contentType + "\n" +
+                            "size: null";
+                    Log.i(TAG, videoFound);
+                    return;
                 }
                 while ((line = buffReader.readLine()) != null) {
                     if (line.endsWith(".m3u8")) {
@@ -628,11 +642,6 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //todo if host is twitter, parse data from m3u8 url. get each m3u8 element, append to
-        // https://video.twimg.com, and parse. Get all ts elements and again append to
-        // https://video.twimg.com. The resulting urls are the links to videos.
-
-        //todo if host is metacafe, parse data from m3u8 url.
     }
 
     @Override
