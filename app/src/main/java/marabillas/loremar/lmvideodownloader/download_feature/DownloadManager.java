@@ -26,6 +26,7 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -182,6 +184,18 @@ public class DownloadManager extends IntentService {
                             case "vimeo.com":
                                 chunkUrl = getNextChunkWithVimeoRule(intent, totalChunks);
                                 break;
+                            case "twitter.com":
+                                chunkUrl = getNextChunkWithM3U8Rule(intent, totalChunks);
+                                break;
+                            case "metacafe.com":
+                                chunkUrl = getNextChunkWithM3U8Rule(intent, totalChunks);
+                        }
+                        if (chunkUrl == null) {
+                            if (!progressFile.delete()) {
+                                Log.i("loremarTest", "can't delete progressFile");
+                            }
+                            onDownloadFinishedListener.onDownloadFinished();
+                            break;
                         }
                         bytesOfChunk = new ByteArrayOutputStream();
                         try {
@@ -208,6 +222,8 @@ public class DownloadManager extends IntentService {
                                         dataOutputStream.writeLong(++totalChunks);
                                         dataOutputStream.close();
                                         outputStream.close();
+                                        Log.i("loremarTest", "downloaded chunk " + totalChunks +
+                                                ": " + chunkUrl);
                                         break;
                                     }
                                 }
@@ -243,6 +259,56 @@ public class DownloadManager extends IntentService {
     private String getNextChunkWithVimeoRule(Intent intent, long totalChunks) {
         String link = intent.getStringExtra("link");
         return link.replaceAll("SEGMENT", "segment-" + (totalChunks + 1));
+    }
+
+    private String getNextChunkWithM3U8Rule(Intent intent, long totalChunks) {
+        String link = intent.getStringExtra("link");
+        String website = intent.getStringExtra("website");
+        String line = null;
+        try {
+            URLConnection m3u8Con = new URL(link).openConnection();
+            InputStream in = m3u8Con.getInputStream();
+            InputStreamReader inReader = new InputStreamReader(in);
+            BufferedReader buffReader = new BufferedReader(inReader);
+            while ((line = buffReader.readLine()) != null) {
+                if (website.equals("twitter.com") && line.endsWith(".ts")) {
+                    break;
+                } else if (website.equals("metacafe.com") && line.endsWith(".mp4")) {
+                    break;
+                }
+            }
+            if (line != null) {
+                long l = 1;
+                while (l < (totalChunks + 1)) {
+                    buffReader.readLine();
+                    line = buffReader.readLine();
+                    l++;
+                }
+            }
+            Log.i("loremarTest", "reading " + link);
+            buffReader.close();
+            inReader.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (line != null) {
+            switch (website) {
+                case "twitter.com":
+                    Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " +
+                            "https://video.twimg.com" + line);
+                    return "https://video.twimg.com" + line;
+                case "metacafe.com":
+                    String prefix = link.substring(0, link.lastIndexOf("/") + 1);
+                    Log.i("loremarTest", "downloading chunk " + (totalChunks + 1) + ": " + prefix +
+                            line);
+                    return prefix + line;
+                default:
+                    return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     interface OnDownloadFinishedListener {
