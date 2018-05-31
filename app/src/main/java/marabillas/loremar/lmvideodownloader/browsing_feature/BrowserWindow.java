@@ -527,10 +527,14 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             String website = null;
             boolean chunked = false;
 
-            if (host.contains("youtube.com")) {
+            if (host.contains("youtube.com") || (new URL(link).getHost().contains("googlevideo.com")
+            )) {
                 //link  = link.replaceAll("(range=)+(.*)+(&)",
                 // "");
-                link = link.substring(0, link.lastIndexOf("&range"));
+                int r = link.lastIndexOf("&range");
+                if (r > 0) {
+                    link = link.substring(0, r);
+                }
                 URLConnection ytCon;
                 ytCon = new URL(link).openConnection();
                 ytCon.connect();
