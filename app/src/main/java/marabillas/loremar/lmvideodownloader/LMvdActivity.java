@@ -47,7 +47,6 @@ import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
-import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
 import marabillas.loremar.lmvideodownloader.history_feature.History;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
@@ -57,7 +56,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     private BrowserManager browserManager;
     private Uri appLinkData;
     private DrawerLayout layout;
-    private Intent downloadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +68,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         ImageButton go = findViewById(R.id.go);
         go.setOnClickListener(this);
 
-        if (getFragmentManager().findFragmentByTag("BM") == null) {
+        if ((browserManager = (BrowserManager) getFragmentManager().findFragmentByTag("BM")) == null) {
             getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
                     "BM").commit();
         }
@@ -116,8 +114,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 prefs.edit().putBoolean(getString(R.string.adBlockON), isChecked).apply();
             }
         });
-
-        downloadService = new Intent(this, DownloadManager.class);
     }
 
     @Override
@@ -257,10 +253,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             browserManager.newWindow(appLinkData.toString());
         }
         browserManager.updateAdFilters();
-    }
-
-    public Intent getDownloadService() {
-        return downloadService;
     }
 
     @Override

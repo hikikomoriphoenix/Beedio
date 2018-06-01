@@ -47,7 +47,7 @@ class AdBlocker implements Serializable {
 
     public void update(final Context context) {
         final AlertDialog dialog = new AlertDialog.Builder(context).create();
-        dialog.setMessage("Updating ad filters. Please wait...");
+        dialog.setMessage("Updating. Please wait...");
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();

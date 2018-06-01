@@ -54,6 +54,8 @@ import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, Tracking, DownloadsInProgress.OnNumDownloadsInProgressChangeListener, DownloadsCompleted.OnNumDownloadsCompletedChangeListener, DownloadsInactive.OnNumDownloadsInactiveChangeListener {
+    private View view;
+
     private TextView downloadSpeed;
     private TextView remaining;
     private Handler mainHandler;
@@ -73,155 +75,160 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.downloads, container, false);
+        setRetainInstance(true);
 
-        final DrawerLayout layout = getActivity().findViewById(R.id.drawer);
-        ImageView menu = view.findViewById(R.id.menuButton);
-        menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layout.openDrawer(Gravity.START);
-            }
-        });
+        if (view == null) {
+            view = inflater.inflate(R.layout.downloads, container, false);
 
-        downloadSpeed = view.findViewById(R.id.downloadSpeed);
-        remaining = view.findViewById(R.id.remaining);
-
-        getLMvdActivity().setOnBackPressedListener(this);
-
-        mainHandler = new Handler(Looper.getMainLooper());
-        tracking = new Tracking();
-
-        pager = view.findViewById(R.id.downloadsPager);
-        pager.setAdapter(new PagerAdapter());
-
-        if (Build.VERSION.SDK_INT >= 22) {
-            tabs = view.findViewById(R.id.downloadsTabs);
-            tabs.addTab(tabs.newTab());
-            tabs.addTab(tabs.newTab());
-            tabs.addTab(tabs.newTab());
-
-            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-            tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            final DrawerLayout layout = getActivity().findViewById(R.id.drawer);
+            ImageView menu = view.findViewById(R.id.menuButton);
+            menu.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    pager.setCurrentItem(tab.getPosition());
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
+                public void onClick(View v) {
+                    layout.openDrawer(Gravity.START);
                 }
             });
-        } else {
-            LinearLayout tabs0 = view.findViewById(R.id.downloadsTabs);
-            inProgressTab = tabs0.findViewById(R.id.inProgressTab);
-            completedTab = tabs0.findViewById(R.id.completedTab);
-            inactiveTab = tabs0.findViewById(R.id.inactiveTab);
+
+            downloadSpeed = view.findViewById(R.id.downloadSpeed);
+            remaining = view.findViewById(R.id.remaining);
+
+            getLMvdActivity().setOnBackPressedListener(this);
+
+            mainHandler = new Handler(Looper.getMainLooper());
+            tracking = new Tracking();
+
+            pager = view.findViewById(R.id.downloadsPager);
+            pager.setAdapter(new PagerAdapter());
+
+            if (Build.VERSION.SDK_INT >= 22) {
+                tabs = view.findViewById(R.id.downloadsTabs);
+                tabs.addTab(tabs.newTab());
+                tabs.addTab(tabs.newTab());
+                tabs.addTab(tabs.newTab());
+
+                pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+                tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                    @Override
+                    public void onTabSelected(TabLayout.Tab tab) {
+                        pager.setCurrentItem(tab.getPosition());
+                    }
+
+                    @Override
+                    public void onTabUnselected(TabLayout.Tab tab) {
+
+                    }
+
+                    @Override
+                    public void onTabReselected(TabLayout.Tab tab) {
+
+                    }
+                });
+            } else {
+                LinearLayout tabs0 = view.findViewById(R.id.downloadsTabs);
+                inProgressTab = tabs0.findViewById(R.id.inProgressTab);
+                completedTab = tabs0.findViewById(R.id.completedTab);
+                inactiveTab = tabs0.findViewById(R.id.inactiveTab);
+
+                pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                        switch (position) {
+                            case 0:
+                                unboxPreviousSelectedPageTab();
+                                boxNewSelectedPageTab(inProgressTab);
+                                break;
+                            case 1:
+                                unboxPreviousSelectedPageTab();
+                                boxNewSelectedPageTab(completedTab);
+                                break;
+                            case 2:
+                                unboxPreviousSelectedPageTab();
+                                boxNewSelectedPageTab(inactiveTab);
+                        }
+                    }
+                });
+
+                inProgressTab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        unboxPreviousSelectedPageTab();
+                        boxNewSelectedPageTab(inProgressTab);
+                        pager.setCurrentItem(0);
+                    }
+                });
+
+                completedTab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        unboxPreviousSelectedPageTab();
+                        boxNewSelectedPageTab(completedTab);
+                        pager.setCurrentItem(1);
+                    }
+                });
+
+                inactiveTab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        unboxPreviousSelectedPageTab();
+                        boxNewSelectedPageTab(inactiveTab);
+                        pager.setCurrentItem(2);
+                    }
+                });
+            }
+            pager.setOffscreenPageLimit(2);//default is 1 which would make Inactive tab not diplay
+
+            downloadsInProgress = new DownloadsInProgress();
+            downloadsCompleted = new DownloadsCompleted();
+            downloadsInactive = new DownloadsInactive();
+
+            downloadsInProgress.setOnNumDownloadsInProgressChangeListener(this);
+            downloadsCompleted.setOnNumDownloadsCompletedChangeListener(this);
+            downloadsInactive.setOnNumDownloadsInactiveChangeListener(this);
+
+            getFragmentManager().beginTransaction().add(pager.getId(), downloadsInProgress,
+                    "downloadsInProgress").commit();
+            getFragmentManager().beginTransaction().add(pager.getId(), downloadsCompleted,
+                    "downloadsCompleted").commit();
+            getFragmentManager().beginTransaction().add(pager.getId(), downloadsInactive,
+                    "downloadsInactive").commit();
+
+            downloadsInProgress.setTracking(this);
+
+            downloadsInProgress.setOnAddDownloadedVideoToCompletedListener(downloadsCompleted);
+            downloadsInProgress.setOnAddDownloadItemToInactiveListener(downloadsInactive);
+            downloadsInactive.setOnDownloadWithNewLinkListener(downloadsInProgress);
+
 
             pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                 @Override
                 public void onPageSelected(int position) {
-                    super.onPageSelected(position);
-                    switch (position) {
-                        case 0:
-                            unboxPreviousSelectedPageTab();
-                            boxNewSelectedPageTab(inProgressTab);
-                            break;
-                        case 1:
-                            unboxPreviousSelectedPageTab();
-                            boxNewSelectedPageTab(completedTab);
-                            break;
-                        case 2:
-                            unboxPreviousSelectedPageTab();
-                            boxNewSelectedPageTab(inactiveTab);
+                    if (position == 1) {
+                        final SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
+                        if (prefs.getBoolean(getString(R.string.showDownloadNotice), true)) {
+                            View view = inflater.inflate(R.layout.download_notice_checkbox,
+                                    container, false);
+                            final CheckBox showNoticeCheckbox = view.findViewById(R.id.showNoticeCheckbox);
+                            showNoticeCheckbox.setChecked(false);
+                            new AlertDialog.Builder(getActivity())
+                                    .setMessage("Downloaded videos are saved in the external storage's Download folder")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (showNoticeCheckbox.isChecked()) {
+                                                prefs.edit().putBoolean(getString(R.string.showDownloadNotice), false)
+                                                        .apply();
+                                            }
+                                        }
+                                    })
+                                    .setView(view)
+                                    .create()
+                                    .show();
+                        }
                     }
-                }
-            });
-
-            inProgressTab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    unboxPreviousSelectedPageTab();
-                    boxNewSelectedPageTab(inProgressTab);
-                    pager.setCurrentItem(0);
-                }
-            });
-
-            completedTab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    unboxPreviousSelectedPageTab();
-                    boxNewSelectedPageTab(completedTab);
-                    pager.setCurrentItem(1);
-                }
-            });
-
-            inactiveTab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    unboxPreviousSelectedPageTab();
-                    boxNewSelectedPageTab(inactiveTab);
-                    pager.setCurrentItem(2);
                 }
             });
         }
-        pager.setOffscreenPageLimit(2);//default is 1 which would make Inactive tab not diplay
-
-        downloadsInProgress = new DownloadsInProgress();
-        downloadsCompleted = new DownloadsCompleted();
-        downloadsInactive = new DownloadsInactive();
-
-        getFragmentManager().beginTransaction().add(pager.getId(), downloadsInProgress,
-                "downloadsInProgress").commit();
-        getFragmentManager().beginTransaction().add(pager.getId(), downloadsCompleted,
-                "downloadsCompleted").commit();
-        getFragmentManager().beginTransaction().add(pager.getId(), downloadsInactive,
-                "downloadsInactive").commit();
-
-        downloadsInProgress.setTracking(this);
-
-        downloadsInProgress.setOnAddDownloadedVideoToCompletedListener(downloadsCompleted);
-        downloadsInProgress.setOnAddDownloadItemToInactiveListener(downloadsInactive);
-        downloadsInactive.setOnDownloadWithNewLinkListener(downloadsInProgress);
-
-        downloadsInProgress.setOnNumDownloadsInProgressChangeListener(this);
-        downloadsCompleted.setOnNumDownloadsCompletedChangeListener(this);
-        downloadsInactive.setOnNumDownloadsInactiveChangeListener(this);
-
-        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                if (position == 1) {
-                    final SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
-                    if (prefs.getBoolean(getString(R.string.showDownloadNotice), true)) {
-                        View view = inflater.inflate(R.layout.download_notice_checkbox,
-                                container, false);
-                        final CheckBox showNoticeCheckbox = view.findViewById(R.id.showNoticeCheckbox);
-                        showNoticeCheckbox.setChecked(false);
-                        new AlertDialog.Builder(getActivity())
-                                .setMessage("Downloaded videos are saved in the external storage's Download folder")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (showNoticeCheckbox.isChecked()) {
-                                            prefs.edit().putBoolean(getString(R.string.showDownloadNotice), false)
-                                                    .apply();
-                                        }
-                                    }
-                                })
-                                .setView(view)
-                                .create()
-                                .show();
-                    }
-                }
-            }
-        });
 
         return view;
     }
@@ -236,24 +243,6 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     private void boxNewSelectedPageTab(TextView selected) {
         pageSelected = selected;
         pageSelected.setBackground(new ColorDrawable(Color.LTGRAY));
-    }
-
-    @Override
-    public void onDestroyView() {
-        getFragmentManager().beginTransaction().remove(downloadsInProgress).commit();
-        getFragmentManager().beginTransaction().remove(downloadsCompleted).commit();
-        getFragmentManager().beginTransaction().remove(downloadsInactive).commit();
-        downloadsInProgress = null;
-        downloadsCompleted = null;
-        downloadsInactive = null;
-        pager.clearOnPageChangeListeners();
-        pager = null;
-        if (tabs != null) {
-            tabs.clearOnTabSelectedListeners();
-            tabs = null;
-        }
-
-        super.onDestroyView();
     }
 
     @Override

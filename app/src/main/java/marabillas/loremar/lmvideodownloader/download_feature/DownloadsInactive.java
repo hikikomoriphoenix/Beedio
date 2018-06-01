@@ -53,6 +53,7 @@ import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadsInactive extends LMvdFragment implements DownloadsInProgress.OnAddDownloadItemToInactiveListener {
+    private View view;
     private RecyclerView downloadsList;
     private List<DownloadVideo> downloads;
     private InactiveDownloads inactiveDownloads;
@@ -75,31 +76,35 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.downloads_inactive, container, false);
-        downloadsList = view.findViewById(R.id.downloadsInactiveList);
+        setRetainInstance(true);
 
-        downloads = new ArrayList<>();
+        if (view == null) {
+            view = inflater.inflate(R.layout.downloads_inactive, container, false);
+            downloadsList = view.findViewById(R.id.downloadsInactiveList);
 
-        File file = new File(getActivity().getFilesDir(), "inactive.dat");
-        if (file.exists()) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                inactiveDownloads = (InactiveDownloads) objectInputStream.readObject();
-                downloads = inactiveDownloads.getInactiveDownloads();
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+            downloads = new ArrayList<>();
+
+            File file = new File(getActivity().getFilesDir(), "inactive.dat");
+            if (file.exists()) {
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                    inactiveDownloads = (InactiveDownloads) objectInputStream.readObject();
+                    downloads = inactiveDownloads.getInactiveDownloads();
+                    objectInputStream.close();
+                    fileInputStream.close();
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
+
+            downloadsList.setAdapter(new DownloadAdapter());
+            downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            downloadsList.setHasFixedSize(true);
+            downloadsList.addItemDecoration(Utils.createDivider(getActivity()));
+
+            onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
         }
-
-        downloadsList.setAdapter(new DownloadAdapter());
-        downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        downloadsList.setHasFixedSize(true);
-        downloadsList.addItemDecoration(Utils.createDivider(getActivity()));
-
-        onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
 
         return view;
     }
