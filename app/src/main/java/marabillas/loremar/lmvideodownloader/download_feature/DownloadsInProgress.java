@@ -120,7 +120,11 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
         if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
             downloadsStartPauseButton.setText(R.string.pause);
-        } else downloadsStartPauseButton.setText(R.string.start);
+            getAdapter().unpause();
+        } else {
+            downloadsStartPauseButton.setText(R.string.start);
+            getAdapter().pause();
+        }
         downloadsStartPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -293,6 +297,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                 @Override
                 public void run() {
                     downloadsStartPauseButton.setText(R.string.pause);
+                    getAdapter().unpause();
                 }
             });
             tracking.startTracking();
@@ -308,6 +313,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             public void run() {
                 downloadsStartPauseButton.setText(R.string.start);
                 tracking.stopTracking();
+                getAdapter().pause();
             }
         });
     }
@@ -422,6 +428,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem> {
         private int selectedItemPosition = -1;
+        private boolean paused;
 
         @NonNull
         @Override
@@ -447,6 +454,18 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
         public void setSelectedItemPosition(int position) {
             selectedItemPosition = position;
+        }
+
+        public void pause() {
+            paused = true;
+        }
+
+        public void unpause() {
+            paused = false;
+        }
+
+        public boolean isPaused() {
+            return paused;
         }
     }
 
@@ -577,7 +596,13 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     long downloadedSize = file.length();
                     downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
                     status.setText(downloaded);
-                    progress.setIndeterminate(true);
+                    if (!getAdapter().isPaused()) {
+                        if (!progress.isIndeterminate()) {
+                            progress.setIndeterminate(true);
+                        }
+                    } else {
+                        progress.setIndeterminate(false);
+                    }
                 }
             } else {
                 if (video.size != null) {
