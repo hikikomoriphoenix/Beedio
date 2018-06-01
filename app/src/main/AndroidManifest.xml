@@ -58,6 +58,8 @@
                 <data android:host="www.veoh.com" />
                 <data android:host="veoh.com" />
                 <data android:host="vimeo.com" />
+                <data android:host="m.vk.com" />
+                <data android:host="vk.com" />
                 <data android:host="video.fc2.com" />
                 <data android:host="m.vlive.tv" />
                 <data android:host="m.tv.naver.com" />
