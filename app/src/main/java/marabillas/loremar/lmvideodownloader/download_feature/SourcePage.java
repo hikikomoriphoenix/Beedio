@@ -91,37 +91,61 @@ public class SourcePage extends WebViewFragment {
                                 String contentType = uCon.getHeaderField("content-type");
                                 if (contentType != null) {
                                     contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video/mp4")) {
-                                        String sizeString = uCon.getHeaderField("content-length");
-                                        if (sizeString != null && Long.parseLong(sizeString) == size) {
-                                            Log.i("loremarTest", "video with same size found");
 
-                                            String link = uCon.getHeaderField("Location");
-                                            if (link == null) {
-                                                link = uCon.getURL().toString();
-                                            }
-                                            onUpdateLinkListener.updateLink(link);
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    new AlertDialog.Builder(getActivity())
-                                                            .setMessage("Link has been updated and video " +
-                                                                    "is now being downloaded")
-                                                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(DialogInterface dialog, int which) {
-                                                                    getFragmentManager().beginTransaction
-                                                                            ().remove(SourcePage.this)
-                                                                            .commit();
-                                                                }
-                                                            })
-                                                            .setCancelable(false)
-                                                            .create()
-                                                            .show();
+                                    String link = uCon.getHeaderField("Location");
+                                    if (link == null) {
+                                        link = uCon.getURL().toString();
+                                    }
+
+                                    try {
+                                        if (contentType.contains("video")) {
+                                            String host = new URL(page).getHost();
+                                            String sizeString;
+                                            if (host.contains("youtube.com") || (new URL(link).getHost().contains("googlevideo.com")
+                                            )) {
+                                                //link  = link.replaceAll("(range=)+(.*)+(&)",
+                                                // "");
+                                                int r = link.lastIndexOf("&range");
+                                                if (r > 0) {
+                                                    link = link.substring(0, r);
                                                 }
-                                            });
-                                        }
-                                    } else Log.i("loremarTest", "not a video");
+                                                URLConnection ytCon;
+                                                ytCon = new URL(link).openConnection();
+                                                ytCon.connect();
+                                                sizeString = ytCon.getHeaderField
+                                                        ("content-length");
+                                            } else {
+                                                sizeString = uCon.getHeaderField(
+                                                        "content-length");
+                                            }
+
+                                            if (sizeString != null && Long.parseLong(sizeString) == size) {
+                                                Log.i("loremarTest", "video with same size found");
+                                                onUpdateLinkListener.updateLink(link);
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        new AlertDialog.Builder(getActivity())
+                                                                .setMessage("Link has been updated and video " +
+                                                                        "is now being downloaded")
+                                                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        getFragmentManager().beginTransaction
+                                                                                ().remove(SourcePage.this)
+                                                                                .commit();
+                                                                    }
+                                                                })
+                                                                .setCancelable(false)
+                                                                .create()
+                                                                .show();
+                                                    }
+                                                });
+                                            }
+                                        } else Log.i("loremarTest", "not a video");
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 } else {
                                     Log.i("loremarTest", "no content type");
                                 }
