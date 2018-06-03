@@ -23,8 +23,10 @@ package marabillas.loremar.lmvideodownloader.download_feature;
 import android.content.Context;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,6 +42,23 @@ class InactiveDownloads implements Serializable {
     void add(Context context, DownloadVideo inactiveDownload) {
         inactiveDownloads.add(inactiveDownload);
         save(context);
+    }
+
+    static InactiveDownloads load(Context context) {
+        File file = new File(context.getFilesDir(), "inactive.dat");
+        InactiveDownloads inactiveDownloads = new InactiveDownloads();
+        if (file.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                inactiveDownloads = (InactiveDownloads) objectInputStream.readObject();
+                objectInputStream.close();
+                fileInputStream.close();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return inactiveDownloads;
     }
 
     void save(Context context) {

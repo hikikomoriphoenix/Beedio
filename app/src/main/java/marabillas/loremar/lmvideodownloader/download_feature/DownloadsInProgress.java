@@ -48,9 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,19 +104,8 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             downloadsList.setAdapter(new DownloadListAdapter());
             downloadsList.setHasFixedSize(true);
             downloads = new ArrayList<>();
-            File file = new File(getActivity().getFilesDir(), "downloads.dat");
-            if (file.exists()) {
-                try {
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                    queues = (DownloadQueues) objectInputStream.readObject();
-                    downloads = queues.getList();
-                    objectInputStream.close();
-                    fileInputStream.close();
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
+            queues = DownloadQueues.load(getActivity());
+            downloads = queues.getList();
 
             downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
 
@@ -298,9 +284,10 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             downloadService.putExtra("name", topVideo.name);
             downloadService.putExtra("type", topVideo.type);
             downloadService.putExtra("size", topVideo.size);
+            downloadService.putExtra("page", topVideo.page);
             downloadService.putExtra("chunked", topVideo.chunked);
             downloadService.putExtra("website", topVideo.website);
-            getActivity().startService(downloadService);
+            getLMvdApp().startService(downloadService);
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -314,7 +301,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
     public void pauseDownload() {
         Intent downloadService = getLMvdApp().getDownloadService();
-        getActivity().stopService(downloadService);
+        getLMvdApp().stopService(downloadService);
         DownloadManager.stopThread();
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -431,7 +418,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     }
 
     public void saveQueues() {
-        queues.saveQueues(getActivity());
+        queues.save(getActivity());
     }
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem> {

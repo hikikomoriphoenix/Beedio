@@ -47,6 +47,7 @@ import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
 import marabillas.loremar.lmvideodownloader.history_feature.History;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
@@ -151,6 +152,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         if (fragment != null) {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
+        DownloadManager.setOnDownloadFinishedListener(null);
+        DownloadManager.setOnLinkNotFoundListener(null);
     }
 
     private void closeBookmarks() {

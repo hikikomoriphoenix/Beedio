@@ -26,15 +26,21 @@ import android.content.Intent;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 
 public class LMvdApp extends Application {
+    private static LMvdApp instance;
     private Intent downloadService;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         downloadService = new Intent(getApplicationContext(), DownloadManager.class);
     }
 
     public Intent getDownloadService() {
         return downloadService;
+    }
+
+    public static LMvdApp getInstance() {
+        return instance;
     }
 }
