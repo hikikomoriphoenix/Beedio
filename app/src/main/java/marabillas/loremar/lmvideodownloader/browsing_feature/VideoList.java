@@ -21,8 +21,6 @@
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
@@ -192,7 +190,7 @@ public abstract class VideoList {
                     expand.setVisibility(View.GONE);
                 }
                 expand.findViewById(R.id.videoFoundRename).setOnClickListener(this);
-                expand.findViewById(R.id.videoFoundCopy).setOnClickListener(this);
+                expand.findViewById(R.id.videoFoundDownload).setOnClickListener(this);
                 expand.findViewById(R.id.videoFoundDelete).setOnClickListener(this);
             }
 
@@ -212,14 +210,15 @@ public abstract class VideoList {
                             notifyItemChanged(getAdapterPosition());
                         }
                     };
-                } else if (v == expand.findViewById(R.id.videoFoundCopy)) {
-                    ClipboardManager clipboardManager = (ClipboardManager) context.
+                } else if (v == expand.findViewById(R.id.videoFoundDownload)) {
+                    //todo implement download selected item
+                    /*ClipboardManager clipboardManager = (ClipboardManager) context.
                             getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData link = ClipData.newPlainText("link address", videos.get
                             (getAdapterPosition()).link);
                     if (clipboardManager != null) {
                         clipboardManager.setPrimaryClip(link);
-                    }
+                    }*/
                 } else if (v == expand.findViewById(R.id.videoFoundDelete)) {
                     new AlertDialog.Builder(context)
                             .setMessage("Delete this item from the list?")

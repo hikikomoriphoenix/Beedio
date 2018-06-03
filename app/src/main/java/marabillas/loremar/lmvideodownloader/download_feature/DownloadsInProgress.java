@@ -122,13 +122,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             }
 
             downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
-            if (Utils.isServiceRunning(DownloadManager.class, getActivity().getApplicationContext())) {
-                downloadsStartPauseButton.setText(R.string.pause);
-                getAdapter().unpause();
-            } else {
-                downloadsStartPauseButton.setText(R.string.start);
-                getAdapter().pause();
-            }
+
             downloadsStartPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -232,6 +226,16 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        if (Utils.isServiceRunning(DownloadManager.class, getActivity().getApplicationContext())) {
+            downloadsStartPauseButton.setText(R.string.pause);
+            getAdapter().unpause();
+            tracking.startTracking();
+        } else {
+            downloadsStartPauseButton.setText(R.string.start);
+            getAdapter().pause();
+            tracking.stopTracking();
+        }
+
         downloadRearranger = new DownloadRearranger(getActivity(), this);
         downloadsListItemTouchDisabler = new RecyclerView.OnItemTouchListener() {
             @Override

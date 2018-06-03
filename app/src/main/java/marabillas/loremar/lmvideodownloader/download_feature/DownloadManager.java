@@ -64,6 +64,10 @@ public class DownloadManager extends IntentService {
             chunked = intent.getBooleanExtra("chunked", false);
 
             if (chunked) {
+                downloadFile = null;
+                prevDownloaded = 0;
+                downloadSpeed = 0;
+                totalSize = 0;
                 handleChunkedDownload(intent);
             } else {
                 prevDownloaded = 0;
