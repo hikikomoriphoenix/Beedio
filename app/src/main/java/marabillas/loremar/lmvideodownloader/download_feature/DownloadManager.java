@@ -45,6 +45,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import marabillas.loremar.lmvideodownloader.LMvdApp;
+
 public class DownloadManager extends IntentService {
     private static File downloadFile = null;
     private static long prevDownloaded = 0;
@@ -64,6 +66,10 @@ public class DownloadManager extends IntentService {
             chunked = intent.getBooleanExtra("chunked", false);
 
             if (chunked) {
+                downloadFile = null;
+                prevDownloaded = 0;
+                downloadSpeed = 0;
+                totalSize = 0;
                 handleChunkedDownload(intent);
             } else {
                 prevDownloaded = 0;
@@ -117,7 +123,7 @@ public class DownloadManager extends IntentService {
                                 out.close();
                                 fileChannel.close();
                                 //writableByteChannel.close();
-                                onDownloadFinishedListener.onDownloadFinished();
+                                downloadFinished(filename);
                             }
                         }
                     } else {
@@ -125,10 +131,67 @@ public class DownloadManager extends IntentService {
                     }
                 } catch (FileNotFoundException e) {
                     Log.i("loremarTest", "link:" + intent.getStringExtra("link") + " not found");
-                    onLinkNotFoundListener.onLinkNotFound();
+                    linkNotFound(intent);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    private void downloadFinished(String filename) {
+        if (onDownloadFinishedListener != null) {
+            onDownloadFinishedListener.onDownloadFinished();
+        } else {
+            DownloadQueues queues = DownloadQueues.load(getApplicationContext());
+            queues.deleteTopVideo(getApplicationContext());
+            CompletedVideos completedVideos = CompletedVideos.load
+                    (getApplicationContext());
+            completedVideos.addVideo(getApplicationContext(), filename);
+
+            DownloadVideo topVideo = queues.getTopVideo();
+            if (topVideo != null) {
+                Intent downloadService = LMvdApp.getInstance().getDownloadService();
+                downloadService.putExtra("link", topVideo.link);
+                downloadService.putExtra("name", topVideo.name);
+                downloadService.putExtra("type", topVideo.type);
+                downloadService.putExtra("size", topVideo.size);
+                downloadService.putExtra("page", topVideo.page);
+                downloadService.putExtra("chunked", topVideo.chunked);
+                downloadService.putExtra("website", topVideo.website);
+                onHandleIntent(downloadService);
+            }
+        }
+    }
+
+    private void linkNotFound(Intent intent) {
+        if (onLinkNotFoundListener != null) {
+            onLinkNotFoundListener.onLinkNotFound();
+        } else {
+            DownloadQueues queues = DownloadQueues.load(getApplicationContext());
+            queues.deleteTopVideo(getApplicationContext());
+            DownloadVideo inactiveDownload = new DownloadVideo();
+            inactiveDownload.name = intent.getStringExtra("name");
+            inactiveDownload.link = intent.getStringExtra("link");
+            inactiveDownload.type = intent.getStringExtra("type");
+            inactiveDownload.size = intent.getStringExtra("size");
+            inactiveDownload.page = intent.getStringExtra("page");
+            inactiveDownload.website = intent.getStringExtra("website");
+            inactiveDownload.chunked = intent.getBooleanExtra("chunked", false);
+            InactiveDownloads inactiveDownloads = InactiveDownloads.load(getApplicationContext());
+            inactiveDownloads.add(getApplicationContext(), inactiveDownload);
+
+            DownloadVideo topVideo = queues.getTopVideo();
+            if (topVideo != null) {
+                Intent downloadService = LMvdApp.getInstance().getDownloadService();
+                downloadService.putExtra("link", topVideo.link);
+                downloadService.putExtra("name", topVideo.name);
+                downloadService.putExtra("type", topVideo.type);
+                downloadService.putExtra("size", topVideo.size);
+                downloadService.putExtra("page", topVideo.page);
+                downloadService.putExtra("chunked", topVideo.chunked);
+                downloadService.putExtra("website", topVideo.website);
+                onHandleIntent(downloadService);
             }
         }
     }
@@ -161,7 +224,7 @@ public class DownloadManager extends IntentService {
                         }
                     }
                 } else if (videoFile.exists()) {
-                    onDownloadFinishedListener.onDownloadFinished();
+                    downloadFinished(name + "." + type);
                 } else {
                     if (!videoFile.createNewFile()) {
                         Log.i("loremarTest", "can not create file for download");
@@ -198,7 +261,7 @@ public class DownloadManager extends IntentService {
                             if (!progressFile.delete()) {
                                 Log.i("loremarTest", "can't delete progressFile");
                             }
-                            onDownloadFinishedListener.onDownloadFinished();
+                            downloadFinished(name + "." + type);
                             break;
                         }
                         bytesOfChunk = new ByteArrayOutputStream();
@@ -241,7 +304,7 @@ public class DownloadManager extends IntentService {
                             if (!progressFile.delete()) {
                                 Log.i("loremarTest", "can't delete progressFile");
                             }
-                            onDownloadFinishedListener.onDownloadFinished();
+                            downloadFinished(name + "." + type);
                             break;
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -329,7 +392,7 @@ public class DownloadManager extends IntentService {
 
     private static OnDownloadFinishedListener onDownloadFinishedListener;
 
-    static void setOnDownloadFinishedListener(OnDownloadFinishedListener listener) {
+    public static void setOnDownloadFinishedListener(OnDownloadFinishedListener listener) {
         onDownloadFinishedListener = listener;
     }
 
@@ -340,7 +403,7 @@ public class DownloadManager extends IntentService {
 
     private static OnLinkNotFoundListener onLinkNotFoundListener;
 
-    static void setOnLinkNotFoundListener(OnLinkNotFoundListener listener) {
+    public static void setOnLinkNotFoundListener(OnLinkNotFoundListener listener) {
         onLinkNotFoundListener = listener;
     }
 
@@ -351,7 +414,7 @@ public class DownloadManager extends IntentService {
         super.onDestroy();
     }
 
-    static void stopThread() {
+    public static void stopThread() {
         Thread.currentThread().interrupt();
     }
 

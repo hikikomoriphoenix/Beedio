@@ -41,6 +41,7 @@ import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class History extends LMvdFragment implements LMvdActivity.OnBackPressedListener {
+    private View view;
     private EditText searchText;
     private RecyclerView visitedPagesView;
 
@@ -50,44 +51,48 @@ public class History extends LMvdFragment implements LMvdActivity.OnBackPressedL
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        getLMvdActivity().setOnBackPressedListener(this);
+        setRetainInstance(true);
 
-        View view = inflater.inflate(R.layout.history, container, false);
-        searchText = view.findViewById(R.id.historySearchText);
-        ImageView searchButton = view.findViewById(R.id.historySearchIcon);
-        visitedPagesView = view.findViewById(R.id.visitedPages);
-        TextView clearHistory = view.findViewById(R.id.clearHistory);
+        if (view == null) {
+            getLMvdActivity().setOnBackPressedListener(this);
 
-        historySQLite = new HistorySQLite(getActivity());
-        visitedPages = historySQLite.getAllVisitedPages();
+            view = inflater.inflate(R.layout.history, container, false);
+            searchText = view.findViewById(R.id.historySearchText);
+            ImageView searchButton = view.findViewById(R.id.historySearchIcon);
+            visitedPagesView = view.findViewById(R.id.visitedPages);
+            TextView clearHistory = view.findViewById(R.id.clearHistory);
 
-        visitedPagesView.setAdapter(new VisitedPagesAdapter());
-        visitedPagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        visitedPagesView.addItemDecoration(Utils.createDivider(getActivity()));
+            historySQLite = new HistorySQLite(getActivity());
+            visitedPages = historySQLite.getAllVisitedPages();
 
-        clearHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                historySQLite.clearHistory();
-                visitedPages.clear();
-                visitedPagesView.getAdapter().notifyDataSetChanged();
-            }
-        });
+            visitedPagesView.setAdapter(new VisitedPagesAdapter());
+            visitedPagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            visitedPagesView.addItemDecoration(Utils.createDivider(getActivity()));
 
-        searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                searchGo();
-                return false;
-            }
-        });
+            clearHistory.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    historySQLite.clearHistory();
+                    visitedPages.clear();
+                    visitedPagesView.getAdapter().notifyDataSetChanged();
+                }
+            });
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchGo();
-            }
-        });
+            searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    searchGo();
+                    return false;
+                }
+            });
+
+            searchButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    searchGo();
+                }
+            });
+        }
 
         return view;
     }

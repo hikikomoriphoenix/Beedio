@@ -55,6 +55,7 @@ import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPressedListener {
+    private View view;
     private RecyclerView bookmarksView;
     private List<BookmarksItem> bookmarks;
     private BookmarksSQLite bookmarksSQLite;
@@ -77,77 +78,81 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.bookmarks, container, false);
-        bookmarksView = view.findViewById(R.id.bookmarks);
-        bookmarksSQLite = new BookmarksSQLite(getActivity());
-        bookmarksClipboardManager = new BookmarksClipboardManager(bookmarksSQLite);
+        setRetainInstance(true);
 
-        view.findViewById(R.id.bookmarksMenuButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((DrawerLayout) getActivity().findViewById(R.id.drawer)).openDrawer(Gravity.START);
-            }
-        });
-        getLMvdActivity().setOnBackPressedListener(this);
+        if (view == null) {
+            view = inflater.inflate(R.layout.bookmarks, container, false);
+            bookmarksView = view.findViewById(R.id.bookmarks);
+            bookmarksSQLite = new BookmarksSQLite(getActivity());
+            bookmarksClipboardManager = new BookmarksClipboardManager(bookmarksSQLite);
 
-        loadBookmarksData();
-
-        bookmarksView.setAdapter(new BookmarksAdapter());
-        bookmarksView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bookmarksView.setHasFixedSize(true);
-        bookmarksView.addItemDecoration(Utils.createDivider(getActivity()));
-
-        view.findViewById(R.id.bookmarksNewFolder).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final EditText text = new EditText(getActivity());
-                text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-                new AlertDialog.Builder(getActivity())
-                        .setMessage("Enter name of new folder.")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                bookmarksSQLite.addFolder(text.getText().toString());
-                                loadBookmarksData();
-                                bookmarksView.getAdapter().notifyDataSetChanged();
-                                Toast.makeText(getActivity(), "New folder added", Toast.LENGTH_SHORT).show();
-                                Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
-                            }
-                        })
-                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
-                            }
-                        })
-                        .setView(text)
-                        .create()
-                        .show();
-            }
-        });
-
-        pasteButton = view.findViewById(R.id.bookmarksPaste);
-        pasteButton.setOnClickListener(new View
-                .OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean pasted;
-                pasted = bookmarksClipboardManager.paste();
-                if (!pasted) {
-                    Toast.makeText(getActivity(), "Bookmark to move no " +
-                            "longer exist", Toast.LENGTH_SHORT).show();
-                } else {
-                    loadBookmarksData();
-                    bookmarksView.getAdapter().notifyDataSetChanged();
+            view.findViewById(R.id.bookmarksMenuButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((DrawerLayout) getActivity().findViewById(R.id.drawer)).openDrawer(Gravity.START);
                 }
-                if (bookmarksClipboardManager.isClipboardEmpty()) {
-                    pasteButton.setVisibility(View.GONE);
+            });
+            getLMvdActivity().setOnBackPressedListener(this);
+
+            loadBookmarksData();
+
+            bookmarksView.setAdapter(new BookmarksAdapter());
+            bookmarksView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            bookmarksView.setHasFixedSize(true);
+            bookmarksView.addItemDecoration(Utils.createDivider(getActivity()));
+
+            view.findViewById(R.id.bookmarksNewFolder).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final EditText text = new EditText(getActivity());
+                    text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT));
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage("Enter name of new folder.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    bookmarksSQLite.addFolder(text.getText().toString());
+                                    loadBookmarksData();
+                                    bookmarksView.getAdapter().notifyDataSetChanged();
+                                    Toast.makeText(getActivity(), "New folder added", Toast.LENGTH_SHORT).show();
+                                    Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
+                                }
+                            })
+                            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Utils.hideSoftKeyboard(getActivity(), text.getWindowToken());
+                                }
+                            })
+                            .setView(text)
+                            .create()
+                            .show();
                 }
-            }
-        });
-        pasteButton.setVisibility(View.GONE);
-        
+            });
+
+            pasteButton = view.findViewById(R.id.bookmarksPaste);
+            pasteButton.setOnClickListener(new View
+                    .OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boolean pasted;
+                    pasted = bookmarksClipboardManager.paste();
+                    if (!pasted) {
+                        Toast.makeText(getActivity(), "Bookmark to move no " +
+                                "longer exist", Toast.LENGTH_SHORT).show();
+                    } else {
+                        loadBookmarksData();
+                        bookmarksView.getAdapter().notifyDataSetChanged();
+                    }
+                    if (bookmarksClipboardManager.isClipboardEmpty()) {
+                        pasteButton.setVisibility(View.GONE);
+                    }
+                }
+            });
+            pasteButton.setVisibility(View.GONE);
+        }
+
         return view;
     }
 

@@ -21,10 +21,9 @@
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -42,15 +41,14 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import marabillas.loremar.lmvideodownloader.LMvdApp;
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
@@ -192,7 +190,7 @@ public abstract class VideoList {
                     expand.setVisibility(View.GONE);
                 }
                 expand.findViewById(R.id.videoFoundRename).setOnClickListener(this);
-                expand.findViewById(R.id.videoFoundCopy).setOnClickListener(this);
+                expand.findViewById(R.id.videoFoundDownload).setOnClickListener(this);
                 expand.findViewById(R.id.videoFoundDelete).setOnClickListener(this);
             }
 
@@ -212,14 +210,32 @@ public abstract class VideoList {
                             notifyItemChanged(getAdapterPosition());
                         }
                     };
-                } else if (v == expand.findViewById(R.id.videoFoundCopy)) {
-                    ClipboardManager clipboardManager = (ClipboardManager) context.
-                            getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData link = ClipData.newPlainText("link address", videos.get
-                            (getAdapterPosition()).link);
-                    if (clipboardManager != null) {
-                        clipboardManager.setPrimaryClip(link);
-                    }
+                } else if (v == expand.findViewById(R.id.videoFoundDownload)) {
+                    Video video = videos.get(getAdapterPosition());
+                    DownloadQueues queues = DownloadQueues.load(context);
+                    queues.insertToTop(video.size, video.type, video.link, video.name, video
+                            .page, video.chunked, video.website);
+                    queues.save(context);
+                    /*Intent downloadService = ((LMvdApp)context.getApplicationContext())
+                            .getDownloadService();*/
+                    DownloadVideo topVideo = queues.getTopVideo();
+                    Intent downloadService = LMvdApp.getInstance().getDownloadService();
+                    LMvdApp.getInstance().stopService(downloadService);
+                    DownloadManager.stopThread();
+                    downloadService.putExtra("link", topVideo.link);
+                    downloadService.putExtra("name", topVideo.name);
+                    downloadService.putExtra("type", topVideo.type);
+                    downloadService.putExtra("size", topVideo.size);
+                    downloadService.putExtra("page", topVideo.page);
+                    downloadService.putExtra("chunked", topVideo.chunked);
+                    downloadService.putExtra("website", topVideo.website);
+                    LMvdApp.getInstance().startService(downloadService);
+                    videos.remove(getAdapterPosition());
+                    expandedItem = -1;
+                    notifyDataSetChanged();
+                    onItemDeleted();
+                    Toast.makeText(context, "Downloading video in the background. Check the " +
+                            "Downloads panel to see progress", Toast.LENGTH_LONG).show();
                 } else if (v == expand.findViewById(R.id.videoFoundDelete)) {
                     new AlertDialog.Builder(context)
                             .setMessage("Delete this item from the list?")
@@ -279,19 +295,7 @@ public abstract class VideoList {
     }
 
     void saveCheckedItemsForDownloading() {
-        File file = new File(context.getFilesDir(), "downloads.dat");
-        DownloadQueues queues = new DownloadQueues();
-        if (file.exists()) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                queues = (DownloadQueues) objectInputStream.readObject();
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-        }
+        DownloadQueues queues = DownloadQueues.load(context);
         for (Video video : videos) {
             if (video.checked) {
                 queues.add(video.size, video.type, video.link, video.name, video.page, video
@@ -299,7 +303,7 @@ public abstract class VideoList {
             }
         }
 
-        queues.saveQueues(context);
+        queues.save(context);
 
         Toast.makeText(context, "Selected videos are queued for downloading. Go to Downloads " +
                 "panel to start downloading videos", Toast.LENGTH_LONG).show();

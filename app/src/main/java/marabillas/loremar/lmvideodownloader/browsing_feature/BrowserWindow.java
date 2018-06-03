@@ -167,6 +167,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         Bundle data = getArguments();
         url = data.getString("url");
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory();
+        setRetainInstance(true);
     }
 
     private void createTopBar() {
@@ -337,20 +338,22 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        view = inflater.inflate(R.layout.browser, container, false);
-        page = view.findViewById(R.id.page);
-        loadingPageProgress = view.findViewById(R.id.loadingPageProgress);
-        loadingPageProgress.setVisibility(View.GONE);
+        if (view == null) {
+            view = inflater.inflate(R.layout.browser, container, false);
+            page = view.findViewById(R.id.page);
+            loadingPageProgress = view.findViewById(R.id.loadingPageProgress);
+            loadingPageProgress.setVisibility(View.GONE);
 
-        createTopBar();
+            createTopBar();
 
-        createNavigationBar();
+            createNavigationBar();
 
-        createVideosFoundHUD();
+            createVideosFoundHUD();
 
-        createFoundVideosWindow();
+            createFoundVideosWindow();
 
-        updateFoundVideosBar();
+            updateFoundVideosBar();
+        }
 
         return view;
     }

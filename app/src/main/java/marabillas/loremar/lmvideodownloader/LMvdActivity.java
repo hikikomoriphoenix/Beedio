@@ -57,7 +57,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     private BrowserManager browserManager;
     private Uri appLinkData;
     private DrawerLayout layout;
-    private Intent downloadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +69,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         ImageButton go = findViewById(R.id.go);
         go.setOnClickListener(this);
 
-        if (getFragmentManager().findFragmentByTag("BM") == null) {
+        if ((browserManager = (BrowserManager) getFragmentManager().findFragmentByTag("BM")) == null) {
             getFragmentManager().beginTransaction().add(browserManager = new BrowserManager(),
                     "BM").commit();
         }
@@ -116,8 +115,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 prefs.edit().putBoolean(getString(R.string.adBlockON), isChecked).apply();
             }
         });
-
-        downloadService = new Intent(this, DownloadManager.class);
     }
 
     @Override
@@ -127,8 +124,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         return false;
     }
 
-    private OnBackPressedListener onBackPressedListener;
-
     @Override
     public void onBackPressed() {
         Fragment sourcePage = getFragmentManager().findFragmentByTag("updateSourcePage");
@@ -136,8 +131,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             getFragmentManager().beginTransaction().remove(sourcePage).commit();
         } else if (layout.isDrawerVisible(Gravity.START)) {
             layout.closeDrawer(Gravity.START);
-        } else if (onBackPressedListener != null) {
-            onBackPressedListener.onBackpressed();
+        } else if (LMvdApp.getInstance().getOnBackPressedListener() != null) {
+            LMvdApp.getInstance().getOnBackPressedListener().onBackpressed();
         } else super.onBackPressed();
     }
 
@@ -155,6 +150,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         if (fragment != null) {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
+        DownloadManager.setOnDownloadFinishedListener(null);
+        DownloadManager.setOnLinkNotFoundListener(null);
     }
 
     private void closeBookmarks() {
@@ -243,7 +240,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     }
 
     public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
-        this.onBackPressedListener = onBackPressedListener;
+        LMvdApp.getInstance().setOnBackPressedListener(onBackPressedListener);
     }
 
     public BrowserManager getBrowserManager() {
@@ -257,10 +254,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             browserManager.newWindow(appLinkData.toString());
         }
         browserManager.updateAdFilters();
-    }
-
-    public Intent getDownloadService() {
-        return downloadService;
     }
 
     @Override

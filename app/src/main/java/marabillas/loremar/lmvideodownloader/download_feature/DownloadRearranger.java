@@ -149,7 +149,7 @@ public class DownloadRearranger implements View.OnTouchListener {
                 downloadsInProgress.getAdapter().notifyItemChanged(position);
                 downloadsInProgress.enableDownloadListTouch();
                 downloadsInProgress.saveQueues();
-                if (position == 0 && Utils.isServiceRunning(DownloadManager.class, context)) {
+                if (position == 0 && Utils.isServiceRunning(DownloadManager.class, context.getApplicationContext())) {
                     downloadsInProgress.pauseDownload();
                     downloadsInProgress.startDownload();
                 }

@@ -56,6 +56,7 @@ import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgress.OnAddDownloadedVideoToCompletedListener {
+    private View view;
     private RecyclerView downloadsList;
     private List<String> videos;
     private CompletedVideos completedVideos;
@@ -78,85 +79,89 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.downloads_completed, container, false);
+        setRetainInstance(true);
 
-        downloadsList = view.findViewById(R.id.downloadsCompletedList);
-        TextView clearAllFinishedButton = view.findViewById(R.id.clearAllFinishedButton);
-        TextView goToFolderButton = view.findViewById(R.id.goToFolder);
+        if (view == null) {
+            view = inflater.inflate(R.layout.downloads_completed, container, false);
 
-        videos = new ArrayList<>();
-        File file = new File(getActivity().getFilesDir(), "completed.dat");
-        if (file.exists()) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                completedVideos = (CompletedVideos) objectInputStream.readObject();
-                videos = completedVideos.getVideos();
-                objectInputStream.close();
-                fileInputStream.close();
-                List<String> nonExistentFiles = new ArrayList<>();
-                for (String video : videos) {
-                    File videoFile = new File(Environment.getExternalStoragePublicDirectory
-                            (Environment.DIRECTORY_DOWNLOADS), video);
-                    if (!videoFile.exists()) {
-                        nonExistentFiles.add(video);
+            downloadsList = view.findViewById(R.id.downloadsCompletedList);
+            TextView clearAllFinishedButton = view.findViewById(R.id.clearAllFinishedButton);
+            TextView goToFolderButton = view.findViewById(R.id.goToFolder);
+
+            videos = new ArrayList<>();
+            File file = new File(getActivity().getFilesDir(), "completed.dat");
+            if (file.exists()) {
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                    completedVideos = (CompletedVideos) objectInputStream.readObject();
+                    videos = completedVideos.getVideos();
+                    objectInputStream.close();
+                    fileInputStream.close();
+                    List<String> nonExistentFiles = new ArrayList<>();
+                    for (String video : videos) {
+                        File videoFile = new File(Environment.getExternalStoragePublicDirectory
+                                (Environment.DIRECTORY_DOWNLOADS), video);
+                        if (!videoFile.exists()) {
+                            nonExistentFiles.add(video);
+                        }
                     }
+                    for (String nonExistentVideo : nonExistentFiles) {
+                        videos.remove(nonExistentVideo);
+                    }
+                } catch (ClassNotFoundException | IOException e) {
+                    e.printStackTrace();
                 }
-                for (String nonExistentVideo : nonExistentFiles) {
-                    videos.remove(nonExistentVideo);
-                }
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
             }
-        }
 
-        downloadsList.setAdapter(new DownloadedVideoAdapter());
-        downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        downloadsList.setHasFixedSize(true);
-        downloadsList.addItemDecoration(Utils.createDivider(getActivity()));
+            downloadsList.setAdapter(new DownloadedVideoAdapter());
+            downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            downloadsList.setHasFixedSize(true);
+            downloadsList.addItemDecoration(Utils.createDivider(getActivity()));
 
-        clearAllFinishedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(getActivity())
-                        .setMessage("Clear this list?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                int length = videos.size();
-                                videos.clear();
-                                if (completedVideos != null) {
-                                    completedVideos.save(getActivity());
+            clearAllFinishedButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage("Clear this list?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    int length = videos.size();
+                                    videos.clear();
+                                    if (completedVideos != null) {
+                                        completedVideos.save(getActivity());
+                                    }
+                                    downloadsList.getAdapter().notifyItemRangeRemoved(0, length);
+                                    onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
                                 }
-                                downloadsList.getAdapter().notifyItemRangeRemoved(0, length);
-                                onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                            }
-                        })
-                        .create()
-                        .show();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+            });
+
+            goToFolderButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+                    startActivity(intent);
+                }
+            });
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+                goToFolderButton.setVisibility(View.GONE);
+                clearAllFinishedButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
             }
-        });
 
-        goToFolderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
-                startActivity(intent);
-            }
-        });
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
-            goToFolderButton.setVisibility(View.GONE);
-            clearAllFinishedButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
         }
-
-        onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
 
         return view;
     }

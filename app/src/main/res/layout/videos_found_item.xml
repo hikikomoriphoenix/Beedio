@@ -32,8 +32,7 @@
         app:layout_constraintTop_toTopOf="@id/videoFoundCheck"
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
         android:gravity="center_vertical"
-        android:layout_marginStart="2dp"
-        android:layout_marginLeft="2dp" />
+        android:layout_marginStart="2dp" />
 
     <TextView
         android:id="@+id/videoFoundName"
@@ -45,7 +44,6 @@
         app:layout_constraintTop_toTopOf="@id/videoFoundCheck"
         app:layout_constraintBottom_toBottomOf="@id/videoFoundCheck"
         android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
         android:gravity="center_vertical" />
 
     <TextView
@@ -82,16 +80,15 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:textSize="12sp"
-            app:layout_constraintEnd_toStartOf="@id/videoFoundCopy"
-            app:layout_constraintTop_toTopOf="@id/videoFoundCopy"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp" />
+            app:layout_constraintEnd_toStartOf="@id/videoFoundDownload"
+            app:layout_constraintTop_toTopOf="@id/videoFoundDownload"
+            android:layout_marginEnd="10dp" />
 
         <TextView
-            android:id="@+id/videoFoundCopy"
+            android:id="@+id/videoFoundDownload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/copy"
+            android:text="@string/download"
             android:background="@drawable/white_button"
             android:textColor="@android:color/black"
             android:paddingLeft="10dp"
@@ -112,10 +109,9 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/videoFoundCopy"
-            app:layout_constraintTop_toTopOf="@id/videoFoundCopy"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp" />
+            app:layout_constraintStart_toEndOf="@id/videoFoundDownload"
+            app:layout_constraintTop_toTopOf="@id/videoFoundDownload"
+            android:layout_marginStart="10dp" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

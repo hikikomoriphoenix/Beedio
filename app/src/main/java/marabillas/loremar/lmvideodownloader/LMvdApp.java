@@ -20,14 +20,36 @@
 
 package marabillas.loremar.lmvideodownloader;
 
-import android.app.Fragment;
+import android.app.Application;
+import android.content.Intent;
 
-public class LMvdFragment extends Fragment {
-    public LMvdActivity getLMvdActivity() {
-        return (LMvdActivity) getActivity();
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
+
+public class LMvdApp extends Application {
+    private static LMvdApp instance;
+    private Intent downloadService;
+    private LMvdActivity.OnBackPressedListener onBackPressedListener;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        instance = this;
+        downloadService = new Intent(getApplicationContext(), DownloadManager.class);
     }
 
-    public LMvdApp getLMvdApp() {
-        return (LMvdApp) getActivity().getApplication();
+    public Intent getDownloadService() {
+        return downloadService;
+    }
+
+    public static LMvdApp getInstance() {
+        return instance;
+    }
+
+    public LMvdActivity.OnBackPressedListener getOnBackPressedListener() {
+        return onBackPressedListener;
+    }
+
+    public void setOnBackPressedListener(LMvdActivity.OnBackPressedListener onBackPressedListener) {
+        this.onBackPressedListener = onBackPressedListener;
     }
 }

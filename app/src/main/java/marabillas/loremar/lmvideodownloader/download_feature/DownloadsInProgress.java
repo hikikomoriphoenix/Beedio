@@ -48,9 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +60,7 @@ import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener, DownloadManager.OnLinkNotFoundListener, OnDownloadWithNewLinkListener {
+    private View view;
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
     private DownloadQueues queues;
@@ -96,131 +94,117 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.downloads_in_progress, container, false);
+        setRetainInstance(true);
 
-        downloadsList = view.findViewById(R.id.downloadsList);
-        downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        downloadsList.setAdapter(new DownloadListAdapter());
-        downloadsList.setHasFixedSize(true);
-        downloads = new ArrayList<>();
-        File file = new File(getActivity().getFilesDir(), "downloads.dat");
-        if (file.exists()) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                queues = (DownloadQueues) objectInputStream.readObject();
-                downloads = queues.getList();
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+        if (view == null) {
+            view = inflater.inflate(R.layout.downloads_in_progress, container, false);
 
-        downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
-        if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
-            downloadsStartPauseButton.setText(R.string.pause);
-            getAdapter().unpause();
-        } else {
-            downloadsStartPauseButton.setText(R.string.start);
-            getAdapter().pause();
-        }
-        downloadsStartPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
-                    pauseDownload();
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        final PermissionsManager downloadPermMngr = new PermissionsManager(getActivity()) {
-                            @Override
-                            public void showRequestPermissionRationale() {
-                                showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        requestPermissions();
-                                    }
-                                });
-                            }
+            downloadsList = view.findViewById(R.id.downloadsList);
+            downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            downloadsList.setAdapter(new DownloadListAdapter());
+            downloadsList.setHasFixedSize(true);
+            downloads = new ArrayList<>();
+            queues = DownloadQueues.load(getActivity());
+            downloads = queues.getList();
 
-                            @Override
-                            public void requestDisallowedAction() {
-                                SharedPreferences prefs = getActivity().getSharedPreferences
-                                        ("settings", 0);
-                                boolean requestDisallowed = prefs.getBoolean("requestDisallowed",
-                                        false);
-                                if (requestDisallowed) {
+            downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
+
+            downloadsStartPauseButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Utils.isServiceRunning(DownloadManager.class, getActivity().getApplicationContext())) {
+                        pauseDownload();
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            final PermissionsManager downloadPermMngr = new PermissionsManager(getActivity()) {
+                                @Override
+                                public void showRequestPermissionRationale() {
                                     showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            new AlertDialog.Builder(getActivity())
-                                                    .setMessage("Go to Settings?")
-                                                    .setPositiveButton("Yes", new
-                                                            DialogInterface.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(DialogInterface dialog, int which) {
-                                                                    startActivityForResult(new Intent(android
-                                                                            .provider.Settings
-                                                                            .ACTION_APPLICATION_DETAILS_SETTINGS,
-                                                                            Uri.fromParts("package", getActivity()
-                                                                                            .getPackageName(),
-                                                                                    null)), 1337);
-                                                                }
-                                                            })
-                                                    .setNegativeButton(
-                                                            "No", new
-                                                                    DialogInterface.OnClickListener() {
-                                                                        @Override
-                                                                        public void onClick(DialogInterface dialog, int which) {
-                                                                            Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
-                                                                                    " Try again", Toast.LENGTH_LONG).show();
-                                                                        }
-                                                                    })
-                                                    .create()
-                                                    .show();
-
+                                            requestPermissions();
                                         }
                                     });
-                                } else {
-                                    prefs.edit().putBoolean("requestDisallowed", true).apply();
-                                    onPermissionsDenied();
                                 }
-                            }
 
-                            @Override
-                            public void onPermissionsGranted() {
-                                startDownload();
-                            }
+                                @Override
+                                public void requestDisallowedAction() {
+                                    SharedPreferences prefs = getActivity().getSharedPreferences
+                                            ("settings", 0);
+                                    boolean requestDisallowed = prefs.getBoolean("requestDisallowed",
+                                            false);
+                                    if (requestDisallowed) {
+                                        showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                new AlertDialog.Builder(getActivity())
+                                                        .setMessage("Go to Settings?")
+                                                        .setPositiveButton("Yes", new
+                                                                DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        startActivityForResult(new Intent(android
+                                                                                .provider.Settings
+                                                                                .ACTION_APPLICATION_DETAILS_SETTINGS,
+                                                                                Uri.fromParts("package", getActivity()
+                                                                                                .getPackageName(),
+                                                                                        null)), 1337);
+                                                                    }
+                                                                })
+                                                        .setNegativeButton(
+                                                                "No", new
+                                                                        DialogInterface.OnClickListener() {
+                                                                            @Override
+                                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                                Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
+                                                                                        " Try again", Toast.LENGTH_LONG).show();
+                                                                            }
+                                                                        })
+                                                        .create()
+                                                        .show();
 
-                            @Override
-                            public void onPermissionsDenied() {
-                                Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
-                                        " Try again", Toast.LENGTH_LONG).show();
-                            }
+                                            }
+                                        });
+                                    } else {
+                                        prefs.edit().putBoolean("requestDisallowed", true).apply();
+                                        onPermissionsDenied();
+                                    }
+                                }
 
-                            private void showPermissionSummaryDialog(DialogInterface.OnClickListener
-                                                                             okListener) {
-                                new AlertDialog.Builder(getActivity())
-                                        .setPositiveButton("OK", okListener)
-                                        .setMessage("This feature requires WRITE_EXTERNAL_STORAGE " +
-                                                "permission to save downloaded videos into the Download " +
-                                                "folder. Make sure to grant this permission. Otherwise, " +
-                                                "downloading videos is not possible.")
-                                        .create()
-                                        .show();
-                            }
-                        };
-                        downloadPermMngr.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                PermissionRequestCodes.DOWNLOADS);
-                    } else startDownload();
+                                @Override
+                                public void onPermissionsGranted() {
+                                    startDownload();
+                                }
+
+                                @Override
+                                public void onPermissionsDenied() {
+                                    Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
+                                            " Try again", Toast.LENGTH_LONG).show();
+                                }
+
+                                private void showPermissionSummaryDialog(DialogInterface.OnClickListener
+                                                                                 okListener) {
+                                    new AlertDialog.Builder(getActivity())
+                                            .setPositiveButton("OK", okListener)
+                                            .setMessage("This feature requires WRITE_EXTERNAL_STORAGE " +
+                                                    "permission to save downloaded videos into the Download " +
+                                                    "folder. Make sure to grant this permission. Otherwise, " +
+                                                    "downloading videos is not possible.")
+                                            .create()
+                                            .show();
+                                }
+                            };
+                            downloadPermMngr.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    PermissionRequestCodes.DOWNLOADS);
+                        } else startDownload();
+                    }
                 }
-            }
-        });
+            });
 
-        DownloadManager.setOnDownloadFinishedListener(this);
-        DownloadManager.setOnLinkNotFoundListener(this);
-
-        onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
+            DownloadManager.setOnDownloadFinishedListener(this);
+            DownloadManager.setOnLinkNotFoundListener(this);
+            onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
+        }
 
         return view;
     }
@@ -228,6 +212,16 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        if (Utils.isServiceRunning(DownloadManager.class, getActivity().getApplicationContext())) {
+            downloadsStartPauseButton.setText(R.string.pause);
+            getAdapter().unpause();
+            tracking.startTracking();
+        } else {
+            downloadsStartPauseButton.setText(R.string.start);
+            getAdapter().pause();
+            tracking.stopTracking();
+        }
+
         downloadRearranger = new DownloadRearranger(getActivity(), this);
         downloadsListItemTouchDisabler = new RecyclerView.OnItemTouchListener() {
             @Override
@@ -283,16 +277,17 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     }
 
     public void startDownload() {
-        Intent downloadService = getLMvdActivity().getDownloadService();
+        Intent downloadService = getLMvdApp().getDownloadService();
         if (downloads.size() > 0) {
             DownloadVideo topVideo = downloads.get(0);
             downloadService.putExtra("link", topVideo.link);
             downloadService.putExtra("name", topVideo.name);
             downloadService.putExtra("type", topVideo.type);
             downloadService.putExtra("size", topVideo.size);
+            downloadService.putExtra("page", topVideo.page);
             downloadService.putExtra("chunked", topVideo.chunked);
             downloadService.putExtra("website", topVideo.website);
-            getActivity().startService(downloadService);
+            getLMvdApp().startService(downloadService);
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -305,8 +300,8 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     }
 
     public void pauseDownload() {
-        Intent downloadService = getLMvdActivity().getDownloadService();
-        getActivity().stopService(downloadService);
+        Intent downloadService = getLMvdApp().getDownloadService();
+        getLMvdApp().stopService(downloadService);
         DownloadManager.stopThread();
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -387,7 +382,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     @Override
     public void onDownloadWithNewLink(final DownloadVideo download) {
         Log.i("loremarTest", "download with new link");
-        if (Utils.isServiceRunning(DownloadManager.class, getActivity())) {
+        if (Utils.isServiceRunning(DownloadManager.class, getActivity().getApplicationContext())) {
             pauseDownload();
         }
         getActivity().runOnUiThread(new Runnable() {
@@ -423,7 +418,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     }
 
     public void saveQueues() {
-        queues.saveQueues(getActivity());
+        queues.save(getActivity());
     }
 
     class DownloadListAdapter extends RecyclerView.Adapter<DownloadItem> {
