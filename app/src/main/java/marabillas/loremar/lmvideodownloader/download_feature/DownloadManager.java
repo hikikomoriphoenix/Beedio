@@ -141,11 +141,8 @@ public class DownloadManager extends IntentService {
 
     private void downloadFinished(String filename) {
         if (onDownloadFinishedListener != null) {
-            Log.i("loremarTest", "downloadFinished is handled by onDownloadFinishedListener " +
-                    "call");
             onDownloadFinishedListener.onDownloadFinished();
         } else {
-            Log.i("loremarTest", "donwloadFinished is handled by DownloadManager");
             DownloadQueues queues = DownloadQueues.load(getApplicationContext());
             queues.deleteTopVideo(getApplicationContext());
             CompletedVideos completedVideos = CompletedVideos.load

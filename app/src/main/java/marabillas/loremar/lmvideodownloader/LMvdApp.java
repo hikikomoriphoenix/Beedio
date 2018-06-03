@@ -28,6 +28,7 @@ import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 public class LMvdApp extends Application {
     private static LMvdApp instance;
     private Intent downloadService;
+    private LMvdActivity.OnBackPressedListener onBackPressedListener;
 
     @Override
     public void onCreate() {
@@ -42,5 +43,13 @@ public class LMvdApp extends Application {
 
     public static LMvdApp getInstance() {
         return instance;
+    }
+
+    public LMvdActivity.OnBackPressedListener getOnBackPressedListener() {
+        return onBackPressedListener;
+    }
+
+    public void setOnBackPressedListener(LMvdActivity.OnBackPressedListener onBackPressedListener) {
+        this.onBackPressedListener = onBackPressedListener;
     }
 }

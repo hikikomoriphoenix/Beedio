@@ -124,8 +124,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         return false;
     }
 
-    private OnBackPressedListener onBackPressedListener;
-
     @Override
     public void onBackPressed() {
         Fragment sourcePage = getFragmentManager().findFragmentByTag("updateSourcePage");
@@ -133,8 +131,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
             getFragmentManager().beginTransaction().remove(sourcePage).commit();
         } else if (layout.isDrawerVisible(Gravity.START)) {
             layout.closeDrawer(Gravity.START);
-        } else if (onBackPressedListener != null) {
-            onBackPressedListener.onBackpressed();
+        } else if (LMvdApp.getInstance().getOnBackPressedListener() != null) {
+            LMvdApp.getInstance().getOnBackPressedListener().onBackpressed();
         } else super.onBackPressed();
     }
 
@@ -242,7 +240,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     }
 
     public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
-        this.onBackPressedListener = onBackPressedListener;
+        LMvdApp.getInstance().setOnBackPressedListener(onBackPressedListener);
     }
 
     public BrowserManager getBrowserManager() {
