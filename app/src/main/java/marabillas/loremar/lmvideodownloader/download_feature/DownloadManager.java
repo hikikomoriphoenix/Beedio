@@ -59,7 +59,7 @@ public class DownloadManager extends IntentService {
     private static boolean chunked;
     private static ByteArrayOutputStream bytesOfChunk;
 
-    private DownloadNotifier downloadNotifier;
+    private static DownloadNotifier downloadNotifier;
 
     public DownloadManager() {
         super("DownloadManager");
@@ -67,7 +67,7 @@ public class DownloadManager extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        downloadNotifier = new DownloadNotifier(getApplicationContext(), intent);
+        downloadNotifier = new DownloadNotifier(intent);
         if (intent != null) {
             chunked = intent.getBooleanExtra("chunked", false);
 
@@ -147,6 +147,7 @@ public class DownloadManager extends IntentService {
     }
 
     private void downloadFinished(String filename) {
+        downloadNotifier.notifyDownloadFinished();
         if (onDownloadFinishedListener != null) {
             onDownloadFinishedListener.onDownloadFinished();
         } else {
@@ -172,6 +173,7 @@ public class DownloadManager extends IntentService {
     }
 
     private void linkNotFound(Intent intent) {
+        downloadNotifier.cancel();
         if (onLinkNotFoundListener != null) {
             onLinkNotFoundListener.onLinkNotFound();
         } else {
@@ -214,6 +216,7 @@ public class DownloadManager extends IntentService {
             directotryExists = directory.exists() || directory.mkdir() || directory
                     .createNewFile();
             if (directotryExists) {
+                downloadNotifier.notifyDownloading();
                 File progressFile = new File(getCacheDir(), name + ".dat");
                 File videoFile = new File(Environment.getExternalStoragePublicDirectory
                         (Environment.DIRECTORY_DOWNLOADS), name + "." + type);
@@ -422,6 +425,9 @@ public class DownloadManager extends IntentService {
     }
 
     public static void stopThread() {
+        if (downloadNotifier != null) {
+            downloadNotifier.cancel();
+        }
         Thread.currentThread().interrupt();
     }
 
