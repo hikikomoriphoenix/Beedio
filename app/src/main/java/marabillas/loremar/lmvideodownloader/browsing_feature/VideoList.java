@@ -47,8 +47,8 @@ import java.util.List;
 import marabillas.loremar.lmvideodownloader.LMvdApp;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
-import marabillas.loremar.lmvideodownloader.download_feature.DownloadQueues;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
+import marabillas.loremar.lmvideodownloader.download_feature.lists.DownloadQueues;
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 

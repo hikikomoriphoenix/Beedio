@@ -46,6 +46,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 import marabillas.loremar.lmvideodownloader.LMvdApp;
+import marabillas.loremar.lmvideodownloader.download_feature.lists.CompletedVideos;
+import marabillas.loremar.lmvideodownloader.download_feature.lists.DownloadQueues;
+import marabillas.loremar.lmvideodownloader.download_feature.lists.InactiveDownloads;
 
 public class DownloadManager extends IntentService {
     private static File downloadFile = null;
@@ -56,12 +59,15 @@ public class DownloadManager extends IntentService {
     private static boolean chunked;
     private static ByteArrayOutputStream bytesOfChunk;
 
+    private static DownloadNotifier downloadNotifier;
+
     public DownloadManager() {
         super("DownloadManager");
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        downloadNotifier = new DownloadNotifier(intent);
         if (intent != null) {
             chunked = intent.getBooleanExtra("chunked", false);
 
@@ -85,6 +91,7 @@ public class DownloadManager extends IntentService {
                     directotryExists = directory.exists() || directory.mkdir() || directory
                             .createNewFile();
                     if (directotryExists) {
+                        downloadNotifier.notifyDownloading();
                         downloadFile = new File(Environment.getExternalStoragePublicDirectory(Environment
                                 .DIRECTORY_DOWNLOADS), filename);
                         if (connection != null) {
@@ -140,6 +147,7 @@ public class DownloadManager extends IntentService {
     }
 
     private void downloadFinished(String filename) {
+        downloadNotifier.notifyDownloadFinished();
         if (onDownloadFinishedListener != null) {
             onDownloadFinishedListener.onDownloadFinished();
         } else {
@@ -165,6 +173,7 @@ public class DownloadManager extends IntentService {
     }
 
     private void linkNotFound(Intent intent) {
+        downloadNotifier.cancel();
         if (onLinkNotFoundListener != null) {
             onLinkNotFoundListener.onLinkNotFound();
         } else {
@@ -207,6 +216,7 @@ public class DownloadManager extends IntentService {
             directotryExists = directory.exists() || directory.mkdir() || directory
                     .createNewFile();
             if (directotryExists) {
+                downloadNotifier.notifyDownloading();
                 File progressFile = new File(getCacheDir(), name + ".dat");
                 File videoFile = new File(Environment.getExternalStoragePublicDirectory
                         (Environment.DIRECTORY_DOWNLOADS), name + "." + type);
@@ -386,7 +396,7 @@ public class DownloadManager extends IntentService {
         }
     }
 
-    interface OnDownloadFinishedListener {
+    public interface OnDownloadFinishedListener {
         void onDownloadFinished();
     }
 
@@ -397,7 +407,7 @@ public class DownloadManager extends IntentService {
     }
 
 
-    interface OnLinkNotFoundListener {
+    public interface OnLinkNotFoundListener {
         void onLinkNotFound();
     }
 
@@ -415,6 +425,9 @@ public class DownloadManager extends IntentService {
     }
 
     public static void stopThread() {
+        if (downloadNotifier != null) {
+            downloadNotifier.cancel();
+        }
         Thread.currentThread().interrupt();
     }
 
@@ -423,7 +436,7 @@ public class DownloadManager extends IntentService {
      *
      * @return download speed in bytes per second
      */
-    static long getDownloadSpeed() {
+    public static long getDownloadSpeed() {
         if (!chunked) {
             if (downloadFile != null) {
                 long downloaded = downloadFile.length();
@@ -446,7 +459,7 @@ public class DownloadManager extends IntentService {
     /**
      * @return remaining time to download video in milliseconds
      */
-    static long getRemaining() {
+    public static long getRemaining() {
         if (!chunked && (downloadFile != null)) {
             long remainingLength = totalSize - prevDownloaded;
             return (1000 * (remainingLength / downloadSpeed));

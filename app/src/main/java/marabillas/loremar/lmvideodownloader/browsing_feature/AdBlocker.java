@@ -99,6 +99,7 @@ class AdBlocker implements Serializable {
     }
 
     public boolean checkThroughFilters(String url) {
+        Log.i("loremarTest", "checking for ads:" + url);
         for (String filter : filters) {
             if (url.contains(filter)) {
                 return true;

@@ -18,7 +18,27 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader.download_feature;
+/*
+ *     LM videodownloader is a browser app for android, made to easily
+ *     download videos.
+ *     Copyright (C) 2018 Loremar Marabillas
+ *
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License along
+ *     with this program; if not, write to the Free Software Foundation, Inc.,
+ *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package marabillas.loremar.lmvideodownloader.download_feature.fragments;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -51,6 +71,8 @@ import android.widget.TextView;
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
+import marabillas.loremar.lmvideodownloader.download_feature.Tracking;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPressedListener, Tracking, DownloadsInProgress.OnNumDownloadsInProgressChangeListener, DownloadsCompleted.OnNumDownloadsCompletedChangeListener, DownloadsInactive.OnNumDownloadsInactiveChangeListener {
@@ -256,9 +278,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableStringBuilder tabText = createStyledTabText(12, 13,
-                        downloadsInProgress.getNumDownloadsInProgress(), "In Progress " +
-                                downloadsInProgress.getNumDownloadsInProgress());
+                SpannableStringBuilder tabText = createStyledTabText(12, downloadsInProgress
+                        .getNumDownloadsInProgress(), "In Progress " + downloadsInProgress
+                        .getNumDownloadsInProgress());
                 if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(0);
                     if (tab != null) {
@@ -276,9 +298,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableStringBuilder tabText = createStyledTabText(10, 11,
-                        downloadsCompleted.getNumDownloadsCompleted(), "Completed " +
-                                downloadsCompleted.getNumDownloadsCompleted());
+                SpannableStringBuilder tabText = createStyledTabText(10, downloadsCompleted
+                        .getNumDownloadsCompleted(), "Completed " + downloadsCompleted
+                        .getNumDownloadsCompleted());
                 if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(1);
                     if (tab != null) {
@@ -296,9 +318,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableStringBuilder tabText = createStyledTabText(9, 10,
-                        downloadsInactive.getNumDownloadsInactive(), "Inactive " +
-                                downloadsInactive.getNumDownloadsInactive());
+                SpannableStringBuilder tabText = createStyledTabText(9, downloadsInactive
+                        .getNumDownloadsInactive(), "Inactive " + downloadsInactive
+                        .getNumDownloadsInactive());
                 if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(2);
                     if (tab != null) {
@@ -311,7 +333,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         });
     }
 
-    private SpannableStringBuilder createStyledTabText(int start, int end, int num, String text) {
+    private SpannableStringBuilder createStyledTabText(int start, int num, String text) {
         SpannableStringBuilder sb = new SpannableStringBuilder(text);
         ForegroundColorSpan fcs;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -319,7 +341,8 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         } else {
             fcs = new ForegroundColorSpan(getResources().getColor(R.color.green, null));
         }
-        sb.setSpan(fcs, start, end + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, start, start + String.valueOf(num).length(), Spanned
+                .SPAN_INCLUSIVE_INCLUSIVE);
         return sb;
     }
 
