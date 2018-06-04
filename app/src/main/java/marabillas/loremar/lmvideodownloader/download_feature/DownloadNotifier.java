@@ -144,7 +144,9 @@ public class DownloadNotifier {
     }
 
     void cancel() {
-        handler.removeCallbacks(downloadingRunnable);
+        if (downloadingRunnable != null) {
+            handler.removeCallbacks(downloadingRunnable);
+        }
         notificationManager.cancel(ID);
     }
 }
