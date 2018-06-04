@@ -21,6 +21,6 @@
 package marabillas.loremar.lmvideodownloader.download_feature;
 
 //interface created outside DownloadsInactive in a different file to avoid cyclic inheritance
-interface OnDownloadWithNewLinkListener {
+public interface OnDownloadWithNewLinkListener {
     void onDownloadWithNewLink(DownloadVideo download);
 }

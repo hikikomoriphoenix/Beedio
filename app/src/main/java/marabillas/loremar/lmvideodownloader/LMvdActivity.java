@@ -48,7 +48,7 @@ import android.widget.TextView;
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
-import marabillas.loremar.lmvideodownloader.download_feature.Downloads;
+import marabillas.loremar.lmvideodownloader.download_feature.fragments.Downloads;
 import marabillas.loremar.lmvideodownloader.history_feature.History;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 

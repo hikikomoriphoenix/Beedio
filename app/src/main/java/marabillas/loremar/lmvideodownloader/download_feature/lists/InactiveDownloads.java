@@ -18,7 +18,27 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader.download_feature;
+/*
+ *     LM videodownloader is a browser app for android, made to easily
+ *     download videos.
+ *     Copyright (C) 2018 Loremar Marabillas
+ *
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License along
+ *     with this program; if not, write to the Free Software Foundation, Inc.,
+ *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package marabillas.loremar.lmvideodownloader.download_feature.lists;
 
 import android.content.Context;
 
@@ -32,19 +52,21 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class InactiveDownloads implements Serializable {
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
+
+public class InactiveDownloads implements Serializable {
     private List<DownloadVideo> inactiveDownloads;
 
-    InactiveDownloads() {
+    public InactiveDownloads() {
         inactiveDownloads = new ArrayList<>();
     }
 
-    void add(Context context, DownloadVideo inactiveDownload) {
+    public void add(Context context, DownloadVideo inactiveDownload) {
         inactiveDownloads.add(inactiveDownload);
         save(context);
     }
 
-    static InactiveDownloads load(Context context) {
+    public static InactiveDownloads load(Context context) {
         File file = new File(context.getFilesDir(), "inactive.dat");
         InactiveDownloads inactiveDownloads = new InactiveDownloads();
         if (file.exists()) {
@@ -61,7 +83,7 @@ class InactiveDownloads implements Serializable {
         return inactiveDownloads;
     }
 
-    void save(Context context) {
+    public void save(Context context) {
         try {
             File file = new File(context.getFilesDir(), "inactive.dat");
             FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -74,7 +96,7 @@ class InactiveDownloads implements Serializable {
         }
     }
 
-    List<DownloadVideo> getInactiveDownloads() {
+    public List<DownloadVideo> getInactiveDownloads() {
         return inactiveDownloads;
     }
 }

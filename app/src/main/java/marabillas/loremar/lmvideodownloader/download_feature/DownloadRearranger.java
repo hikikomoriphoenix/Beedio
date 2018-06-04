@@ -31,6 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.download_feature.fragments.DownloadsInProgress;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadRearranger implements View.OnTouchListener {
@@ -51,7 +52,7 @@ public class DownloadRearranger implements View.OnTouchListener {
     private float y0;
     private float moveY = 0;
 
-    DownloadRearranger(Context context, DownloadsInProgress downloadsInProgress) {
+    public DownloadRearranger(Context context, DownloadsInProgress downloadsInProgress) {
         this.context = context;
         this.downloadsInProgress = downloadsInProgress;
         LayoutInflater inflater = LayoutInflater.from(context);
