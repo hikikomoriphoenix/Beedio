@@ -663,8 +663,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         final SpannableStringBuilder sb = new SpannableStringBuilder(videosFoundString);
         final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255));
         final StyleSpan bss = new StyleSpan(Typeface.BOLD);
-        sb.setSpan(fcs, 8, 10 + videoList.getSize() / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        sb.setSpan(bss, 8, 10 + videoList.getSize() / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, 8, 8 + String.valueOf(videoList.getSize()).length(), Spanned
+                .SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 8 + String.valueOf(videoList.getSize()).length(), Spanned
+                .SPAN_INCLUSIVE_INCLUSIVE);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

@@ -26,6 +26,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -50,16 +51,15 @@ public class DownloadNotifier {
                     downloadServiceIntent.getStringExtra("type");
             Notification.Builder NB;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext(), "download_01");
+                NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext(), "download_01")
+                        .setStyle(new Notification.BigTextStyle());
             } else {
                 NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext());
             }
             NB.setContentTitle("Downloading " + filename)
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance()
-                            .getApplicationContext().getResources(), R
-                            .drawable
-                            .ic_launcher_foreground))
+                            .getApplicationContext().getResources(), R.mipmap.ic_launcher))
                     .setOngoing(true);
             if (downloadServiceIntent.getBooleanExtra("chunked", false)) {
                 File file = new File(Environment.getExternalStoragePublicDirectory(Environment
@@ -72,8 +72,7 @@ public class DownloadNotifier {
                     downloaded = "0KB";
                 }
                 NB.setProgress(100, 0, true)
-                        .setContentText(downloaded)
-                        .setStyle(new Notification.BigTextStyle());
+                        .setContentText(downloaded);
                 notificationManager.notify(ID, NB.build());
                 handler.postDelayed(this, 1000);
             } else {
@@ -89,8 +88,7 @@ public class DownloadNotifier {
                         .getApplicationContext(), Long.parseLong
                         (sizeString));
                 NB.setProgress(100, progress, false)
-                        .setContentText(downloaded + "/" + total + "   " + progress + "%")
-                        .setStyle(new Notification.BigTextStyle());
+                        .setContentText(downloaded + "/" + total + "   " + progress + "%");
                 notificationManager.notify(ID, NB.build());
                 handler.postDelayed(this, 1000);
             }
@@ -126,21 +124,24 @@ public class DownloadNotifier {
         Notification.Builder NB;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext(), "download_02")
-                    .setTimeoutAfter(1500);
+                    .setTimeoutAfter(1500)
+                    .setContentTitle("Download Finished")
+                    .setContentText(filename)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance().getApplicationContext().getResources(),
+                            R.mipmap.ic_launcher));
+            notificationManager.notify(8888, NB.build());
         } else {
-            NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext());
+            NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext())
+                    .setTicker("Download Finished")
+                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance().getApplicationContext().getResources(),
+                            R.mipmap.ic_launcher));
+            notificationManager.notify(8888, NB.build());
+            notificationManager.cancel(8888);
         }
-        NB.setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance().getApplicationContext().getResources(),
-                        R.drawable
-                                .ic_launcher_foreground))
-                .setTicker("Download Finished")
-                .setContentTitle("Download Finished")
-                .setContentText(filename)
-                .setPriority(Notification.PRIORITY_HIGH)
-                .setOnlyAlertOnce(true)
-                .setAutoCancel(true);
-        notificationManager.notify(8888, NB.build());
     }
 
     void cancel() {

@@ -278,9 +278,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableStringBuilder tabText = createStyledTabText(12, 13,
-                        downloadsInProgress.getNumDownloadsInProgress(), "In Progress " +
-                                downloadsInProgress.getNumDownloadsInProgress());
+                SpannableStringBuilder tabText = createStyledTabText(12, downloadsInProgress
+                        .getNumDownloadsInProgress(), "In Progress " + downloadsInProgress
+                        .getNumDownloadsInProgress());
                 if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(0);
                     if (tab != null) {
@@ -298,9 +298,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableStringBuilder tabText = createStyledTabText(10, 11,
-                        downloadsCompleted.getNumDownloadsCompleted(), "Completed " +
-                                downloadsCompleted.getNumDownloadsCompleted());
+                SpannableStringBuilder tabText = createStyledTabText(10, downloadsCompleted
+                        .getNumDownloadsCompleted(), "Completed " + downloadsCompleted
+                        .getNumDownloadsCompleted());
                 if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(1);
                     if (tab != null) {
@@ -318,9 +318,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableStringBuilder tabText = createStyledTabText(9, 10,
-                        downloadsInactive.getNumDownloadsInactive(), "Inactive " +
-                                downloadsInactive.getNumDownloadsInactive());
+                SpannableStringBuilder tabText = createStyledTabText(9, downloadsInactive
+                        .getNumDownloadsInactive(), "Inactive " + downloadsInactive
+                        .getNumDownloadsInactive());
                 if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(2);
                     if (tab != null) {
@@ -333,7 +333,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         });
     }
 
-    private SpannableStringBuilder createStyledTabText(int start, int end, int num, String text) {
+    private SpannableStringBuilder createStyledTabText(int start, int num, String text) {
         SpannableStringBuilder sb = new SpannableStringBuilder(text);
         ForegroundColorSpan fcs;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -341,7 +341,8 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         } else {
             fcs = new ForegroundColorSpan(getResources().getColor(R.color.green, null));
         }
-        sb.setSpan(fcs, start, end + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, start, start + String.valueOf(num).length(), Spanned
+                .SPAN_INCLUSIVE_INCLUSIVE);
         return sb;
     }
 
