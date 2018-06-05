@@ -313,6 +313,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             downloadService.putExtra("page", topVideo.page);
             downloadService.putExtra("chunked", topVideo.chunked);
             downloadService.putExtra("website", topVideo.website);
+            downloadService.putExtra("audio", topVideo.audio);
             getLMvdApp().startService(downloadService);
             getActivity().runOnUiThread(new Runnable() {
                 @Override

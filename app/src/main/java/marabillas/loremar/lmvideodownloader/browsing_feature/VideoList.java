@@ -62,7 +62,7 @@ public abstract class VideoList {
     private List<Video> videos;
 
     class Video {
-        String size, type, link, name, page, website;
+        String size, type, link, name, page, website, audio;
         boolean chunked = false, checked = false, expanded = false;
     }
 
@@ -111,6 +111,18 @@ public abstract class VideoList {
 
     int getSize() {
         return videos.size();
+    }
+
+    String getPage(int index) {
+        return videos.get(index).page;
+    }
+
+    boolean noAudio(int index) {
+        return videos.get(index).audio == null;
+    }
+
+    void addAudio(int index, String audio) {
+        videos.get(index).audio = audio;
     }
 
     void deleteCheckedItems() {
@@ -214,7 +226,7 @@ public abstract class VideoList {
                     Video video = videos.get(getAdapterPosition());
                     DownloadQueues queues = DownloadQueues.load(context);
                     queues.insertToTop(video.size, video.type, video.link, video.name, video
-                            .page, video.chunked, video.website);
+                            .page, video.chunked, video.website, video.audio);
                     queues.save(context);
                     /*Intent downloadService = ((LMvdApp)context.getApplicationContext())
                             .getDownloadService();*/
@@ -229,6 +241,7 @@ public abstract class VideoList {
                     downloadService.putExtra("page", topVideo.page);
                     downloadService.putExtra("chunked", topVideo.chunked);
                     downloadService.putExtra("website", topVideo.website);
+                    downloadService.putExtra("audio", topVideo.audio);
                     LMvdApp.getInstance().startService(downloadService);
                     videos.remove(getAdapterPosition());
                     expandedItem = -1;
@@ -299,7 +312,7 @@ public abstract class VideoList {
         for (Video video : videos) {
             if (video.checked) {
                 queues.add(video.size, video.type, video.link, video.name, video.page, video
-                        .chunked, video.website);
+                        .chunked, video.website, video.audio);
             }
         }
 

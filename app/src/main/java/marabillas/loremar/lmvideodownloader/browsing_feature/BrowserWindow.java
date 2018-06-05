@@ -65,6 +65,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -444,6 +445,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                     } else if (contentType.equals("application/x-mpegurl") ||
                                             contentType.equals("application/vnd.apple.mpegurl")) {
                                         addVideosToListFromM3U8(uCon, page, title, contentType);
+                                    } else if (contentType.contains("audio")) {
+                                        addAudio(uCon, page);
                                     } else Log.i(TAG, "Not a video. Content type = " +
                                             contentType);
                                 } else {
@@ -647,6 +650,27 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                         "supported");
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addAudio(URLConnection uCon, String page) {
+        String host;
+        try {
+            host = new URL(page).getHost();
+            if (host.contains("youtube.com")) {
+                for (int i = 0; i < videoList.getSize(); i++) {
+                    if (page.equals(videoList.getPage(i)) && videoList.noAudio(i)) {
+                        String link = uCon.getURL().toString();
+                        int r = link.lastIndexOf("&range");
+                        if (r > 0) {
+                            link = link.substring(0, r);
+                        }
+                        videoList.addAudio(i, link);
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }

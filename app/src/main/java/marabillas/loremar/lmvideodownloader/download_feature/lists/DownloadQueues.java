@@ -93,7 +93,7 @@ public class DownloadQueues implements Serializable {
     }
 
     public void insertToTop(String size, String type, String link, String name, String page, boolean
-            chunked, String website) {
+            chunked, String website, String audio) {
         name = getValidName(name, type);
 
         DownloadVideo video = new DownloadVideo();
@@ -104,11 +104,12 @@ public class DownloadQueues implements Serializable {
         video.type = type;
         video.chunked = chunked;
         video.website = website;
+        video.audio = audio;
         downloads.add(0, video);
     }
 
     public void add(String size, String type, String link, String name, String page, boolean
-            chunked, String website) {
+            chunked, String website, String audio) {
         name = getValidName(name, type);
 
         DownloadVideo video = new DownloadVideo();
@@ -119,6 +120,7 @@ public class DownloadQueues implements Serializable {
         video.type = type;
         video.chunked = chunked;
         video.website = website;
+        video.audio = audio;
         downloads.add(video);
     }
 

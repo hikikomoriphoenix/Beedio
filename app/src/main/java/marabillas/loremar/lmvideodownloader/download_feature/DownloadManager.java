@@ -20,6 +20,7 @@
 
 package marabillas.loremar.lmvideodownloader.download_feature;
 
+import android.app.AlertDialog;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Environment;
@@ -49,6 +50,7 @@ import marabillas.loremar.lmvideodownloader.LMvdApp;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.CompletedVideos;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.DownloadQueues;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.InactiveDownloads;
+import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class DownloadManager extends IntentService {
     private static File downloadFile = null;
@@ -130,6 +132,12 @@ public class DownloadManager extends IntentService {
                                 out.close();
                                 fileChannel.close();
                                 //writableByteChannel.close();
+
+                                if (new URL(intent.getStringExtra("page")).getHost().contains
+                                        ("youtube.com")) {
+                                    addAudio(intent);
+                                }
+
                                 downloadFinished(filename);
                             }
                         }
@@ -167,6 +175,7 @@ public class DownloadManager extends IntentService {
                 downloadService.putExtra("page", topVideo.page);
                 downloadService.putExtra("chunked", topVideo.chunked);
                 downloadService.putExtra("website", topVideo.website);
+                downloadService.putExtra("audio", topVideo.audio);
                 onHandleIntent(downloadService);
             }
         }
@@ -186,6 +195,7 @@ public class DownloadManager extends IntentService {
             inactiveDownload.size = intent.getStringExtra("size");
             inactiveDownload.page = intent.getStringExtra("page");
             inactiveDownload.website = intent.getStringExtra("website");
+            inactiveDownload.audio = intent.getStringExtra("audio");
             inactiveDownload.chunked = intent.getBooleanExtra("chunked", false);
             InactiveDownloads inactiveDownloads = InactiveDownloads.load(getApplicationContext());
             inactiveDownloads.add(getApplicationContext(), inactiveDownload);
@@ -200,6 +210,7 @@ public class DownloadManager extends IntentService {
                 downloadService.putExtra("page", topVideo.page);
                 downloadService.putExtra("chunked", topVideo.chunked);
                 downloadService.putExtra("website", topVideo.website);
+                downloadService.putExtra("audio", topVideo.audio);
                 onHandleIntent(downloadService);
             }
         }
@@ -306,6 +317,7 @@ public class DownloadManager extends IntentService {
                                         break;
                                     }
                                 }
+                                writableByteChannel.close();
                                 readableByteChannel.close();
                                 in.close();
                                 bytesOfChunk.close();
@@ -393,6 +405,49 @@ public class DownloadManager extends IntentService {
             }
         } else {
             return null;
+        }
+    }
+
+    void addAudio(Intent intent) {
+        try {
+            URLConnection uCon = new URL(intent.getStringExtra("audio")).openConnection();
+            if (uCon != null) {
+                InputStream in = uCon.getInputStream();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                ReadableByteChannel readChannel = Channels.newChannel(in);
+                WritableByteChannel writeChannel = Channels.newChannel(out);
+                int read;
+                while (true) {
+                    if (Thread.currentThread().isInterrupted()) return;
+
+                    ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+                    read = readChannel.read(buffer);
+                    if (read != -1) {
+                        buffer.flip();
+                        writeChannel.write(buffer);
+                    } else {
+                        break;
+                    }
+                }
+                byte[] audioBytes = out.toByteArray();
+                writeChannel.close();
+                readChannel.close();
+                out.close();
+                in.close();
+                String filename = intent.getStringExtra("name") + "." + intent.getStringExtra
+                        ("type");
+                File file = new File(Environment.getExternalStoragePublicDirectory(Environment
+                        .DIRECTORY_DOWNLOADS), filename);
+                AlertDialog dialog = new AlertDialog.Builder(getApplicationContext()).create();
+                dialog.setMessage("Mixing audio/video. Might take a while");
+                dialog.setCancelable(false);
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.show();
+                Utils.addAudioToVideo(file, audioBytes);
+                dialog.dismiss();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

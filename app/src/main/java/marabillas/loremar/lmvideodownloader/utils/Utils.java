@@ -32,6 +32,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import java.io.File;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -155,5 +156,9 @@ public final class Utils {
         };
         divider.setDrawable(context.getResources().getDrawable(R.drawable.greydivider));
         return divider;
+    }
+
+    public static void addAudioToVideo(File videoFile, byte[] audioData) {
+
     }
 }
