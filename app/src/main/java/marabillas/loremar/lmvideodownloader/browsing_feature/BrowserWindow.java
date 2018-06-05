@@ -439,7 +439,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                                 if (contentType != null) {
                                     contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video")) {
+                                    if (contentType.contains("video") || contentType.contains
+                                            ("audio")) {
                                         addVideoToList(uCon, page, title, contentType);
                                     } else if (contentType.equals("application/x-mpegurl") ||
                                             contentType.equals("application/vnd.apple.mpegurl")) {
@@ -530,6 +531,17 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             String website = null;
             boolean chunked = false;
 
+            String name = "video";
+            if (title != null) {
+                if (contentType.contains("audio")) {
+                    name = "[AUDIO ONLY]" + title;
+                } else {
+                    name = title;
+                }
+            } else if (contentType.contains("audio")) {
+                name = "audio";
+            }
+
             if (host.contains("youtube.com") || (new URL(link).getHost().contains("googlevideo.com")
             )) {
                 //link  = link.replaceAll("(range=)+(.*)+(&)",
@@ -542,6 +554,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 ytCon = new URL(link).openConnection();
                 ytCon.connect();
                 size = ytCon.getHeaderField("content-length");
+
+                if (contentType.contains("video")) {
+                    name = "[VIDEO ONLY]" + name;
+                }
             } else if (host.contains("dailymotion.com")) {
                 chunked = true;
                 website = "dailymotion.com";
@@ -554,10 +570,6 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 size = null;
             }
 
-            String name = "video";
-            if (title != null) {
-                name = title;
-            }
             String type;
             switch (contentType) {
                 case "video/mp4":
@@ -568,6 +580,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     break;
                 case "video/mp2t":
                     type = "ts";
+                    break;
+                case "audio/webm":
+                    type = "webm";
                     break;
                 default:
                     type = "mp4";
