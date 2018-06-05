@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Rect;
+import android.media.MediaMuxer;
 import android.os.IBinder;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
@@ -32,7 +33,9 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -159,6 +162,13 @@ public final class Utils {
     }
 
     public static void addAudioToVideo(File videoFile, byte[] audioData) {
+        ByteArrayInputStream in = new ByteArrayInputStream(audioData);
+        try {
+            MediaMuxer muxer = new MediaMuxer(videoFile.getAbsolutePath(), MediaMuxer.OutputFormat
+                    .MUXER_OUTPUT_WEBM);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

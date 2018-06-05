@@ -438,13 +438,18 @@ public class DownloadManager extends IntentService {
                         ("type");
                 File file = new File(Environment.getExternalStoragePublicDirectory(Environment
                         .DIRECTORY_DOWNLOADS), filename);
-                AlertDialog dialog = new AlertDialog.Builder(getApplicationContext()).create();
-                dialog.setMessage("Mixing audio/video. Might take a while");
-                dialog.setCancelable(false);
-                dialog.setCanceledOnTouchOutside(false);
-                dialog.show();
+                AlertDialog dialog = null;
+                if (getApplicationContext() != null) {
+                    dialog = new AlertDialog.Builder(getApplicationContext()).create();
+                    dialog.setMessage("Mixing audio/video. Might take a while");
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.show();
+                }
                 Utils.addAudioToVideo(file, audioBytes);
-                dialog.dismiss();
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
