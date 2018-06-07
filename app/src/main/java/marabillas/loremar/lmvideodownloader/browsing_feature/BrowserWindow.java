@@ -61,13 +61,6 @@ import android.widget.TextView;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -83,7 +76,6 @@ import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class BrowserWindow extends LMvdFragment implements View.OnTouchListener, View
         .OnClickListener, LMvdActivity.OnBackPressedListener, View.OnLongClickListener {
-    private static final String TAG = "loremarTest";
     private String url;
     private View view;
     private TouchableWebView page;
@@ -92,7 +84,6 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     private View videosFoundHUD;
     private float prevX, prevY;
     private ProgressBar findingVideoInProgress;
-    private int numLinksInspected;
     private TextView videosFoundText;
     private boolean moved = false;
     private GestureDetector gesture;
@@ -361,7 +352,6 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        numLinksInspected = 0;
         WebSettings webSettings = page.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
@@ -398,72 +388,40 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
             @Override
             public void onLoadResource(final WebView view, final String url) {
-                //Log.i("loremarTest", getClass().getEnclosingMethod().getName()+ "=url:" + url);
                 final String page = view.getUrl();
                 final String title = view.getTitle();
-                new Thread() {
+                new VideoContentSearch(getActivity(), url, page, title) {
                     @Override
-                    public void run() {
-                        String urlLowerCase = url.toLowerCase();
-                        String[] filters = getResources().getStringArray(R.array.videourl_filters);
-                        boolean urlMightBeVideo = false;
-                        for (String filter : filters) {
-                            if (urlLowerCase.contains(filter)) {
-                                urlMightBeVideo = true;
-                                break;
+                    public void onStartInspectingURL() {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (findingVideoInProgress.getVisibility() == View.GONE) {
+                                    findingVideoInProgress.setVisibility(View.VISIBLE);
+                                }
                             }
-                        }
-                        if (urlMightBeVideo) {
-                            numLinksInspected++;
+                        });
+
+                        Utils.disableSSLCertificateChecking();
+                    }
+
+                    @Override
+                    public void onFinishedInspectingURL(boolean finishedAll) {
+                        HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
+                        if (finishedAll) {
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (findingVideoInProgress.getVisibility() == View.GONE) {
-                                        findingVideoInProgress.setVisibility(View.VISIBLE);
-                                    }
+                                    findingVideoInProgress.setVisibility(View.GONE);
                                 }
                             });
-
-                            Utils.disableSSLCertificateChecking();
-                            Log.i(TAG, "retreiving headers from " + url);
-
-                            URLConnection uCon = null;
-                            try {
-                                uCon = new URL(url).openConnection();
-                                uCon.connect();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            if (uCon != null) {
-                                String contentType = uCon.getHeaderField("content-type");
-
-                                if (contentType != null) {
-                                    contentType = contentType.toLowerCase();
-                                    if (contentType.contains("video") || contentType.contains
-                                            ("audio")) {
-                                        addVideoToList(uCon, page, title, contentType);
-                                    } else if (contentType.equals("application/x-mpegurl") ||
-                                            contentType.equals("application/vnd.apple.mpegurl")) {
-                                        addVideosToListFromM3U8(uCon, page, title, contentType);
-                                    } else Log.i(TAG, "Not a video. Content type = " +
-                                            contentType);
-                                } else {
-                                    Log.i(TAG, "no content type");
-                                }
-                            } else Log.i(TAG, "no connection");
-
-                            //restore default sslsocketfactory
-                            HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
-                            numLinksInspected--;
-                            if (numLinksInspected <= 0) {
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        findingVideoInProgress.setVisibility(View.GONE);
-                                    }
-                                });
-                            }
                         }
+                    }
+
+                    @Override
+                    public void onVideoFound(String size, String type, String link, String name, String page, boolean chunked, String website) {
+                        videoList.addItem(size, type, link, name, page, chunked, website);
+                        updateFoundVideosBar();
                     }
                 }.start();
             }
@@ -517,153 +475,6 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         });
         page.setOnLongClickListener(this);
         page.loadUrl(url);
-    }
-
-    private void addVideoToList(URLConnection uCon, String page, String title, String contentType) {
-        try {
-            String size = uCon.getHeaderField("content-length");
-            String link = uCon.getHeaderField("Location");
-            if (link == null) {
-                link = uCon.getURL().toString();
-            }
-
-            String host = new URL(page).getHost();
-            String website = null;
-            boolean chunked = false;
-
-            String name = "video";
-            if (title != null) {
-                if (contentType.contains("audio")) {
-                    name = "[AUDIO ONLY]" + title;
-                } else {
-                    name = title;
-                }
-            } else if (contentType.contains("audio")) {
-                name = "audio";
-            }
-
-            if (host.contains("youtube.com") || (new URL(link).getHost().contains("googlevideo.com")
-            )) {
-                //link  = link.replaceAll("(range=)+(.*)+(&)",
-                // "");
-                int r = link.lastIndexOf("&range");
-                if (r > 0) {
-                    link = link.substring(0, r);
-                }
-                URLConnection ytCon;
-                ytCon = new URL(link).openConnection();
-                ytCon.connect();
-                size = ytCon.getHeaderField("content-length");
-
-                if (contentType.contains("video")) {
-                    name = "[VIDEO ONLY]" + name;
-                }
-            } else if (host.contains("dailymotion.com")) {
-                chunked = true;
-                website = "dailymotion.com";
-                link = link.replaceAll("(frag\\()+(\\d+)+(\\))", "FRAGMENT");
-                size = null;
-            } else if (host.contains("vimeo.com") && link.endsWith("m4s")) {
-                chunked = true;
-                website = "vimeo.com";
-                link = link.replaceAll("(segment-)+(\\d+)", "SEGMENT");
-                size = null;
-            }
-
-            String type;
-            switch (contentType) {
-                case "video/mp4":
-                    type = "mp4";
-                    break;
-                case "video/webm":
-                    type = "webm";
-                    break;
-                case "video/mp2t":
-                    type = "ts";
-                    break;
-                case "audio/webm":
-                    type = "webm";
-                    break;
-                default:
-                    type = "mp4";
-                    break;
-            }
-
-            videoList.addItem(size, type, link, name, page, chunked, website);
-
-            updateFoundVideosBar();
-            String videoFound = "name:" + name + "\n" +
-                    "link:" + link + "\n" +
-                    "type:" + contentType + "\n" +
-                    "size:" + size;
-            Log.i(TAG, videoFound);
-        } catch (IOException e) {
-            Log.e("loremarTest", "Exception in adding video to " +
-                    "list");
-        }
-    }
-
-    private void addVideosToListFromM3U8(URLConnection uCon, String page, String title, String
-            contentType) {
-        try {
-            String host;
-            host = new URL(page).getHost();
-            if (host.contains("twitter.com") || host.contains("metacafe.com") || host.contains
-                    ("myspace.com")) {
-                InputStream in = uCon.getInputStream();
-                InputStreamReader inReader = new InputStreamReader(in);
-                BufferedReader buffReader = new BufferedReader(inReader);
-                String line;
-                String prefix = null;
-                String type = null;
-                String name = "video";
-                String website = null;
-                if (title != null) {
-                    name = title;
-                }
-                if (host.contains("twitter.com")) {
-                    prefix = "https://video.twimg.com";
-                    type = "ts";
-                    website = "twitter.com";
-                } else if (host.contains("metacafe.com")) {
-                    String link = uCon.getURL().toString();
-                    prefix = link.substring(0, link.lastIndexOf("/") + 1);
-                    website = "metacafe.com";
-                    type = "mp4";
-                } else if (host.contains("myspace.com")) {
-                    String link = uCon.getURL().toString();
-                    website = "myspace.com";
-                    type = "ts";
-                    videoList.addItem(null, type, link, name, page, true, website);
-
-                    updateFoundVideosBar();
-                    String videoFound = "name:" + name + "\n" +
-                            "link:" + link + "\n" +
-                            "type:" + contentType + "\n" +
-                            "size: null";
-                    Log.i(TAG, videoFound);
-                    return;
-                }
-                while ((line = buffReader.readLine()) != null) {
-                    if (line.endsWith(".m3u8")) {
-                        String link = prefix + line;
-                        videoList.addItem(null, type, link, name, page, true, website);
-
-                        updateFoundVideosBar();
-                        String videoFound = "name:" + name + "\n" +
-                                "link:" + link + "\n" +
-                                "type:" + contentType + "\n" +
-                                "size: null";
-                        Log.i(TAG, videoFound);
-                    }
-                }
-            } else {
-                Log.i("loremarTest", "Content type is " + contentType + " but site is not " +
-                        "supported");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
