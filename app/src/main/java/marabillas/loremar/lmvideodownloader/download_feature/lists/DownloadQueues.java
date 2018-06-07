@@ -125,7 +125,11 @@ public class DownloadQueues implements Serializable {
     private String getValidName(String name, String type) {
         name = name.replaceAll("[^\\w ()'!\\[\\]\\-]", "");
         name = name.trim();
-        if (name.equals("")) name = "video";
+        if (name.length() > 127) {//allowed filename length is 127
+            name = name.substring(0, 127);
+        } else if (name.equals("")) {
+            name = "video";
+        }
         int i = 0;
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment
                 .DIRECTORY_DOWNLOADS), name + "." + type);
