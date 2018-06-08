@@ -45,8 +45,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -76,12 +74,12 @@ import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.PermissionRequestCodes;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadPermissionHandler;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadRearranger;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
 import marabillas.loremar.lmvideodownloader.download_feature.OnDownloadWithNewLinkListener;
 import marabillas.loremar.lmvideodownloader.download_feature.Tracking;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.DownloadQueues;
-import marabillas.loremar.lmvideodownloader.utils.PermissionsManager;
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
@@ -142,85 +140,12 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                         pauseDownload();
                     } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            final PermissionsManager downloadPermMngr = new PermissionsManager(getActivity()) {
+                            new DownloadPermissionHandler(getActivity()) {
                                 @Override
-                                public void showRequestPermissionRationale() {
-                                    showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            requestPermissions();
-                                        }
-                                    });
-                                }
+                                public void onPermissionGranted() {
 
-                                @Override
-                                public void requestDisallowedAction() {
-                                    SharedPreferences prefs = getActivity().getSharedPreferences
-                                            ("settings", 0);
-                                    boolean requestDisallowed = prefs.getBoolean("requestDisallowed",
-                                            false);
-                                    if (requestDisallowed) {
-                                        showPermissionSummaryDialog(new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                new AlertDialog.Builder(getActivity())
-                                                        .setMessage("Go to Settings?")
-                                                        .setPositiveButton("Yes", new
-                                                                DialogInterface.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(DialogInterface dialog, int which) {
-                                                                        startActivityForResult(new Intent(android
-                                                                                .provider.Settings
-                                                                                .ACTION_APPLICATION_DETAILS_SETTINGS,
-                                                                                Uri.fromParts("package", getActivity()
-                                                                                                .getPackageName(),
-                                                                                        null)), 1337);
-                                                                    }
-                                                                })
-                                                        .setNegativeButton(
-                                                                "No", new
-                                                                        DialogInterface.OnClickListener() {
-                                                                            @Override
-                                                                            public void onClick(DialogInterface dialog, int which) {
-                                                                                Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
-                                                                                        " Try again", Toast.LENGTH_LONG).show();
-                                                                            }
-                                                                        })
-                                                        .create()
-                                                        .show();
-
-                                            }
-                                        });
-                                    } else {
-                                        prefs.edit().putBoolean("requestDisallowed", true).apply();
-                                        onPermissionsDenied();
-                                    }
                                 }
-
-                                @Override
-                                public void onPermissionsGranted() {
-                                    startDownload();
-                                }
-
-                                @Override
-                                public void onPermissionsDenied() {
-                                    Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
-                                            " Try again", Toast.LENGTH_LONG).show();
-                                }
-
-                                private void showPermissionSummaryDialog(DialogInterface.OnClickListener
-                                                                                 okListener) {
-                                    new AlertDialog.Builder(getActivity())
-                                            .setPositiveButton("OK", okListener)
-                                            .setMessage("This feature requires WRITE_EXTERNAL_STORAGE " +
-                                                    "permission to save downloaded videos into the Download " +
-                                                    "folder. Make sure to grant this permission. Otherwise, " +
-                                                    "downloading videos is not possible.")
-                                            .create()
-                                            .show();
-                                }
-                            };
-                            downloadPermMngr.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            }.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     PermissionRequestCodes.DOWNLOADS);
                         } else startDownload();
                     }
@@ -265,37 +190,6 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
             }
         };
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1337) {
-            PermissionsManager downloadsPermMgr = new PermissionsManager(getActivity()) {
-                @Override
-                public void showRequestPermissionRationale() {
-
-                }
-
-                @Override
-                public void requestDisallowedAction() {
-                    onPermissionsDenied();
-                }
-
-                @Override
-                public void onPermissionsGranted() {
-                    startDownload();
-                }
-
-                @Override
-                public void onPermissionsDenied() {
-                    Toast.makeText(getActivity(), "Can't download; Necessary PERMISSIONS denied." +
-                            " Try again", Toast.LENGTH_LONG).show();
-                }
-            };
-            downloadsPermMgr.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    PermissionRequestCodes.DOWNLOADS);
-        }
     }
 
     public void setTracking(Tracking tracking) {

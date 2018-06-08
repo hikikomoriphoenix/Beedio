@@ -20,10 +20,12 @@
 
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -45,8 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdApp;
+import marabillas.loremar.lmvideodownloader.PermissionRequestCodes;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadPermissionHandler;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.DownloadQueues;
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
@@ -57,7 +61,7 @@ import marabillas.loremar.lmvideodownloader.utils.Utils;
  */
 
 public abstract class VideoList {
-    private Context context;
+    private Activity activity;
     private RecyclerView view;
     private List<Video> videos;
 
@@ -68,13 +72,13 @@ public abstract class VideoList {
 
     abstract void onItemDeleted();
 
-    VideoList(Context context, RecyclerView view) {
-        this.context = context;
+    VideoList(Activity activity, RecyclerView view) {
+        this.activity = activity;
         this.view = view;
 
         view.setAdapter(new VideoListAdapter());
-        view.setLayoutManager(new LinearLayoutManager(context));
-        view.addItemDecoration(Utils.createDivider(context));
+        view.setLayoutManager(new LinearLayoutManager(activity));
+        view.addItemDecoration(Utils.createDivider(activity));
         view.setHasFixedSize(true);
 
         videos = new ArrayList<>();
@@ -133,7 +137,7 @@ public abstract class VideoList {
         @NonNull
         @Override
         public VideoItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(context);
+            LayoutInflater inflater = LayoutInflater.from(activity);
             return (new VideoItem(inflater.inflate(R.layout.videos_found_item, parent,
                     false)));
         }
@@ -176,7 +180,7 @@ public abstract class VideoList {
 
             void bind(Video video) {
                 if (video.size != null) {
-                    String sizeFormatted = Formatter.formatShortFileSize(context,
+                    String sizeFormatted = Formatter.formatShortFileSize(activity,
                             Long.parseLong(video.size));
                     size.setText(sizeFormatted);
                 } else size.setText(" ");
@@ -202,7 +206,7 @@ public abstract class VideoList {
             @Override
             public void onClick(View v) {
                 if (v == expand.findViewById(R.id.videoFoundRename)) {
-                    new RenameDialog(context, name.getText().toString()) {
+                    new RenameDialog(activity, name.getText().toString()) {
                         @Override
                         public void onOK(String newName) {
                             adjustedLayout = false;
@@ -211,33 +215,19 @@ public abstract class VideoList {
                         }
                     };
                 } else if (v == expand.findViewById(R.id.videoFoundDownload)) {
-                    Video video = videos.get(getAdapterPosition());
-                    DownloadQueues queues = DownloadQueues.load(context);
-                    queues.insertToTop(video.size, video.type, video.link, video.name, video
-                            .page, video.chunked, video.website);
-                    queues.save(context);
-                    /*Intent downloadService = ((LMvdApp)context.getApplicationContext())
-                            .getDownloadService();*/
-                    DownloadVideo topVideo = queues.getTopVideo();
-                    Intent downloadService = LMvdApp.getInstance().getDownloadService();
-                    LMvdApp.getInstance().stopService(downloadService);
-                    DownloadManager.stopThread();
-                    downloadService.putExtra("link", topVideo.link);
-                    downloadService.putExtra("name", topVideo.name);
-                    downloadService.putExtra("type", topVideo.type);
-                    downloadService.putExtra("size", topVideo.size);
-                    downloadService.putExtra("page", topVideo.page);
-                    downloadService.putExtra("chunked", topVideo.chunked);
-                    downloadService.putExtra("website", topVideo.website);
-                    LMvdApp.getInstance().startService(downloadService);
-                    videos.remove(getAdapterPosition());
-                    expandedItem = -1;
-                    notifyDataSetChanged();
-                    onItemDeleted();
-                    Toast.makeText(context, "Downloading video in the background. Check the " +
-                            "Downloads panel to see progress", Toast.LENGTH_LONG).show();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        new DownloadPermissionHandler(activity) {
+                            @Override
+                            public void onPermissionGranted() {
+                                startDownload();
+                            }
+                        }.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                PermissionRequestCodes.DOWNLOADS);
+                    } else {
+                        startDownload();
+                    }
                 } else if (v == expand.findViewById(R.id.videoFoundDelete)) {
-                    new AlertDialog.Builder(context)
+                    new AlertDialog.Builder(activity)
                             .setMessage("Delete this item from the list?")
                             .setPositiveButton("YES", new DialogInterface
                                     .OnClickListener() {
@@ -282,7 +272,7 @@ public abstract class VideoList {
                             .getWidth() != 0) {
                         int totalMargin = (int) TypedValue.applyDimension(TypedValue
                                         .COMPLEX_UNIT_DIP, 12,
-                                context.getResources().getDisplayMetrics());
+                                activity.getResources().getDisplayMetrics());
                         int nameMaxWidth = itemView.getMeasuredWidth() - size.getMeasuredWidth() - ext
                                 .getMeasuredWidth() - check.getMeasuredWidth() - totalMargin;
                         name.setMaxWidth(nameMaxWidth);
@@ -291,11 +281,37 @@ public abstract class VideoList {
                 }
 
             }
+
+            void startDownload() {
+                Video video = videos.get(getAdapterPosition());
+                DownloadQueues queues = DownloadQueues.load(activity);
+                queues.insertToTop(video.size, video.type, video.link, video.name, video
+                        .page, video.chunked, video.website);
+                queues.save(activity);
+                DownloadVideo topVideo = queues.getTopVideo();
+                Intent downloadService = LMvdApp.getInstance().getDownloadService();
+                LMvdApp.getInstance().stopService(downloadService);
+                DownloadManager.stopThread();
+                downloadService.putExtra("link", topVideo.link);
+                downloadService.putExtra("name", topVideo.name);
+                downloadService.putExtra("type", topVideo.type);
+                downloadService.putExtra("size", topVideo.size);
+                downloadService.putExtra("page", topVideo.page);
+                downloadService.putExtra("chunked", topVideo.chunked);
+                downloadService.putExtra("website", topVideo.website);
+                LMvdApp.getInstance().startService(downloadService);
+                videos.remove(getAdapterPosition());
+                expandedItem = -1;
+                notifyDataSetChanged();
+                onItemDeleted();
+                Toast.makeText(activity, "Downloading video in the background. Check the " +
+                        "Downloads panel to see progress", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
     void saveCheckedItemsForDownloading() {
-        DownloadQueues queues = DownloadQueues.load(context);
+        DownloadQueues queues = DownloadQueues.load(activity);
         for (Video video : videos) {
             if (video.checked) {
                 queues.add(video.size, video.type, video.link, video.name, video.page, video
@@ -303,9 +319,9 @@ public abstract class VideoList {
             }
         }
 
-        queues.save(context);
+        queues.save(activity);
 
-        Toast.makeText(context, "Selected videos are queued for downloading. Go to Downloads " +
+        Toast.makeText(activity, "Selected videos are queued for downloading. Go to Downloads " +
                 "panel to start downloading videos", Toast.LENGTH_LONG).show();
     }
 }
