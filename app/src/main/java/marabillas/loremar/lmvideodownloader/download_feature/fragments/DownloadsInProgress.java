@@ -143,7 +143,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                             new DownloadPermissionHandler(getActivity()) {
                                 @Override
                                 public void onPermissionGranted() {
-
+                                    startDownload();
                                 }
                             }.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     PermissionRequestCodes.DOWNLOADS);
