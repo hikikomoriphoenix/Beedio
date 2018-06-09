@@ -50,11 +50,10 @@
 
         <EditText
             android:id="@+id/historySearchText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:ems="10"
             android:hint="@string/search"
             android:imeOptions="actionSearch"
             android:inputType="text"
@@ -64,7 +63,6 @@
             android:id="@+id/historySearchIcon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:background="@drawable/ic_search_24dp"
             android:cropToPadding="false"
             tools:ignore="ContentDescription" />

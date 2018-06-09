@@ -98,6 +98,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
     private ProgressBar loadingPageProgress;
 
+    private int orientation;
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (v == videosFoundHUD) {
@@ -329,7 +331,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        if (view == null) {
+        if (view == null || getResources().getConfiguration().orientation != orientation) {
+            orientation = getResources().getConfiguration().orientation;
             view = inflater.inflate(R.layout.browser, container, false);
             page = view.findViewById(R.id.page);
             loadingPageProgress = view.findViewById(R.id.loadingPageProgress);
