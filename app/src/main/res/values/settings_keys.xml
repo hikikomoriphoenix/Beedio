@@ -21,4 +21,5 @@
 <resources>
     <string name="adBlockON">adBlockOn</string>
     <string name="showDownloadNotice">showDownloadNotice</string>
+    <string name="adFiltersLastUpdated">adFiltersLasUpdated</string>
 </resources>
