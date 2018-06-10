@@ -136,7 +136,7 @@ public class BrowserManager extends LMvdFragment {
         allWindows.getAdapter().notifyDataSetChanged();
     }
 
-    private void updateNumWindows() {
+    void updateNumWindows() {
         for (BrowserWindow window : windows) {
             window.updateNumWindows(windows.size());
         }

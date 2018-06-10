@@ -332,7 +332,6 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         if (view == null || getResources().getConfiguration().orientation != orientation) {
-            orientation = getResources().getConfiguration().orientation;
             view = inflater.inflate(R.layout.browser, container, false);
             page = view.findViewById(R.id.page);
             loadingPageProgress = view.findViewById(R.id.loadingPageProgress);
@@ -347,6 +346,11 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             createFoundVideosWindow();
 
             updateFoundVideosBar();
+
+            if (getResources().getConfiguration().orientation != orientation) {
+                getLMvdActivity().getBrowserManager().updateNumWindows();
+                orientation = getResources().getConfiguration().orientation;
+            }
         }
 
         return view;
