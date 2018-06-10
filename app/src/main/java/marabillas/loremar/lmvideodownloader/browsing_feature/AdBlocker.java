@@ -52,8 +52,8 @@ class AdBlocker implements Serializable {
     }
 
     public void update(final Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("settings", 0);
-        String today = new SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(new Date());
+        final SharedPreferences prefs = context.getSharedPreferences("settings", 0);
+        final String today = new SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(new Date());
         if (!today.equals(prefs.getString(context.getString(R.string.adFiltersLastUpdated), ""))) {
             final AlertDialog dialog = new AlertDialog.Builder(context).create();
             dialog.setMessage("Updating. Please wait...");
@@ -99,14 +99,13 @@ class AdBlocker implements Serializable {
                             fileOutputStream.close();
                         }
                         dialog.dismiss();
-
+                        prefs.edit().putString(context.getString(R.string.adFiltersLastUpdated), today).apply();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }.start();
         }
-        prefs.edit().putString(context.getString(R.string.adFiltersLastUpdated), today).apply();
     }
 
     public boolean checkThroughFilters(String url) {
