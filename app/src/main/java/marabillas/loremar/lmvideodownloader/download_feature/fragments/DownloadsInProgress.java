@@ -120,6 +120,10 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
 
+        downloads = new ArrayList<>();
+        queues = DownloadQueues.load(getActivity());
+        downloads = queues.getList();
+
         if (view == null) {
             view = inflater.inflate(R.layout.downloads_in_progress, container, false);
 
@@ -127,9 +131,6 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
             downloadsList.setAdapter(new DownloadListAdapter());
             downloadsList.setHasFixedSize(true);
-            downloads = new ArrayList<>();
-            queues = DownloadQueues.load(getActivity());
-            downloads = queues.getList();
 
             downloadsStartPauseButton = view.findViewById(R.id.downloadsStartPauseButton);
 
