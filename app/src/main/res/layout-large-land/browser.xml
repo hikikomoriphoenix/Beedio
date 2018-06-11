@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~     LM videodownloader is a browser app for android, made to easily
+  ~     download videos.
+  ~     Copyright (C) 2018 Loremar Marabillas
+  ~
+  ~     This program is free software; you can redistribute it and/or modify
+  ~     it under the terms of the GNU General Public License as published by
+  ~     the Free Software Foundation; either version 2 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU General Public License along
+  ~     with this program; if not, write to the Free Software Foundation, Inc.,
+  ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/topbar_bg">
+
+        <ImageView
+            android:id="@+id/menuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_menu_black_24dp"
+            tools:ignore="ContentDescription"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/urlBox"
+            app:layout_constraintBottom_toBottomOf="@id/urlBox" />
+
+        <TextView
+            android:id="@+id/urlBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            app:layout_constraintStart_toEndOf="@id/menuButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/closeWindow" />
+
+        <TextView
+            android:id="@+id/closeWindow"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:text="@string/xClose"
+            android:textColor="@android:color/white"
+            android:background="#dd0000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/urlBox"
+            app:layout_constraintTop_toTopOf="@id/urlBox"
+            app:layout_constraintStart_toEndOf="@id/urlBox"
+            android:paddingStart="10dp"
+            android:paddingLeft="10dp"
+            android:paddingEnd="10dp"
+            android:paddingRight="10dp" />
+    </android.support.constraint.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/loadingPageProgress"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:max="100"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        android:background="@drawable/loading_page_progress_background"
+        android:progressDrawable="@drawable/loading_page_progress_status" />
+
+    <marabillas.loremar.lmvideodownloader.browsing_feature.TouchableWebView
+        android:id="@+id/page"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/navigationBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loadingPageProgress"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <LinearLayout
+        android:id="@+id/navigationBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/page"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/button_bar_bg">
+
+        <TextView
+            android:id="@+id/prevButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/prev"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+
+        <TextView
+            android:id="@+id/nextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+
+        <TextView
+            android:id="@+id/bookmarkButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bookmark_this_page"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+
+        <TextView
+            android:id="@+id/reload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reload"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+
+        <TextView
+            android:id="@+id/numWindows"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/plusWindow"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/plus"
+            android:background="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingEnd="5dp"
+            android:paddingRight="5dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/videosFoundHUD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/videos_found_bar_bg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.9">
+
+        <ProgressBar
+            android:id="@+id/findingVideosInProgress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/videosFoundText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center_vertical" />
+    </LinearLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/foundVideosWindow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="30dp">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/videoList"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scrollbars="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/foundVideosFooter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/darkgraybounds" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/foundVideosFooter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/videoList"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:padding="10dp"
+            android:background="@drawable/darkgraybounds">
+
+            <TextView
+                android:id="@+id/foundVideosQueue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/white_button"
+                android:text="@string/queue"
+                android:textColor="@android:color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/foundVideosDelete"
+                android:paddingStart="14dp"
+                android:paddingLeft="14dp"
+                android:paddingEnd="14dp"
+                android:paddingRight="14dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+
+            <TextView
+                android:id="@+id/foundVideosDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/white_button"
+                android:text="@string/delete"
+                android:textColor="@android:color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/foundVideosQueue"
+                app:layout_constraintEnd_toStartOf="@id/foundVideosClose"
+                android:paddingStart="14dp"
+                android:paddingLeft="14dp"
+                android:paddingEnd="14dp"
+                android:paddingRight="14dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+
+            <TextView
+                android:id="@+id/foundVideosClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/white_button"
+                android:text="@string/close"
+                android:textColor="@android:color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/foundVideosDelete"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:paddingStart="14dp"
+                android:paddingLeft="14dp"
+                android:paddingEnd="14dp"
+                android:paddingRight="14dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+        </android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
+
+
+</android.support.constraint.ConstraintLayout>
