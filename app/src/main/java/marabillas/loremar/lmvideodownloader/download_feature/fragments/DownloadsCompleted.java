@@ -70,6 +70,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import marabillas.loremar.lmvideodownloader.LMvdApp;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.CompletedVideos;
@@ -112,17 +113,6 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 videos = completedVideos.getVideos();
                 objectInputStream.close();
                 fileInputStream.close();
-                List<String> nonExistentFiles = new ArrayList<>();
-                for (String video : videos) {
-                    File videoFile = new File(Environment.getExternalStoragePublicDirectory
-                            (Environment.DIRECTORY_DOWNLOADS), video);
-                    if (!videoFile.exists()) {
-                        nonExistentFiles.add(video);
-                    }
-                }
-                for (String nonExistentVideo : nonExistentFiles) {
-                    videos.remove(nonExistentVideo);
-                }
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -180,11 +170,28 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 goToFolderButton.setVisibility(View.GONE);
                 clearAllFinishedButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
             }
-
-            onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        List<String> nonExistentFiles = new ArrayList<>();
+        for (String video : videos) {
+            File videoFile = new File(Environment.getExternalStoragePublicDirectory
+                    (Environment.DIRECTORY_DOWNLOADS), video);
+            if (!videoFile.exists()) {
+                nonExistentFiles.add(video);
+            }
+        }
+        for (String nonExistentVideo : nonExistentFiles) {
+            videos.remove(nonExistentVideo);
+        }
+        downloadsList.getAdapter().notifyDataSetChanged();
+        completedVideos.save(LMvdApp.getInstance().getApplicationContext());
+        onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
     }
 
     @Override

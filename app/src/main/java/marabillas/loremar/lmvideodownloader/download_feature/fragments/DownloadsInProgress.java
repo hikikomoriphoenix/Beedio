@@ -155,7 +155,6 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
             DownloadManager.setOnDownloadFinishedListener(this);
             DownloadManager.setOnLinkNotFoundListener(this);
-            onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
         }
 
         return view;
@@ -191,6 +190,13 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
             }
         };
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        downloadsList.getAdapter().notifyDataSetChanged();
+        onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
     }
 
     public void setTracking(Tracking tracking) {

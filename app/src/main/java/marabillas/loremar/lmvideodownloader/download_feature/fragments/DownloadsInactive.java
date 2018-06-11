@@ -93,6 +93,13 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
         return downloads.size();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        downloadsList.getAdapter().notifyDataSetChanged();
+        onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -110,8 +117,6 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
             downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
             downloadsList.setHasFixedSize(true);
             downloadsList.addItemDecoration(Utils.createDivider(getActivity()));
-
-            onNumDownloadsInactiveChangeListener.onNumDownloadsInactiveChange();
         }
 
         return view;
