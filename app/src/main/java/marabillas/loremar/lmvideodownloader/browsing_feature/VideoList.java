@@ -84,6 +84,14 @@ public abstract class VideoList {
         videos = new ArrayList<>();
     }
 
+    void recreateVideoList(RecyclerView view) {
+        this.view = view;
+        view.setAdapter(new VideoListAdapter());
+        view.setLayoutManager(new LinearLayoutManager(activity));
+        view.addItemDecoration(Utils.createDivider(activity));
+        view.setHasFixedSize(true);
+    }
+
     void addItem(@Nullable String size, String type, String link, String name, String page,
                  boolean chunked, String website) {
         Video video = new Video();

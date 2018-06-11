@@ -93,6 +93,21 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     private DownloadsCompleted downloadsCompleted;
     private DownloadsInactive downloadsInactive;
 
+    @Override
+    public void onDestroy() {
+        Fragment fragment;
+        if ((fragment = getFragmentManager().findFragmentByTag("downloadsInProgress")) != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        if ((fragment = getFragmentManager().findFragmentByTag("downloadsCompleted")) != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        if ((fragment = getFragmentManager().findFragmentByTag("downloadsInactive")) != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        super.onDestroy();
+    }
+
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,

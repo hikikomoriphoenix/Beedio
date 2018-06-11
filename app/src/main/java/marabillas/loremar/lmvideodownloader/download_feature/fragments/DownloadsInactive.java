@@ -98,13 +98,13 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
 
+        downloads = new ArrayList<>();
+        inactiveDownloads = InactiveDownloads.load(getActivity());
+        downloads = inactiveDownloads.getInactiveDownloads();
+
         if (view == null) {
             view = inflater.inflate(R.layout.downloads_inactive, container, false);
             downloadsList = view.findViewById(R.id.downloadsInactiveList);
-
-            downloads = new ArrayList<>();
-            inactiveDownloads = InactiveDownloads.load(getActivity());
-            downloads = inactiveDownloads.getInactiveDownloads();
 
             downloadsList.setAdapter(new DownloadAdapter());
             downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));

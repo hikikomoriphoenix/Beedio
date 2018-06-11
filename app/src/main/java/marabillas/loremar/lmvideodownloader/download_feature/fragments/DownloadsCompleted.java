@@ -102,38 +102,38 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
 
+        videos = new ArrayList<>();
+        File file = new File(getActivity().getFilesDir(), "completed.dat");
+        if (file.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                completedVideos = (CompletedVideos) objectInputStream.readObject();
+                videos = completedVideos.getVideos();
+                objectInputStream.close();
+                fileInputStream.close();
+                List<String> nonExistentFiles = new ArrayList<>();
+                for (String video : videos) {
+                    File videoFile = new File(Environment.getExternalStoragePublicDirectory
+                            (Environment.DIRECTORY_DOWNLOADS), video);
+                    if (!videoFile.exists()) {
+                        nonExistentFiles.add(video);
+                    }
+                }
+                for (String nonExistentVideo : nonExistentFiles) {
+                    videos.remove(nonExistentVideo);
+                }
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (view == null) {
             view = inflater.inflate(R.layout.downloads_completed, container, false);
 
             downloadsList = view.findViewById(R.id.downloadsCompletedList);
             TextView clearAllFinishedButton = view.findViewById(R.id.clearAllFinishedButton);
             TextView goToFolderButton = view.findViewById(R.id.goToFolder);
-
-            videos = new ArrayList<>();
-            File file = new File(getActivity().getFilesDir(), "completed.dat");
-            if (file.exists()) {
-                try {
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                    completedVideos = (CompletedVideos) objectInputStream.readObject();
-                    videos = completedVideos.getVideos();
-                    objectInputStream.close();
-                    fileInputStream.close();
-                    List<String> nonExistentFiles = new ArrayList<>();
-                    for (String video : videos) {
-                        File videoFile = new File(Environment.getExternalStoragePublicDirectory
-                                (Environment.DIRECTORY_DOWNLOADS), video);
-                        if (!videoFile.exists()) {
-                            nonExistentFiles.add(video);
-                        }
-                    }
-                    for (String nonExistentVideo : nonExistentFiles) {
-                        videos.remove(nonExistentVideo);
-                    }
-                } catch (ClassNotFoundException | IOException e) {
-                    e.printStackTrace();
-                }
-            }
 
             downloadsList.setAdapter(new DownloadedVideoAdapter());
             downloadsList.setLayoutManager(new LinearLayoutManager(getActivity()));
