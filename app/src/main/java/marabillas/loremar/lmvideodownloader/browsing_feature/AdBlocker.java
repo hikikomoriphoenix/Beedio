@@ -102,6 +102,7 @@ class AdBlocker implements Serializable {
                         prefs.edit().putString(context.getString(R.string.adFiltersLastUpdated), today).apply();
                     } catch (IOException e) {
                         e.printStackTrace();
+                        dialog.dismiss();
                     }
                 }
             }.start();

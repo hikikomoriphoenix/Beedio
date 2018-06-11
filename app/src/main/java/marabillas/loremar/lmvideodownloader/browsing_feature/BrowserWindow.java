@@ -65,6 +65,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
+import marabillas.loremar.lmvideodownloader.LMvdApp;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.WebConnect;
@@ -99,6 +100,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     private ProgressBar loadingPageProgress;
 
     private int orientation;
+    private boolean loadedFirsTime;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -240,6 +242,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             @Override
             public void onClick(View v) {
                 PopupWindow popupWindow = new PopupWindow(getActivity());
+                View allWindows = getLMvdActivity().getBrowserManager().getAllWindows();
+                if (allWindows.getParent() != null) {
+                    ((ViewGroup) allWindows.getParent()).removeView(allWindows);
+                }
                 popupWindow.setContentView(getLMvdActivity().getBrowserManager().getAllWindows());
                 popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
                 popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -309,16 +315,35 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     }
 
     private void createFoundVideosWindow() {
+        View oldFoundVideosWindow = foundVideosWindow;
         foundVideosWindow = view.findViewById(R.id.foundVideosWindow);
-        videoList = new VideoList(getActivity(), (RecyclerView) foundVideosWindow.findViewById(R
-                .id.videoList)) {
-            @Override
-            void onItemDeleted() {
-                updateFoundVideosBar();
-            }
-        };
+        if (videoList != null) {
+            videoList.recreateVideoList((RecyclerView) foundVideosWindow.findViewById(R.id.videoList));
+        } else {
+            videoList = new VideoList(getActivity(), (RecyclerView) foundVideosWindow.findViewById(R
+                    .id.videoList)) {
+                @Override
+                void onItemDeleted() {
+                    updateFoundVideosBar();
+                }
+            };
+        }
 
-        foundVideosWindow.setVisibility(View.GONE);
+        if (oldFoundVideosWindow != null) {
+            switch (oldFoundVideosWindow.getVisibility()) {
+                case View.VISIBLE:
+                    foundVideosWindow.setVisibility(View.VISIBLE);
+                    break;
+                case View.GONE:
+                    foundVideosWindow.setVisibility(View.GONE);
+                    break;
+                case View.INVISIBLE:
+                    foundVideosWindow.setVisibility(View.INVISIBLE);
+                    break;
+            }
+        } else {
+            foundVideosWindow.setVisibility(View.GONE);
+        }
 
         foundVideosQueue = foundVideosWindow.findViewById(R.id.foundVideosQueue);
         foundVideosDelete = foundVideosWindow.findViewById(R.id.foundVideosDelete);
@@ -332,8 +357,22 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         if (view == null || getResources().getConfiguration().orientation != orientation) {
+            int visibility = View.VISIBLE;
+            if (view != null) {
+                visibility = view.getVisibility();
+            }
             view = inflater.inflate(R.layout.browser, container, false);
-            page = view.findViewById(R.id.page);
+            view.setVisibility(visibility);
+            if (page == null) {
+                page = view.findViewById(R.id.page);
+            } else {
+                View page1 = view.findViewById(R.id.page);
+                ((ViewGroup) view).removeView(page1);
+                ((ViewGroup) page.getParent()).removeView(page);
+                ((ViewGroup) view).addView(page);
+                ((ViewGroup) view).bringChildToFront(view.findViewById(R.id.videosFoundHUD));
+                ((ViewGroup) view).bringChildToFront(view.findViewById(R.id.foundVideosWindow));
+            }
             loadingPageProgress = view.findViewById(R.id.loadingPageProgress);
             loadingPageProgress.setVisibility(View.GONE);
 
@@ -359,129 +398,139 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        WebSettings webSettings = page.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webSettings.setAllowUniversalAccessFromFileURLs(true);
-        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
-        page.setWebViewClient(new WebViewClient() {//it seems not setting webclient, launches
-            //default browser instead of opening the page in webview
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return super.shouldOverrideUrlLoading(view, request);
-            }
+        if (!loadedFirsTime) {
+            WebSettings webSettings = page.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            webSettings.setDomStorageEnabled(true);
+            webSettings.setAllowUniversalAccessFromFileURLs(true);
+            webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+            page.setWebViewClient(new WebViewClient() {//it seems not setting webclient, launches
+                //default browser instead of opening the page in webview
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                    return super.shouldOverrideUrlLoading(view, request);
+                }
 
-            @Override
-            public void onPageStarted(final WebView view, final String url, Bitmap favicon) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        TextView urlBox = BrowserWindow.this.view.findViewById(R.id.urlBox);
-                        urlBox.setText(url);
-                    }
-                });
+                @Override
+                public void onPageStarted(final WebView view, final String url, Bitmap favicon) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            TextView urlBox = BrowserWindow.this.view.findViewById(R.id.urlBox);
+                            urlBox.setText(url);
+                            BrowserWindow.this.url = url;
+                        }
+                    });
 
-                loadingPageProgress.setVisibility(View.VISIBLE);
+                    loadingPageProgress.setVisibility(View.VISIBLE);
 
-                super.onPageStarted(view, url, favicon);
-            }
+                    super.onPageStarted(view, url, favicon);
+                }
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
 
-                loadingPageProgress.setVisibility(View.GONE);
-            }
+                    loadingPageProgress.setVisibility(View.GONE);
+                }
 
-            @Override
-            public void onLoadResource(final WebView view, final String url) {
-                final String page = view.getUrl();
-                final String title = view.getTitle();
-                new VideoContentSearch(getActivity(), url, page, title) {
-                    @Override
-                    public void onStartInspectingURL() {
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (findingVideoInProgress.getVisibility() == View.GONE) {
-                                    findingVideoInProgress.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        });
-
-                        Utils.disableSSLCertificateChecking();
-                    }
-
-                    @Override
-                    public void onFinishedInspectingURL(boolean finishedAll) {
-                        HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
-                        if (finishedAll) {
+                @Override
+                public void onLoadResource(final WebView view, final String url) {
+                    final String page = view.getUrl();
+                    final String title = view.getTitle();
+                    new VideoContentSearch(getActivity(), url, page, title) {
+                        @Override
+                        public void onStartInspectingURL() {
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    findingVideoInProgress.setVisibility(View.GONE);
+                                    if (findingVideoInProgress.getVisibility() == View.GONE) {
+                                        findingVideoInProgress.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             });
+
+                            Utils.disableSSLCertificateChecking();
+                        }
+
+                        @Override
+                        public void onFinishedInspectingURL(boolean finishedAll) {
+                            HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
+                            if (finishedAll) {
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        findingVideoInProgress.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onVideoFound(String size, String type, String link, String name, String page, boolean chunked, String website) {
+                            videoList.addItem(size, type, link, name, page, chunked, website);
+                            updateFoundVideosBar();
+                        }
+                    }.start();
+                }
+
+                @android.support.annotation.Nullable
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                    if (getActivity() != null) {
+                        if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString(R
+                                .string.adBlockON), true)
+                                && (url.contains("ad") || url.contains("banner") || url.contains("pop"))
+                                && getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
+                            Log.i("loremarTest", "Ads detected: " + url);
+                            return new WebResourceResponse(null, null, null);
                         }
                     }
+                    return super.shouldInterceptRequest(view, url);
+                }
 
-                    @Override
-                    public void onVideoFound(String size, String type, String link, String name, String page, boolean chunked, String website) {
-                        videoList.addItem(size, type, link, name, page, chunked, website);
-                        updateFoundVideosBar();
+                @android.support.annotation.Nullable
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getLMvdActivity() !=
+                            null) {
+                        if (LMvdApp.getInstance().getSharedPreferences("settings", 0).getBoolean(getString
+                                (R.string.adBlockON), true)
+                                && (request.getUrl().toString().contains("ad") ||
+                                request.getUrl().toString().contains("banner") ||
+                                request.getUrl().toString().contains("pop"))
+                                && getLMvdActivity().getBrowserManager().checkUrlIfAds(request.getUrl()
+                                .toString())) {
+                            Log.i("loremarTest", "Ads detected: " + request.getUrl().toString());
+                            return new WebResourceResponse(null, null, null);
+                        } else return null;
+                    } else {
+                        return shouldInterceptRequest(view, request.getUrl().toString());
                     }
-                }.start();
-            }
-
-            @android.support.annotation.Nullable
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString(R
-                        .string.adBlockON), true)
-                        && (url.contains("ad") || url.contains("banner") || url.contains("pop"))
-                        && getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
-                    Log.i("loremarTest", "Ads detected: " + url);
-                    return new WebResourceResponse(null, null, null);
                 }
-                return super.shouldInterceptRequest(view, url);
-            }
-
-            @android.support.annotation.Nullable
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString
-                            (R.string.adBlockON), true)
-                            && (request.getUrl().toString().contains("ad") ||
-                            request.getUrl().toString().contains("banner") ||
-                            request.getUrl().toString().contains("pop"))
-                            && getLMvdActivity().getBrowserManager().checkUrlIfAds(request.getUrl()
-                            .toString())) {
-                        Log.i("loremarTest", "Ads detected: " + request.getUrl().toString());
-                        return new WebResourceResponse(null, null, null);
-                    } else return null;
-                } else {
-                    return shouldInterceptRequest(view, request.getUrl().toString());
+            });
+            page.setWebChromeClient(new WebChromeClient() {
+                @Override
+                public void onProgressChanged(WebView view, int newProgress) {
+                    loadingPageProgress.setProgress(newProgress);
                 }
-            }
-        });
-        page.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                loadingPageProgress.setProgress(newProgress);
-            }
 
-            @Override
-            public void onReceivedTitle(WebView view, String title) {
-                super.onReceivedTitle(view, title);
-                VisitedPage vp = new VisitedPage();
-                vp.title = title;
-                vp.link = view.getUrl();
-                new HistorySQLite(getActivity()).addPageToHistory(vp);
-            }
-        });
-        page.setOnLongClickListener(this);
-        page.loadUrl(url);
+                @Override
+                public void onReceivedTitle(WebView view, String title) {
+                    super.onReceivedTitle(view, title);
+                    VisitedPage vp = new VisitedPage();
+                    vp.title = title;
+                    vp.link = view.getUrl();
+                    new HistorySQLite(getActivity()).addPageToHistory(vp);
+                }
+            });
+            page.setOnLongClickListener(this);
+            page.loadUrl(url);
+            loadedFirsTime = true;
+        } else {
+            TextView urlBox = view.findViewById(R.id.urlBox);
+            urlBox.setText(url);
+        }
     }
 
     @Override
