@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="false"
         android:src="@drawable/ic_close_black_24dp"
-        android:tint="@color/lightGray"
+        android:tint="@color/highlight"
         app:layout_constraintBottom_toBottomOf="@+id/visitedPageTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/visitedPageTitle"

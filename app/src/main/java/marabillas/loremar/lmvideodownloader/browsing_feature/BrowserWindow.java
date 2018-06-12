@@ -543,7 +543,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     private void updateFoundVideosBar() {
         final String videosFoundString = "Videos: " + videoList.getSize() + " found";
         final SpannableStringBuilder sb = new SpannableStringBuilder(videosFoundString);
-        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255));
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color
+                .highlight));
         final StyleSpan bss = new StyleSpan(Typeface.BOLD);
         sb.setSpan(fcs, 8, 8 + String.valueOf(videoList.getSize()).length(), Spanned
                 .SPAN_INCLUSIVE_INCLUSIVE);
@@ -614,12 +615,13 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     }
 
     public void updateNumWindows(int num) {
-        final String numWindowsString = "Windows(" + num + ")";
+        final String numWindowsString = "Windows[" + num + "]";
         final SpannableStringBuilder sb = new SpannableStringBuilder(numWindowsString);
-        final ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255));
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(LMvdApp.getInstance()
+                .getApplicationContext().getResources().getColor(R.color.highlight));
         final StyleSpan bss = new StyleSpan(Typeface.BOLD);
-        sb.setSpan(fcs, 8, 10 + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        sb.setSpan(bss, 8, 10 + num / 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(fcs, 8, 8 + String.valueOf(num).length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(bss, 8, 8 + String.valueOf(num).length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

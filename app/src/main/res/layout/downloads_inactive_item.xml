@@ -37,7 +37,6 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginStart="5dp"
-        android:layout_marginLeft="5dp"
         android:gravity="center_vertical" />
 
     <TextView
@@ -75,15 +74,14 @@
         app:layout_constraintTop_toBottomOf="@id/downloadInactiveName"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp" />
+        android:layout_marginStart="10dp" />
 
     <TextView
         android:id="@+id/goToPageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/go_to_page"
-        android:background="@drawable/white_button"
+        android:background="@drawable/rounded_button"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingStart="10dp"
@@ -93,7 +91,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveProgressText"
         app:layout_constraintBottom_toBottomOf="@id/downloadInactiveProgressText"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginStart="20dp" />
 
 </android.support.constraint.ConstraintLayout>

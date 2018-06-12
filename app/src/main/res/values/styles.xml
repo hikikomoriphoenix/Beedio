@@ -22,7 +22,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.DeviceDefault.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
 </resources>

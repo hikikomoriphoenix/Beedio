@@ -23,7 +23,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/primaryColor">
 
     <ImageView
         android:id="@+id/menu"
@@ -63,8 +63,9 @@
             android:id="@+id/historySearchIcon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@drawable/ic_search_24dp"
+            android:src="@drawable/ic_search_24dp"
             android:cropToPadding="false"
+            android:tint="@color/primaryColor"
             tools:ignore="ContentDescription" />
     </LinearLayout>
 
@@ -87,7 +88,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/white_button"
+        android:background="@drawable/rounded_button"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"

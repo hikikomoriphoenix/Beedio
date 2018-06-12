@@ -95,7 +95,7 @@
         android:id="@+id/moveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/white_button"
+        android:background="@drawable/rounded_button"
         android:text="@string/move"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"

@@ -55,8 +55,8 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:text="@string/xClose"
-            android:textColor="@android:color/white"
-            android:background="#dd0000"
+            android:textColor="@color/secondaryColor"
+            android:background="@color/primaryColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/urlBox"
             app:layout_constraintTop_toTopOf="@id/urlBox"
@@ -103,7 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/prev"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
@@ -113,7 +113,7 @@
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="@color/secondaryColor"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
 
@@ -122,7 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/next"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
@@ -132,7 +132,7 @@
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="@color/secondaryColor"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
 
@@ -141,7 +141,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bookmark_this_page"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
@@ -151,7 +151,7 @@
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="@color/secondaryColor"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
 
@@ -160,7 +160,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/reload"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
@@ -170,7 +170,7 @@
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="@color/secondaryColor"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
 
@@ -178,7 +178,7 @@
             android:id="@+id/numWindows"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
@@ -190,7 +190,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/plus"
-            android:background="@android:color/white"
+            android:background="@color/secondaryColor"
+            android:textColor="@color/primaryColor"
             android:textStyle="bold"
             android:textSize="12sp"
             android:gravity="center"
@@ -222,7 +223,7 @@
             android:id="@+id/videosFoundText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_gravity="center_vertical"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
@@ -246,7 +247,7 @@
             app:layout_constraintBottom_toTopOf="@id/foundVideosFooter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:background="@drawable/darkgraybounds" />
+            android:background="@drawable/found_videos_window_bg" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/foundVideosFooter"
@@ -257,15 +258,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:padding="10dp"
-            android:background="@drawable/darkgraybounds">
+            android:background="@drawable/found_videos_window_bg">
 
-            <TextView
+            <marabillas.loremar.lmvideodownloader.utils.CustomButton
                 android:id="@+id/foundVideosQueue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/white_button"
                 android:text="@string/queue"
-                android:textColor="@android:color/black"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -274,16 +273,14 @@
                 android:paddingLeft="14dp"
                 android:paddingEnd="14dp"
                 android:paddingRight="14dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp" />
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
 
-            <TextView
+            <marabillas.loremar.lmvideodownloader.utils.CustomButton
                 android:id="@+id/foundVideosDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/white_button"
                 android:text="@string/delete"
-                android:textColor="@android:color/black"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/foundVideosQueue"
@@ -292,16 +289,14 @@
                 android:paddingLeft="14dp"
                 android:paddingEnd="14dp"
                 android:paddingRight="14dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp" />
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
 
-            <TextView
+            <marabillas.loremar.lmvideodownloader.utils.CustomButton
                 android:id="@+id/foundVideosClose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/white_button"
                 android:text="@string/close"
-                android:textColor="@android:color/black"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/foundVideosDelete"
@@ -310,8 +305,8 @@
                 android:paddingLeft="14dp"
                 android:paddingEnd="14dp"
                 android:paddingRight="14dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp" />
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
         </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 

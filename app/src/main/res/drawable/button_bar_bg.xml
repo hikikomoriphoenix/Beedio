@@ -20,8 +20,8 @@
 
 <shape android:shape="rectangle"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/lightGray" />
+    <solid android:color="@color/primaryColor" />
     <stroke
-        android:color="@android:color/black"
+        android:color="@color/secondaryColor"
         android:width="1dp" />
 </shape>
