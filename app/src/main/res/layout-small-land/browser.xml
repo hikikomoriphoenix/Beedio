@@ -174,7 +174,7 @@
             android:id="@+id/numWindows"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
+            android:textColor="@color/secondaryColor"
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"

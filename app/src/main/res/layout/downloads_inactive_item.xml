@@ -52,6 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_close_black_24dp"
+        android:tint="@color/secondaryColor"
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveName"
@@ -62,6 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_edit_black_24dp"
+        android:tint="@color/secondaryColor"
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toStartOf="@id/deleteDownloadInactiveItem"
         app:layout_constraintTop_toTopOf="@id/downloadInactiveName"
@@ -76,12 +78,11 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp" />
 
-    <TextView
+    <marabillas.loremar.lmvideodownloader.utils.CustomButton
         android:id="@+id/goToPageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/go_to_page"
-        android:background="@drawable/rounded_button"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingStart="10dp"

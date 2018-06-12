@@ -27,5 +27,5 @@
     <color name="primaryColor">#0fcdea</color>
     <color name="secondaryColor">#ffffff</color>
     <color name="tertiaryColor">#bbbbbb</color>
-    <color name="highlight">#2b4a69</color>
+    <color name="darkColor">#2b4a69</color>
 </resources>

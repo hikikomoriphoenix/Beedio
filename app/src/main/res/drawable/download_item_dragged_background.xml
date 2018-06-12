@@ -21,8 +21,7 @@
 <shape android:shape="rectangle"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <stroke
-        android:color="@color/green"
+        android:color="@color/primaryColor"
         android:width="3dp" />
-    <corners android:radius="10dp" />
-    <solid android:color="@android:color/white" />
+    <corners android:radius="5dp" />
 </shape>

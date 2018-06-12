@@ -25,6 +25,14 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <View
+        android:id="@+id/bookmarksTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/primaryColor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/bookmarksNewFolder" />
+
     <ImageView
         android:id="@+id/bookmarksMenuButton"
         android:layout_width="wrap_content"
@@ -39,17 +47,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/bookmarks_new_folder"
+        android:textColor="@color/secondaryColor"
+        android:padding="5dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/bookmarksTopBorder"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <View
-        android:id="@+id/bookmarksTopBorder"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/lightGray"
-        app:layout_constraintTop_toBottomOf="@id/bookmarksMenuButton"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <android.support.v7.widget.RecyclerView
@@ -59,7 +59,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bookmarksBottomBorder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bookmarksTopBorder" />
+        app:layout_constraintTop_toBottomOf="@id/bookmarksTopBar" />
 
     <View
         android:id="@+id/bookmarksBottomBorder"
