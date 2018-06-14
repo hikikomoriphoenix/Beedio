@@ -61,4 +61,5 @@
     <string name="search">Search</string>
     <string name="clear_history">Clear History</string>
     <string name="ad_blocker">Ad Blocker</string>
+    <string name="app_title">LM videodownloader</string>
 </resources>
