@@ -44,15 +44,12 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.text.SpannableStringBuilder;
@@ -83,7 +80,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
     private Handler mainHandler;
     private Tracking tracking;
 
-    private TabLayout tabs;
+    //private TabLayout tabs;
     private TextView inProgressTab;
     private TextView completedTab;
     private TextView inactiveTab;
@@ -137,7 +134,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
             pager = view.findViewById(R.id.downloadsPager);
             pager.setAdapter(new PagerAdapter());
 
-            if (Build.VERSION.SDK_INT >= 22) {
+            /*if (Build.VERSION.SDK_INT >= 22) {
                 tabs = view.findViewById(R.id.downloadsTabs);
                 tabs.addTab(tabs.newTab());
                 tabs.addTab(tabs.newTab());
@@ -160,59 +157,59 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
                     }
                 });
-            } else {
-                LinearLayout tabs0 = view.findViewById(R.id.downloadsTabs);
-                inProgressTab = tabs0.findViewById(R.id.inProgressTab);
-                completedTab = tabs0.findViewById(R.id.completedTab);
-                inactiveTab = tabs0.findViewById(R.id.inactiveTab);
+            } else {*/
+            LinearLayout tabs0 = view.findViewById(R.id.downloadsTabs);
+            inProgressTab = tabs0.findViewById(R.id.inProgressTab);
+            completedTab = tabs0.findViewById(R.id.completedTab);
+            inactiveTab = tabs0.findViewById(R.id.inactiveTab);
 
-                pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        super.onPageSelected(position);
-                        switch (position) {
-                            case 0:
-                                unboxPreviousSelectedPageTab();
-                                boxNewSelectedPageTab(inProgressTab);
-                                break;
-                            case 1:
-                                unboxPreviousSelectedPageTab();
-                                boxNewSelectedPageTab(completedTab);
-                                break;
-                            case 2:
-                                unboxPreviousSelectedPageTab();
-                                boxNewSelectedPageTab(inactiveTab);
-                        }
+            pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    switch (position) {
+                        case 0:
+                            unboxPreviousSelectedPageTab();
+                            boxNewSelectedPageTab(inProgressTab);
+                            break;
+                        case 1:
+                            unboxPreviousSelectedPageTab();
+                            boxNewSelectedPageTab(completedTab);
+                            break;
+                        case 2:
+                            unboxPreviousSelectedPageTab();
+                            boxNewSelectedPageTab(inactiveTab);
                     }
-                });
+                }
+            });
 
-                inProgressTab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        unboxPreviousSelectedPageTab();
-                        boxNewSelectedPageTab(inProgressTab);
-                        pager.setCurrentItem(0);
-                    }
-                });
+            inProgressTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unboxPreviousSelectedPageTab();
+                    boxNewSelectedPageTab(inProgressTab);
+                    pager.setCurrentItem(0);
+                }
+            });
 
-                completedTab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        unboxPreviousSelectedPageTab();
-                        boxNewSelectedPageTab(completedTab);
-                        pager.setCurrentItem(1);
-                    }
-                });
+            completedTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unboxPreviousSelectedPageTab();
+                    boxNewSelectedPageTab(completedTab);
+                    pager.setCurrentItem(1);
+                }
+            });
 
-                inactiveTab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        unboxPreviousSelectedPageTab();
-                        boxNewSelectedPageTab(inactiveTab);
-                        pager.setCurrentItem(2);
-                    }
-                });
-            }
+            inactiveTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unboxPreviousSelectedPageTab();
+                    boxNewSelectedPageTab(inactiveTab);
+                    pager.setCurrentItem(2);
+                }
+            });
+
             pager.setOffscreenPageLimit(2);//default is 1 which would make Inactive tab not diplay
 
             downloadsInProgress = new DownloadsInProgress();
@@ -270,6 +267,13 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         return view;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        pager.setCurrentItem(0);
+        boxNewSelectedPageTab(inProgressTab);
+    }
+
     private void unboxPreviousSelectedPageTab() {
         if (pageSelected != null) {
             pageSelected.setBackground(null);
@@ -279,7 +283,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
 
     private void boxNewSelectedPageTab(TextView selected) {
         pageSelected = selected;
-        pageSelected.setBackground(new ColorDrawable(Color.LTGRAY));
+        pageSelected.setBackground(getResources().getDrawable(R.drawable.tab_text_bg));
     }
 
     @Override
@@ -296,14 +300,13 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
                 SpannableStringBuilder tabText = createStyledTabText(12, downloadsInProgress
                         .getNumDownloadsInProgress(), "In Progress " + downloadsInProgress
                         .getNumDownloadsInProgress());
-                if (Build.VERSION.SDK_INT >= 22) {
+                /*if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(0);
                     if (tab != null) {
                         tab.setText(tabText);
                     }
-                } else {
+                } else {*/
                     inProgressTab.setText(tabText);
-                }
             }
         });
     }
@@ -316,14 +319,13 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
                 SpannableStringBuilder tabText = createStyledTabText(10, downloadsCompleted
                         .getNumDownloadsCompleted(), "Completed " + downloadsCompleted
                         .getNumDownloadsCompleted());
-                if (Build.VERSION.SDK_INT >= 22) {
+                /*if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(1);
                     if (tab != null) {
                         tab.setText(tabText);
                     }
-                } else {
+                } else {*/
                     completedTab.setText(tabText);
-                }
             }
         });
     }
@@ -336,14 +338,13 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
                 SpannableStringBuilder tabText = createStyledTabText(9, downloadsInactive
                         .getNumDownloadsInactive(), "Inactive " + downloadsInactive
                         .getNumDownloadsInactive());
-                if (Build.VERSION.SDK_INT >= 22) {
+                /*if (Build.VERSION.SDK_INT >= 22) {
                     TabLayout.Tab tab = tabs.getTabAt(2);
                     if (tab != null) {
                         tab.setText(tabText);
                     }
-                } else {
+                } else {*/
                     inactiveTab.setText(tabText);
-                }
             }
         });
     }
@@ -352,9 +353,9 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         SpannableStringBuilder sb = new SpannableStringBuilder(text);
         ForegroundColorSpan fcs;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            fcs = new ForegroundColorSpan(getResources().getColor(R.color.green));
+            fcs = new ForegroundColorSpan(getResources().getColor(R.color.darkColor));
         } else {
-            fcs = new ForegroundColorSpan(getResources().getColor(R.color.green, null));
+            fcs = new ForegroundColorSpan(getResources().getColor(R.color.darkColor, null));
         }
         sb.setSpan(fcs, start, start + String.valueOf(num).length(), Spanned
                 .SPAN_INCLUSIVE_INCLUSIVE);

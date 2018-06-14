@@ -23,7 +23,7 @@
         <clip>
             <shape android:shape="rectangle"
                 xmlns:android="http://schemas.android.com/apk/res/android">
-                <solid android:color="@color/green" />
+                <solid android:color="@color/primaryColor" />
             </shape>
         </clip>
 

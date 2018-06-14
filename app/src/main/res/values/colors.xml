@@ -19,9 +19,9 @@
   -->
 
 <resources>
-    <color name="lightGray">#bbbbbb</color>
-    <color name="blue">#0000ff</color>
-    <color name="green">#004400</color>
     <color name="darkGray">#555555</color>
-    <color name="drawerColor">#2b4a69</color>
+    <color name="primaryColor">#0fcdea</color>
+    <color name="secondaryColor">#ffffff</color>
+    <color name="tertiaryColor">#bbbbbb</color>
+    <color name="darkColor">#2b4a69</color>
 </resources>

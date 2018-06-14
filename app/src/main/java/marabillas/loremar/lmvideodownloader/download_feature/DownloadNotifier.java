@@ -57,9 +57,9 @@ public class DownloadNotifier {
                 NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext());
             }
             NB.setContentTitle("Downloading " + filename)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_launcher_round)
                     .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance()
-                            .getApplicationContext().getResources(), R.mipmap.ic_launcher))
+                            .getApplicationContext().getResources(), R.mipmap.ic_launcher_round))
                     .setOngoing(true);
             if (downloadServiceIntent.getBooleanExtra("chunked", false)) {
                 File file = new File(Environment.getExternalStoragePublicDirectory(Environment
@@ -127,18 +127,18 @@ public class DownloadNotifier {
                     .setTimeoutAfter(1500)
                     .setContentTitle("Download Finished")
                     .setContentText(filename)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_launcher_round)
                     .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance().getApplicationContext().getResources(),
-                            R.mipmap.ic_launcher));
+                            R.mipmap.ic_launcher_round));
             notificationManager.notify(8888, NB.build());
         } else {
             NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext())
                     .setTicker("Download Finished")
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_launcher_round)
                     .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance().getApplicationContext().getResources(),
-                            R.mipmap.ic_launcher));
+                            R.mipmap.ic_launcher_round));
             notificationManager.notify(8888, NB.build());
             notificationManager.cancel(8888);
         }

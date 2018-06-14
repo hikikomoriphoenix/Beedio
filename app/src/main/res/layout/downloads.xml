@@ -31,7 +31,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/primaryColor">
 
         <ImageView
             android:id="@+id/menuButton"
@@ -51,7 +52,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/remaining"
-            android:text="@string/speed_0" />
+            android:text="@string/speed_0"
+            android:textColor="@color/secondaryColor" />
 
         <TextView
             android:id="@+id/remaining"
@@ -61,7 +63,8 @@
             app:layout_constraintStart_toEndOf="@id/downloadSpeed"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:text="@string/remaining_undefine" />
+            android:text="@string/remaining_undefine"
+            android:textColor="@color/secondaryColor" />
 
     </android.support.constraint.ConstraintLayout>
 
@@ -72,20 +75,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/downloadsTopBar"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@color/primaryColor">
 
         <TextView
             android:id="@+id/inProgressTab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="5dp"
+            android:layout_margin="5dp"
             android:gravity="center" />
 
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="@color/secondaryColor"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
 
@@ -94,13 +98,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="5dp"
+            android:layout_margin="5dp"
             android:gravity="center" />
 
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="@color/secondaryColor"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp" />
 
@@ -109,7 +113,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="5dp"
+            android:layout_margin="5dp"
             android:gravity="center" />
     </LinearLayout>
 

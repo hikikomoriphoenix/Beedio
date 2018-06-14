@@ -43,18 +43,22 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias="0.2"
             android:layout_marginStart="20dp"
-            android:hint="@string/enter_web" />
+            android:hint="@string/enter_web"
+            android:backgroundTint="@color/primaryColor"
+            tools:targetApi="lollipop" />
 
         <ImageButton
             android:id="@+id/go"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_forward_black_24dp"
-            android:tint="@color/green"
+            android:src="@drawable/ic_arrow_forward_black"
+            android:background="@drawable/ic_arrow_bg"
+            android:tint="@color/secondaryColor"
             tools:ignore="ContentDescription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/web"
-            android:layout_marginEnd="20dp" />
+            android:layout_marginEnd="20dp"
+            android:padding="5dp" />
 
         <ImageView
             android:id="@+id/menuButton"
@@ -68,33 +72,76 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        android:background="@color/drawerColor">
+        android:fitsSystemWindows="true">
 
-        <ListView
-            android:id="@+id/menu"
-            android:layout_width="wrap_content"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/menuLogoArea"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:divider="@null"
+            android:background="@color/tertiaryColor"
+            app:layout_constraintEnd_toEndOf="@id/drawerMenus"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <Switch
-            android:id="@+id/adBlockerSwitch"
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="50dp"
+                android:src="@drawable/ic_launcher"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/logoTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/app_title"
+                android:textColor="@color/secondaryColor"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/logo" />
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/drawerMenus"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ad_blocker"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menu"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:gravity="center_vertical"
-            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-            android:minHeight="?android:attr/listPreferredItemHeightSmall"
-            android:textColor="@android:color/white" />
+            android:layout_height="0dp"
+            android:background="@color/darkColor"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuLogoArea">
+
+            <ListView
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:divider="@null"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Switch
+                android:id="@+id/adBlockerSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="?android:attr/listPreferredItemHeightSmall"
+                android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:text="@string/ad_blocker"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/menu" />
+        </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 
 

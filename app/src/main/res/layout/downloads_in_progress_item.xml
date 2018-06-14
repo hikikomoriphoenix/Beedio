@@ -37,12 +37,14 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginStart="5dp"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:textColor="@android:color/black" />
 
     <TextView
         android:id="@+id/downloadVideoExt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
         app:layout_constraintStart_toEndOf="@id/downloadVideoName"
         app:layout_constraintTop_toTopOf="@id/downloadVideoName"
         app:layout_constraintBottom_toBottomOf="@id/downloadVideoName" />
@@ -52,6 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_close_black_24dp"
+        android:tint="@color/secondaryColor"
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/downloadVideoName"
@@ -62,6 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_edit_black_24dp"
+        android:tint="@color/secondaryColor"
         tools:ignore="ContentDescription"
         app:layout_constraintEnd_toStartOf="@id/deleteDownloadItem"
         app:layout_constraintTop_toTopOf="@id/downloadVideoName"
@@ -89,13 +93,13 @@
         app:layout_constraintTop_toBottomOf="@id/downloadProgressBar"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp" />
+        android:layout_marginStart="10dp"
+        android:textColor="@android:color/black" />
 
-    <TextView
+    <marabillas.loremar.lmvideodownloader.utils.CustomButton
         android:id="@+id/moveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/white_button"
         android:text="@string/move"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"

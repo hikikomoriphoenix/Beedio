@@ -64,9 +64,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,19 +101,8 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
         setRetainInstance(true);
 
         videos = new ArrayList<>();
-        File file = new File(getActivity().getFilesDir(), "completed.dat");
-        if (file.exists()) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                completedVideos = (CompletedVideos) objectInputStream.readObject();
-                videos = completedVideos.getVideos();
-                objectInputStream.close();
-                fileInputStream.close();
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-        }
+        completedVideos = CompletedVideos.load(getActivity());
+        videos = completedVideos.getVideos();
 
         if (view == null) {
             view = inflater.inflate(R.layout.downloads_completed, container, false);
