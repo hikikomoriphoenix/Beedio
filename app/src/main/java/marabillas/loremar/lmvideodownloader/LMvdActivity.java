@@ -21,7 +21,9 @@
 package marabillas.loremar.lmvideodownloader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -33,6 +35,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -90,7 +93,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
 
         ListView listView = findViewById(R.id.menu);
         String[] menuItems = new String[]{"Home", "Browser", "Downloads", "Bookmarks",
-                "History"};
+                "History", "About"};
         ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout
                 .simple_list_item_1, menuItems) {
             @NonNull
@@ -213,6 +216,21 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         }
     }
 
+    private void aboutClicked() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View v = inflater.inflate(R.layout.about, ((ViewGroup) this.getWindow().getDecorView()), false);
+        new AlertDialog.Builder(this)
+                .setView(v)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .create()
+                .show();
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         layout.closeDrawers();
@@ -231,6 +249,9 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 break;
             case 4:
                 historyClicked();
+                break;
+            case 5:
+                aboutClicked();
                 break;
         }
     }

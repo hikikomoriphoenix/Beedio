@@ -62,4 +62,7 @@
     <string name="clear_history">Clear History</string>
     <string name="ad_blocker">Ad Blocker</string>
     <string name="app_title">LM videodownloader</string>
+    <string name="about">LM videodownloader is a browser app for downloading videos
+        \n\nCopyright ©2018 Loremar Marabillas\n\nThis program is free software and licensed
+        under the GNU General Public License v2.0 </string>
 </resources>

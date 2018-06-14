@@ -19,7 +19,6 @@
   -->
 
 <resources>
-    <color name="lightGray">#bbbbbb</color>
     <color name="darkGray">#555555</color>
     <color name="primaryColor">#0fcdea</color>
     <color name="secondaryColor">#ffffff</color>
