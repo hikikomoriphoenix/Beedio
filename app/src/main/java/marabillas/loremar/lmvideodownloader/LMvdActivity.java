@@ -33,6 +33,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -118,6 +120,10 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 prefs.edit().putBoolean(getString(R.string.adBlockON), isChecked).apply();
             }
         });
+
+        RecyclerView videoSites = findViewById(R.id.homeSites);
+        videoSites.setAdapter(new VideoStreamingSitesList(this));
+        videoSites.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
