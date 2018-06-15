@@ -87,10 +87,15 @@
             app:layout_constraintTop_toBottomOf="@id/homeSitesTitle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="5dp"
             android:layout_marginStart="20dp"
             android:layout_marginBottom="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:scrollbars="vertical"
             android:fadeScrollbars="false"
-            android:verticalScrollbarPosition="left" />
+            android:verticalScrollbarPosition="left"
+            android:scrollbarStyle="outsideInset" />
 
     </android.support.constraint.ConstraintLayout>
 
