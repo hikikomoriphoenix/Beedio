@@ -69,6 +69,34 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/homeSitesTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/try_these_sites"
+            app:layout_constraintTop_toBottomOf="@id/web"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/homeSites"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/homeSitesTitle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            android:verticalScrollbarPosition="left"
+            android:scrollbarStyle="outsideInset" />
+
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
@@ -117,12 +145,12 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/menuLogoArea">
+            app:layout_constraintTop_toBottomOf="@id/menuLogoArea"
+            android:background="@color/darkColor">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:background="@color/darkColor">
+                android:layout_height="0dp">
 
                 <marabillas.loremar.lmvideodownloader.utils.NonScrollListView
                     android:id="@+id/menu"
