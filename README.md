@@ -1,8 +1,15 @@
-## Download APK
+# <img src="https://raw.githubusercontent.com/hikikomoriphoenix/LM-videodownloader/master/app/src/main/res/drawable/ic_launcher.png" height="48" width="48"> LM videodownloader
+
+[![](https://img.shields.io/badge/download-LMvideodownloader_v1.0.0.apk-green.svg)](https://drive.google.com/open?id=10CjOungp22GNK4CXr_Amo2m7cKIWYdGk) [![](https://img.shields.io/badge/releases-latest-blue.svg)](https://github.com/hikikomoriphoenix/LM-videodownloader/releases/latest) 
+[![GitHub license](https://img.shields.io/github/license/hikikomoriphoenix/LM-videodownloader.svg)](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
+
+ LM videodownloader is an Android app that lets you find downloadable videos as you browse the web. Files are queued for downloading. Also includes bookmarking and ad-blocking features for easier browsing experience.
+
+## Download Links
 [LMvideodownloader_v1.0.0.apk](https://drive.google.com/open?id=10CjOungp22GNK4CXr_Amo2m7cKIWYdGk)
 
 ## License
-[GNU GPLv2](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
+LM videodownloader is open source free software and license under [GNU General Public License v2.0](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
 
 ## Screenshots
 <img src="https://lh3.googleusercontent.com/N_wYAk_GFo4FeHCLiYhrM8OGKZqjQU5AOu22Ongs60mATRkR_5bKibCvcJve-RP0b74t3n4nUV5RR2ObLdDc9ifm-QaAgLXhL2oknHN2kOJCmyN8Bn-hkN2E83Hdq6pRGKyzkoeYeZiCtm8oNwwJo2IShGu7TnY7N3wCNmuDzFzWniStLKxJR0EWuRk2rxYOuiWvfU8V4pRuh4rb0nfUBNPWhRNOaAhLPNQ_ojsTMkcSwr79wfitH9upVTHpSu_kx_YrNa1ThXeVp8S7pv_LPUYbto-DmkMR9I0HNq-2nlqHMlXabQ6jsEKPtRN9H_gFpZavixKaPxvTsg9sXU7fKlp7Yhsk4LXFgw2k8KnA4UD8i5rMR9-WJhESpciSL9l6Y5-WNOrAwxxIoXsQq7rkElZr3Y7wsMYUPweVOEleVq6L1kKlWG78mf3Nzm4To1p7ZpopWN67MFY8TXCVHY-39B_j_3Ny-Y2jY9IxvTgrvAdoWTFaC7PtYdx3ozfP2jc9K7QIQixjPY8MhPto0Q0AQk3BxAzm9lIdUyRR2DbHk7vZgYzp3JRH1oUqswpFtUJYXnMxzNE56QRuRAV7hRAjrfJ9KCM1g9fOg5DRfQ=w216-h384-no">   <img src="https://lh3.googleusercontent.com/PzyOD8p8BaSOk0y3utoQaffut9eaprR0-OikeK1tfzuRSRdou4_4TrDl9Gc6uSVEjIzuCLSqe5XrOTdANodRkLOwcGdzRWKC6awTYvIulyEg95tg1pU0gxLbX3U5jgP26uxEC412tTYHjRU4KRi9ttR0_7hhAZBBiAbhNwylOA-thPsxlT3qb1v5HJIxMQjv6bpGoBrUfl6TPF7ER2AKLGKJ1SOjbF-gP3TPU315PmtPJv4w_E7PDCGSay3YhB2xUNmLeJlZ5fL8exdDOKZuGY2b1MmAgQ9D-Pm1X85uw0wWmFvjSRap18vpcEShfKLu2GpND81DEiDn_1kDoX9zGzTCwU-F6YPtz2lpW0b3efaxR5OrTxrbOw6ZUeOdOatjCgijXEZwKs5dFOSw2bRgqdzzyxg_B0ijiB4tF1tGZeI0X0LxoR9diuXJoa-s8iEcg5rM47pMjzFFeB4AqjfFp9EX59msSuolGWwIoEIvinKuZ5bzGzCHHc5nrbCHqUWFrSTfLrg-3pfBQDYJP2zjC3rBQCCiBLTloaz-KQTrLZUV92SzIA25-8z7HoKYnZXcVRYpp3J6ldmw64tVuibuDBaldlbRVsbN-rHZ-Q=w216-h384-no">   <img src="https://lh3.googleusercontent.com/7XpbiGOizzEfNY8QbWYO7vJ2dbHFIo6d4NizzURMqcjw8IzCYbD6USKxZVa055xi5JswWI5F3EeADC9GT8sRivXTorJtAgz2_3LRbF5H5SgUzpjRYHDxqub497FJ-YtjsCfh6tddcaG4lMCsvKtNIfRC6R4wY7L_PcApPkRyC6GHnyY_SHNCnQzY7l60ewtGG9W924xUQwsXGivuglfjH_3nWpZmoNwmzQNe4xXBXsekUY9vm8ZFZD2fuKGKqRNT9oWlbLMkQzj0H9GV3W_Fv6cDhlGkBfDYyfz4ebx4tW4h7N8Y_HsPVM4E0FUyPAolAfhlyIURFTKB7La-3UwBpof7vqxxb9nyM1VyRgRvXzm18hhTZ_mEFvMcWOIPkn2wBv3gIawNSjxr55HYtgn1hajvgMb05mlbzWI1xH2gSlq48jN69laPz6NENBSXjEla-UYvTwIFn6qKvFwQxi-A7r2zpumphQx7nV5LG_wixCGCMvafeTMkK-UqiYrIdNtln0TrNgtZhICmgaRkb06xllL8MNccoyKVX2ESn35sF5D1Ek-PZS-uRFUnr9EHqqqEuXFVARKo_dSvAnjsPlGVALjY2Oxln9mq4Ti7Rg=w216-h384-no">
