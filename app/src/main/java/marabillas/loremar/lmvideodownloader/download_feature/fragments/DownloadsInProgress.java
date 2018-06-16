@@ -160,6 +160,13 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        DownloadManager.setOnDownloadFinishedListener(null);
+        DownloadManager.setOnLinkNotFoundListener(null);
+        super.onDestroyView();
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
