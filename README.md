@@ -8,6 +8,10 @@
 ## Download Links
 [LMvideodownloader_v1.0.0.apk](https://drive.google.com/open?id=10CjOungp22GNK4CXr_Amo2m7cKIWYdGk)
 
+## Requirements
+**Minimum version:** Android 4.4(KITKAT) <br>
+**Recommended version:** Android 8.1(OREO)
+
 ## License
 LM videodownloader is open source free software and license under [GNU General Public License v2.0](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
 
