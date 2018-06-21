@@ -1,7 +1,7 @@
 # <img src="https://raw.githubusercontent.com/hikikomoriphoenix/LM-videodownloader/master/app/src/main/res/drawable/ic_launcher.png" height="48" width="48"> LM videodownloader
 
 [![](https://img.shields.io/badge/download-LMvideodownloader_v1.0.0.apk-green.svg)](https://drive.google.com/open?id=10CjOungp22GNK4CXr_Amo2m7cKIWYdGk) [![](https://img.shields.io/badge/releases-latest-blue.svg)](https://github.com/hikikomoriphoenix/LM-videodownloader/releases/latest) 
-[![GitHub license](https://img.shields.io/github/license/hikikomoriphoenix/LM-videodownloader.svg)](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
+[![](https://img.shields.io/badge/license-GPL--2.0-orange.svg)](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
 
  LM videodownloader is an Android app that lets you find downloadable videos as you browse the web. Files are queued for downloading. Also includes bookmarking and ad-blocking features for easier browsing experience.
 
