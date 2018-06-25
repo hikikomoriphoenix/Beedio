@@ -13,7 +13,7 @@
 **Recommended version:** Android 8.1(OREO)
 
 ## License
-LM videodownloader is open source free software and license under [GNU General Public License v2.0](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
+LM videodownloader is open source free software and licensed under [GNU General Public License v2.0](https://github.com/hikikomoriphoenix/LM-videodownloader/blob/master/LICENSE)
 
 Copyright ©2018 Loremar Marabillas
 
