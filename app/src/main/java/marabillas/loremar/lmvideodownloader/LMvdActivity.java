@@ -127,7 +127,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        System.out.println("opening webview");
         new WebConnect(webBox, this).connect();
         return false;
     }
@@ -148,7 +147,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     public void onClick(View v) {
         if (getCurrentFocus() != null) {
             Utils.hideSoftKeyboard(this, getCurrentFocus().getWindowToken());
-            System.out.println("opening webview");
             new WebConnect(webBox, this).connect();
         }
     }

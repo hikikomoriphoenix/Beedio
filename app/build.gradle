@@ -21,6 +21,9 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release
+    }
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     defaultConfig {
@@ -33,15 +36,40 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 
+                    'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            if (project.hasProperty("AndroidProject.signing")
+                    && new File(project.property("AndroidProject.signing").toString()).exists()) {
+                def Properties props = new Properties()
+                def propFile = new File(project.property("AndroidProject.signing").toString())
+                if(propFile.canRead()) {
+                    props.load(new FileInputStream(propFile))
+                    if (props!=null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+                            props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+                        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+                        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+                        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+                        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+                    } else {
+                        println 'androidproject.properties found but some entries are missing'
+                        android.buildTypes.release.signingConfig = null
+                    }
+                } else {
+                    println 'androidproject.properties file not found'
+                    android.buildTypes.release.signingConfig = null
+                }
+            }
         }
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
