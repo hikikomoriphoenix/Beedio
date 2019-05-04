@@ -1,0 +1,31 @@
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?><!--\n  ~     LM videodownloader is a browser app for android, made to easily\n  ~     download videos.\n  ~     Copyright (C) 2018 Loremar Marabillas\n  ~\n  ~     This program is free software; you can redistribute it and/or modify\n  ~     it under the terms of the GNU General Public License as published by\n  ~     the Free Software Foundation; either version 2 of the License, or\n  ~     (at your option) any later version.\n  ~\n  ~     This program is distributed in the hope that it will be useful,\n  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of\n  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n  ~     GNU General Public License for more details.\n  ~\n  ~     You should have received a copy of the GNU General Public License along\n  ~     with this program; if not, write to the Free Software Foundation, Inc.,\n  ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n  -->\n\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    package=\"marabillas.loremar.lmvideodownloader\">\n\n    <uses-permission android:name=\"android.permission.INTERNET\" />\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />\n\n    <application\n        android:allowBackup=\"true\"\n        android:icon=\"@mipmap/ic_launcher\"\n        android:label=\"@string/app_name\"\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\n        android:supportsRtl=\"true\"\n        android:theme=\"@style/AppTheme\">\n        <activity\n            android:name=\".LMvdActivity\"\n            android:windowSoftInputMode=\"stateHidden\">\n            <intent-filter>\n                <action android:name=\"android.intent.action.MAIN\" />\n\n                <category android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n            <intent-filter>\n                <action android:name=\"android.intent.action.VIEW\" />\n\n                <category android:name=\"android.intent.category.DEFAULT\" />\n                <category android:name=\"android.intent.category.BROWSABLE\" />\n\n                <data\n                    android:scheme=\"https\"\n                    android:host=\"gogoanime.se\" />\n            </intent-filter>\n        </activity>\n\n        <service\n            android:name=\".download_feature.DownloadManager\"\n            android:exported=\"false\" />\n\n        <provider\n            android:authorities=\"marabillas.loremar.lmvideodownloader.fileprovider\"\n            android:name=\"android.support.v4.content.FileProvider\"\n            android:exported=\"false\"\n            android:grantUriPermissions=\"true\">\n            <meta-data\n                android:name=\"android.support.FILE_PROVIDER_PATHS\"\n                android:resource=\"@xml/paths\" />\n        </provider>\n    </application>\n\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(date 1526974258000)
++++ app/src/main/AndroidManifest.xml	(date 1527017159000)
+@@ -45,6 +45,21 @@
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.BROWSABLE" />
+ 
++                <data
++                    android:scheme="https"
++                    android:host="youtube.com" />
++                <data
++                    android:scheme="https"
++                    android:host="veoh.com" />
++                <data
++                    android:scheme="https"
++                    android:host="fc2.com" />
++                <data
++                    android:scheme="https"
++                    android:host="vimeo.com" />
++                <data
++                    android:scheme="https"
++                    android:host="dailymotion.com" />
+                 <data
+                     android:scheme="https"
+                     android:host="gogoanime.se" />
