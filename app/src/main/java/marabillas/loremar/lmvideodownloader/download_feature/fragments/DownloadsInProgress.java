@@ -484,23 +484,23 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                             File renamedFile = new File(Environment
                                     .getExternalStoragePublicDirectory
                                             (Environment.DIRECTORY_DOWNLOADS), downloads.get
-                                    (getAdapterPosition()).name + ext.getText().toString());
+                                    (itemToRenamePosition).name + ext.getText().toString());
                             File file = new File(Environment.getExternalStoragePublicDirectory
                                     (Environment.DIRECTORY_DOWNLOADS), name.getText().toString()
                                     + ext.getText().toString());
                             if (file.exists()) {
                                 if (file.renameTo(renamedFile)) {
                                     saveQueues();
-                                    getAdapter().notifyItemChanged(getAdapterPosition());
+                                    getAdapter().notifyItemChanged(itemToRenamePosition);
                                 } else {
-                                    downloads.get(getAdapterPosition()).name = name.getText()
+                                    downloads.get(itemToRenamePosition).name = name.getText()
                                             .toString();
                                     Toast.makeText(getActivity(), "Failed: Cannot rename file",
                                             Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 saveQueues();
-                                getAdapter().notifyItemChanged(getAdapterPosition());
+                                getAdapter().notifyItemChanged(itemToRenamePosition);
                             }
                             activeRenameDialog = null;
                         }
