@@ -292,6 +292,11 @@ public class Bookmarks extends LMvdFragment implements LMvdActivity.OnBackPresse
                                     }
                                     new RenameDialog(getActivity(), title.getText().toString()) {
                                         @Override
+                                        public void onDismiss(DialogInterface dialog) {
+
+                                        }
+
+                                        @Override
                                         public void onOK(String newName) {
 
                                             bookmarksSQLite.renameBookmarkTitle(position, newName);
