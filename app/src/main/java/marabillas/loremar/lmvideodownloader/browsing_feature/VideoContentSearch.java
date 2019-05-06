@@ -122,6 +122,11 @@ public abstract class VideoContentSearch extends Thread {
             String website = null;
             boolean chunked = false;
 
+            // Skip twitter video chunks.
+            if (host.contains("twitter.com") && contentType.equals("video/mp2t")) {
+                return;
+            }
+
             String name = "video";
             if (title != null) {
                 if (contentType.contains("audio")) {
@@ -184,6 +189,17 @@ public abstract class VideoContentSearch extends Thread {
                 website = "vimeo.com";
                 link = link.replaceAll("(segment-)+(\\d+)", "SEGMENT");
                 size = null;
+            } else if (host.contains("facebook.com") && link.contains("bytestart")) {
+                int b = link.lastIndexOf("&bytestart");
+                int f = link.indexOf("fbcdn");
+                if (b > 0) {
+                    link = "https://video.xx." + link.substring(f, b);
+                }
+                URLConnection fbCon;
+                fbCon = new URL(link).openConnection();
+                fbCon.connect();
+                size = fbCon.getHeaderField("content-length");
+                website = "facebook.com";
             }
 
             String type;
