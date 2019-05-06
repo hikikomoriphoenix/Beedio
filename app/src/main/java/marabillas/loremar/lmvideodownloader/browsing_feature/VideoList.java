@@ -216,6 +216,11 @@ public abstract class VideoList {
                 if (v == expand.findViewById(R.id.videoFoundRename)) {
                     new RenameDialog(activity, name.getText().toString()) {
                         @Override
+                        public void onDismiss(DialogInterface dialog) {
+
+                        }
+
+                        @Override
                         public void onOK(String newName) {
                             adjustedLayout = false;
                             videos.get(getAdapterPosition()).name = newName;

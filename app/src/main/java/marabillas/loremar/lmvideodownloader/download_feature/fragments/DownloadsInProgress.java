@@ -99,6 +99,8 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
     private OnAddDownloadItemToInactiveListener onAddDownloadItemToInactiveListener;
     private OnNumDownloadsInProgressChangeListener onNumDownloadsInProgressChangeListener;
 
+    private RenameDialog activeRenameDialog;
+
     public interface OnAddDownloadedVideoToCompletedListener {
         void onAddDownloadedVideoToCompleted(String name, String type);
     }
@@ -252,6 +254,10 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (activeRenameDialog != null && activeRenameDialog.isActive()) {
+                    activeRenameDialog.dismiss();
+                }
+
                 downloadsStartPauseButton.setText(R.string.start);
                 tracking.stopTracking();
                 if (downloads.size() > 0) {
@@ -460,10 +466,21 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             rename.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new RenameDialog(getActivity(), name.getText().toString()) {
+                    final int itemToRenamePosition = getAdapterPosition();
+                    if (itemToRenamePosition == -1)
+                        return;
+
+                    activeRenameDialog = new RenameDialog(
+                            getActivity(),
+                            name.getText().toString()) {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            activeRenameDialog = null;
+                        }
+
                         @Override
                         public void onOK(String newName) {
-                            queues.renameItem(getAdapterPosition(), newName);
+                            queues.renameItem(itemToRenamePosition, newName);
                             File renamedFile = new File(Environment
                                     .getExternalStoragePublicDirectory
                                             (Environment.DIRECTORY_DOWNLOADS), downloads.get
@@ -485,6 +502,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                                 saveQueues();
                                 getAdapter().notifyItemChanged(getAdapterPosition());
                             }
+                            activeRenameDialog = null;
                         }
                     };
                 }

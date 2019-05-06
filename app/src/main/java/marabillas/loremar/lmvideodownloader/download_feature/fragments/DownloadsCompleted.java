@@ -271,6 +271,11 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 public void onClick(View v) {
                     new RenameDialog(getActivity(), baseName) {
                         @Override
+                        public void onDismiss(DialogInterface dialog) {
+
+                        }
+
+                        @Override
                         public void onOK(String newName) {
                             File downloadsFolder = Environment.getExternalStoragePublicDirectory
                                     (Environment.DIRECTORY_DOWNLOADS);

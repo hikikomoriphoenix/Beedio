@@ -153,6 +153,11 @@ public class AddBookmarkDialog extends Dialog implements View.OnClickListener {
         } else if (v == renameTitle) {
             new RenameDialog(activity, bookmark.title) {
                 @Override
+                public void onDismiss(DialogInterface dialog) {
+
+                }
+
+                @Override
                 public void onOK(String newName) {
                     bookmark.title = newName;
                     title.setText(newName);

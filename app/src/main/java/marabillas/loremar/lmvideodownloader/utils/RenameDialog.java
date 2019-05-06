@@ -31,9 +31,10 @@ import android.widget.EditText;
  * Created by loremar on 3/20/18.
  */
 
-public abstract class RenameDialog implements DialogInterface.OnClickListener {
+public abstract class RenameDialog implements DialogInterface.OnClickListener, DialogInterface.OnDismissListener {
     private EditText text;
     private Context context;
+    private AlertDialog dialog;
 
     protected RenameDialog(Context context, String hint) {
         this.context = context;
@@ -41,12 +42,12 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
         text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         text.setHint(hint);
-        new AlertDialog.Builder(context)
+        dialog = new AlertDialog.Builder(context)
                 .setView(text).setMessage("Type new name:")
                 .setPositiveButton("OK", this)
                 .setNegativeButton("CANCEL", this)
-                .create()
-                .show();
+                .create();
+        dialog.show();
     }
 
     @Override
@@ -58,4 +59,12 @@ public abstract class RenameDialog implements DialogInterface.OnClickListener {
     }
 
     public abstract void onOK(String newName);
+
+    public boolean isActive() {
+        return dialog.isShowing();
+    }
+
+    public void dismiss() {
+        dialog.dismiss();
+    }
 }
