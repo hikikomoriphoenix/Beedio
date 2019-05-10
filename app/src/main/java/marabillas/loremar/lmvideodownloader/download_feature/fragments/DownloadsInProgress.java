@@ -47,7 +47,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -83,7 +82,11 @@ import marabillas.loremar.lmvideodownloader.download_feature.lists.DownloadQueue
 import marabillas.loremar.lmvideodownloader.utils.RenameDialog;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
-public class DownloadsInProgress extends LMvdFragment implements DownloadManager.OnDownloadFinishedListener, DownloadManager.OnLinkNotFoundListener, OnDownloadWithNewLinkListener {
+public class DownloadsInProgress extends LMvdFragment
+        implements DownloadManager.OnDownloadFinishedListener,
+        DownloadManager.OnLinkNotFoundListener,
+        OnDownloadWithNewLinkListener,
+        DownloadManager.onDownloadFailExceptionListener {
     private View view;
     private List<DownloadVideo> downloads;
     private RecyclerView downloadsList;
@@ -157,6 +160,7 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
 
             DownloadManager.setOnDownloadFinishedListener(this);
             DownloadManager.setOnLinkNotFoundListener(this);
+            DownloadManager.setOnDownloadFailExceptionListener(this);
         }
 
         return view;
@@ -296,6 +300,21 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
                     onNumDownloadsInProgressChangeListener.onNumDownloadsInProgressChange();
                 }
                 startDownload();
+            }
+        });
+    }
+
+    @Override
+    public void onDownloadFailException(final String message) {
+        pauseDownload();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("Can't download! " + message)
+                        .setNeutralButton("OK", null)
+                        .create()
+                        .show();
             }
         });
     }
@@ -466,45 +485,45 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
             rename.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final int itemToRenamePosition = getAdapterPosition();
-                    if (itemToRenamePosition == -1)
-                        return;
+                    final String downloadFolder = DownloadManager.getDownloadFolder();
+                    if (downloadFolder != null) {
+                        final int itemToRenamePosition = getAdapterPosition();
+                        if (itemToRenamePosition == -1)
+                            return;
 
-                    activeRenameDialog = new RenameDialog(
-                            getActivity(),
-                            name.getText().toString()) {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            activeRenameDialog = null;
-                        }
+                        activeRenameDialog = new RenameDialog(
+                                getActivity(),
+                                name.getText().toString()) {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                activeRenameDialog = null;
+                            }
 
-                        @Override
-                        public void onOK(String newName) {
-                            queues.renameItem(itemToRenamePosition, newName);
-                            File renamedFile = new File(Environment
-                                    .getExternalStoragePublicDirectory
-                                            (Environment.DIRECTORY_DOWNLOADS), downloads.get
-                                    (itemToRenamePosition).name + ext.getText().toString());
-                            File file = new File(Environment.getExternalStoragePublicDirectory
-                                    (Environment.DIRECTORY_DOWNLOADS), name.getText().toString()
-                                    + ext.getText().toString());
-                            if (file.exists()) {
-                                if (file.renameTo(renamedFile)) {
+                            @Override
+                            public void onOK(String newName) {
+                                queues.renameItem(itemToRenamePosition, newName);
+                                File renamedFile = new File(downloadFolder, downloads.get
+                                        (itemToRenamePosition).name + ext.getText().toString());
+                                File file = new File(downloadFolder, name.getText().toString()
+                                        + ext.getText().toString());
+                                if (file.exists()) {
+                                    if (file.renameTo(renamedFile)) {
+                                        saveQueues();
+                                        getAdapter().notifyItemChanged(itemToRenamePosition);
+                                    } else {
+                                        downloads.get(itemToRenamePosition).name = name.getText()
+                                                .toString();
+                                        Toast.makeText(getActivity(), "Failed: Cannot rename file",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
                                     saveQueues();
                                     getAdapter().notifyItemChanged(itemToRenamePosition);
-                                } else {
-                                    downloads.get(itemToRenamePosition).name = name.getText()
-                                            .toString();
-                                    Toast.makeText(getActivity(), "Failed: Cannot rename file",
-                                            Toast.LENGTH_SHORT).show();
                                 }
-                            } else {
-                                saveQueues();
-                                getAdapter().notifyItemChanged(itemToRenamePosition);
+                                activeRenameDialog = null;
                             }
-                            activeRenameDialog = null;
-                        }
-                    };
+                        };
+                    }
                 }
             });
 
@@ -518,58 +537,60 @@ public class DownloadsInProgress extends LMvdFragment implements DownloadManager
         }
 
         void bind(DownloadVideo video) {
-            name.setText(video.name);
-            String extString = "." + video.type;
-            ext.setText(extString);
-            String downloaded;
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                    .DIRECTORY_DOWNLOADS), video.name + extString);
-            if (file.exists()) {
-                if (video.size != null) {
-                    long downloadedSize = file.length();
-                    downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
-                    double percent = 100d * downloadedSize / Long.parseLong(video.size);
-                    if (percent > 100d) {
-                        percent = 100d;
-                    }
-                    DecimalFormat percentFormat = new DecimalFormat("00.00");
-                    String percentFormatted = percentFormat.format(percent);
-                    progress.setProgress((int) percent);
-                    String formattedSize = Formatter.formatFileSize(getActivity(), Long
-                            .parseLong(video.size));
-                    String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
-                            "%";
-                    status.setText(statusString);
-                } else {
-                    long downloadedSize = file.length();
-                    downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
-                    status.setText(downloaded);
-                    if (!getAdapter().isPaused()) {
-                        if (!progress.isIndeterminate()) {
-                            progress.setIndeterminate(true);
+            final String downloadFolder = DownloadManager.getDownloadFolder();
+            if (downloadFolder != null) {
+                name.setText(video.name);
+                String extString = "." + video.type;
+                ext.setText(extString);
+                String downloaded;
+                File file = new File(downloadFolder, video.name + extString);
+                if (file.exists()) {
+                    if (video.size != null) {
+                        long downloadedSize = file.length();
+                        downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
+                        double percent = 100d * downloadedSize / Long.parseLong(video.size);
+                        if (percent > 100d) {
+                            percent = 100d;
                         }
+                        DecimalFormat percentFormat = new DecimalFormat("00.00");
+                        String percentFormatted = percentFormat.format(percent);
+                        progress.setProgress((int) percent);
+                        String formattedSize = Formatter.formatFileSize(getActivity(), Long
+                                .parseLong(video.size));
+                        String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
+                                "%";
+                        status.setText(statusString);
                     } else {
-                        progress.setIndeterminate(false);
+                        long downloadedSize = file.length();
+                        downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
+                        status.setText(downloaded);
+                        if (!getAdapter().isPaused()) {
+                            if (!progress.isIndeterminate()) {
+                                progress.setIndeterminate(true);
+                            }
+                        } else {
+                            progress.setIndeterminate(false);
+                        }
+                    }
+                } else {
+                    if (video.size != null) {
+                        String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
+                                .parseLong(video.size));
+                        String statusString = "0KB / " + formattedSize + " 0%";
+                        status.setText(statusString);
+                        progress.setProgress(0);
+                    } else {
+                        String statusString = "0kB";
+                        status.setText(statusString);
+                        progress.setProgress(0);
                     }
                 }
-            } else {
-                if (video.size != null) {
-                    String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
-                            .parseLong(video.size));
-                    String statusString = "0KB / " + formattedSize + " 0%";
-                    status.setText(statusString);
-                    progress.setProgress(0);
-                } else {
-                    String statusString = "0kB";
-                    status.setText(statusString);
-                    progress.setProgress(0);
-                }
-            }
 
-            if (getAdapter().getSelectedItemPosition() == getAdapterPosition()) {
-                itemView.setVisibility(View.INVISIBLE);
-            } else {
-                itemView.setVisibility(View.VISIBLE);
+                if (getAdapter().getSelectedItemPosition() == getAdapterPosition()) {
+                    itemView.setVisibility(View.INVISIBLE);
+                } else {
+                    itemView.setVisibility(View.VISIBLE);
+                }
             }
         }
 
