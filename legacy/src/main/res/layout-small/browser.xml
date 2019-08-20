@@ -28,7 +28,8 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/topbar_bg">
+        android:background="@drawable/topbar_bg"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/menuButton"
@@ -108,7 +109,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="18sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -127,7 +128,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="18sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -146,7 +147,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="18sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -165,7 +166,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="18sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -183,7 +184,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="18sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/plusWindow"
@@ -193,7 +194,7 @@
             android:background="@color/secondaryColor"
             android:textColor="@color/primaryColor"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="12sp"
             android:gravity="center"
             android:paddingStart="5dp"
             android:paddingLeft="5dp"

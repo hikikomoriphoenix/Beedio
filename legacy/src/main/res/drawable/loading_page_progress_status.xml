@@ -17,31 +17,14 @@
   ~     with this program; if not, write to the Free Software Foundation, Inc.,
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle"
-            xmlns:android="http://schemas.android.com/apk/res/android">
-            <solid android:color="@color/primaryColor" />
-            <corners android:radius="20dp" />
-        </shape>
-    </item>
-    <item
-        android:top="1dp"
-        android:left="1dp"
-        android:right="1dp"
-        android:bottom="1dp">
-        <shape android:shape="rectangle"
-            xmlns:android="http://schemas.android.com/apk/res/android">
-            <solid android:color="@color/primaryColor" />
-            <corners android:radius="20dp" />
-            <stroke
-                android:color="@color/secondaryColor"
-                android:width="4dp" />
-            <padding
-                android:bottom="2dp"
-                android:right="2dp"
-                android:left="2dp"
-                android:top="2dp" />
-        </shape>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <solid android:color="@color/primaryColor" />
+            </shape>
+        </clip>
+
     </item>
 </layer-list>

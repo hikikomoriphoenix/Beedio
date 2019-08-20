@@ -19,16 +19,17 @@
   -->
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/topbar_bg">
+        android:background="@drawable/topbar_bg"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/menuButton"
@@ -104,11 +105,10 @@
             android:layout_height="wrap_content"
             android:text="@string/prev"
             android:textColor="@color/secondaryColor"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -123,11 +123,10 @@
             android:layout_height="wrap_content"
             android:text="@string/next"
             android:textColor="@color/secondaryColor"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -137,15 +136,15 @@
             android:layout_marginBottom="5dp" />
 
         <TextView
+            android:id="@+id/bookmarkButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bookmark_this_page"
             android:textColor="@color/secondaryColor"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -160,11 +159,10 @@
             android:layout_height="wrap_content"
             android:text="@string/reload"
             android:textColor="@color/secondaryColor"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="1dp"
@@ -178,11 +176,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/secondaryColor"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/plusWindow"
@@ -192,7 +189,7 @@
             android:background="@color/secondaryColor"
             android:textColor="@color/primaryColor"
             android:textStyle="bold"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:gravity="center"
             android:paddingStart="5dp"
             android:paddingLeft="5dp"

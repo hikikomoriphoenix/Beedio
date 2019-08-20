@@ -28,7 +28,8 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/topbar_bg">
+        android:background="@drawable/topbar_bg"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/menuButton"

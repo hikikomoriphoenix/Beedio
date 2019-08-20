@@ -28,17 +28,18 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/topbar_bg">
+        android:background="@drawable/topbar_bg"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/menuButton"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:src="@drawable/ic_menu_black_24dp"
-            tools:ignore="ContentDescription"
+            app:layout_constraintBottom_toBottomOf="@id/urlBox"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/urlBox"
-            app:layout_constraintBottom_toBottomOf="@id/urlBox" />
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/urlBox"
@@ -46,25 +47,25 @@
             android:layout_height="wrap_content"
             android:scrollHorizontally="true"
             android:singleLine="true"
+            app:layout_constraintEnd_toStartOf="@id/closeWindow"
             app:layout_constraintStart_toEndOf="@id/menuButton"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/closeWindow" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/closeWindow"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:text="@string/xClose"
-            android:textColor="@color/secondaryColor"
             android:background="@color/primaryColor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/urlBox"
-            app:layout_constraintTop_toTopOf="@id/urlBox"
-            app:layout_constraintStart_toEndOf="@id/urlBox"
             android:paddingStart="10dp"
             android:paddingLeft="10dp"
             android:paddingEnd="10dp"
-            android:paddingRight="10dp" />
+            android:paddingRight="10dp"
+            android:text="@string/xClose"
+            android:textColor="@color/secondaryColor"
+            app:layout_constraintBottom_toBottomOf="@id/urlBox"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/urlBox"
+            app:layout_constraintTop_toTopOf="@id/urlBox" />
     </android.support.constraint.ConstraintLayout>
 
     <ProgressBar
@@ -107,7 +108,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <View
             android:layout_width="1dp"
@@ -125,7 +126,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <View
             android:layout_width="1dp"
@@ -143,7 +144,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <View
             android:layout_width="1dp"
@@ -161,7 +162,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <View
             android:layout_width="1dp"
@@ -178,7 +179,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_margin="5dp"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/plusWindow"
@@ -188,7 +189,7 @@
             android:background="@color/secondaryColor"
             android:textColor="@color/primaryColor"
             android:textStyle="bold"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:gravity="center"
             android:paddingStart="5dp"
             android:paddingLeft="5dp"
