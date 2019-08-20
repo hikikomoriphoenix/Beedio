@@ -1,7 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="LMvideodownloader">
+  <settings>
     <module2copyright>
-      <element module="All" copyright="LMvideodownloader" />
+      <element module="All" copyright="Beedio" />
     </module2copyright>
   </settings>
 </component>
