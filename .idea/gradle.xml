@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/beedio" />
             <option value="$PROJECT_DIR$/home" />
             <option value="$PROJECT_DIR$/legacy" />
+            <option value="$PROJECT_DIR$/sharedui" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

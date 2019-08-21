@@ -17,12 +17,12 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <include layout="@layout/main_content_home" />
-
-    <include layout="@layout/nav_drawer" />
-
-</androidx.drawerlayout.widget.DrawerLayout>
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/yellow</item>
+        <item name="colorPrimaryDark">@color/lesser_black</item>
+        <item name="colorAccent">@color/yellow</item>
+    </style>
+</resources>

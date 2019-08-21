@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" />
       <module fileurl="file://$PROJECT_DIR$/home/home.iml" filepath="$PROJECT_DIR$/home/home.iml" />
       <module fileurl="file://$PROJECT_DIR$/legacy/legacy.iml" filepath="$PROJECT_DIR$/legacy/legacy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sharedui/sharedui.iml" filepath="$PROJECT_DIR$/sharedui/sharedui.iml" />
     </modules>
   </component>
 </project>
