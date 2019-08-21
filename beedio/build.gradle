@@ -17,32 +17,38 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply plugin: 'com.android.application'
 
-buildscript { 
-    ext.kotlin_version = '1.3.41'
+android {
+    compileSdkVersion 28
+    buildToolsVersion "29.0.0"
 
-    
-    repositories {
-        google()
-        jcenter()
+
+    defaultConfig {
+        applicationId "marabillas.loremar.beedio"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
-        
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
