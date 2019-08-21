@@ -31,8 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -58,6 +56,10 @@ import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -171,7 +173,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layout.openDrawer(Gravity.START);
+                layout.openDrawer(GravityCompat.START);
             }
         });
 
@@ -474,7 +476,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     }.start();
                 }
 
-                @android.support.annotation.Nullable
+                @androidx.annotation.Nullable
                 @Override
                 public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
                     if (getActivity() != null) {
@@ -489,7 +491,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     return super.shouldInterceptRequest(view, url);
                 }
 
-                @android.support.annotation.Nullable
+                @androidx.annotation.Nullable
                 @Override
                 public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getLMvdActivity() !=

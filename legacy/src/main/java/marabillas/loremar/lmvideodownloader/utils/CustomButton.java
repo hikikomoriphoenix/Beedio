@@ -22,12 +22,14 @@ package marabillas.loremar.lmvideodownloader.utils;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import marabillas.loremar.lmvideodownloader.R;
 
-public class CustomButton extends android.support.v7.widget.AppCompatTextView {
+public class CustomButton extends AppCompatTextView {
     public CustomButton(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setBackground(getResources().getDrawable(R.drawable.rounded_button));

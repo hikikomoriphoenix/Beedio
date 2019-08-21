@@ -48,15 +48,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.Formatter;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +59,12 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager.widget.ViewPager;
 
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
@@ -119,7 +120,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    layout.openDrawer(Gravity.START);
+                    layout.openDrawer(GravityCompat.START);
                 }
             });
 
@@ -406,7 +407,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         });
     }
 
-    class PagerAdapter extends android.support.v4.view.PagerAdapter {
+    class PagerAdapter extends androidx.viewpager.widget.PagerAdapter {
         @NonNull
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
