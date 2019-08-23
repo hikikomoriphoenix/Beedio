@@ -20,6 +20,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion 28
     buildToolsVersion "29.0.0"
@@ -34,6 +36,7 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -43,6 +46,9 @@ android {
         }
     }
 
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {

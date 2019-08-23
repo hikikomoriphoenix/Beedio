@@ -20,4 +20,7 @@
 <resources>
     <color name="yellow">#D9AC1D</color>
     <color name="lesser_black">#222</color>
+    <color name="white">#FFF</color>
+    <color name="black">#000</color>
+    <color name="grey">#888888</color>
 </resources>

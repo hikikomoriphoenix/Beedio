@@ -19,4 +19,7 @@
 
 <resources>
     <string name="app_name">Home Screen</string>
+    <string name="recommended">RECOMMENDED</string>
+    <string name="home_search_content_desc">Search Icon</string>
+    <string name="close_button">Close Button</string>
 </resources>

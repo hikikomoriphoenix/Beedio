@@ -17,13 +17,12 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<resources>
-    <string name="app_name">Shared UI</string>
-    <string name="home">Home</string>
-    <string name="nav_header_content_desc">Beedio Logo</string>
-    <string name="browser">Browser</string>
-    <string name="download">Download</string>
-    <string name="bookmarks">Bookmarks</string>
-    <string name="history">History</string>
-    <string name="about">About</string>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24.0"
+    android:viewportHeight="24.0">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M19,9h-4V3H9v6H5l7,7 7,-7zM5,18v2h14v-2H5z" />
+</vector>
