@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~     Beedio is an Android app for downloading videos
   ~     Copyright (C) 2019 Loremar Marabillas
   ~
@@ -17,11 +17,15 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<resources>
-    <string name="app_name">Home Screen</string>
-    <string name="recommended">RECOMMENDED</string>
-    <string name="home_search_content_desc">Search Icon</string>
-    <string name="close_button">Close Button</string>
-    <string name="search_widget_hint">Type URL or Search</string>
-    <string name="recommended_header_title">Recommended</string>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/grey" />
+        </shape>
+    </item>
+    <item android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+        </shape>
+    </item>
+</layer-list>

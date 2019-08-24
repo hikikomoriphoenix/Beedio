@@ -17,31 +17,71 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="304dp"
-    android:layout_height="56dp"
-    android:background="@drawable/search_box">
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
-        android:id="@+id/home_search_icon"
-        android:layout_width="56dp"
-        android:layout_height="32dp"
-        android:contentDescription="@string/home_search_content_desc"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_search_grey_24dp" />
+    <data>
 
-    <ImageView
-        android:id="@+id/home_search_close_btn"
-        android:layout_width="56dp"
-        android:layout_height="32dp"
-        android:contentDescription="@string/close_button"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_close_grey_24dp" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <variable
+            name="onSearchWidgetInteractionListener"
+            type="marabillas.loremar.beedio.home.OnSearchWidgetInteractionListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="304dp"
+        android:layout_height="56dp"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/search_box"
+        android:elevation="8dp"
+        android:onClick="@{() -> onSearchWidgetInteractionListener.onSearchWidgetClick()}"
+        tools:targetApi="lollipop">
+
+        <EditText
+            android:id="@+id/home_search_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:hint="@string/search_widget_hint"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/home_search_close_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/home_search_close_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/search_close_btn_state"
+            android:contentDescription="@string/close_button"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/search_widget_guide_end"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close_grey_24dp"
+            android:onClick="@{() -> onSearchWidgetInteractionListener.onSEarchCloseClick()}" />
+
+        <ImageView
+            android:id="@+id/home_search_icon"
+            android:layout_width="56dp"
+            android:layout_height="32dp"
+            android:contentDescription="@string/home_search_content_desc"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_search_grey_24dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/search_widget_guide_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="56dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

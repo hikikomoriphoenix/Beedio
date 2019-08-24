@@ -17,33 +17,23 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package marabillas.loremar.beedio.home.app
 
-buildscript {
-    ext.kotlin_version = '1.3.50'
-    ext.kotlin_version = '1.3.41'
+import dagger.BindsInstance
+import dagger.Component
+import dagger.android.AndroidInjectionModule
+import dagger.android.support.AndroidSupportInjectionModule
+import javax.inject.Singleton
 
-    
-    repositories {
-        google()
-        jcenter()
+@Singleton
+@Component(modules = [AndroidInjectionModule::class, AndroidSupportInjectionModule::class,
+    HomeActivityBindingModule::class, HomeFragmentBindingModule::class])
+internal interface HomeAppComponent {
+
+    @Component.Factory
+    interface Factory {
+        fun create(@BindsInstance homeApp: HomeApp): HomeAppComponent
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
-        
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" }
-}
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    fun inject(homeApp: HomeApp)
 }

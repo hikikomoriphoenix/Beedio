@@ -17,33 +17,21 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package marabillas.loremar.beedio.sharedui
 
-buildscript {
-    ext.kotlin_version = '1.3.50'
-    ext.kotlin_version = '1.3.41'
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 
-    
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
-        
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" }
+fun showSoftKeyboard(activity: AppCompatActivity) {
+    val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(activity.currentFocus, InputMethodManager.SHOW_IMPLICIT)
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
+fun hideSofKeyboard(activity: AppCompatActivity) {
+    val iBinderToken = activity.currentFocus?.windowToken
+    if (iBinderToken != null) {
+        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(iBinderToken, 0)
     }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

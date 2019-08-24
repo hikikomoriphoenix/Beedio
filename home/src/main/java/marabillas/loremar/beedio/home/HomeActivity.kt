@@ -21,11 +21,48 @@ package marabillas.loremar.beedio.home
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.databinding.DataBindingUtil
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
+import marabillas.loremar.beedio.home.databinding.ActivityHomeBinding
+import javax.inject.Inject
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), OnRecommendedClickListener, HasAndroidInjector {
+    lateinit var binding: ActivityHomeBinding
+
+    @Inject
+    lateinit var searchWidgetControllerFragment: SearchWidgetControllerFragment
+    @Inject
+    lateinit var homeRecommendedFragment: HomeRecommendedFragment
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
+        binding.lifecycleOwner = this
+
+        val actionBar = binding.mainContentHome.homeToolbar
+        setSupportActionBar(actionBar)
+        actionBar.setNavigationOnClickListener { binding.navDrawer.openDrawer(GravityCompat.START) }
+
+        supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, searchWidgetControllerFragment)
+                .commit()
+        binding.onSearchWidgetInteractionListener = searchWidgetControllerFragment
+
+        binding.onRecommendedClickListener = this
     }
+
+    override fun onRecommendedClick() {
+        homeRecommendedFragment.show(supportFragmentManager, null)
+    }
+
+    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
 }

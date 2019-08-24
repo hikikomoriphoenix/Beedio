@@ -17,63 +17,85 @@
   ~     with this program; if not, write to the Free Software Foundation, Inc.,
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    <data>
 
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+        <variable
+            name="nav_drawer"
+            type="androidx.drawerlayout.widget.DrawerLayout" />
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:theme="@style/DarkAppBar">
+        <variable
+            name="onSearchWidgetInteractionListener"
+            type="marabillas.loremar.beedio.home.OnSearchWidgetInteractionListener" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:layout_height="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            app:layout_scrollFlags="scroll|enterAlways"
-            android:theme="@style/DarkToolBar"
-            app:title="@string/home"
-            app:navigationIcon="@drawable/ic_menu_white_24dp" />
+        <variable
+            name="onRecommendedClickListener"
+            type="marabillas.loremar.beedio.home.OnRecommendedClickListener" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+    </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/home_appbar"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/recommended_btn_state"
-            android:clickable="true"
-            android:drawableStart="@drawable/ic_list_grey_24dp"
-            android:drawablePadding="8dp"
-            android:focusable="true"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/recommended"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:layout_width="match_parent"
+            android:theme="@style/DarkAppBar">
 
-        <include
-            layout="@layout/home_search_widget"
-            android:layout_width="304dp"
-            android:layout_height="56dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.4" />
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/home_toolbar"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_width="match_parent"
+                app:layout_scrollFlags="scroll|enterAlways"
+                android:theme="@style/DarkToolBar"
+                app:title="@string/home"
+                app:navigationIcon="@drawable/ic_menu_white_24dp" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/home_recommended_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/recommended_btn_state"
+                android:clickable="true"
+                android:drawableStart="@drawable/ic_list_grey_24dp"
+                android:drawablePadding="8dp"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="@string/recommended"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:onClick="@{() -> onRecommendedClickListener.onRecommendedClick()}" />
+
+            <include
+                android:id="@+id/home_search_widget"
+                layout="@layout/home_search_widget"
+                android:layout_width="304dp"
+                android:layout_height="56dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4"
+                app:onSearchWidgetInteractionListener="@{onSearchWidgetInteractionListener}" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
