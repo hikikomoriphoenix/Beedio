@@ -66,13 +66,19 @@ public class DownloadManager extends IntentService {
 
     private static String downloadFolder;
 
+    private static boolean stop = false;
+    private static Thread downloadThread;
+
     public DownloadManager() {
         super("DownloadManager");
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        stop = false;
+        downloadThread = Thread.currentThread();
         downloadNotifier = new DownloadNotifier(intent);
+
         if (intent != null) {
             chunked = intent.getBooleanExtra("chunked", false);
 
@@ -121,7 +127,7 @@ public class DownloadManager extends IntentService {
                                 ReadableByteChannel readableByteChannel = Channels.newChannel(in);
                                 FileChannel fileChannel = out.getChannel();
                                 while (downloadFile.length() < totalSize) {
-                                    if (Thread.currentThread().isInterrupted()) return;
+                                    if (stop) return;
                                     fileChannel.transferFrom(readableByteChannel, 0, 1024);
                                 /*ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
                                 int read = readableByteChannel.read(buffer);
@@ -308,7 +314,7 @@ public class DownloadManager extends IntentService {
                                 WritableByteChannel writableByteChannel = Channels.newChannel(bytesOfChunk);
                                 int read;
                                 while (true) {
-                                    if (Thread.currentThread().isInterrupted()) return;
+                                    if (stop) return;
 
                                     ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
                                     read = readableByteChannel.read(buffer);
@@ -464,11 +470,20 @@ public class DownloadManager extends IntentService {
         super.onDestroy();
     }
 
-    public static void stopThread() {
+    public static void stop() {
         if (downloadNotifier != null) {
             downloadNotifier.cancel();
         }
-        Thread.currentThread().interrupt();
+
+        Intent downloadService = LMvdApp.getInstance().getDownloadService();
+        LMvdApp.getInstance().stopService(downloadService);
+        forceStopIfNecessary();
+    }
+
+    public static void forceStopIfNecessary() {
+        if (downloadThread.isAlive()) {
+            stop = true;
+        }
     }
 
     /**

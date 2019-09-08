@@ -240,9 +240,7 @@ public class DownloadsInProgress extends LMvdFragment
     }
 
     public void pauseDownload() {
-        Intent downloadService = getLMvdApp().getDownloadService();
-        getLMvdApp().stopService(downloadService);
-        DownloadManager.stopThread();
+        DownloadManager.stop();
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

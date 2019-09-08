@@ -303,8 +303,7 @@ public abstract class VideoList {
                 queues.save(activity);
                 DownloadVideo topVideo = queues.getTopVideo();
                 Intent downloadService = LMvdApp.getInstance().getDownloadService();
-                LMvdApp.getInstance().stopService(downloadService);
-                DownloadManager.stopThread();
+                DownloadManager.stop();
                 downloadService.putExtra("link", topVideo.link);
                 downloadService.putExtra("name", topVideo.name);
                 downloadService.putExtra("type", topVideo.type);
