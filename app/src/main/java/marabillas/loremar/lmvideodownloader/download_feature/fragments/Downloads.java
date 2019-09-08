@@ -245,7 +245,10 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
                             final CheckBox showNoticeCheckbox = view.findViewById(R.id.showNoticeCheckbox);
                             showNoticeCheckbox.setChecked(false);
                             new AlertDialog.Builder(getActivity())
-                                    .setMessage("Downloaded videos are saved in the external storage's Download folder")
+                                    .setMessage("Downloaded videos are either saved in the " +
+                                            "storage's Download folder or in the app's own " +
+                                            "Download folder which is located in " +
+                                            "Android/data/marabillas.loremar.lmvideodownloader/.")
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {

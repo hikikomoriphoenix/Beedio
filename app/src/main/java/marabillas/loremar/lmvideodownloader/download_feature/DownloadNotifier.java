@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -47,50 +46,51 @@ public class DownloadNotifier {
     private class DownloadingRunnable implements Runnable {
         @Override
         public void run() {
-            String filename = downloadServiceIntent.getStringExtra("name") + "." +
-                    downloadServiceIntent.getStringExtra("type");
-            Notification.Builder NB;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext(), "download_01")
-                        .setStyle(new Notification.BigTextStyle());
-            } else {
-                NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext());
-            }
-            NB.setContentTitle("Downloading " + filename)
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance()
-                            .getApplicationContext().getResources(), R.mipmap.ic_launcher_round))
-                    .setOngoing(true);
-            if (downloadServiceIntent.getBooleanExtra("chunked", false)) {
-                File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                        .DIRECTORY_DOWNLOADS), filename);
-                String downloaded;
-                if (file.exists()) {
-                    downloaded = android.text.format.Formatter.formatFileSize(LMvdApp.getInstance
-                            ().getApplicationContext(), file.length());
+            final String downloadFolder = DownloadManager.getDownloadFolder();
+            if (downloadFolder != null) {
+                String filename = downloadServiceIntent.getStringExtra("name") + "." +
+                        downloadServiceIntent.getStringExtra("type");
+                Notification.Builder NB;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext(), "download_01")
+                            .setStyle(new Notification.BigTextStyle());
                 } else {
-                    downloaded = "0KB";
+                    NB = new Notification.Builder(LMvdApp.getInstance().getApplicationContext());
                 }
-                NB.setProgress(100, 0, true)
-                        .setContentText(downloaded);
-                notificationManager.notify(ID, NB.build());
-                handler.postDelayed(this, 1000);
-            } else {
-                File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                        .DIRECTORY_DOWNLOADS), filename);
-                String sizeString = downloadServiceIntent.getStringExtra("size");
-                int progress = (int) Math.ceil(((double) file.length() / (double) Long.parseLong
-                        (sizeString)) * 100);
-                progress = progress >= 100 ? 100 : progress;
-                String downloaded = android.text.format.Formatter.formatFileSize(LMvdApp
-                        .getInstance().getApplicationContext(), file.length());
-                String total = android.text.format.Formatter.formatFileSize(LMvdApp.getInstance()
-                        .getApplicationContext(), Long.parseLong
-                        (sizeString));
-                NB.setProgress(100, progress, false)
-                        .setContentText(downloaded + "/" + total + "   " + progress + "%");
-                notificationManager.notify(ID, NB.build());
-                handler.postDelayed(this, 1000);
+                NB.setContentTitle("Downloading " + filename)
+                        .setSmallIcon(R.mipmap.ic_launcher_round)
+                        .setLargeIcon(BitmapFactory.decodeResource(LMvdApp.getInstance()
+                                .getApplicationContext().getResources(), R.mipmap.ic_launcher_round))
+                        .setOngoing(true);
+                if (downloadServiceIntent.getBooleanExtra("chunked", false)) {
+                    File file = new File(downloadFolder, filename);
+                    String downloaded;
+                    if (file.exists()) {
+                        downloaded = android.text.format.Formatter.formatFileSize(LMvdApp.getInstance
+                                ().getApplicationContext(), file.length());
+                    } else {
+                        downloaded = "0KB";
+                    }
+                    NB.setProgress(100, 0, true)
+                            .setContentText(downloaded);
+                    notificationManager.notify(ID, NB.build());
+                    handler.postDelayed(this, 1000);
+                } else {
+                    File file = new File(downloadFolder, filename);
+                    String sizeString = downloadServiceIntent.getStringExtra("size");
+                    int progress = (int) Math.ceil(((double) file.length() / (double) Long.parseLong
+                            (sizeString)) * 100);
+                    progress = progress >= 100 ? 100 : progress;
+                    String downloaded = android.text.format.Formatter.formatFileSize(LMvdApp
+                            .getInstance().getApplicationContext(), file.length());
+                    String total = android.text.format.Formatter.formatFileSize(LMvdApp.getInstance()
+                            .getApplicationContext(), Long.parseLong
+                            (sizeString));
+                    NB.setProgress(100, progress, false)
+                            .setContentText(downloaded + "/" + total + "   " + progress + "%");
+                    notificationManager.notify(ID, NB.build());
+                    handler.postDelayed(this, 1000);
+                }
             }
         }
     }

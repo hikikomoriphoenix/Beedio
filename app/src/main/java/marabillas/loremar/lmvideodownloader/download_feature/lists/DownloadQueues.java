@@ -41,7 +41,6 @@
 package marabillas.loremar.lmvideodownloader.download_feature.lists;
 
 import android.content.Context;
-import android.os.Environment;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,6 +52,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
 
 public class DownloadQueues implements Serializable {
@@ -131,15 +131,13 @@ public class DownloadQueues implements Serializable {
             name = "video";
         }
         int i = 0;
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                .DIRECTORY_DOWNLOADS), name + "." + type);
+        File file = new File(DownloadManager.getDownloadFolder(), name + "." + type);
         StringBuilder nameBuilder = new StringBuilder(name);
         while (file.exists()) {
             i++;
             nameBuilder = new StringBuilder(name);
             nameBuilder.append(" ").append(i);
-            file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                    .DIRECTORY_DOWNLOADS), nameBuilder + "." + type);
+            file = new File(DownloadManager.getDownloadFolder(), nameBuilder + "." + type);
         }
         while (nameAlreadyExists(nameBuilder.toString())) {
             i++;

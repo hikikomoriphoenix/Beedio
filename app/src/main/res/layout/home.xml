@@ -146,6 +146,7 @@
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/menuLogoArea"
+            app:layout_constraintStart_toStartOf="parent"
             android:background="@color/darkColor">
 
             <android.support.constraint.ConstraintLayout
@@ -171,6 +172,8 @@
                     android:text="@string/ad_blocker"
                     android:textAppearance="?android:attr/textAppearanceListItemSmall"
                     android:textColor="@android:color/white"
+                    android:drawableStart="@drawable/ic_block_white_24dp"
+                    android:drawablePadding="16dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/menu" />
             </android.support.constraint.ConstraintLayout>

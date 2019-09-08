@@ -20,6 +20,7 @@
 
 package marabillas.loremar.lmvideodownloader.download_feature;
 
+import android.app.AlertDialog;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Environment;
@@ -37,6 +38,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -61,13 +64,21 @@ public class DownloadManager extends IntentService {
 
     private static DownloadNotifier downloadNotifier;
 
+    private static String downloadFolder;
+
+    private static boolean stop = false;
+    private static Thread downloadThread;
+
     public DownloadManager() {
         super("DownloadManager");
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        stop = false;
+        downloadThread = Thread.currentThread();
         downloadNotifier = new DownloadNotifier(intent);
+
         if (intent != null) {
             chunked = intent.getBooleanExtra("chunked", false);
 
@@ -84,16 +95,18 @@ public class DownloadManager extends IntentService {
                     totalSize = Long.parseLong(intent.getStringExtra("size"));
                     connection = (new URL(intent.getStringExtra("link"))).openConnection();
                     String filename = intent.getStringExtra("name") + "." + intent.getStringExtra("type");
-                    File directory = new File(Environment.getExternalStorageDirectory()
-                            .getAbsolutePath(), "Download");
 
-                    boolean directotryExists;
-                    directotryExists = directory.exists() || directory.mkdir() || directory
+                    File directory = prepareTargetDirectory();
+                    if (!directory.getAbsolutePath().endsWith("/")) {
+                        downloadFolder = directory.getAbsolutePath() + "/";
+                    } else {
+                        downloadFolder = directory.getAbsolutePath();
+                    }
+                    boolean directotryExists = directory.exists() || directory.mkdir() || directory
                             .createNewFile();
                     if (directotryExists) {
                         downloadNotifier.notifyDownloading();
-                        downloadFile = new File(Environment.getExternalStoragePublicDirectory(Environment
-                                .DIRECTORY_DOWNLOADS), filename);
+                        downloadFile = new File(directory, filename);
                         if (connection != null) {
                             FileOutputStream out = null;
                             if (downloadFile.exists()) {
@@ -101,6 +114,7 @@ public class DownloadManager extends IntentService {
                                 connection.setRequestProperty("Range", "bytes=" + downloadFile.length
                                         () + "-");
                                 connection.connect();
+
                                 out = new FileOutputStream(downloadFile.getAbsolutePath(), true);
                             } else {
                                 connection.connect();
@@ -113,7 +127,7 @@ public class DownloadManager extends IntentService {
                                 ReadableByteChannel readableByteChannel = Channels.newChannel(in);
                                 FileChannel fileChannel = out.getChannel();
                                 while (downloadFile.length() < totalSize) {
-                                    if (Thread.currentThread().isInterrupted()) return;
+                                    if (stop) return;
                                     fileChannel.transferFrom(readableByteChannel, 0, 1024);
                                 /*ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
                                 int read = readableByteChannel.read(buffer);
@@ -134,13 +148,25 @@ public class DownloadManager extends IntentService {
                             }
                         }
                     } else {
-                        Log.e("loremarTest", "directory doesn't exist");
+                        Log.e("loremarTest", "Can't create Download directory.");
+                        onDownloadFailExceptionListener.onDownloadFailException("Can't create Download directory.");
                     }
                 } catch (FileNotFoundException e) {
                     Log.i("loremarTest", "link:" + intent.getStringExtra("link") + " not found");
                     linkNotFound(intent);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    Log.e("loremarTest", sw.toString());
+                    onDownloadFailExceptionListener.onDownloadFailException(sw.toString());
+                } catch (DownloadFailException e) {
+                    Log.e("loremarTest", e.getMessage());
+                    onDownloadFailExceptionListener.onDownloadFailException(e.getMessage());
+                } catch (Exception e) {
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    Log.e("loremarTest", sw.toString());
+                    onDownloadFailExceptionListener.onDownloadFailException(sw.toString());
                 }
             }
         }
@@ -209,17 +235,23 @@ public class DownloadManager extends IntentService {
         try {
             String name = intent.getStringExtra("name");
             String type = intent.getStringExtra("type");
-            File directory = new File(Environment.getExternalStorageDirectory()
-                    .getAbsolutePath(), "Download");
 
-            boolean directotryExists;
-            directotryExists = directory.exists() || directory.mkdir() || directory
+            File directory = prepareTargetDirectory();
+            if (directory == null) {
+                throw new DownloadFailException("File returned by prepareTargetDirectory() is " +
+                        "null... IMPOSSIBLE!");
+            }
+            if (!directory.getAbsolutePath().endsWith("/")) {
+                downloadFolder = directory.getAbsolutePath() + "/";
+            } else {
+                downloadFolder = directory.getAbsolutePath();
+            }
+            boolean directotryExists = directory.exists() || directory.mkdir() || directory
                     .createNewFile();
             if (directotryExists) {
                 downloadNotifier.notifyDownloading();
                 File progressFile = new File(getCacheDir(), name + ".dat");
-                File videoFile = new File(Environment.getExternalStoragePublicDirectory
-                        (Environment.DIRECTORY_DOWNLOADS), name + "." + type);
+                File videoFile = new File(directory, name + "." + type);
                 long totalChunks = 0;
                 if (progressFile.exists()) {
                     FileInputStream in = new FileInputStream(progressFile);
@@ -230,18 +262,17 @@ public class DownloadManager extends IntentService {
 
                     if (!videoFile.exists()) {
                         if (!videoFile.createNewFile()) {
-                            Log.i("loremarTest", "can not create file for download");
+                            throw new DownloadFailException("Can't create file for download.");
                         }
                     }
                 } else if (videoFile.exists()) {
                     downloadFinished(name + "." + type);
                 } else {
                     if (!videoFile.createNewFile()) {
-                        Log.i("loremarTest", "can not create file for download");
-
+                        throw new DownloadFailException("Can't create file for download.");
                     }
                     if (!progressFile.createNewFile()) {
-                        Log.i("loremarTest", "can not create progressFile");
+                        throw new DownloadFailException("Can't create progress file.");
                     }
                 }
 
@@ -283,7 +314,7 @@ public class DownloadManager extends IntentService {
                                 WritableByteChannel writableByteChannel = Channels.newChannel(bytesOfChunk);
                                 int read;
                                 while (true) {
-                                    if (Thread.currentThread().isInterrupted()) return;
+                                    if (stop) return;
 
                                     ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
                                     read = readableByteChannel.read(buffer);
@@ -317,16 +348,31 @@ public class DownloadManager extends IntentService {
                             downloadFinished(name + "." + type);
                             break;
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            StringWriter sw = new StringWriter();
+                            e.printStackTrace(new PrintWriter(sw));
+                            Log.e("loremarTest", sw.toString());
+                            onDownloadFailExceptionListener.onDownloadFailException(sw.toString());
                             break;
                         }
                     }
                 }
             } else {
-                Log.e("loremarTest", "directory doesn't exist");
+                Log.e("loremarTest", "Can't create Download directory.");
+                onDownloadFailExceptionListener.onDownloadFailException("Can't create Download directory.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            Log.e("loremarTest", sw.toString());
+            onDownloadFailExceptionListener.onDownloadFailException(sw.toString());
+        } catch (DownloadFailException e) {
+            Log.e("loremarTest", e.getMessage());
+            onDownloadFailExceptionListener.onDownloadFailException(e.getMessage());
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            Log.e("loremarTest", sw.toString());
+            onDownloadFailExceptionListener.onDownloadFailException(sw.toString());
         }
     }
 
@@ -424,11 +470,20 @@ public class DownloadManager extends IntentService {
         super.onDestroy();
     }
 
-    public static void stopThread() {
+    public static void stop() {
         if (downloadNotifier != null) {
             downloadNotifier.cancel();
         }
-        Thread.currentThread().interrupt();
+
+        Intent downloadService = LMvdApp.getInstance().getDownloadService();
+        LMvdApp.getInstance().stopService(downloadService);
+        forceStopIfNecessary();
+    }
+
+    public static void forceStopIfNecessary() {
+        if (downloadThread.isAlive()) {
+            stop = true;
+        }
     }
 
     /**
@@ -466,5 +521,119 @@ public class DownloadManager extends IntentService {
         } else {
             return 0;
         }
+    }
+
+    private static File prepareTargetDirectory() throws DownloadFailException, IOException {
+        File downloadFolder =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (
+                downloadFolder
+                        != null
+                        && (downloadFolder.exists() || downloadFolder.mkdir() || downloadFolder.createNewFile())
+                        && downloadFolder.canWrite()
+        ) {
+            return downloadFolder;
+        }
+
+        File externalStorage = Environment.getExternalStorageDirectory();
+        String externalStorageState = Environment.getExternalStorageState();
+        if (
+                externalStorage
+                        != null
+                        && (externalStorage.exists() || externalStorage.mkdir() || externalStorage.createNewFile())
+                        && externalStorage.canWrite()
+                        && externalStorageState.equals(Environment.MEDIA_MOUNTED)
+        ) {
+            return new File(externalStorage, "Download");
+        }
+
+        File appExternal = LMvdApp.getInstance().getExternalFilesDir(null);
+        if (
+                appExternal
+                        != null
+                        && (appExternal.exists() || appExternal.mkdir() || appExternal.createNewFile())
+                        && appExternal.canWrite()
+        ) {
+            return new File(appExternal, "Download");
+        }
+
+        String message;
+        switch (externalStorageState) {
+            case Environment.MEDIA_UNMOUNTABLE:
+                message = "External storage is un-mountable.";
+                break;
+            case Environment.MEDIA_SHARED:
+                message = "USB mass storage is turned on. Can not mount external storage.";
+                break;
+            case Environment.MEDIA_UNMOUNTED:
+                message = "External storage is not mounted.";
+                break;
+            case Environment.MEDIA_MOUNTED_READ_ONLY:
+                message = "External storage is mounted but has no write access.";
+                break;
+            case Environment.MEDIA_BAD_REMOVAL:
+                message = "External storage was removed without being properly ejected.";
+                break;
+            case Environment.MEDIA_REMOVED:
+                message = "External storage does not exist. Probably removed.";
+                break;
+            case Environment.MEDIA_NOFS:
+                message = "External storage is blank or has unsupported filesystem.";
+                break;
+            case Environment.MEDIA_CHECKING:
+                message = "Still checking for external storage.";
+                break;
+            case Environment.MEDIA_EJECTING:
+                message = "External storage is currently being ejected.";
+                break;
+            case Environment.MEDIA_UNKNOWN:
+                message = "External storage is not available for some unknown reason.";
+                break;
+            case Environment.MEDIA_MOUNTED:
+                message = "External storage is mounted but for some unknown reason is not" +
+                        " available.";
+                break;
+            default:
+                message = "External storage is not available. No reason.";
+        }
+        throw new DownloadFailException(message);
+    }
+
+    public static String getDownloadFolder() {
+        try {
+            File directory = prepareTargetDirectory();
+            if (!directory.getAbsolutePath().endsWith("/")) {
+                downloadFolder = directory.getAbsolutePath() + "/";
+            } else {
+                downloadFolder = directory.getAbsolutePath();
+            }
+            return downloadFolder;
+        } catch (DownloadFailException e) {
+            Log.e("loremarTest", "No download directory: " + e.getMessage());
+            new AlertDialog.Builder(LMvdApp.getInstance())
+                    .setMessage("No downnload directory: " + e.getMessage())
+                    .setNeutralButton("OK", null)
+                    .create()
+                    .show();
+            return null;
+        } catch (IOException e) {
+            Log.e("loremarTest", e.getMessage());
+            new AlertDialog.Builder(LMvdApp.getInstance())
+                    .setMessage(e.getMessage())
+                    .setNeutralButton("OK", null)
+                    .create()
+                    .show();
+            return null;
+        }
+    }
+
+    public interface onDownloadFailExceptionListener {
+        void onDownloadFailException(String message);
+    }
+
+    private static onDownloadFailExceptionListener onDownloadFailExceptionListener;
+
+    public static void setOnDownloadFailExceptionListener(onDownloadFailExceptionListener listener) {
+        onDownloadFailExceptionListener = listener;
     }
 }
