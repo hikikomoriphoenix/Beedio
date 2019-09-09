@@ -67,6 +67,7 @@ import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.download_feature.DownloadManager;
 import marabillas.loremar.lmvideodownloader.download_feature.DownloadVideo;
 import marabillas.loremar.lmvideodownloader.download_feature.OnDownloadWithNewLinkListener;
 import marabillas.loremar.lmvideodownloader.download_feature.lists.InactiveDownloads;
@@ -208,29 +209,30 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
             rename.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new RenameDialog(getActivity(), name.getText().toString()) {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
+                    final String downloadFolder = DownloadManager.getDownloadFolder();
+                    if (downloadFolder != null) {
+                        new RenameDialog(getActivity(), name.getText().toString()) {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
 
-                        }
-
-                        @Override
-                        public void onOK(String newName) {
-                            File downloadsFolder = Environment.getExternalStoragePublicDirectory
-                                    (Environment.DIRECTORY_DOWNLOADS);
-                            File renamedFile = new File(downloadsFolder, newName + "." + ext.getText());
-                            File file = new File(downloadsFolder, name.getText() + "" + "." + ext
-                                    .getText());
-                            if (file.renameTo(renamedFile)) {
-                                downloads.get(getAdapterPosition()).name = newName;
-                                inactiveDownloads.save(getActivity());
-                                downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
-                            } else {
-                                Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
-                                        .LENGTH_SHORT).show();
                             }
-                        }
-                    };
+
+                            @Override
+                            public void onOK(String newName) {
+                                File renamedFile = new File(downloadFolder, newName + "." + ext.getText());
+                                File file = new File(downloadFolder, name.getText() + "" + "." + ext
+                                        .getText());
+                                if (file.renameTo(renamedFile)) {
+                                    downloads.get(getAdapterPosition()).name = newName;
+                                    inactiveDownloads.save(getActivity());
+                                    downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                                } else {
+                                    Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
+                                            .LENGTH_SHORT).show();
+                                }
+                            }
+                        };
+                    }
                 }
             });
 
@@ -242,37 +244,38 @@ public class DownloadsInactive extends LMvdFragment implements DownloadsInProgre
             String extString = "." + download.type;
             ext.setText(extString);
             String downloaded;
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                    .DIRECTORY_DOWNLOADS), download.name + extString);
-            if (file.exists()) {
-                if (download.size != null) {
-                    long downloadedSize = file.length();
-                    downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
-                    double percent = 100d * downloadedSize / Long.parseLong(download.size);
-                    if (percent > 100d) {
-                        percent = 100d;
+            if (DownloadManager.getDownloadFolder() != null) {
+                File file = new File(DownloadManager.getDownloadFolder(), download.name + extString);
+                if (file.exists()) {
+                    if (download.size != null) {
+                        long downloadedSize = file.length();
+                        downloaded = Formatter.formatFileSize(getActivity(), downloadedSize);
+                        double percent = 100d * downloadedSize / Long.parseLong(download.size);
+                        if (percent > 100d) {
+                            percent = 100d;
+                        }
+                        DecimalFormat percentFormat = new DecimalFormat("00.00");
+                        String percentFormatted = percentFormat.format(percent);
+                        String formattedSize = Formatter.formatFileSize(getActivity(), Long
+                                .parseLong(download.size));
+                        String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
+                                "%";
+                        progress.setText(statusString);
+                    } else {
+                        long downloadedSize = file.length();
+                        downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
+                        progress.setText(downloaded);
                     }
-                    DecimalFormat percentFormat = new DecimalFormat("00.00");
-                    String percentFormatted = percentFormat.format(percent);
-                    String formattedSize = Formatter.formatFileSize(getActivity(), Long
-                            .parseLong(download.size));
-                    String statusString = downloaded + " / " + formattedSize + " " + percentFormatted +
-                            "%";
-                    progress.setText(statusString);
                 } else {
-                    long downloadedSize = file.length();
-                    downloaded = Formatter.formatShortFileSize(getActivity(), downloadedSize);
-                    progress.setText(downloaded);
-                }
-            } else {
-                if (download.size != null) {
-                    String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
-                            .parseLong(download.size));
-                    String statusString = "0KB / " + formattedSize + " 0%";
-                    progress.setText(statusString);
-                } else {
-                    String statusString = "0kB";
-                    progress.setText(statusString);
+                    if (download.size != null) {
+                        String formattedSize = Formatter.formatShortFileSize(getActivity(), Long
+                                .parseLong(download.size));
+                        String statusString = "0KB / " + formattedSize + " 0%";
+                        progress.setText(statusString);
+                    } else {
+                        String statusString = "0kB";
+                        progress.setText(statusString);
+                    }
                 }
             }
         }

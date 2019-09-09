@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -45,6 +46,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -104,6 +106,34 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 View view = super.getView(position, convertView, parent);
                 TextView textView = view.findViewById(android.R.id.text1);
                 textView.setTextColor(Color.WHITE);
+
+                int iconId = 0;
+                switch (position) {
+                    case 0:
+                        iconId = R.drawable.ic_home_white_24dp;
+                        break;
+                    case 1:
+                        iconId = R.drawable.ic_globe_white_24dp;
+                        break;
+                    case 2:
+                        iconId = R.drawable.ic_download_white_24dp;
+                        break;
+                    case 3:
+                        iconId = R.drawable.ic_star_white_24dp;
+                        break;
+                    case 4:
+                        iconId = R.drawable.ic_history_white_24dp;
+                        break;
+                    case 5:
+                        iconId = R.drawable.ic_info_outline_white_24dp;
+                        break;
+                }
+                if (iconId != 0) {
+                    Drawable icon = AppCompatResources.getDrawable(getContext(), iconId);
+                    textView.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+                    textView.setCompoundDrawablePadding((int) (16 * getResources().getDisplayMetrics().density));
+                }
+
                 return view;
             }
         };

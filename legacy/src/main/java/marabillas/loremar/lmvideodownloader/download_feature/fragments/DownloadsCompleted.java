@@ -157,6 +157,26 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 goToFolderButton.setVisibility(View.GONE);
                 clearAllFinishedButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
             }
+
+            // Check if the set download folder is the public download directory. If not hide the
+            // "Go To Folder" button.
+            String downloadFolder =
+                    marabillas.loremar.lmvideodownloader.download_feature.DownloadManager.getDownloadFolder();
+            File publicDownloadDirectory =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            String defaultDownloadFolder = null;
+            if (publicDownloadDirectory != null) {
+                if (!publicDownloadDirectory.getAbsolutePath().endsWith("/")) {
+                    defaultDownloadFolder = publicDownloadDirectory.getAbsolutePath() + "/";
+                } else {
+                    defaultDownloadFolder = publicDownloadDirectory.getAbsolutePath();
+                }
+
+            }
+            if (downloadFolder == null || !downloadFolder.equals(defaultDownloadFolder)) {
+                goToFolderButton.setVisibility(View.GONE);
+                clearAllFinishedButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            }
         }
 
         return view;
@@ -166,15 +186,18 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
     public void onResume() {
         super.onResume();
         List<String> nonExistentFiles = new ArrayList<>();
-        for (String video : videos) {
-            File videoFile = new File(Environment.getExternalStoragePublicDirectory
-                    (Environment.DIRECTORY_DOWNLOADS), video);
-            if (!videoFile.exists()) {
-                nonExistentFiles.add(video);
+        String downloadFolder =
+                marabillas.loremar.lmvideodownloader.download_feature.DownloadManager.getDownloadFolder();
+        if (downloadFolder != null) {
+            for (String video : videos) {
+                File videoFile = new File(downloadFolder, video);
+                if (!videoFile.exists()) {
+                    nonExistentFiles.add(video);
+                }
             }
-        }
-        for (String nonExistentVideo : nonExistentFiles) {
-            videos.remove(nonExistentVideo);
+            for (String nonExistentVideo : nonExistentFiles) {
+                videos.remove(nonExistentVideo);
+            }
         }
         downloadsList.getAdapter().notifyDataSetChanged();
         completedVideos.save(LMvdApp.getInstance().getApplicationContext());
@@ -278,17 +301,19 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
 
                         @Override
                         public void onOK(String newName) {
-                            File downloadsFolder = Environment.getExternalStoragePublicDirectory
-                                    (Environment.DIRECTORY_DOWNLOADS);
-                            File renamedFile = new File(downloadsFolder, newName + "." + type);
-                            File file = new File(downloadsFolder, baseName + "." + type);
-                            if (file.renameTo(renamedFile)) {
-                                videos.set(getAdapterPosition(), newName + "." + type);
-                                completedVideos.save(getActivity());
-                                downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
-                            } else {
-                                Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
-                                        .LENGTH_SHORT).show();
+                            String downloadFolder =
+                                    marabillas.loremar.lmvideodownloader.download_feature.DownloadManager.getDownloadFolder();
+                            if (downloadFolder != null) {
+                                File renamedFile = new File(downloadFolder, newName + "." + type);
+                                File file = new File(downloadFolder, baseName + "." + type);
+                                if (file.renameTo(renamedFile)) {
+                                    videos.set(getAdapterPosition(), newName + "." + type);
+                                    completedVideos.save(getActivity());
+                                    downloadsList.getAdapter().notifyItemChanged(getAdapterPosition());
+                                } else {
+                                    Toast.makeText(getActivity(), "Failed: Invalid Filename", Toast
+                                            .LENGTH_SHORT).show();
+                                }
                             }
                         }
                     };
@@ -299,13 +324,16 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
-                    File file = new File(Environment.getExternalStoragePublicDirectory
-                            (Environment.DIRECTORY_DOWNLOADS), baseName + "." + type);
-                    Uri fileUri = FileProvider.getUriForFile(getActivity(), "marabillas.loremar" +
-                            ".lmvideodownloader.fileprovider", file);
-                    intent.setDataAndType(fileUri, "video/*");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(intent);
+                    String downloadFolder =
+                            marabillas.loremar.lmvideodownloader.download_feature.DownloadManager.getDownloadFolder();
+                    if (downloadFolder != null) {
+                        File file = new File(downloadFolder, baseName + "." + type);
+                        Uri fileUri = FileProvider.getUriForFile(getActivity(), "marabillas.loremar" +
+                                ".lmvideodownloader.fileprovider", file);
+                        intent.setDataAndType(fileUri, "video/*");
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(intent);
+                    }
                 }
             });
         }
@@ -315,17 +343,20 @@ public class DownloadsCompleted extends LMvdFragment implements DownloadsInProgr
             type = video.substring(video.lastIndexOf(".") + 1, video.length());
             name.setText(baseName);
             ext.setText(type);
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment
-                    .DIRECTORY_DOWNLOADS), video);
-            if (file.exists()) {
-                String length = Formatter.formatFileSize(getActivity(), file.length());
-                size.setText(length);
-            } else {
-                int position = getAdapterPosition();
-                videos.remove(position);
-                completedVideos.save(getActivity());
-                downloadsList.getAdapter().notifyItemRemoved(position);
-                onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
+            String downloadFolder =
+                    marabillas.loremar.lmvideodownloader.download_feature.DownloadManager.getDownloadFolder();
+            if (downloadFolder != null) {
+                File file = new File(downloadFolder, video);
+                if (file.exists()) {
+                    String length = Formatter.formatFileSize(getActivity(), file.length());
+                    size.setText(length);
+                } else {
+                    int position = getAdapterPosition();
+                    videos.remove(position);
+                    completedVideos.save(getActivity());
+                    downloadsList.getAdapter().notifyItemRemoved(position);
+                    onNumDownloadsCompletedChangeListener.onNumDownloadsCompletedChange();
+                }
             }
         }
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Beedio.iml" filepath="$PROJECT_DIR$/Beedio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/home/home.iml" filepath="$PROJECT_DIR$/home/home.iml" />
+      <module fileurl="file://$PROJECT_DIR$/homeapp/homeapp.iml" filepath="$PROJECT_DIR$/homeapp/homeapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/legacy/legacy.iml" filepath="$PROJECT_DIR$/legacy/legacy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sharedui/sharedui.iml" filepath="$PROJECT_DIR$/sharedui/sharedui.iml" />
+    </modules>
+  </component>
+</project>
