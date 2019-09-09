@@ -47,6 +47,11 @@ android {
         enabled = true
     }
 
+    kapt {
+        useBuildCache = true
+        correctErrorTypes = true
+    }
+
 }
 
 dependencies {
