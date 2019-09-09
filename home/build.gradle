@@ -55,23 +55,23 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':sharedui')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation deps.kotlin.stdlib
+    implementation deps.appcompat
+    implementation deps.constraintlayout
+    implementation deps.recyclerview
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:core:1.2.0'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    testImplementation deps.junit
+    androidTestImplementation deps.test.core
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.test.rules
+    androidTestImplementation deps.test.ext_junit
+    androidTestImplementation deps.espresso
+    implementation deps.material
 
-    implementation 'com.google.dagger:dagger:2.24'
-    implementation "com.google.dagger:dagger-android:2.24"
-    implementation "com.google.dagger:dagger-android-support:2.24"
-    kapt "com.google.dagger:dagger-compiler:2.24"
-    kapt "com.google.dagger:dagger-android-processor:2.24"
+    implementation deps.dagger.runtime
+    implementation deps.dagger.android
+    implementation deps.dagger.android_support
+    kapt deps.dagger.compiler
+    kapt deps.dagger.android_processor
 
 }
