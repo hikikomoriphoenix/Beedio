@@ -21,19 +21,16 @@ package marabillas.loremar.beedio.homeapp
 
 import dagger.BindsInstance
 import dagger.Component
-import dagger.android.AndroidInjectionModule
+import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AndroidInjectionModule::class, AndroidSupportInjectionModule::class,
-    HomeActivityBindingModule::class, HomeFragmentBindingModule::class])
-internal interface HomeAppComponent {
-
+@Component(modules = [AndroidSupportInjectionModule::class, HomeActivityBindingModule::class,
+    HomeFragmentBindingModule::class])
+internal interface HomeAppComponent : AndroidInjector<HomeApp> {
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance homeApp: HomeApp): HomeAppComponent
     }
-
-    fun inject(homeApp: HomeApp)
 }

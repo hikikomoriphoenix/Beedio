@@ -19,20 +19,10 @@
 
 package marabillas.loremar.beedio.homeapp
 
-import android.app.Application
 import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
-import javax.inject.Inject
+import dagger.android.DaggerApplication
 
-internal class HomeApp : Application(), HasAndroidInjector {
-    @Inject
-    lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
-    override fun onCreate() {
-        super.onCreate()
-        DaggerHomeAppComponent.factory().create(this).inject(this)
-    }
-
-    override fun androidInjector(): AndroidInjector<Any> = androidInjector
+internal class HomeApp : DaggerApplication() {
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
+            DaggerHomeAppComponent.factory().create(this)
 }

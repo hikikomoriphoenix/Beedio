@@ -20,17 +20,15 @@
 package marabillas.loremar.beedio.home
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
+import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.home.databinding.ActivityHomeBinding
 import javax.inject.Inject
 
-class HomeActivity : AppCompatActivity(), OnRecommendedClickListener, HasAndroidInjector {
+class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
     lateinit var binding: ActivityHomeBinding
 
     @Inject
@@ -41,7 +39,6 @@ class HomeActivity : AppCompatActivity(), OnRecommendedClickListener, HasAndroid
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
