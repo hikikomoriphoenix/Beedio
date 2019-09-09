@@ -17,4 +17,15 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-include ':legacy', ':beedio', ':home', ':sharedui', ':homeapp'
+package marabillas.loremar.beedio.homeapp
+
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+import marabillas.loremar.beedio.home.HomeActivity
+
+@Module
+internal abstract class HomeActivityBindingModule {
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract fun contributeHomeActivity(): HomeActivity
+}

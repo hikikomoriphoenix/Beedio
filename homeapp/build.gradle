@@ -1,7 +1,7 @@
 /*
  *     Beedio is an Android app for downloading videos
  *     Copyright (C) 2019 Loremar Marabillas
- *         
+ *
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation; either version 2 of the License, or
@@ -17,25 +17,23 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-
 android {
     compileSdkVersion 28
     buildToolsVersion "29.0.0"
 
 
     defaultConfig {
+        applicationId "marabillas.loremar.beedio.homeapp"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -48,16 +46,17 @@ android {
     dataBinding {
         enabled = true
     }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':home')
     implementation project(':sharedui')
 
     implementation deps.kotlin.stdlib
     implementation deps.appcompat
-    implementation deps.constraintlayout
-    implementation deps.recyclerview
+    implementation deps.core_ktx
     implementation deps.material
 
     testImplementation deps.junit
@@ -72,5 +71,4 @@ dependencies {
     implementation deps.dagger.android_support
     kapt deps.dagger.compiler
     kapt deps.dagger.android_processor
-
 }

@@ -17,4 +17,16 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-include ':legacy', ':beedio', ':home', ':sharedui', ':homeapp'
+package marabillas.loremar.beedio.homeapp
+
+import javax.inject.Scope
+
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+internal annotation class ActivityScope
+
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+internal annotation class FragmentScope
