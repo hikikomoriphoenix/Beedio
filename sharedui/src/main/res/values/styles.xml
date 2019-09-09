@@ -36,5 +36,11 @@
         <item name="android:background">@color/lesser_black</item>
         <item name="android:textColorPrimary">@color/yellow</item>
         <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:itemTextAppearance">@style/CustomItemTextAppearance</item>
+    </style>
+
+    <style name="CustomItemTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
 </resources>

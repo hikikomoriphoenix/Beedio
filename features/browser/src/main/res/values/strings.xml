@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Browser</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="switch_window">Switch</string>
+    <string name="close_window">Close Window</string>
+    <string name="reload_this_page">Reload this Page</string>
+    <string name="bookmark_this_page">Bookmark this Page</string>
+    <string name="turn_off_adblock">Turn off Adblock</string>
+    <string name="new_window">New Window</string>
+</resources>

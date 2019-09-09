@@ -46,7 +46,7 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
 
         val actionBar = binding.mainContentHome.homeToolbar
         setSupportActionBar(actionBar)
-        actionBar.setNavigationOnClickListener { binding.navDrawer.openDrawer(GravityCompat.START) }
+        actionBar.setNavigationOnClickListener { binding.navDrawerHome.openDrawer(GravityCompat.START) }
 
         supportFragmentManager
                 .beginTransaction()

@@ -5,9 +5,12 @@
       <module fileurl="file://$PROJECT_DIR$/Beedio.iml" filepath="$PROJECT_DIR$/Beedio.iml" />
       <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/featureapps.iml" filepath="$PROJECT_DIR$/featureapps/featureapps.iml" />
+      <module fileurl="file://$PROJECT_DIR$/featureapps/browserapp/featureapps-browserapp.iml" filepath="$PROJECT_DIR$/featureapps/browserapp/featureapps-browserapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/featureapps/homeapp/featureapps-homeapp.iml" filepath="$PROJECT_DIR$/featureapps/homeapp/featureapps-homeapp.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" />
+      <module fileurl="file://$PROJECT_DIR$/features/browser/features-browser.iml" filepath="$PROJECT_DIR$/features/browser/features-browser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/features/home/features-home.iml" filepath="$PROJECT_DIR$/features/home/features-home.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/home/home.iml" filepath="$PROJECT_DIR$/features/home/home.iml" />
-      <module fileurl="file://$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" filepath="$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" />
       <module fileurl="file://$PROJECT_DIR$/legacy/legacy.iml" filepath="$PROJECT_DIR$/legacy/legacy.iml" />
       <module fileurl="file://$PROJECT_DIR$/sharedui/sharedui.iml" filepath="$PROJECT_DIR$/sharedui/sharedui.iml" />
     </modules>

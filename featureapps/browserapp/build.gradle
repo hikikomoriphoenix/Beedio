@@ -1,0 +1,61 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "29.0.0"
+
+
+    defaultConfig {
+        applicationId "marabillas.loremar.beedio.browserapp"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    kapt {
+        useBuildCache = true
+        correctErrorTypes = true
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':features:browser')
+    implementation project(':sharedui')
+
+    implementation deps.kotlin.stdlib
+    implementation deps.appcompat
+    implementation deps.core_ktx
+    implementation deps.material
+
+    testImplementation deps.junit
+    androidTestImplementation deps.test.core
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.test.rules
+    androidTestImplementation deps.test.ext_junit
+    androidTestImplementation deps.espresso
+
+    implementation deps.dagger.runtime
+    implementation deps.dagger.android
+    implementation deps.dagger.android_support
+    kapt deps.dagger.compiler
+    kapt deps.dagger.android_processor
+}

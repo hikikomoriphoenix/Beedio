@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:icon="@drawable/ic_arrow_back_white_24dp"
+        android:title="@string/back"
+        app:showAsAction="always" />
+    <item
+        android:icon="@drawable/ic_arrow_forward_white_24dp"
+        android:title="@string/next"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/browser_switch_tool"
+        android:title="@string/switch_window"
+        app:actionViewClass="androidx.appcompat.widget.AppCompatTextView"
+        app:showAsAction="always" />
+    <item
+        android:icon="@drawable/ic_close_white_24dp"
+        android:title="@string/close_window"
+        app:showAsAction="ifRoom" />
+    <item
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:title="@string/reload_this_page"
+        app:showAsAction="ifRoom" />
+    <item
+        android:icon="@drawable/ic_star_white_24dp"
+        android:title="@string/bookmark_this_page"
+        app:showAsAction="ifRoom" />
+    <item
+        android:icon="@drawable/ic_block_white_24dp"
+        android:title="@string/turn_off_adblock"
+        app:showAsAction="ifRoom" />
+    <item
+        android:icon="@drawable/ic_add_white_24dp"
+        android:title="@string/new_window"
+        app:showAsAction="ifRoom" />
+
+</menu>

@@ -35,7 +35,7 @@
     <androidx.drawerlayout.widget.DrawerLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/nav_drawer">
+        android:id="@+id/nav_drawer_home">
 
         <include
             android:id="@+id/main_content_home"
