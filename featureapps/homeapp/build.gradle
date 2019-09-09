@@ -56,7 +56,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':home')
+    implementation project(':features:home')
     implementation project(':sharedui')
 
     implementation deps.kotlin.stdlib
