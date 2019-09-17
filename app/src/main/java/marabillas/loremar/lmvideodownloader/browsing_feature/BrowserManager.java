@@ -65,8 +65,12 @@ public class BrowserManager extends LMvdFragment {
         allWindows.setLayoutManager(new LinearLayoutManager(getActivity()));
         allWindows.setAdapter(new AllWindowsAdapter());
 
-        File file = new File(getActivity().getFilesDir(), "ad_filters.dat");
+        setupAdBlocker();
+    }
+
+    private void setupAdBlocker() {
         try {
+            File file = new File(getActivity().getFilesDir(), "ad_filters.dat");
             if (file.exists()) {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
@@ -168,7 +172,24 @@ public class BrowserManager extends LMvdFragment {
     }
 
     public void updateAdFilters() {
-        adBlocker.update(getActivity());
+        if (adBlocker != null) {
+            adBlocker.update(getActivity());
+        } else {
+            setupAdBlocker();
+            if (adBlocker != null) {
+                adBlocker.update(getActivity());
+            } else {
+                File file = new File(getActivity().getFilesDir(), "ad_filters.dat");
+                if (file.exists()) {
+                    if (file.delete()) {
+                        setupAdBlocker();
+                        if (adBlocker != null) {
+                            adBlocker.update(getActivity());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public boolean checkUrlIfAds(String url) {
