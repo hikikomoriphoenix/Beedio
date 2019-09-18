@@ -27,26 +27,41 @@ class BrowserActivity : DaggerAppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browser)
         binding.lifecycleOwner = this
 
+        setupActionBar()
+        configureActionBar()
+    }
+
+    private fun setupActionBar() {
         val actionBar = binding.mainContentBrowser.browserToolbar
-        setSupportActionBar(actionBar)
         actionBar.setNavigationOnClickListener { binding.navDrawerBrowser.openDrawer(GravityCompat.START) }
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-        supportActionBar?.setDisplayShowCustomEnabled(true)
+        setSupportActionBar(actionBar)
+    }
+
+    private fun configureActionBar() {
         val customView = View.inflate(this, R.layout.browser_toolbar_custom_view, null)
-        supportActionBar?.customView = customView
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayShowCustomEnabled(true)
+            this.customView = customView
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val url = intent.getStringExtra("url")
+        setupWebView(url)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    override fun onStart() {
-        super.onStart()
-
-        val url = intent.getStringExtra("url")
-
-        val webview = binding.mainContentBrowser.browserWebview
-        webview.settings.javaScriptEnabled = true
-        webview.webChromeClient = WebChromeClient()
-        webview.webViewClient = WebViewClient()
-        webview.loadUrl(url)
+    private fun setupWebView(url: String) {
+        binding.mainContentBrowser
+                .browserWebview
+                .apply {
+                    settings.javaScriptEnabled = true
+                    webChromeClient = WebChromeClient()
+                    webViewClient = WebViewClient()
+                    loadUrl(url)
+                }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
