@@ -22,8 +22,6 @@ package marabillas.loremar.beedio.home
 import android.os.Bundle
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.home.databinding.ActivityHomeBinding
 import javax.inject.Inject
@@ -35,8 +33,6 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
     lateinit var searchWidgetControllerFragment: SearchWidgetControllerFragment
     @Inject
     lateinit var homeRecommendedFragment: HomeRecommendedFragment
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +44,13 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
         setSupportActionBar(actionBar)
         actionBar.setNavigationOnClickListener { binding.navDrawerHome.openDrawer(GravityCompat.START) }
 
+        searchWidgetControllerFragment.searchWidget =
+                HomeSearchWidget(binding.mainContentHome.homeSearchWidget)
+        binding.onSearchWidgetInteractionListener = searchWidgetControllerFragment
         supportFragmentManager
                 .beginTransaction()
                 .add(android.R.id.content, searchWidgetControllerFragment)
                 .commit()
-        binding.onSearchWidgetInteractionListener = searchWidgetControllerFragment
 
         binding.onRecommendedClickListener = this
     }
@@ -60,6 +58,4 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
     override fun onRecommendedClick() {
         homeRecommendedFragment.show(supportFragmentManager, null)
     }
-
-    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
 }
