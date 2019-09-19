@@ -52,6 +52,7 @@ android {
     kapt {
         useBuildCache = true
         correctErrorTypes = true
+        generateStubs = true
     }
 }
 
@@ -64,6 +65,9 @@ dependencies {
     implementation deps.constraintlayout
     implementation deps.recyclerview
     implementation deps.material
+
+    implementation deps.lifecycle.viewmodel
+    implementation deps.lifecycle.extensions
 
     testImplementation deps.junit
     androidTestImplementation deps.test.core

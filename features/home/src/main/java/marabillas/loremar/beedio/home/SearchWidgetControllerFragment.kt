@@ -24,7 +24,7 @@ import android.content.Context
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.transition.ChangeBounds
 import androidx.transition.Slide
@@ -39,7 +39,8 @@ import kotlin.math.roundToInt
 
 class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearchWidgetInteractionListener {
 
-    var searchWidget: SearchWidget? = null
+    var searchWidgetStateHolder: SearchWidgetStateHolder? = null
+    var homeAppBarStateHolder: HomeAppBarStateHolder? = null
 
     private val searchWidgetTransition = TransitionSet()
     private val collapseOnActivateEnd = OnTransitionEndListener(this::riseSearchWidget)
@@ -62,10 +63,11 @@ class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearc
         activateSearchWidget()
     }
 
-    override fun onSEarchCloseClick() {
-        searchWidget?.let {
-            if (it.getEditText().text.isNotEmpty()) {
-                it.getEditText().text.clear()
+    override fun onSearchCloseClick() {
+        searchWidgetStateHolder?.let {
+            val textValue = it.searchWidgetText.value
+            if (textValue != null && textValue.isNotEmpty()) {
+                it.searchWidgetText.value = ""
             } else {
                 deactivateSearchWidget()
             }
@@ -73,8 +75,8 @@ class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearc
     }
 
     private fun activateSearchWidget() {
-        searchWidget?.let {
-            if (it.getEditText().visibility != View.VISIBLE) {
+        searchWidgetStateHolder?.let {
+            if (it.editTextVisibility.value != View.VISIBLE) {
                 collapseOnActivateSearchWidget()
             }
         }
@@ -89,102 +91,91 @@ class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearc
     }
 
     private fun collapseOnActivateSearchWidget() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.addListener(collapseOnActivateEnd)
-            val params = initSearchWidgetTransition(it.getView())
-            params.width = (56 * resources.displayMetrics.density).roundToInt()
-            it.getView().layoutParams = params
-            val homeAppBar = activity?.findViewById<View>(R.id.home_appbar)
-            homeAppBar?.visibility = View.GONE
+            initSearchWidgetTransition()
+            it.searchWidgetWidth.value = (56 * resources.displayMetrics.density).roundToInt()
+            homeAppBarStateHolder?.homeAppBarVisibility?.value = View.GONE
         }
     }
 
     private fun collapseOnDeactivateSearchWidget() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.addListener(collapseOnDeactivateEnd)
-            val params = initSearchWidgetTransition(it.getView())
-            params.width = (56 * resources.displayMetrics.density).roundToInt()
-            it.getView().layoutParams = params
+            initSearchWidgetTransition()
+            it.searchWidgetWidth.value = (56 * resources.displayMetrics.density).roundToInt()
         }
     }
 
     private fun riseSearchWidget() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.removeListener(collapseOnActivateEnd)
             searchWidgetTransition.addListener(riseEnd)
-            val params = initSearchWidgetTransition(it.getView()) as ConstraintLayout.LayoutParams
-            params.verticalBias = 0f
-            it.getView().layoutParams = params
+            initSearchWidgetTransition()
+            it.searchWidgetVerticalBias.value = 0f
         }
     }
 
     private fun fallSearchWidget() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.removeListener(collapseOnDeactivateEnd)
             searchWidgetTransition.addListener(fallEnd)
-            val params = initSearchWidgetTransition(it.getView()) as ConstraintLayout.LayoutParams
-            params.verticalBias = 0.4f
-            it.getView().layoutParams = params
+            initSearchWidgetTransition()
+            it.searchWidgetVerticalBias.value = 0.4f
         }
     }
 
     private fun expandOnActivateSearchWidget() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.removeListener(riseEnd)
             searchWidgetTransition.addListener(expandOnActivateEnd)
-            val params = initSearchWidgetTransition(it.getView())
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT
-            it.getView().layoutParams = params
+            initSearchWidgetTransition()
+            it.searchWidgetWidth.value = ViewGroup.LayoutParams.MATCH_PARENT
         }
 
     }
 
     private fun expandOnDeactivateSearchWidget() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.removeListener(fallEnd)
             searchWidgetTransition.addListener(expandOnDeactivateEnd)
-            val params = initSearchWidgetTransition(it.getView())
-            params.width = (304 * resources.displayMetrics.density).roundToInt()
-            it.getView().layoutParams = params
+            initSearchWidgetTransition()
+            it.searchWidgetWidth.value = (304 * resources.displayMetrics.density).roundToInt()
 
-            val homeAppBar = activity?.findViewById<View>(R.id.home_appbar)
-            homeAppBar?.visibility = View.VISIBLE
+            homeAppBarStateHolder?.homeAppBarVisibility?.value = View.VISIBLE
         }
-
     }
 
     private fun enableSearchInput() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.removeListener(expandOnActivateEnd)
 
-            it.getSearchIcon().visibility = View.GONE
-            it.getCloseButton().visibility = View.VISIBLE
-            it.getEditText().visibility = View.VISIBLE
-            it.getEditText().requestFocus()
+            val editText = activity?.findViewById<EditText>(R.id.home_search_edit_text)
+            editText?.visibility = View.VISIBLE
+            editText?.requestFocus()
+            activity?.let { it1 -> showSoftKeyboard(it1) }
 
-            val activity = activity
-            if (activity is Activity)
-                showSoftKeyboard(activity)
+            it.searchIconVisibility.value = View.GONE
+            it.searchCloseBtnVisibility.value = View.VISIBLE
+            it.editTextVisibility.value = View.VISIBLE
         }
     }
 
     private fun disableSearchInput() {
-        searchWidget?.let {
+        searchWidgetStateHolder?.let {
             searchWidgetTransition.removeListener(expandOnDeactivateEnd)
 
-            it.getCloseButton().visibility = View.GONE
-            it.getSearchIcon().visibility = View.VISIBLE
-            it.getEditText().visibility = View.GONE
+            it.searchCloseBtnVisibility.value = View.GONE
+            it.searchIconVisibility.value = View.VISIBLE
+            it.editTextVisibility.value = View.GONE
         }
     }
 
-    private fun initSearchWidgetTransition(searchWidgetView: View): ViewGroup.LayoutParams {
+    private fun initSearchWidgetTransition() {
         activity?.let {
             TransitionManager.beginDelayedTransition(
                     it.findViewById(android.R.id.content),
                     searchWidgetTransition)
         }
-
-        return searchWidgetView.layoutParams
     }
 }

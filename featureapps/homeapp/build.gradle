@@ -50,6 +50,7 @@ android {
     kapt {
         useBuildCache = true
         correctErrorTypes = true
+        generateStubs = true
     }
 
 }
@@ -63,6 +64,9 @@ dependencies {
     implementation deps.appcompat
     implementation deps.core_ktx
     implementation deps.material
+
+    implementation deps.lifecycle.viewmodel
+    implementation deps.lifecycle.extensions
 
     testImplementation deps.junit
     androidTestImplementation deps.test.core

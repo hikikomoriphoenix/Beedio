@@ -22,5 +22,5 @@ package marabillas.loremar.beedio.home
 interface OnSearchWidgetInteractionListener {
     fun onSearchWidgetClick()
 
-    fun onSEarchCloseClick()
+    fun onSearchCloseClick()
 }

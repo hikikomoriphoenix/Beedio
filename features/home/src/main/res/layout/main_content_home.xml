@@ -34,6 +34,14 @@
             name="onRecommendedClickListener"
             type="marabillas.loremar.beedio.home.OnRecommendedClickListener" />
 
+        <variable
+            name="searchWidgetStateHolder"
+            type="marabillas.loremar.beedio.home.SearchWidgetStateHolder" />
+
+        <variable
+            name="homeAppBarStateHolder"
+            type="marabillas.loremar.beedio.home.HomeAppBarStateHolder" />
+
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -45,7 +53,8 @@
             android:id="@+id/home_appbar"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:theme="@style/DarkAppBar">
+            android:theme="@style/DarkAppBar"
+            android:visibility="@{homeAppBarStateHolder.homeAppBarVisibility}">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/home_toolbar"
@@ -84,15 +93,8 @@
             <include
                 android:id="@+id/home_search_widget"
                 layout="@layout/home_search_widget"
-                android:layout_width="304dp"
-                android:layout_height="56dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.4"
-                app:onSearchWidgetInteractionListener="@{onSearchWidgetInteractionListener}" />
+                app:onSearchWidgetInteractionListener="@{onSearchWidgetInteractionListener}"
+                app:searchWidgetStateHolder="@{searchWidgetStateHolder}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

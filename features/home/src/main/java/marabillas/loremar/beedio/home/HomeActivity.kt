@@ -20,14 +20,19 @@
 package marabillas.loremar.beedio.home
 
 import android.os.Bundle
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.home.databinding.ActivityHomeBinding
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
-    lateinit var binding: ActivityHomeBinding
+    private lateinit var binding: ActivityHomeBinding
+    private lateinit var viewModel: HomeViewModel
 
     @Inject
     lateinit var searchWidgetControllerFragment: SearchWidgetControllerFragment
@@ -39,13 +44,22 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
         binding.lifecycleOwner = this
+        viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
         val actionBar = binding.mainContentHome.homeToolbar
         setSupportActionBar(actionBar)
         actionBar.setNavigationOnClickListener { binding.navDrawerHome.openDrawer(GravityCompat.START) }
 
-        searchWidgetControllerFragment.searchWidget =
-                HomeSearchWidget(binding.mainContentHome.homeSearchWidget)
+        searchWidgetControllerFragment.apply {
+            searchWidgetStateHolder = viewModel
+            homeAppBarStateHolder = viewModel
+        }
+
+        binding.mainContentHome.apply {
+            searchWidgetStateHolder = viewModel
+            homeAppBarStateHolder = viewModel
+        }
+
         binding.onSearchWidgetInteractionListener = searchWidgetControllerFragment
         supportFragmentManager
                 .beginTransaction()
@@ -53,6 +67,37 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
                 .commit()
 
         binding.onRecommendedClickListener = this
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        setupActionOnSearchWidgetLayoutChanges()
+
+        if (viewModel.searchWidgetWidth.value == null || viewModel.searchWidgetVerticalBias.value == null) {
+            setupDefaultSearchWidgetParams()
+        }
+    }
+
+    private fun setupActionOnSearchWidgetLayoutChanges() {
+        val searchWidgetView = binding.mainContentHome.homeSearchWidget.homeSearchWidgetLayout
+
+        viewModel.searchWidgetWidth.observe(this, Observer {
+            val params = searchWidgetView.layoutParams
+            params.width = it
+            searchWidgetView.layoutParams = params
+        })
+
+        viewModel.searchWidgetVerticalBias.observe(this, Observer {
+            val params = searchWidgetView.layoutParams as ConstraintLayout.LayoutParams
+            params.verticalBias = it
+            searchWidgetView.layoutParams = params
+        })
+    }
+
+    private fun setupDefaultSearchWidgetParams() {
+        viewModel.searchWidgetWidth.value = (304 * resources.displayMetrics.density).roundToInt()
+        viewModel.searchWidgetVerticalBias.value = 0.4f
     }
 
     override fun onRecommendedClick() {
