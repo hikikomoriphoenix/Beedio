@@ -25,31 +25,22 @@ android {
         }
     }
 
-    dataBinding {
-        enabled = true
-    }
-
     kapt {
         useBuildCache = true
         correctErrorTypes = true
+        generateStubs = true
     }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':base')
-    implementation project(':sharedui')
-
     implementation deps.kotlin.stdlib
     implementation deps.appcompat
     implementation deps.core_ktx
-    implementation deps.material
-    implementation deps.constraintlayout
     testImplementation deps.junit
-    testImplementation deps.truth
-
-    implementation deps.lifecycle.viewmodel
-    implementation deps.lifecycle.extensions
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.espresso
 
     implementation deps.dagger.runtime
     implementation deps.dagger.android

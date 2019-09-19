@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Beedio.iml" filepath="$PROJECT_DIR$/.idea/Beedio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/base/base.iml" filepath="$PROJECT_DIR$/base/base.iml" />
       <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/browser/browser.iml" filepath="$PROJECT_DIR$/features/browser/browser.iml" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" filepath="$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" />

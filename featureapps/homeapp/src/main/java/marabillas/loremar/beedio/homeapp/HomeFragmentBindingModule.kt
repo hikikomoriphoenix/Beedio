@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.homeapp
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import marabillas.loremar.beedio.base.di.FragmentScope
 import marabillas.loremar.beedio.home.HomeRecommendedFragment
 
 @Module
