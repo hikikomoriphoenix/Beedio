@@ -44,28 +44,50 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
         binding.lifecycleOwner = this
-        viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
+        setupActionBar()
+
+        bindViewModelOnUI()
+
+        setupUIControllers()
+
+        setupListeners()
+
+    }
+
+    private fun setupActionBar() {
         val actionBar = binding.mainContentHome.homeToolbar
         setSupportActionBar(actionBar)
         actionBar.setNavigationOnClickListener { binding.navDrawerHome.openDrawer(GravityCompat.START) }
+    }
 
-        searchWidgetControllerFragment.apply {
-            searchWidgetStateHolder = viewModel
-            homeAppBarStateHolder = viewModel
-        }
+    private fun bindViewModelOnUI() {
+        viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
         binding.mainContentHome.apply {
             searchWidgetStateHolder = viewModel
             homeAppBarStateHolder = viewModel
         }
+    }
 
-        binding.onSearchWidgetInteractionListener = searchWidgetControllerFragment
+    private fun setupUIControllers() {
+        setupSearchWidgetController()
+    }
+
+    private fun setupSearchWidgetController() {
+        searchWidgetControllerFragment.apply {
+            searchWidgetStateHolder = viewModel
+            homeAppBarStateHolder = viewModel
+        }
+
         supportFragmentManager
                 .beginTransaction()
                 .add(android.R.id.content, searchWidgetControllerFragment)
                 .commit()
+    }
 
+    private fun setupListeners() {
+        binding.onSearchWidgetInteractionListener = searchWidgetControllerFragment
         binding.onRecommendedClickListener = this
     }
 
@@ -74,9 +96,7 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
 
         setupActionOnSearchWidgetLayoutChanges()
 
-        if (viewModel.searchWidgetWidth.value == null || viewModel.searchWidgetVerticalBias.value == null) {
-            setupDefaultSearchWidgetParams()
-        }
+        setupDefaultSearchWidgetParamsIfNotYetSet()
     }
 
     private fun setupActionOnSearchWidgetLayoutChanges() {
@@ -95,9 +115,11 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
         })
     }
 
-    private fun setupDefaultSearchWidgetParams() {
-        viewModel.searchWidgetWidth.value = (304 * resources.displayMetrics.density).roundToInt()
-        viewModel.searchWidgetVerticalBias.value = 0.4f
+    private fun setupDefaultSearchWidgetParamsIfNotYetSet() {
+        if (viewModel.searchWidgetWidth.value == null || viewModel.searchWidgetVerticalBias.value == null) {
+            viewModel.searchWidgetWidth.value = (304 * resources.displayMetrics.density).roundToInt()
+            viewModel.searchWidgetVerticalBias.value = 0.4f
+        }
     }
 
     override fun onRecommendedClick() {
