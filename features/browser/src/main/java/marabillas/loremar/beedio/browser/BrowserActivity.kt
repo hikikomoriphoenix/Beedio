@@ -7,43 +7,105 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.webkit.WebChromeClient
-import android.webkit.WebViewClient
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
+import marabillas.loremar.beedio.browser.listeners.BrowserMenuItemClickListener
+import marabillas.loremar.beedio.browser.listeners.BrowserUIEventsListener
+import marabillas.loremar.beedio.browser.uicontrollers.BrowserTitleControllerFragment
+import marabillas.loremar.beedio.browser.uicontrollers.WebPageNavigatorFragment
+import marabillas.loremar.beedio.browser.viewmodel.BrowserViewModel
+import javax.inject.Inject
 
 class BrowserActivity : DaggerAppCompatActivity() {
 
-    lateinit var binding: ActivityBrowserBinding
+    private lateinit var binding: ActivityBrowserBinding
+    private lateinit var viewModel: BrowserViewModel
+    private lateinit var customTitleView: View
+
+    @Inject
+    lateinit var titleController: BrowserTitleControllerFragment
+    @Inject
+    lateinit var webPageNavigator: WebPageNavigatorFragment
+    @Inject
+    lateinit var browserWebViewClient: BrowserWebViewClient
+    @Inject
+    lateinit var browserWebChromeClient: BrowserWebChromeClient
+    @Inject
+    lateinit var uiListener: BrowserUIEventsListener
+    @Inject
+    lateinit var menuItemClickListener: BrowserMenuItemClickListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browser)
         binding.lifecycleOwner = this
+        viewModel = ViewModelProviders.of(this).get(BrowserViewModel::class.java)
 
         setupActionBar()
         configureActionBar()
+
+        bindViewModelOnUI()
+        setupControllers()
+        setupListeners()
     }
 
     private fun setupActionBar() {
         val actionBar = binding.mainContentBrowser.browserToolbar
-        actionBar.setNavigationOnClickListener { binding.navDrawerBrowser.openDrawer(GravityCompat.START) }
         setSupportActionBar(actionBar)
+        actionBar.setNavigationOnClickListener { binding.navDrawerBrowser.openDrawer(GravityCompat.START) }
+        actionBar.setOnMenuItemClickListener(menuItemClickListener)
     }
 
     private fun configureActionBar() {
-        val customView = View.inflate(this, R.layout.browser_toolbar_custom_view, null)
+        customTitleView = View.inflate(this, R.layout.browser_toolbar_custom_view, null)
         supportActionBar?.apply {
             setDisplayShowTitleEnabled(false)
             setDisplayShowCustomEnabled(true)
-            this.customView = customView
+            customView = customTitleView
         }
+    }
+
+    private fun bindViewModelOnUI() {
+        val titleView = customTitleView.findViewById<TextView>(R.id.browser_title)
+        val urlView = customTitleView.findViewById<TextView>(R.id.browser_url)
+        viewModel.observeTitle(this, Observer { titleView.text = it })
+        viewModel.observeUrl(this, Observer { urlView.text = it })
+    }
+
+    private fun setupControllers() {
+        setupTitleController()
+        setupWebPageNavigator()
+    }
+
+    private fun setupTitleController() {
+        titleController.titleState = viewModel
+        supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, titleController)
+                .commit()
+    }
+
+    private fun setupWebPageNavigator() {
+        supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, webPageNavigator)
+                .commit()
+    }
+
+    private fun setupListeners() {
+        browserWebViewClient.onWebPageChangedListener = uiListener
+        browserWebChromeClient.titleRecievedListener = uiListener
+
+        uiListener.titleController = titleController
+        menuItemClickListener.webPageNavigator = webPageNavigator
     }
 
     override fun onStart() {
@@ -58,8 +120,8 @@ class BrowserActivity : DaggerAppCompatActivity() {
                 .browserWebview
                 .apply {
                     settings.javaScriptEnabled = true
-                    webChromeClient = WebChromeClient()
-                    webViewClient = WebViewClient()
+                    webChromeClient = browserWebChromeClient
+                    webViewClient = browserWebViewClient
                     loadUrl(url)
                 }
     }
@@ -82,4 +144,6 @@ class BrowserActivity : DaggerAppCompatActivity() {
         }
         return true
     }
+
+
 }
