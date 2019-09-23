@@ -481,7 +481,7 @@ public class DownloadManager extends IntentService {
     }
 
     public static void forceStopIfNecessary() {
-        if (downloadThread.isAlive()) {
+        if (downloadThread != null && downloadThread.isAlive()) {
             stop = true;
         }
     }
