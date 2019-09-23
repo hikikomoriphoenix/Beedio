@@ -13,11 +13,12 @@
         android:title="@string/next"
         app:showAsAction="always" />
     <item
-        android:id="@+id/browser_switch_tool"
+        android:id="@+id/browser_menu_switch_window"
         android:title="@string/switch_window"
         app:actionViewClass="androidx.appcompat.widget.AppCompatTextView"
         app:showAsAction="always" />
     <item
+        android:id="@+id/browser_menu_close_window"
         android:icon="@drawable/ic_close_white_24dp"
         android:title="@string/close_window"
         app:showAsAction="ifRoom" />
@@ -35,6 +36,7 @@
         android:title="@string/turn_off_adblock"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/browser_menu_add_window"
         android:icon="@drawable/ic_add_white_24dp"
         android:title="@string/new_window"
         app:showAsAction="ifRoom" />

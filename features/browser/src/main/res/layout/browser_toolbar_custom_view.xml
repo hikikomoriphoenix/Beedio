@@ -8,7 +8,6 @@
         android:id="@+id/browser_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="A very very very very very very long title"
         android:textColor="@color/yellow"
         android:maxLines="1"
         android:ellipsize="end"
@@ -18,7 +17,6 @@
         android:id="@+id/browser_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="http://loooooooooooooonnnnnnnnnnnnnngggggggg.com"
         android:textColor="@color/white"
         android:maxLines="1"
         android:ellipsize="end" />

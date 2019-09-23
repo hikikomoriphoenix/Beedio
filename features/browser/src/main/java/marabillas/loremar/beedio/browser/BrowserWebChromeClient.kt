@@ -11,6 +11,6 @@ class BrowserWebChromeClient @Inject constructor() : WebChromeClient() {
 
     override fun onReceivedTitle(view: WebView?, title: String?) {
         super.onReceivedTitle(view, title)
-        titleRecievedListener?.onWebPageTitleRecieved(title)
+        titleRecievedListener?.onWebPageTitleRecieved(view, title)
     }
 }

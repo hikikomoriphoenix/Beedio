@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="searchWidgetState"
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetState" />
+
+        <variable
+            name="searchWidgetListener"
+            type="marabillas.loremar.beedio.browser.listeners.BrowserSearchWidgetListener" />
+    </data>
+
+    <FrameLayout
+        android:id="@+id/browser_search_widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/lesser_black"
+        android:visibility="@={searchWidgetState.searchWidgetContainerVisibility}">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/browser_search_widget"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content"
+            app:changing_width="@={searchWidgetState.searchWidgetWidth}"
+            android:background="@drawable/browser_search_widget_background"
+            android:layout_gravity="@={searchWidgetState.searchWidgetGravity}"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp">
+
+            <EditText
+                android:id="@+id/browser_search_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/browser_search_widget_hint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/browser_close_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="@={searchWidgetState.searchEditTextVisibility}"
+                android:inputType="text"
+                android:importantForAutofill="no"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:textSize="12sp"
+                android:textColor="@color/grey"
+                android:imeOptions="actionSearch" />
+
+            <ImageView
+                android:id="@+id/browser_close_btn"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/browser_search_close_content_desc"
+                android:visibility="@={searchWidgetState.searchCloseBtnVisibility}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_close_grey_24dp"
+                android:onClick="@{() -> searchWidgetListener.onSearchCloseBtnClicked()}" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+</layout>

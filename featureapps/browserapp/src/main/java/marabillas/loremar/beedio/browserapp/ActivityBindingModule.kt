@@ -8,6 +8,6 @@ import marabillas.loremar.beedio.browser.BrowserActivity
 @Module
 abstract class ActivityBindingModule {
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [BrowserActivityModule::class])
     abstract fun contributeBrowserActivity(): BrowserActivity
 }

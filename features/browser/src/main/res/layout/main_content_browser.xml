@@ -2,13 +2,27 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="appBarState"
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserAppBarState" />
+
+        <variable
+            name="searchWidgetState"
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetState" />
+
+        <variable
+            name="searchWidgetListener"
+            type="marabillas.loremar.beedio.browser.listeners.BrowserSearchWidgetListener" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/browser_appbar"
-
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:theme="@style/DarkAppBar">
@@ -20,20 +34,21 @@
                 android:theme="@style/DarkToolBar"
                 app:navigationIcon="@drawable/ic_menu_white_24dp"
                 app:contentInsetStartWithNavigation="0dp"
-                app:menu="@menu/browser_menu" />
+                app:menu="@menu/browser_menu"
+                android:visibility="@={appBarState.appBarVisibility}" />
+
+            <include
+                layout="@layout/browser_search_widget"
+                app:searchWidgetState="@{searchWidgetState}"
+                app:searchWidgetListener="@{searchWidgetListener}" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/browser_webview_containter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-            <WebView
-                android:id="@+id/browser_webview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.core.widget.NestedScrollView>
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

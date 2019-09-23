@@ -8,4 +8,7 @@
     <string name="bookmark_this_page">Bookmark this Page</string>
     <string name="turn_off_adblock">Turn off Adblock</string>
     <string name="new_window">New Window</string>
+    <string name="browser_search_widget_hint">Type URL or Search</string>
+    <string name="browser_search_close_content_desc">Close Search Widget</string>
+    <string name="browser_webview_switcher_sheet_header">Switch To</string>
 </resources>
