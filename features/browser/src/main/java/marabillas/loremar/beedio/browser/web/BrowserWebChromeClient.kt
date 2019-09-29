@@ -1,4 +1,4 @@
-package marabillas.loremar.beedio.browser
+package marabillas.loremar.beedio.browser.web
 
 import android.webkit.WebChromeClient
 import android.webkit.WebView

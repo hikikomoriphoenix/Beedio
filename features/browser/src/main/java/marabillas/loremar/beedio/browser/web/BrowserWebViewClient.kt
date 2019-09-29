@@ -1,4 +1,4 @@
-package marabillas.loremar.beedio.browser
+package marabillas.loremar.beedio.browser.web
 
 import android.graphics.Bitmap
 import android.webkit.WebView
