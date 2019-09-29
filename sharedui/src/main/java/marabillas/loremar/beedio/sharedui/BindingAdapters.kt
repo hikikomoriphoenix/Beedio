@@ -1,4 +1,4 @@
-package marabillas.loremar.beedio.base.mvvm
+package marabillas.loremar.beedio.sharedui
 
 import android.view.Gravity
 import android.view.View
