@@ -30,26 +30,30 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.browser.R
-import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleState
+import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
+import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import javax.inject.Inject
 
-class WebViewsControllerFragment @Inject constructor() : DaggerFragment(), WebPageNavigatorInterface,
-        WebViewSwitcherInterface, TitleControllerInterface {
+class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
-    var titleState: BrowserTitleState? = null
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private var webViewsControllerVM: WebViewsControllerVM? = null
+    private var titleStateVM: BrowserTitleStateVM? = null
+    private var webPageNavigationVM: WebPageNavigationVM? = null
     var onUpdateWebViewsCountIndicator: (Int) -> Unit = { }
 
-    private val _webViews = mutableListOf<WebView>()
+    private val webViews = mutableListOf<WebView>()
     private var activeWebView: WebView? = null
+    private val activeWebViewIndex: Int; get() = webViews.indexOf(activeWebView)
     private var webViewsContainer: FrameLayout? = null
-
-    override val webViews: MutableList<WebView>
-        get() = _webViews
-
-    override val activeWebViewIndex: Int
-        get() = _webViews.indexOf(activeWebView)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,70 +72,66 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment(), WebPa
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        activity?.let {
+            webViewsControllerVM = ViewModelProviders.of(it, viewModelFactory).get(WebViewsControllerVM::class.java)
+            titleStateVM = ViewModelProviders.of(it, viewModelFactory).get(BrowserTitleStateVM::class.java)
+            webPageNavigationVM = ViewModelProviders.of(it, viewModelFactory).get(WebPageNavigationVM::class.java)
+            observeWebViewControllerVM()
+            observeWebPageNavigationVM()
+        }
+
         val parentContainer = activity?.findViewById<ViewGroup>(R.id.browser_webview_containter)
         updateParent(webViewsContainer, parentContainer)
 
-        if (_webViews.isEmpty()) {
+        if (webViews.isEmpty()) {
             val url = activity?.intent?.getStringExtra("url")
             url?.let { addWebView(it) }
         }
 
     }
 
-    private fun updateParent(view: View?, parent: ViewGroup?) {
-        (view?.parent as ViewGroup?)?.removeView(view)
-        parent?.addView(view)
-    }
+    private fun observeWebViewControllerVM() {
+        activity?.let { lifecycleOwer ->
 
-    var webChromClient: WebChromeClient? = null
-        set(value) {
-            field = value
-            _webViews.forEach { it.webChromeClient = value }
+            this.also { thisFragment ->
+
+                webViewsControllerVM?.apply {
+                    observeRequestUpdatedWebViews(lifecycleOwer, Observer { it(thisFragment.webViews, activeWebViewIndex) })
+                    observeRequestActiveWebView(lifecycleOwer, Observer { it(thisFragment.activeWebView) })
+                    observeNewWebView(lifecycleOwer, Observer { thisFragment.newWebView(it.url) })
+                    observeSwitchWebView(lifecycleOwer, Observer { thisFragment.switchWebView(it.index) })
+                    observeCloseWebView(lifecycleOwer, Observer { thisFragment.closeWebView() })
+                }
+            }
         }
-
-    var webViewClient: WebViewClient? = null
-        set(value) {
-            field = value
-            _webViews.forEach { it.webViewClient = value }
-        }
-
-    override fun goBack() {
-        activeWebView?.goBack()
     }
 
-    override fun goForward() {
-        activeWebView?.goForward()
-    }
-
-    override fun reloadPage() {
-        activeWebView?.reload()
-    }
-
-    override fun newWebView(url: String) {
+    private fun newWebView(url: String) {
         addWebView(url)
         updateWebViewsCountIndicator()
     }
 
-    override fun switchWebView(index: Int) {
+    private fun switchWebView(index: Int) {
         activeWebView?.visibility = View.GONE
 
-        activeWebView = _webViews[index]
+        activeWebView = webViews[index]
         (activeWebView?.parent as ViewGroup?)?.removeView(activeWebView)
         webViewsContainer?.addView(activeWebView)
 
         activeWebView?.let {
             it.visibility = View.VISIBLE
-            updateTitle(it, it.title, it.url)
+            titleStateVM?.title = it.title
+            titleStateVM?.url = it.url
         }
 
         updateWebViewsCountIndicator()
     }
 
-    override fun closeWebView() {
+    private fun closeWebView() {
         (activeWebView?.parent as ViewGroup?)?.removeView(activeWebView)
-        val index = _webViews.indexOf(activeWebView)
-        _webViews.removeAt(index)
-        if (_webViews.isNotEmpty())
+        val index = webViews.indexOf(activeWebView)
+        webViews.removeAt(index)
+        if (webViews.isNotEmpty())
             if (index > 0) {
                 switchWebView(index - 1)
             } else {
@@ -143,6 +143,35 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment(), WebPa
         updateWebViewsCountIndicator()
     }
 
+    private fun observeWebPageNavigationVM() {
+
+        activity?.let { lifecycleOwner ->
+
+            webPageNavigationVM?.apply {
+                observeGoBack(lifecycleOwner, Observer { activeWebView?.goBack() })
+                observeGoForward(lifecycleOwner, Observer { activeWebView?.goForward() })
+                observeReloadPage(lifecycleOwner, Observer { activeWebView?.reload() })
+            }
+        }
+    }
+
+    private fun updateParent(view: View?, parent: ViewGroup?) {
+        (view?.parent as ViewGroup?)?.removeView(view)
+        parent?.addView(view)
+    }
+
+    var webChromeClient: WebChromeClient? = null
+        set(value) {
+            field = value
+            webViews.forEach { it.webChromeClient = value }
+        }
+
+    var webViewClient: WebViewClient? = null
+        set(value) {
+            field = value
+            webViews.forEach { it.webViewClient = value }
+        }
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun addWebView(url: String) {
         this.also { webViewsController ->
@@ -150,7 +179,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment(), WebPa
             activeWebView = WebView(activity).apply {
                 layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
                 webViewClient = webViewsController.webViewClient
-                webChromClient = webViewsController.webChromClient
+                webChromeClient = webViewsController.webChromeClient
                 settings.javaScriptEnabled = true
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.allowUniversalAccessFromFileURLs = true
@@ -160,25 +189,10 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment(), WebPa
         }
 
         webViewsContainer?.addView(activeWebView)
-        activeWebView?.let { _webViews.add(it) }
+        activeWebView?.let { webViews.add(it) }
     }
 
     private fun updateWebViewsCountIndicator() {
-        onUpdateWebViewsCountIndicator(_webViews.count())
-    }
-
-    override fun updateTitle(title: String?, url: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun updateTitle(title: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun updateTitle(webView: WebView?, title: String?, url: String?) {
-        if (webView == activeWebView) {
-            titleState?.title = title
-            url?.let { titleState?.url = it }
-        }
+        onUpdateWebViewsCountIndicator(webViews.count())
     }
 }

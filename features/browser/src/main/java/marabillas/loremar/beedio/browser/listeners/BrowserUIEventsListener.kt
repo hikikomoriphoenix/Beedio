@@ -22,34 +22,39 @@ package marabillas.loremar.beedio.browser.listeners
 import android.graphics.Bitmap
 import android.webkit.WebView
 import marabillas.loremar.beedio.base.di.ActivityScope
-import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerInterface
-import marabillas.loremar.beedio.browser.uicontrollers.TitleControllerInterface
+import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import javax.inject.Inject
 
 @ActivityScope
 class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         OnWebPageTitleRecievedListener, BrowserSearchWidgetListener {
 
-    var titleController: TitleControllerInterface? = null
-    var searchWidgetController: BrowserSearchWidgetControllerInterface? = null
-
-    override fun onWebPageChanged(title: String?, url: String?, favicon: Bitmap?) {
-        titleController?.updateTitle(title, url)
-    }
+    var webViewsControllerVM: WebViewsControllerVM? = null
+    var titleStateVM: BrowserTitleStateVM? = null
+    var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
 
     override fun onWebPageChanged(webView: WebView?, url: String?, favicon: Bitmap?) {
-        titleController?.updateTitle(webView, webView?.title, url)
-    }
-
-    override fun onWebPageTitleRecieved(title: String?) {
-        titleController?.updateTitle(title)
+        val updateTitle = { activeWebView: WebView? ->
+            if (activeWebView == webView) {
+                titleStateVM?.title = webView?.title
+                titleStateVM?.url = url
+            }
+        }
+        webViewsControllerVM?.requestActiveWebView(updateTitle)
     }
 
     override fun onWebPageTitleRecieved(webView: WebView?, title: String?) {
-        titleController?.updateTitle(webView, title, null)
+        val updateTitle = { activeWebView: WebView? ->
+            if (activeWebView == webView) {
+                titleStateVM?.title = title
+            }
+        }
+        webViewsControllerVM?.requestActiveWebView(updateTitle)
     }
 
     override fun onSearchCloseBtnClicked() {
-        searchWidgetController?.onCloseBtnClicked()
+        searchWidgetControllerVM?.onCloseBtnClicked()
     }
 }

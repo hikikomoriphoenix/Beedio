@@ -19,16 +19,26 @@
 
 package marabillas.loremar.beedio.browser.activity
 
-class BrowserListenersUpdater(private val activity: BrowserActivity) {
+import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
+import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
+
+class BrowserListenersUpdater(private val activity: BrowserActivity,
+                              private val webPageNavigationVM: WebPageNavigationVM,
+                              private val webViewsControllerVM: WebViewsControllerVM,
+                              private val titleStateVM: BrowserTitleStateVM,
+                              private val searchWidgetControllerVM: BrowserSearchWidgetControllerVM) {
 
     fun update() {
         activity.browserWebViewClient.onWebPageChangedListener = activity.uiListener
         activity.browserWebChromeClient.titleRecievedListener = activity.uiListener
 
-        activity.uiListener.titleController = activity.webViewsController
-        activity.uiListener.searchWidgetController = activity.searchWidgeController
-        activity.menuItemClickListener.webPageNavigator = activity.webViewsController
-        activity.menuItemClickListener.searchWidgetController = activity.searchWidgeController
-        activity.menuItemClickListener.webViewSwitcher = activity.webViewsController
+        activity.uiListener.webViewsControllerVM = webViewsControllerVM
+        activity.uiListener.titleStateVM = titleStateVM
+        activity.uiListener.searchWidgetControllerVM = searchWidgetControllerVM
+        activity.menuItemClickListener.webPageNavigation = webPageNavigationVM
+        activity.menuItemClickListener.searchWidgetControllerVM = searchWidgetControllerVM
+        activity.menuItemClickListener.webViewsController = webViewsControllerVM
     }
 }

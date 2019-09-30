@@ -59,6 +59,7 @@ class BrowserActionBarUpdater(
     }
 
     fun setupOptionsMenu(menu: Menu?) {
+
         activity.menuInflater.inflate(R.menu.browser_menu, menu)
 
         val switchMenuItem = menu?.findItem(R.id.browser_menu_switch_window)
@@ -83,7 +84,6 @@ class BrowserActionBarUpdater(
     }
 
     private fun openWebViewSwitcherSheet() {
-        activity.switcherSheet.webViewSwitcher = activity.webViewsController
         if (!activity.switcherSheet.isAdded) {
             activity.switcherSheet.show(activity.supportFragmentManager, null)
         }

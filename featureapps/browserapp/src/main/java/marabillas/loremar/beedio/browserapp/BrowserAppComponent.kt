@@ -26,7 +26,8 @@ import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class, FragmentBindingModule::class])
+@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class,
+    FragmentBindingModule::class, BrowserViewModelModule::class])
 interface BrowserAppComponent : AndroidInjector<BrowserApp> {
     @Component.Factory
     interface Factory {

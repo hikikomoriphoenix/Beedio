@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.browser.uicontrollers
 
+import android.os.Bundle
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -28,21 +29,31 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.web.WebNavigation
 import marabillas.loremar.beedio.browser.R
+import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import marabillas.loremar.beedio.sharedui.OnTransitionEndListener
 import marabillas.loremar.beedio.sharedui.hideSofKeyboard
 import marabillas.loremar.beedio.sharedui.showSoftKeyboard
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class BrowserSearchWidgetControllerFragment @Inject constructor() : DaggerFragment(), BrowserSearchWidgetControllerInterface, TextView.OnEditorActionListener {
+class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEditorActionListener {
 
-    var webViewSwitcher: WebViewSwitcherInterface? = null
-    var webNavigation: WebNavigation? = null
+    @Inject
+    lateinit var webNavigation: WebNavigation
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private var webViewsControllerVM: WebViewsControllerVM? = null
+    private var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
 
     private val searchWidgetTransition = ChangeBounds()
     private val showSearchWidgetEnd = OnTransitionEndListener(this::slideWidgetAcross)
@@ -50,7 +61,20 @@ class BrowserSearchWidgetControllerFragment @Inject constructor() : DaggerFragme
     private val expandWidgetEnd = OnTransitionEndListener(this::enableInput)
     private val closeSearchWidgetEnd = OnTransitionEndListener(this::hideSearchWidget)
 
-    override fun showSearchWidget() {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            webViewsControllerVM = ViewModelProviders.of(it, viewModelFactory)
+                    .get(WebViewsControllerVM::class.java)
+            searchWidgetControllerVM = ViewModelProviders.of(it, viewModelFactory)
+                    .get(BrowserSearchWidgetControllerVM::class.java)
+
+            searchWidgetControllerVM?.observeShowSearchWidget(it, Observer { showSearchWidget() })
+            searchWidgetControllerVM?.observeOnCloseBtnClicked(it, Observer { onCloseBtnClicked() })
+        }
+    }
+
+    private fun showSearchWidget() {
         activity?.findViewById<Toolbar>(R.id.browserToolbar)
                 ?.visibility = View.GONE
 
@@ -106,7 +130,7 @@ class BrowserSearchWidgetControllerFragment @Inject constructor() : DaggerFragme
         editText?.setOnEditorActionListener(this)
     }
 
-    override fun onCloseBtnClicked() {
+    private fun onCloseBtnClicked() {
         val editText = activity?.findViewById<EditText>(R.id.browser_search_edit_text)
 
         editText?.let { editTxt ->
@@ -157,10 +181,10 @@ class BrowserSearchWidgetControllerFragment @Inject constructor() : DaggerFragme
             val input = editText.text.toString()
             if (input.isNotEmpty()) {
 
-                webNavigation?.let { web ->
+                webNavigation.let { web ->
                     closeSearchWidget()
                     val validInput = web.navigateTo(input)
-                    webViewSwitcher?.newWebView(validInput)
+                    webViewsControllerVM?.newWebView(validInput)
 
                 } ?: return true
 

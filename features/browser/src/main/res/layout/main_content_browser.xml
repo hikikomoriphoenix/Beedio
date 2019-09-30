@@ -24,11 +24,11 @@
 
         <variable
             name="appBarState"
-            type="marabillas.loremar.beedio.browser.viewmodel.BrowserAppBarState" />
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserAppBarStateVM" />
 
         <variable
             name="searchWidgetState"
-            type="marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetState" />
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetStateVM" />
 
         <variable
             name="searchWidgetListener"

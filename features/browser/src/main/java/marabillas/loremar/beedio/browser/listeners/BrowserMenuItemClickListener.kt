@@ -22,24 +22,24 @@ package marabillas.loremar.beedio.browser.listeners
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import marabillas.loremar.beedio.browser.R
-import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerInterface
-import marabillas.loremar.beedio.browser.uicontrollers.WebPageNavigatorInterface
-import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherInterface
+import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import javax.inject.Inject
 
 class BrowserMenuItemClickListener @Inject constructor() : Toolbar.OnMenuItemClickListener {
-    var webPageNavigator: WebPageNavigatorInterface? = null
-    var searchWidgetController: BrowserSearchWidgetControllerInterface? = null
-    var webViewSwitcher: WebViewSwitcherInterface? = null
+    var webPageNavigation: WebPageNavigationVM? = null
+    var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
+    var webViewsController: WebViewsControllerVM? = null
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
         when (item?.itemId) {
-            R.id.browser_menu_back -> webPageNavigator?.goBack()
-            R.id.browser_menu_forward -> webPageNavigator?.goForward()
-            R.id.browser_menu_reload -> webPageNavigator?.reloadPage()
-            R.id.browser_menu_add_window -> searchWidgetController?.showSearchWidget()
-            R.id.browser_menu_close_window -> webViewSwitcher?.closeWebView()
+            R.id.browser_menu_back -> webPageNavigation?.goBack()
+            R.id.browser_menu_forward -> webPageNavigation?.goForward()
+            R.id.browser_menu_reload -> webPageNavigation?.reloadPage()
+            R.id.browser_menu_add_window -> searchWidgetControllerVM?.showSearchWidget()
+            R.id.browser_menu_close_window -> webViewsController?.closeWebView()
         }
 
         return true

@@ -21,24 +21,31 @@ package marabillas.loremar.beedio.browser.uicontrollers
 
 import android.app.Dialog
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.android.support.AndroidSupportInjection
 import marabillas.loremar.beedio.browser.R
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import javax.inject.Inject
 
 class WebViewSwitcherSheetFragment @Inject constructor() : BottomSheetDialogFragment() {
 
-    var webViewSwitcher: WebViewSwitcherInterface? = null
-
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
     lateinit var switcherSheetCallback: WebViewSwitcherSheetCallback
     @Inject
     lateinit var switcherSheetAdapter: WebViewSwitcherSheetAdapter
+
+    private var webViewsControllerVM: WebViewsControllerVM? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -81,16 +88,28 @@ class WebViewSwitcherSheetFragment @Inject constructor() : BottomSheetDialogFrag
                 }
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            webViewsControllerVM = ViewModelProviders.of(it, viewModelFactory).get(WebViewsControllerVM::class.java)
+        }
+    }
+
     override fun onStart() {
         super.onStart()
-        webViewSwitcher?.let {
-            switcherSheetAdapter.update(it.webViews, it.activeWebViewIndex)
+
+        webViewsControllerVM?.let {
+            val updateAdapter = { webViews: List<WebView>, activeWebViewIndex: Int ->
+                switcherSheetAdapter.update(webViews, activeWebViewIndex)
+            }
+            it.requestUpdatedWebViews(updateAdapter)
         }
+
         switcherSheetAdapter.actionOnItemSelect = this::onItemSelected
     }
 
     private fun onItemSelected(itemIndex: Int) {
         dismiss()
-        webViewSwitcher?.switchWebView(itemIndex)
+        webViewsControllerVM?.switchWebView(itemIndex)
     }
 }

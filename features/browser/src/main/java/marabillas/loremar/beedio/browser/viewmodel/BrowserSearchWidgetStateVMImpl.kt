@@ -22,16 +22,10 @@ package marabillas.loremar.beedio.browser.viewmodel
 import android.view.Gravity
 import android.view.View
 import androidx.databinding.Bindable
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import marabillas.loremar.beedio.base.mvvm.ObservableViewModel
 
-class BrowserViewModel : ObservableViewModel(), BrowserTitleState, BrowserAppBarState, BrowserSearchWidgetState {
+class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
 
-    private val titleData = MutableLiveData<String>()
-    private val urlData = MutableLiveData<String>()
-    private val appBarVisibilityData = MutableLiveData<Int>()
     private val searchWidgetContainerVisibilityData = MutableLiveData<Int>()
     private val searchWidgetGravityData = MutableLiveData<Int>()
     private val searchWidgetWidthData = MutableLiveData<Int>()
@@ -39,41 +33,11 @@ class BrowserViewModel : ObservableViewModel(), BrowserTitleState, BrowserAppBar
     private val searchCloseBtnVisibilityData = MutableLiveData<Int>()
 
     init {
-        appBarVisibilityData.value = View.VISIBLE
         searchWidgetContainerVisibilityData.value = View.GONE
         searchWidgetGravityData.value = Gravity.END
         searchWidgetWidthData.value = 0
         searchEditTextVisibilityData.value = View.INVISIBLE
         searchCloseBtnVisibilityData.value = View.INVISIBLE
-    }
-
-    override var title: String?
-        get() = titleData.value
-        set(value) {
-            titleData.value = value
-        }
-
-    override var url: String?
-        get() = urlData.value
-        set(value) {
-            urlData.value = value
-        }
-
-    override fun observeTitle(lifecycleOwner: LifecycleOwner, observer: Observer<String?>) {
-        titleData.observe(lifecycleOwner, observer)
-    }
-
-    override fun observeUrl(lifecycleOwner: LifecycleOwner, observer: Observer<String?>) {
-        urlData.observe(lifecycleOwner, observer)
-    }
-
-    @Bindable
-    override fun getAppBarVisibility(): Int {
-        return appBarVisibilityData.value ?: View.VISIBLE
-    }
-
-    override fun setAppBarVisibility(value: Int) {
-        appBarVisibilityData.value = value
     }
 
     @Bindable

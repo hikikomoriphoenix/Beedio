@@ -17,19 +17,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.browser.listeners
+package marabillas.loremar.beedio.browser.viewmodel
 
-import android.graphics.Bitmap
-import android.webkit.WebView
+import android.view.View
+import androidx.databinding.Bindable
+import androidx.lifecycle.MutableLiveData
 
-interface OnWebPageChangedListener {
-    fun onWebPageChanged(webView: WebView?, url: String?, favicon: Bitmap?)
-}
+class BrowserAppBarStateVMImpl : BrowserAppBarStateVM() {
 
-interface OnWebPageTitleRecievedListener {
-    fun onWebPageTitleRecieved(webView: WebView?, title: String?)
-}
+    private val appBarVisibilityData = MutableLiveData<Int>()
 
-interface BrowserSearchWidgetListener {
-    fun onSearchCloseBtnClicked()
+    init {
+        appBarVisibilityData.value = View.VISIBLE
+    }
+
+    @Bindable
+    override fun getAppBarVisibility(): Int {
+        return appBarVisibilityData.value ?: View.VISIBLE
+    }
+
+    override fun setAppBarVisibility(value: Int) {
+        appBarVisibilityData.value = value
+    }
 }

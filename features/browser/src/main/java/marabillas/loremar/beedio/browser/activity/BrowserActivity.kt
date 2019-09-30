@@ -22,18 +22,17 @@ package marabillas.loremar.beedio.browser.activity
 import android.os.Bundle
 import android.view.Menu
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerAppCompatActivity
-import marabillas.loremar.beedio.base.web.WebNavigation
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
 import marabillas.loremar.beedio.browser.listeners.BrowserMenuItemClickListener
 import marabillas.loremar.beedio.browser.listeners.BrowserUIEventsListener
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
-import marabillas.loremar.beedio.browser.uicontrollers.BrowserTitleControllerFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherSheetFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
-import marabillas.loremar.beedio.browser.viewmodel.BrowserViewModel
+import marabillas.loremar.beedio.browser.viewmodel.*
 import marabillas.loremar.beedio.browser.web.BrowserWebChromeClient
 import marabillas.loremar.beedio.browser.web.BrowserWebViewClient
 import javax.inject.Inject
@@ -41,7 +40,7 @@ import javax.inject.Inject
 class BrowserActivity : DaggerAppCompatActivity() {
 
     @Inject
-    lateinit var titleController: BrowserTitleControllerFragment
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
     lateinit var webViewsController: WebViewsControllerFragment
     @Inject
@@ -56,11 +55,16 @@ class BrowserActivity : DaggerAppCompatActivity() {
     lateinit var uiListener: BrowserUIEventsListener
     @Inject
     lateinit var menuItemClickListener: BrowserMenuItemClickListener
-    @Inject
-    lateinit var webNavigation: WebNavigation
 
     private lateinit var binding: ActivityBrowserBinding
-    private lateinit var viewModel: BrowserViewModel
+
+    private lateinit var titleStateVM: BrowserTitleStateVM
+    private lateinit var webPageNavigationVM: WebPageNavigationVM
+    private lateinit var webViewsControllerVM: WebViewsControllerVM
+    private lateinit var searchWidgetControllerVM: BrowserSearchWidgetControllerVM
+    private lateinit var appBarStateVM: BrowserAppBarStateVM
+    private lateinit var searchWidgetStateVM: BrowserSearchWidgetStateVM
+
     private lateinit var controllersUpdater: BrowserControllersUpdater
     private lateinit var actionBarUpdater: BrowserActionBarUpdater
     private lateinit var viewModelBinder: BrowserViewModelBinder
@@ -71,12 +75,20 @@ class BrowserActivity : DaggerAppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browser)
         binding.lifecycleOwner = this
-        viewModel = ViewModelProviders.of(this).get(BrowserViewModel::class.java)
+        titleStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserTitleStateVM::class.java)
+        webPageNavigationVM = ViewModelProviders.of(this, viewModelFactory).get(WebPageNavigationVM::class.java)
+        webViewsControllerVM = ViewModelProviders.of(this, viewModelFactory).get(WebViewsControllerVM::class.java)
+        searchWidgetControllerVM = ViewModelProviders.of(this, viewModelFactory)
+                .get(BrowserSearchWidgetControllerVM::class.java)
+        appBarStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserAppBarStateVM::class.java)
+        searchWidgetStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserSearchWidgetStateVM::class.java)
 
         actionBarUpdater = BrowserActionBarUpdater(this, binding)
-        viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, viewModel, binding)
-        controllersUpdater = BrowserControllersUpdater(this, viewModel)
-        listenersUpdater = BrowserListenersUpdater(this)
+        viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, appBarStateVM,
+                searchWidgetStateVM, titleStateVM, binding)
+        controllersUpdater = BrowserControllersUpdater(this)
+        listenersUpdater = BrowserListenersUpdater(this, webPageNavigationVM,
+                webViewsControllerVM, titleStateVM, searchWidgetControllerVM)
 
         actionBarUpdater.update()
         viewModelBinder.bind()

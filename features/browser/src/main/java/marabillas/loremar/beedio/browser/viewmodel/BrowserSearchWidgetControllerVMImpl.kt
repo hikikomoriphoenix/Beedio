@@ -17,26 +17,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.browser.uicontrollers
+package marabillas.loremar.beedio.browser.viewmodel
 
-import android.webkit.WebView
-import dagger.android.support.DaggerFragment
-import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleState
-import javax.inject.Inject
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import marabillas.loremar.beedio.base.mvvm.ActionLiveData
 
-class BrowserTitleControllerFragment @Inject constructor() : DaggerFragment(), TitleControllerInterface {
-    var titleState: BrowserTitleState? = null
+class BrowserSearchWidgetControllerVMImpl : BrowserSearchWidgetControllerVM() {
 
-    override fun updateTitle(title: String?, url: String?) {
-        titleState?.title = title
-        titleState?.url = url
+    private val showSearchWidget = ActionLiveData()
+    private val onCloseBtnClicked = ActionLiveData()
+
+    override fun showSearchWidget() {
+        showSearchWidget.go()
     }
 
-    override fun updateTitle(title: String?) {
-        titleState?.title = title
+    override fun onCloseBtnClicked() {
+        onCloseBtnClicked.go()
     }
 
-    override fun updateTitle(webView: WebView?, title: String?, url: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun observeShowSearchWidget(lifecycleOwner: LifecycleOwner, observer: Observer<Any>) {
+        showSearchWidget.observe(lifecycleOwner, observer)
+    }
+
+    override fun observeOnCloseBtnClicked(lifecycleOwner: LifecycleOwner, observer: Observer<Any>) {
+        onCloseBtnClicked.observe(lifecycleOwner, observer)
     }
 }

@@ -17,32 +17,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.browser.uicontrollers
+package marabillas.loremar.beedio.browserapp
 
-import android.webkit.WebView
+import androidx.lifecycle.ViewModelProvider
+import dagger.Module
+import dagger.Provides
+import marabillas.loremar.beedio.browser.viewmodel.BrowserViewModelFactory
+import javax.inject.Singleton
 
-interface TitleControllerInterface {
-    fun updateTitle(title: String?, url: String?)
-    fun updateTitle(title: String?)
-    fun updateTitle(webView: WebView?, title: String?, url: String?)
-}
+@Module
+class BrowserViewModelModule {
 
-interface WebPageNavigatorInterface {
-    fun goBack()
-    fun goForward()
-    fun reloadPage()
-}
-
-interface WebViewSwitcherInterface {
-    val webViews: MutableList<WebView>
-    val activeWebViewIndex: Int
-
-    fun newWebView(url: String)
-    fun switchWebView(index: Int)
-    fun closeWebView()
-}
-
-interface BrowserSearchWidgetControllerInterface {
-    fun showSearchWidget()
-    fun onCloseBtnClicked()
+    @Singleton
+    @Provides
+    fun provideBrowserViewModelFactory(): ViewModelProvider.Factory {
+        return BrowserViewModelFactory()
+    }
 }

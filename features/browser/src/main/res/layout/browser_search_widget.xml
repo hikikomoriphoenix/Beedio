@@ -26,7 +26,7 @@
 
         <variable
             name="searchWidgetState"
-            type="marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetState" />
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetStateVM" />
 
         <variable
             name="searchWidgetListener"
