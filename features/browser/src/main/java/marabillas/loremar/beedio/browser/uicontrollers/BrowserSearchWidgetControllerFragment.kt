@@ -182,6 +182,7 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
             if (input.isNotEmpty()) {
 
                 webNavigation.let { web ->
+                    editText.text = ""
                     closeSearchWidget()
                     val validInput = web.navigateTo(input)
                     webViewsControllerVM?.newWebView(validInput)
