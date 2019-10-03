@@ -28,12 +28,15 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
+import androidx.lifecycle.Observer
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsCountIndicatorVM
 
 class BrowserActionBarUpdater(
         private val activity: BrowserActivity,
-        private val binding: ActivityBrowserBinding) {
+        private val binding: ActivityBrowserBinding,
+        private val webViewsCountIndicatorVM: WebViewsCountIndicatorVM) {
 
     var customTitleView: View? = null; private set
 
@@ -67,7 +70,7 @@ class BrowserActionBarUpdater(
         val params = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         val textColor = ResourcesCompat.getColor(activity.resources, R.color.yellow, null)
         switchView.apply {
-            text = "1"
+            text = "${webViewsCountIndicatorVM.webViewsCount}"
             setTypeface(this.typeface, Typeface.BOLD)
             setTextColor(textColor)
             background = AppCompatResources.getDrawable(context, R.drawable.switch_window_icon)
@@ -80,7 +83,8 @@ class BrowserActionBarUpdater(
             menu.setOptionalIconsVisible(true)
         }
 
-        activity.webViewsController.onUpdateWebViewsCountIndicator = { count -> switchView.text = "$count" }
+        webViewsCountIndicatorVM.observeWebViewsCount(activity,
+                Observer { count -> switchView.text = "$count" })
     }
 
     private fun openWebViewSwitcherSheet() {

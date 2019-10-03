@@ -53,12 +53,9 @@ abstract class WebViewsControllerVM : ObservableViewModel() {
     abstract fun newWebView(url: String)
     abstract fun switchWebView(index: Int)
     abstract fun closeWebView()
-    abstract fun observeNewWebView(lifecycleOwner: LifecycleOwner, observer: Observer<NewWebViewData>)
-    abstract fun observeSwitchWebView(lifecycleOwner: LifecycleOwner, observer: Observer<SwitchWebViewData>)
+    abstract fun observeNewWebView(lifecycleOwner: LifecycleOwner, observer: Observer<String>)
+    abstract fun observeSwitchWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
     abstract fun observeCloseWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
-
-    data class NewWebViewData(val url: String)
-    data class SwitchWebViewData(val index: Int)
 }
 
 abstract class BrowserSearchWidgetControllerVM : ObservableViewModel() {
@@ -68,11 +65,16 @@ abstract class BrowserSearchWidgetControllerVM : ObservableViewModel() {
     abstract fun observeOnCloseBtnClicked(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
 }
 
-abstract class BrowserAppBarStateVM : ObservableViewModel() {
-    @Bindable
-    abstract fun getAppBarVisibility(): Int
+abstract class WebViewsCountIndicatorVM : ObservableViewModel() {
+    abstract var webViewsCount: Int?
+    abstract fun observeWebViewsCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int?>)
+}
 
-    abstract fun setAppBarVisibility(value: Int)
+abstract class BrowserActionBarStateVM : ObservableViewModel() {
+    @Bindable
+    abstract fun getActionBarVisibility(): Int
+
+    abstract fun setActionBarVisibility(value: Int)
 }
 
 abstract class BrowserSearchWidgetStateVM : ObservableViewModel() {

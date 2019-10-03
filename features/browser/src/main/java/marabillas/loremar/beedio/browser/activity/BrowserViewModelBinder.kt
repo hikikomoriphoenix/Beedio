@@ -23,14 +23,14 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
-import marabillas.loremar.beedio.browser.viewmodel.BrowserAppBarStateVM
+import marabillas.loremar.beedio.browser.viewmodel.BrowserActionBarStateVM
 import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetStateVM
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 
 class BrowserViewModelBinder(
         private val activity: BrowserActivity,
         private val actionBarUpdater: BrowserActionBarUpdater,
-        private val appBarStateVM: BrowserAppBarStateVM,
+        private val actionBarStateVM: BrowserActionBarStateVM,
         private val searchWidgetStateVM: BrowserSearchWidgetStateVM,
         private val titleStateVM: BrowserTitleStateVM,
         private val binding: ActivityBrowserBinding) {
@@ -40,8 +40,11 @@ class BrowserViewModelBinder(
         val urlView = actionBarUpdater.customTitleView?.findViewById<TextView>(R.id.browser_url)
         titleStateVM.observeTitle(activity, Observer { titleView?.text = it })
         titleStateVM.observeUrl(activity, Observer { urlView?.text = it })
-        binding.mainContentBrowser.appBarState = appBarStateVM
-        binding.mainContentBrowser.searchWidgetState = searchWidgetStateVM
-        binding.mainContentBrowser.searchWidgetListener = activity.uiListener
+
+        binding.mainContentBrowser.apply {
+            actionBarState = actionBarStateVM
+            searchWidgetState = searchWidgetStateVM
+            searchWidgetListener = activity.uiListener
+        }
     }
 }

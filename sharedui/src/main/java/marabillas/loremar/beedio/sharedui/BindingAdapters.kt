@@ -77,7 +77,7 @@ object BindingAdapters {
     @BindingAdapter("android:visibilityAttrChanged")
     @JvmStatic
     fun setGlobalLayoutListenerForVisibility(view: View, visibilityAttrChanged: InverseBindingListener?) {
-        view.viewTreeObserver.addOnGlobalLayoutListener { visibilityAttrChanged?.onChange() }
+        //view.viewTreeObserver.addOnGlobalLayoutListener { visibilityAttrChanged?.onChange() }
     }
 
     @BindingAdapter("app:changing_widthAttrChanged")

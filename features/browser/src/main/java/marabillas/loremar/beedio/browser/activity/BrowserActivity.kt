@@ -62,8 +62,9 @@ class BrowserActivity : DaggerAppCompatActivity() {
     private lateinit var webPageNavigationVM: WebPageNavigationVM
     private lateinit var webViewsControllerVM: WebViewsControllerVM
     private lateinit var searchWidgetControllerVM: BrowserSearchWidgetControllerVM
-    private lateinit var appBarStateVM: BrowserAppBarStateVM
+    private lateinit var actionBarStateVM: BrowserActionBarStateVM
     private lateinit var searchWidgetStateVM: BrowserSearchWidgetStateVM
+    private lateinit var webViewsCountIndicatorVM: WebViewsCountIndicatorVM
 
     private lateinit var controllersUpdater: BrowserControllersUpdater
     private lateinit var actionBarUpdater: BrowserActionBarUpdater
@@ -80,11 +81,12 @@ class BrowserActivity : DaggerAppCompatActivity() {
         webViewsControllerVM = ViewModelProviders.of(this, viewModelFactory).get(WebViewsControllerVM::class.java)
         searchWidgetControllerVM = ViewModelProviders.of(this, viewModelFactory)
                 .get(BrowserSearchWidgetControllerVM::class.java)
-        appBarStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserAppBarStateVM::class.java)
+        actionBarStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserActionBarStateVM::class.java)
         searchWidgetStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserSearchWidgetStateVM::class.java)
+        webViewsCountIndicatorVM = ViewModelProviders.of(this, viewModelFactory).get(WebViewsCountIndicatorVM::class.java)
 
-        actionBarUpdater = BrowserActionBarUpdater(this, binding)
-        viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, appBarStateVM,
+        actionBarUpdater = BrowserActionBarUpdater(this, binding, webViewsCountIndicatorVM)
+        viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, actionBarStateVM,
                 searchWidgetStateVM, titleStateVM, binding)
         controllersUpdater = BrowserControllersUpdater(this)
         listenersUpdater = BrowserListenersUpdater(this, webPageNavigationVM,
@@ -100,5 +102,4 @@ class BrowserActivity : DaggerAppCompatActivity() {
         actionBarUpdater.setupOptionsMenu(menu)
         return true
     }
-
 }

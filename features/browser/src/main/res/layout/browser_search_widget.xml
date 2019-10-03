@@ -37,16 +37,16 @@
         android:id="@+id/browser_search_widget_container"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/lesser_black"
-        android:visibility="@={searchWidgetState.searchWidgetContainerVisibility}">
+        android:visibility="@{searchWidgetState.searchWidgetContainerVisibility}"
+        android:background="@color/lesser_black">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/browser_search_widget"
             android:layout_width="56dp"
             android:layout_height="wrap_content"
-            app:changing_width="@={searchWidgetState.searchWidgetWidth}"
+            android:layout_gravity="@{searchWidgetState.searchWidgetGravity}"
+            app:changing_width="@{searchWidgetState.searchWidgetWidth}"
             android:background="@drawable/browser_search_widget_background"
-            android:layout_gravity="@={searchWidgetState.searchWidgetGravity}"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp">
 
@@ -54,12 +54,12 @@
                 android:id="@+id/browser_search_edit_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:visibility="@{searchWidgetState.searchEditTextVisibility}"
                 android:hint="@string/browser_search_widget_hint"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/browser_close_btn"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:visibility="@={searchWidgetState.searchEditTextVisibility}"
                 android:inputType="text"
                 android:importantForAutofill="no"
                 android:layout_marginStart="16dp"
@@ -74,9 +74,9 @@
                 android:id="@+id/browser_close_btn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:visibility="@{searchWidgetState.searchCloseBtnVisibility}"
                 android:layout_marginEnd="8dp"
                 android:contentDescription="@string/browser_search_close_content_desc"
-                android:visibility="@={searchWidgetState.searchCloseBtnVisibility}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

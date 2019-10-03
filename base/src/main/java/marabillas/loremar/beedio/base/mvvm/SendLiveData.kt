@@ -24,12 +24,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import java.util.*
 
-class ActionLiveData : MutableLiveData<Any>() {
+class SendLiveData<T> : MutableLiveData<SendLiveData<T>.ValueData>() {
 
     private val observerStack = Stack<ObserverData>()
 
-    fun go() {
-        value = Any()
+    fun send(value: T) {
+        setValue(ValueData(value))
+    }
+
+    override fun setValue(value: ValueData?) {
+        super.setValue(value)
 
         while (observerStack.isNotEmpty()) {
             observerStack.pop().also {
@@ -38,9 +42,16 @@ class ActionLiveData : MutableLiveData<Any>() {
         }
     }
 
-    override fun observe(owner: LifecycleOwner, observer: Observer<in Any>) {
+    fun observeSend(owner: LifecycleOwner, observer: Observer<in T>) {
+        observe(owner, Observer { observer.onChanged(it.value) })
+    }
+
+    override fun observe(owner: LifecycleOwner, observer: Observer<in ValueData>) {
         observerStack.push(ObserverData(owner, observer))
     }
 
-    private data class ObserverData(val lifecycleOwner: LifecycleOwner, val observer: Observer<Any>)
+
+    inner class ValueData(val value: T)
+
+    private inner class ObserverData(val lifecycleOwner: LifecycleOwner, val observer: Observer<in ValueData>)
 }

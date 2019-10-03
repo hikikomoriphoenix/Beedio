@@ -17,30 +17,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.base.mvvm
+package marabillas.loremar.beedio.browser.viewmodel
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import java.util.*
 
-class ActionLiveData : MutableLiveData<Any>() {
+class WebViewsCountIndicatorVMImpl : WebViewsCountIndicatorVM() {
 
-    private val observerStack = Stack<ObserverData>()
+    private val webViewsCountData = MutableLiveData<Int>()
 
-    fun go() {
-        value = Any()
+    init {
+        webViewsCountData.value = 1
+    }
 
-        while (observerStack.isNotEmpty()) {
-            observerStack.pop().also {
-                super.observe(it.lifecycleOwner, it.observer)
-            }
+    override var webViewsCount: Int?
+        get() = webViewsCountData.value
+        set(value) {
+            webViewsCountData.value = value
         }
-    }
 
-    override fun observe(owner: LifecycleOwner, observer: Observer<in Any>) {
-        observerStack.push(ObserverData(owner, observer))
+    override fun observeWebViewsCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int?>) {
+        webViewsCountData.observe(lifecycleOwner, observer)
     }
-
-    private data class ObserverData(val lifecycleOwner: LifecycleOwner, val observer: Observer<Any>)
 }

@@ -19,6 +19,8 @@
 
 package marabillas.loremar.beedio.browser.activity
 
+import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
+
 class BrowserControllersUpdater(private val activity: BrowserActivity) {
 
     fun update() {
@@ -27,15 +29,22 @@ class BrowserControllersUpdater(private val activity: BrowserActivity) {
     }
 
     private fun setupWebViewsController() {
-        activity.webViewsController.webChromeClient = activity.browserWebChromeClient
-        activity.webViewsController.webViewClient = activity.browserWebViewClient
 
-        if (activity.supportFragmentManager.findFragmentByTag("WebViewsControllerFragment") == null) {
+        var webViewsController = activity.supportFragmentManager.findFragmentByTag("WebViewsControllerFragment")
+
+        if (webViewsController == null) {
             activity.supportFragmentManager
                     .beginTransaction()
                     .add(activity.webViewsController, "WebViewsControllerFragment")
                     .commit()
+            webViewsController = activity.webViewsController
         }
+
+        (webViewsController as WebViewsControllerFragment).also {
+            it.webChromeClient = activity.browserWebChromeClient
+            it.webViewClient = activity.browserWebViewClient
+        }
+
     }
 
     private fun setSearchWidgetController() {

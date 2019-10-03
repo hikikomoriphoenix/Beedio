@@ -38,6 +38,7 @@ import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
 import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsCountIndicatorVM
 import javax.inject.Inject
 
 class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
@@ -48,7 +49,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
     private var webViewsControllerVM: WebViewsControllerVM? = null
     private var titleStateVM: BrowserTitleStateVM? = null
     private var webPageNavigationVM: WebPageNavigationVM? = null
-    var onUpdateWebViewsCountIndicator: (Int) -> Unit = { }
+    private var webViewsCountIndicatorVM: WebViewsCountIndicatorVM? = null
 
     private val webViews = mutableListOf<WebView>()
     private var activeWebView: WebView? = null
@@ -76,6 +77,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
             webViewsControllerVM = ViewModelProviders.of(it, viewModelFactory).get(WebViewsControllerVM::class.java)
             titleStateVM = ViewModelProviders.of(it, viewModelFactory).get(BrowserTitleStateVM::class.java)
             webPageNavigationVM = ViewModelProviders.of(it, viewModelFactory).get(WebPageNavigationVM::class.java)
+            webViewsCountIndicatorVM = ViewModelProviders.of(it, viewModelFactory).get(WebViewsCountIndicatorVM::class.java)
             observeWebViewControllerVM()
             observeWebPageNavigationVM()
         }
@@ -98,8 +100,8 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                 webViewsControllerVM?.apply {
                     observeRequestUpdatedWebViews(lifecycleOwer, Observer { it(thisFragment.webViews, activeWebViewIndex) })
                     observeRequestActiveWebView(lifecycleOwer, Observer { it(thisFragment.activeWebView) })
-                    observeNewWebView(lifecycleOwer, Observer { thisFragment.newWebView(it.url) })
-                    observeSwitchWebView(lifecycleOwer, Observer { thisFragment.switchWebView(it.index) })
+                    observeNewWebView(lifecycleOwer, Observer { thisFragment.newWebView(it) })
+                    observeSwitchWebView(lifecycleOwer, Observer { thisFragment.switchWebView(it) })
                     observeCloseWebView(lifecycleOwer, Observer { thisFragment.closeWebView() })
                 }
             }
@@ -193,6 +195,11 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
     }
 
     private fun updateWebViewsCountIndicator() {
-        onUpdateWebViewsCountIndicator(webViews.count())
+        webViewsCountIndicatorVM?.webViewsCount = webViews.count()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        updateWebViewsCountIndicator()
     }
 }

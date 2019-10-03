@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.browser.viewmodel
 import android.view.Gravity
 import android.view.View
 import androidx.databinding.Bindable
+import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.MutableLiveData
 
 class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
@@ -47,6 +48,7 @@ class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
 
     override fun setSearchWidgetContainerVisibility(value: Int) {
         searchWidgetContainerVisibilityData.value = value
+        notifyChange(BR.searchWidgetContainerVisibility)
     }
 
     @Bindable
@@ -56,6 +58,7 @@ class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
 
     override fun setSearchWidgetGravity(value: Int) {
         searchWidgetGravityData.value = value
+        notifyChange(BR.searchWidgetGravity)
     }
 
     @Bindable
@@ -65,6 +68,7 @@ class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
 
     override fun setSearchWidgetWidth(value: Int) {
         searchWidgetWidthData.value = value
+        notifyChange(BR.searchWidgetWidth)
     }
 
     @Bindable
@@ -74,6 +78,7 @@ class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
 
     override fun setSearchEditTextVisibility(value: Int) {
         searchEditTextVisibilityData.value = value
+        notifyChange(BR.searchEditTextVisibility)
     }
 
     @Bindable
@@ -83,5 +88,6 @@ class BrowserSearchWidgetStateVMImpl : BrowserSearchWidgetStateVM() {
 
     override fun setSearchCloseBtnVisibility(value: Int) {
         searchCloseBtnVisibilityData.value = value
+        notifyChange(BR.searchCloseBtnVisibility)
     }
 }

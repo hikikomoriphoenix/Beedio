@@ -21,52 +21,52 @@ package marabillas.loremar.beedio.browser.viewmodel
 
 import android.webkit.WebView
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import marabillas.loremar.beedio.base.mvvm.ActionLiveData
+import marabillas.loremar.beedio.base.mvvm.SendLiveData
 
 class WebViewsControllerVMImpl : WebViewsControllerVM() {
 
-    private val requestUpdatedWebView = MutableLiveData<(List<WebView>, Int) -> Unit>()
-    private val requestActiveWebView = MutableLiveData<(WebView?) -> Unit>()
-    private val newWebView = MutableLiveData<NewWebViewData>()
-    private val switchWebView = MutableLiveData<SwitchWebViewData>()
+    private val requestUpdatedWebView = SendLiveData<(List<WebView>, Int) -> Unit>()
+    private val requestActiveWebView = SendLiveData<(WebView?) -> Unit>()
+    private val newWebView = SendLiveData<String>()
+    private val switchWebView = SendLiveData<Int>()
     private val closeWebView = ActionLiveData()
 
     override fun requestUpdatedWebViews(callback: (List<WebView>, Int) -> Unit) {
-        requestUpdatedWebView.value = callback
+        requestUpdatedWebView.send(callback)
     }
 
     override fun observeRequestUpdatedWebViews(lifecycleOwner: LifecycleOwner, observer: Observer<(List<WebView>, Int) -> Unit>) {
-        requestUpdatedWebView.observe(lifecycleOwner, observer)
+        requestUpdatedWebView.observeSend(lifecycleOwner, observer)
     }
 
     override fun requestActiveWebView(callback: (WebView?) -> Unit) {
-        requestActiveWebView.value = callback
+        requestActiveWebView.send(callback)
     }
 
     override fun observeRequestActiveWebView(lifecycleOwner: LifecycleOwner, observer: Observer<(WebView?) -> Unit>) {
-        requestActiveWebView.observe(lifecycleOwner, observer)
+        requestActiveWebView.observeSend(lifecycleOwner, observer)
     }
 
     override fun newWebView(url: String) {
-        newWebView.value = NewWebViewData(url)
+        newWebView.send(url)
     }
 
     override fun switchWebView(index: Int) {
-        switchWebView.value = SwitchWebViewData(index)
+        switchWebView.send(index)
     }
 
     override fun closeWebView() {
         closeWebView.go()
     }
 
-    override fun observeNewWebView(lifecycleOwner: LifecycleOwner, observer: Observer<NewWebViewData>) {
-        newWebView.observe(lifecycleOwner, observer)
+    override fun observeNewWebView(lifecycleOwner: LifecycleOwner, observer: Observer<String>) {
+        newWebView.observeSend(lifecycleOwner, observer)
     }
 
-    override fun observeSwitchWebView(lifecycleOwner: LifecycleOwner, observer: Observer<SwitchWebViewData>) {
-        switchWebView.observe(lifecycleOwner, observer)
+    override fun observeSwitchWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Int>) {
+        switchWebView.observeSend(lifecycleOwner, observer)
     }
 
     override fun observeCloseWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Any>) {

@@ -21,22 +21,24 @@ package marabillas.loremar.beedio.browser.viewmodel
 
 import android.view.View
 import androidx.databinding.Bindable
+import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.MutableLiveData
 
-class BrowserAppBarStateVMImpl : BrowserAppBarStateVM() {
+class BrowserActionBarStateVMImpl : BrowserActionBarStateVM() {
 
-    private val appBarVisibilityData = MutableLiveData<Int>()
+    private val actionBarVisibilityData = MutableLiveData<Int>()
 
     init {
-        appBarVisibilityData.value = View.VISIBLE
+        actionBarVisibilityData.value = View.VISIBLE
     }
 
     @Bindable
-    override fun getAppBarVisibility(): Int {
-        return appBarVisibilityData.value ?: View.VISIBLE
+    override fun getActionBarVisibility(): Int {
+        return actionBarVisibilityData.value ?: View.VISIBLE
     }
 
-    override fun setAppBarVisibility(value: Int) {
-        appBarVisibilityData.value = value
+    override fun setActionBarVisibility(value: Int) {
+        actionBarVisibilityData.value = value
+        notifyChange(BR.actionBarVisibility)
     }
 }

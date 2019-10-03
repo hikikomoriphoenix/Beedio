@@ -23,8 +23,8 @@
     <data>
 
         <variable
-            name="appBarState"
-            type="marabillas.loremar.beedio.browser.viewmodel.BrowserAppBarStateVM" />
+            name="actionBarState"
+            type="marabillas.loremar.beedio.browser.viewmodel.BrowserActionBarStateVM" />
 
         <variable
             name="searchWidgetState"
@@ -49,11 +49,11 @@
                 android:id="@+id/browserToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="@{actionBarState.actionBarVisibility}"
                 android:theme="@style/DarkToolBar"
                 app:navigationIcon="@drawable/ic_menu_white_24dp"
                 app:contentInsetStartWithNavigation="0dp"
-                app:menu="@menu/browser_menu"
-                android:visibility="@={appBarState.appBarVisibility}" />
+                app:menu="@menu/browser_menu" />
 
             <include
                 layout="@layout/browser_search_widget"

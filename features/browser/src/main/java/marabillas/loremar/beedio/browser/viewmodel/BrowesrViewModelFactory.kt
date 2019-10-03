@@ -45,12 +45,16 @@ class BrowserViewModelFactory : ViewModelProvider.Factory {
                 BrowserSearchWidgetControllerVMImpl() as T
             }
 
-            BrowserAppBarStateVM::class.java -> {
-                BrowserAppBarStateVMImpl() as T
+            BrowserActionBarStateVM::class.java -> {
+                BrowserActionBarStateVMImpl() as T
             }
 
             BrowserSearchWidgetStateVM::class.java -> {
                 BrowserSearchWidgetStateVMImpl() as T
+            }
+
+            WebViewsCountIndicatorVM::class.java -> {
+                WebViewsCountIndicatorVMImpl() as T
             }
 
             else -> throw IllegalArgumentException("Unidentified ViewModel for Browser")

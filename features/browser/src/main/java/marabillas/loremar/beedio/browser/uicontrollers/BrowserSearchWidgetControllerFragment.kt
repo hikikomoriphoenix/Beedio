@@ -23,12 +23,12 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
+import android.view.View.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -37,7 +37,9 @@ import androidx.transition.TransitionManager
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.web.WebNavigation
 import marabillas.loremar.beedio.browser.R
+import marabillas.loremar.beedio.browser.viewmodel.BrowserActionBarStateVM
 import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetStateVM
 import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import marabillas.loremar.beedio.sharedui.OnTransitionEndListener
 import marabillas.loremar.beedio.sharedui.hideSofKeyboard
@@ -54,6 +56,8 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
 
     private var webViewsControllerVM: WebViewsControllerVM? = null
     private var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
+    private var actionBarStateVM: BrowserActionBarStateVM? = null
+    private var searchWidgetStateVM: BrowserSearchWidgetStateVM? = null
 
     private val searchWidgetTransition = ChangeBounds()
     private val showSearchWidgetEnd = OnTransitionEndListener(this::slideWidgetAcross)
@@ -68,24 +72,27 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
                     .get(WebViewsControllerVM::class.java)
             searchWidgetControllerVM = ViewModelProviders.of(it, viewModelFactory)
                     .get(BrowserSearchWidgetControllerVM::class.java)
+            actionBarStateVM = ViewModelProviders.of(it, viewModelFactory)
+                    .get(BrowserActionBarStateVM::class.java)
+            searchWidgetStateVM = ViewModelProviders.of(it, viewModelFactory)
+                    .get(BrowserSearchWidgetStateVM::class.java)
 
-            searchWidgetControllerVM?.observeShowSearchWidget(it, Observer { showSearchWidget() })
-            searchWidgetControllerVM?.observeOnCloseBtnClicked(it, Observer { onCloseBtnClicked() })
+            searchWidgetControllerVM?.apply {
+                observeShowSearchWidget(it, Observer { beginShowSearchWidget() })
+                observeOnCloseBtnClicked(it, Observer { onCloseBtnClickedAction() })
+            }
         }
     }
 
-    private fun showSearchWidget() {
-        activity?.findViewById<Toolbar>(R.id.browserToolbar)
-                ?.visibility = View.GONE
+    private fun beginShowSearchWidget() {
+        getActionBar()?.visibility = GONE
+        getSearchWidgetContainer()?.visibility = VISIBLE
 
-        activity?.findViewById<FrameLayout>(R.id.browser_search_widget_container)
-                ?.visibility = View.VISIBLE
-
-        getSearchWidget()?.let { searchWidget ->
-            val params = (searchWidget.layoutParams as FrameLayout.LayoutParams).apply {
+        getSearchWidget()?.apply {
+            layoutParams = (layoutParams as FrameLayout.LayoutParams).apply {
                 width = (56 * resources.displayMetrics.density).roundToInt()
+                gravity = Gravity.END
             }
-            searchWidget.layoutParams = params
         }
 
         searchWidgetTransition.addListener(showSearchWidgetEnd)
@@ -94,46 +101,50 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
     }
 
     private fun slideWidgetAcross() {
-        searchWidgetTransition.removeListener(showSearchWidgetEnd)
-        searchWidgetTransition.addListener(slideWidgetAcrossEnd)
-                .duration = 200
+        searchWidgetTransition.apply {
+            removeListener(showSearchWidgetEnd)
+            addListener(slideWidgetAcrossEnd)
+                    .duration = 200
+        }
         initSearchWidgetTransition()
-        getSearchWidget()?.let { searchWidget ->
-            val params = (searchWidget.layoutParams as FrameLayout.LayoutParams).apply {
+
+        getSearchWidget()?.apply {
+            layoutParams = (layoutParams as FrameLayout.LayoutParams).apply {
                 gravity = Gravity.START
             }
-            searchWidget.layoutParams = params
         }
     }
 
     private fun expandWidget() {
-        searchWidgetTransition.removeListener(slideWidgetAcrossEnd)
-        searchWidgetTransition.addListener(expandWidgetEnd)
+        searchWidgetTransition.apply {
+            removeListener(slideWidgetAcrossEnd)
+            addListener(expandWidgetEnd)
+        }
         initSearchWidgetTransition()
-        getSearchWidget()?.let { searchWidget ->
-            val params = (searchWidget.layoutParams as FrameLayout.LayoutParams).apply {
-                width = MATCH_PARENT
+
+        getSearchWidget()?.apply {
+            layoutParams = (layoutParams as FrameLayout.LayoutParams).apply {
                 gravity = Gravity.CENTER
+                width = MATCH_PARENT
             }
-            searchWidget.layoutParams = params
         }
     }
 
     private fun enableInput() {
         searchWidgetTransition.removeListener(expandWidgetEnd)
-        val editText = activity?.findViewById<EditText>(R.id.browser_search_edit_text)
-        val closeBtn = activity?.findViewById<ImageView>(R.id.browser_close_btn)
-        editText?.visibility = View.VISIBLE
-        closeBtn?.visibility = View.VISIBLE
-        editText?.requestFocus()
+
+        getCloseButton()?.visibility = VISIBLE
+        getEditText()?.visibility = VISIBLE
+
+        getEditText()?.requestFocus()
         activity?.let { showSoftKeyboard(it) }
-        editText?.setOnEditorActionListener(this)
+        getEditText()?.setOnEditorActionListener(this)
+
+        updateVMOnShow()
     }
 
-    private fun onCloseBtnClicked() {
-        val editText = activity?.findViewById<EditText>(R.id.browser_search_edit_text)
-
-        editText?.let { editTxt ->
+    private fun onCloseBtnClickedAction() {
+        getEditText()?.let { editTxt ->
 
             if (editTxt.text.isNotEmpty()) {
                 editTxt.text?.clear()
@@ -147,32 +158,28 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
 
         activity?.let { hideSofKeyboard(it) }
 
-        val editText = activity?.findViewById<EditText>(R.id.browser_search_edit_text)
-        val closeBtn = activity?.findViewById<ImageView>(R.id.browser_close_btn)
-        editText?.visibility = View.INVISIBLE
-        closeBtn?.visibility = View.INVISIBLE
+        getEditText()?.visibility = INVISIBLE
+        getCloseButton()?.visibility = INVISIBLE
 
         searchWidgetTransition.addListener(closeSearchWidgetEnd)
                 .duration = 100
         initSearchWidgetTransition()
 
-        getSearchWidget()?.let { searchWidget ->
-            val params = (searchWidget.layoutParams as FrameLayout.LayoutParams).apply {
+        getSearchWidget()?.apply {
+            layoutParams = (layoutParams as FrameLayout.LayoutParams).apply {
                 width = (56 * resources.displayMetrics.density).roundToInt()
                 gravity = Gravity.END
             }
-            searchWidget.layoutParams = params
         }
     }
 
     private fun hideSearchWidget() {
         searchWidgetTransition.removeListener(closeSearchWidgetEnd)
 
-        activity?.findViewById<FrameLayout>(R.id.browser_search_widget_container)
-                ?.visibility = View.GONE
+        getSearchWidgetContainer()?.visibility = GONE
+        getActionBar()?.visibility = VISIBLE
 
-        activity?.findViewById<Toolbar>(R.id.browserToolbar)
-                ?.visibility = View.VISIBLE
+        updateVMOnHide()
     }
 
     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
@@ -197,8 +204,24 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
         return false
     }
 
+    private fun getActionBar(): View? {
+        return activity?.findViewById(R.id.browserToolbar)
+    }
+
+    private fun getSearchWidgetContainer(): FrameLayout? {
+        return activity?.findViewById(R.id.browser_search_widget_container)
+    }
+
     private fun getSearchWidget(): View? {
         return activity?.findViewById(R.id.browser_search_widget)
+    }
+
+    private fun getEditText(): EditText? {
+        return activity?.findViewById(R.id.browser_search_edit_text)
+    }
+
+    private fun getCloseButton(): ImageView? {
+        return activity?.findViewById(R.id.browser_close_btn)
     }
 
     private fun initSearchWidgetTransition() {
@@ -206,5 +229,27 @@ class BrowserSearchWidgetControllerFragment : DaggerFragment(), TextView.OnEdito
             TransitionManager.beginDelayedTransition(
                     activity.findViewById(android.R.id.content), searchWidgetTransition)
         }
+    }
+
+    private fun updateVMOnShow() {
+        actionBarStateVM?.setActionBarVisibility(GONE)
+        searchWidgetStateVM?.apply {
+            setSearchWidgetContainerVisibility(VISIBLE)
+            setSearchWidgetGravity(Gravity.CENTER)
+            setSearchWidgetWidth(MATCH_PARENT)
+            setSearchEditTextVisibility(VISIBLE)
+            setSearchCloseBtnVisibility(VISIBLE)
+        }
+    }
+
+    private fun updateVMOnHide() {
+        searchWidgetStateVM?.apply {
+            setSearchWidgetGravity(Gravity.END)
+            setSearchWidgetWidth((56 * resources.displayMetrics.density).roundToInt())
+            setSearchEditTextVisibility(INVISIBLE)
+            setSearchCloseBtnVisibility(INVISIBLE)
+            setSearchWidgetContainerVisibility(GONE)
+        }
+        actionBarStateVM?.setActionBarVisibility(VISIBLE)
     }
 }
