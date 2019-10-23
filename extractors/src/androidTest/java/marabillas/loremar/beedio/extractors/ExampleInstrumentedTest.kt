@@ -17,35 +17,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package marabillas.loremar.beedio.extractors
 
-buildscript {
-    ext.kotlin_version = '1.3.50'
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
 
-    apply from: 'versions.gradle'
-
-    repositories {
-        google()
-        jcenter()
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+    @Test
+    fun useAppContext() {
+        // Context of the app under test.
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("marabillas.loremar.beedio.extractors.test", appContext.packageName)
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
-        classpath deps.kotlin.gradle_plugin
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files 
-
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

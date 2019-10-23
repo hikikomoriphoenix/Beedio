@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/browser/browser.iml" filepath="$PROJECT_DIR$/features/browser/browser.iml" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" filepath="$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/extractors/extractors.iml" filepath="$PROJECT_DIR$/extractors/extractors.iml" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/featureapps.iml" filepath="$PROJECT_DIR$/featureapps/featureapps.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/home/home.iml" filepath="$PROJECT_DIR$/features/home/home.iml" />

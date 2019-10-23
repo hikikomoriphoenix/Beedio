@@ -17,35 +17,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package marabillas.loremar.beedio.extractors.extractors.youtube
 
-buildscript {
-    ext.kotlin_version = '1.3.50'
-
-    apply from: 'versions.gradle'
-
-    repositories {
-        google()
-        jcenter()
+interface YtplayerConfig {
+    companion object {
+        fun from(json: String): YtplayerConfig = YtplayerConfigImpl(json)
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
-        classpath deps.kotlin.gradle_plugin
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files 
+    val args: Args?
+    val sts: String?
 
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+    fun getArgsItems(): Map<String, List<String>>
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
+data class Args(
+        val urlEncodedFmtStreamMap: List<String> = listOf(),
+        val hlsvp: List<String> = listOf(),
+        val dashMpd: List<String> = listOf(),
+        val ypcVid: String? = null,
+        val livestream: String? = null,
+        val livePlayback: Int? = null,
+        val playerResponse: String? = null
+)

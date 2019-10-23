@@ -17,5 +17,5 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-include ':legacy', ':beedio', ':features:home', ':featureapps:homeapp', ':features:browser', ':base',
+include ':legacy', ':beedio', ':features:home', ':featureapps:homeapp', ':features:browser', ':base', ':extractors',
         ':featureapps:browserapp', ':sharedui'

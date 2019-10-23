@@ -33,6 +33,8 @@ versions.lifecycle_viewmodel = "2.2.0-alpha03"
 versions.lifecycle_extensions = "2.0.0"
 versions.dagger = "2.24"
 versions.recyclerview = "1.0.0"
+versions.okhttp = "4.2.1"
+versions.gson = "2.8.6"
 ext.versions = versions
 
 def deps = [:]
@@ -44,6 +46,8 @@ deps.junit = "junit:junit:$versions.junit"
 deps.truth = "com.google.truth:truth:$versions.truth"
 deps.espresso = "androidx.test.espresso:espresso-core:$versions.espresso"
 deps.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
+deps.okhttp = "com.squareup.okhttp3:okhttp:$versions.okhttp"
+deps.gson = "com.google.code.gson:gson:$versions.gson"
 
 def kotlin = [:]
 kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
