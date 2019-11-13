@@ -18,6 +18,46 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ *     LM videodownloader is a browser app for android, made to easily
+ *     download videos.
+ *     Copyright (C) 2018 Loremar Marabillas
+ *
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License along
+ *     with this program; if not, write to the Free Software Foundation, Inc.,
+ *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ *     LM videodownloader is a browser app for android, made to easily
+ *     download videos.
+ *     Copyright (C) 2018 Loremar Marabillas
+ *
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License along
+ *     with this program; if not, write to the Free Software Foundation, Inc.,
+ *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.content.Context;
@@ -34,13 +74,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 
-import marabillas.loremar.lmvideodownloader.R;
-
 public abstract class VideoContentSearch extends Thread {
     private Context context;
     private String url;
     private String page;
     private String title;
+    private boolean reserve;
     private int numLinksInspected;
 
     private final String TAG = "loremarTest";
@@ -52,62 +91,52 @@ public abstract class VideoContentSearch extends Thread {
     public abstract void onVideoFound(String size, String type, String link, String name,
                                       String page, boolean chunked, String website);
 
-    public VideoContentSearch(Context context, String url, String page, String title) {
+    VideoContentSearch(Context context, String url, String page, String title, boolean reserve) {
         this.context = context;
         this.url = url;
         this.page = page;
         this.title = title;
+        this.reserve = reserve;
         numLinksInspected = 0;
     }
 
     @Override
     public void run() {
-        String urlLowerCase = url.toLowerCase();
-        String[] filters = context.getResources().getStringArray(R.array.videourl_filters);
-        boolean urlMightBeVideo = false;
-        for (String filter : filters) {
-            if (urlLowerCase.contains(filter)) {
-                urlMightBeVideo = true;
-                break;
-            }
+        numLinksInspected++;
+        onStartInspectingURL();
+        Log.i(TAG, "retreiving headers from " + url);
+
+        URLConnection uCon = null;
+        try {
+            uCon = new URL(url).openConnection();
+            uCon.connect();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (urlMightBeVideo) {
-            numLinksInspected++;
-            onStartInspectingURL();
-            Log.i(TAG, "retreiving headers from " + url);
+        if (uCon != null) {
+            String contentType = uCon.getHeaderField("content-type");
 
-            URLConnection uCon = null;
-            try {
-                uCon = new URL(url).openConnection();
-                uCon.connect();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (contentType != null) {
+                contentType = contentType.toLowerCase();
+                if (contentType.contains("video") || contentType.contains
+                        ("audio")) {
+                    addVideoToList(uCon, page, title, contentType);
+                } else if (contentType.equals("application/x-mpegurl") ||
+                        contentType.equals("application/vnd.apple.mpegurl")) {
+                    addVideosToListFromM3U8(uCon, page, title, contentType);
+                } else Log.i(TAG, "Not a video. Content type = " +
+                        contentType);
+            } else {
+                Log.i(TAG, "no content type");
             }
-            if (uCon != null) {
-                String contentType = uCon.getHeaderField("content-type");
+        } else Log.i(TAG, "no connection");
 
-                if (contentType != null) {
-                    contentType = contentType.toLowerCase();
-                    if (contentType.contains("video") || contentType.contains
-                            ("audio")) {
-                        addVideoToList(uCon, page, title, contentType);
-                    } else if (contentType.equals("application/x-mpegurl") ||
-                            contentType.equals("application/vnd.apple.mpegurl")) {
-                        addVideosToListFromM3U8(uCon, page, title, contentType);
-                    } else Log.i(TAG, "Not a video. Content type = " +
-                            contentType);
-                } else {
-                    Log.i(TAG, "no content type");
-                }
-            } else Log.i(TAG, "no connection");
-
-            numLinksInspected--;
-            boolean finishedAll = false;
-            if (numLinksInspected <= 0) {
-                finishedAll = true;
-            }
-            onFinishedInspectingURL(finishedAll);
+        numLinksInspected--;
+        boolean finishedAll = false;
+        if (numLinksInspected <= 0) {
+            finishedAll = true;
         }
+        onFinishedInspectingURL(finishedAll);
     }
 
     private void addVideoToList(URLConnection uCon, String page, String title, String contentType) {
