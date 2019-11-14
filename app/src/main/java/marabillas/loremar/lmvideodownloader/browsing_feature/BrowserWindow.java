@@ -23,6 +23,7 @@ package marabillas.loremar.lmvideodownloader.browsing_feature;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -86,8 +87,11 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     private float prevX, prevY;
     private ProgressBar findingVideoInProgress;
     private TextView videosFoundText;
+    private TextView getVideosText;
     private boolean moved = false;
     private GestureDetector gesture;
+    private VideoDetectionInitiator videoDetectionInitiator;
+    private boolean isDetecting;
 
     private View foundVideosWindow;
     private VideoList videoList;
@@ -143,7 +147,14 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @Override
     public void onClick(View v) {
         if (v == videosFoundHUD) {
-            foundVideosWindow.setVisibility(View.VISIBLE);
+            if (isDetecting) {
+                foundVideosWindow.setVisibility(View.VISIBLE);
+            } else {
+                isDetecting = true;
+                videosFoundText.setVisibility(View.VISIBLE);
+                getVideosText.setVisibility(View.GONE);
+                videoDetectionInitiator.initiate();
+            }
         } else if (v == foundVideosQueue) {
             videoList.saveCheckedItemsForDownloading();
             videoList.deleteCheckedItems();
@@ -162,6 +173,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         Bundle data = getArguments();
         url = data.getString("url");
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory();
+        videoDetectionInitiator = new VideoDetectionInitiator();
+        SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
+        isDetecting = prefs.getBoolean(getString(R.string.autoVideoDetect), true);
         setRetainInstance(true);
     }
 
@@ -312,6 +326,21 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         findingVideoInProgress.setVisibility(View.GONE);
 
         videosFoundText = videosFoundHUD.findViewById(R.id.videosFoundText);
+        getVideosText = videosFoundHUD.findViewById(R.id.getVideosText);
+
+        setupVideosFoundHUDText();
+    }
+
+    private void setupVideosFoundHUDText() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
+        isDetecting = prefs.getBoolean(getString(R.string.autoVideoDetect), true);
+        if (isDetecting) {
+            videosFoundText.setVisibility(View.VISIBLE);
+            getVideosText.setVisibility(View.GONE);
+        } else {
+            videosFoundText.setVisibility(View.GONE);
+            getVideosText.setVisibility(View.VISIBLE);
+        }
     }
 
     private void createFoundVideosWindow() {
@@ -423,7 +452,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     });
 
                     loadingPageProgress.setVisibility(View.VISIBLE);
-
+                    setupVideosFoundHUDText();
                     super.onPageStarted(view, url, favicon);
                 }
 
@@ -438,38 +467,66 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 public void onLoadResource(final WebView view, final String url) {
                     final String page = view.getUrl();
                     final String title = view.getTitle();
-                    new VideoContentSearch(getActivity(), url, page, title) {
+
+                    new Thread() {
                         @Override
-                        public void onStartInspectingURL() {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (findingVideoInProgress.getVisibility() == View.GONE) {
-                                        findingVideoInProgress.setVisibility(View.VISIBLE);
-                                    }
+                        public void run() {
+                            String urlLowerCase = url.toLowerCase();
+                            String[] filters = getResources().getStringArray(R.array.videourl_filters);
+                            boolean urlMightBeVideo = false;
+                            for (String filter : filters) {
+                                if (urlLowerCase.contains(filter)) {
+                                    urlMightBeVideo = true;
+                                    break;
                                 }
-                            });
-
-                            Utils.disableSSLCertificateChecking();
-                        }
-
-                        @Override
-                        public void onFinishedInspectingURL(boolean finishedAll) {
-                            HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
-                            if (finishedAll) {
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        findingVideoInProgress.setVisibility(View.GONE);
-                                    }
-                                });
                             }
-                        }
 
-                        @Override
-                        public void onVideoFound(String size, String type, String link, String name, String page, boolean chunked, String website) {
-                            videoList.addItem(size, type, link, name, page, chunked, website);
-                            updateFoundVideosBar();
+                            if (urlMightBeVideo) {
+                                VideoContentSearch search = new VideoContentSearch(getActivity(),
+                                        url, page, title, !isDetecting) {
+
+                                    @Override
+                                    public void onStartInspectingURL() {
+                                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (findingVideoInProgress.getVisibility() == View.GONE) {
+                                                    findingVideoInProgress.setVisibility(View.VISIBLE);
+                                                }
+                                            }
+                                        });
+
+                                        Utils.disableSSLCertificateChecking();
+                                    }
+
+                                    @Override
+                                    public void onFinishedInspectingURL(boolean finishedAll) {
+                                        HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
+                                        if (finishedAll) {
+                                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    findingVideoInProgress.setVisibility(View.GONE);
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onVideoFound(String size, String type, String link,
+                                                             String name, String page, boolean chunked,
+                                                             String website) {
+                                        videoList.addItem(size, type, link, name, page, chunked, website);
+                                        updateFoundVideosBar();
+                                    }
+                                };
+
+                                if (isDetecting) {
+                                    search.start();
+                                } else {
+                                    videoDetectionInitiator.reserve(search);
+                                }
+                            }
                         }
                     }.start();
                 }

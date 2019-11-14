@@ -25,7 +25,6 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -44,18 +43,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
 import marabillas.loremar.lmvideodownloader.download_feature.fragments.Downloads;
 import marabillas.loremar.lmvideodownloader.history_feature.History;
+import marabillas.loremar.lmvideodownloader.options_feature.OptionsFragment;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, AdapterView.OnItemClickListener {
@@ -96,7 +94,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
 
         ListView listView = findViewById(R.id.menu);
         String[] menuItems = new String[]{"Home", "Browser", "Downloads", "Bookmarks",
-                "History", "About"};
+                "History", "About", "Options"};
         ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout
                 .simple_list_item_1, menuItems) {
             @NonNull
@@ -126,6 +124,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                     case 5:
                         iconId = R.drawable.ic_info_outline_white_24dp;
                         break;
+                    case 6:
+                        iconId = R.drawable.ic_settings_white_24dp;
                 }
                 if (iconId != 0) {
                     Drawable icon = AppCompatResources.getDrawable(getContext(), iconId);
@@ -138,17 +138,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         };
         listView.setAdapter(listAdapter);
         listView.setOnItemClickListener(this);
-
-        Switch adBlockerSwitch = findViewById(R.id.adBlockerSwitch);
-        final SharedPreferences prefs = getSharedPreferences("settings", 0);
-        boolean adBlockOn = prefs.getBoolean(getString(R.string.adBlockON), true);
-        adBlockerSwitch.setChecked(adBlockOn);
-        adBlockerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                prefs.edit().putBoolean(getString(R.string.adBlockON), isChecked).apply();
-            }
-        });
 
         RecyclerView videoSites = findViewById(R.id.homeSites);
         videoSites.setAdapter(new VideoStreamingSitesList(this));
@@ -202,11 +191,19 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         }
     }
 
+    private void closeOptions() {
+        Fragment fragment = getFragmentManager().findFragmentByTag("Options");
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
     private void homeClicked() {
         browserManager.hideCurrentWindow();
         closeDownloads();
         closeBookmarks();
         closeHistory();
+        closeOptions();
         setOnBackPressedListener(null);
     }
 
@@ -215,11 +212,13 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         closeDownloads();
         closeBookmarks();
         closeHistory();
+        closeOptions();
     }
 
     private void downloadsClicked() {
         closeBookmarks();
         closeHistory();
+        closeOptions();
         if (getFragmentManager().findFragmentByTag("Downloads") == null) {
             browserManager.hideCurrentWindow();
             getFragmentManager().beginTransaction().add(R.id.main, new Downloads(),
@@ -230,6 +229,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     private void bookmarksClicked() {
         closeDownloads();
         closeHistory();
+        closeOptions();
         if (getFragmentManager().findFragmentByTag("Bookmarks") == null) {
             browserManager.hideCurrentWindow();
             getFragmentManager().beginTransaction().add(R.id.main, new Bookmarks(), "Bookmarks")
@@ -240,6 +240,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
     private void historyClicked() {
         closeDownloads();
         closeBookmarks();
+        closeOptions();
         if (getFragmentManager().findFragmentByTag("History") == null) {
             browserManager.hideCurrentWindow();
             getFragmentManager().beginTransaction().add(R.id.main, new History(), "History")
@@ -260,6 +261,17 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 })
                 .create()
                 .show();
+    }
+
+    private void optionsClicked() {
+        closeDownloads();
+        closeBookmarks();
+        closeHistory();
+        if (getFragmentManager().findFragmentByTag("Options") == null) {
+            browserManager.hideCurrentWindow();
+            getFragmentManager().beginTransaction().add(R.id.main, new OptionsFragment(), "Options")
+                    .commit();
+        }
     }
 
     @Override
@@ -283,6 +295,9 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
                 break;
             case 5:
                 aboutClicked();
+                break;
+            case 6:
+                optionsClicked();
                 break;
         }
     }
