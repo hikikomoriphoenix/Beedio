@@ -23,14 +23,14 @@ package marabillas.loremar.lmvideodownloader.browsing_feature;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public final class VideoDetectionInitiator {
+final class VideoDetectionInitiator {
     private Queue<VideoContentSearch> reservedSearches = new ArrayDeque<>();
 
     void reserve(VideoContentSearch search) {
         reservedSearches.add(search);
     }
 
-    public void initiate() {
+    void initiate() {
         while (reservedSearches.size() != 0) {
             reservedSearches.remove().start();
         }
