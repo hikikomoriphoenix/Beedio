@@ -539,9 +539,9 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                         if (getActivity().getSharedPreferences("settings", 0).getBoolean(getString(R
                                 .string.adBlockON), true)
                                 && (url.contains("ad") || url.contains("banner") || url.contains("pop"))
-                                && getLMvdActivity().getBrowserManager().checkUrlIfAds(url)) {
+                                && getLMvdActivity().getBrowserManager().isUrlAd(url)) {
                             Log.i("loremarTest", "Ads detected: " + url);
-                            return new WebResourceResponse(null, null, null);
+                            return new WebResourceResponse("text/javascript", "UTF-8", null);
                         }
                     }
                     return super.shouldInterceptRequest(view, url);
@@ -556,7 +556,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                                 && (request.getUrl().toString().contains("ad") ||
                                 request.getUrl().toString().contains("banner") ||
                                 request.getUrl().toString().contains("pop"))
-                                && getLMvdActivity().getBrowserManager().checkUrlIfAds(request.getUrl()
+                                && getLMvdActivity().getBrowserManager().isUrlAd(request.getUrl()
                                 .toString())) {
                             Log.i("loremarTest", "Ads detected: " + request.getUrl().toString());
                             return new WebResourceResponse(null, null, null);

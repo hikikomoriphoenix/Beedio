@@ -20,7 +20,9 @@
 
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +46,7 @@ import java.util.List;
 
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
 import marabillas.loremar.lmvideodownloader.R;
+import marabillas.loremar.lmvideodownloader.browsing_feature.adblock.AdBlockManager;
 
 /**
  * Created by loremar on 3/23/18.
@@ -52,7 +55,9 @@ import marabillas.loremar.lmvideodownloader.R;
 public class BrowserManager extends LMvdFragment {
     private List<BrowserWindow> windows;
     private RecyclerView allWindows;
+    @Deprecated
     private AdBlocker adBlocker;
+    private AdBlockManager adblock = new AdBlockManager();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,10 +70,49 @@ public class BrowserManager extends LMvdFragment {
                 getActivity().findViewById(android.R.id.content), false);
         allWindows.setLayoutManager(new LinearLayoutManager(getActivity()));
         allWindows.setAdapter(new AllWindowsAdapter());
-
-        setupAdBlocker();
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setupAdBlock();
+    }
+
+    private void setupAdBlock() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
+        String lastUpdated = prefs.getString(getString(R.string.adFiltersLastUpdated), "");
+        adblock.update(lastUpdated, new AdBlockManager.UpdateListener() {
+            @Override
+            public void onAdBlockUpdateBegins() {
+                Log.i("loremarTest", "Updating ad filters");
+            }
+
+            @Override
+            public void onAdBlockUpdateEnds() {
+                Log.i("loremarTest", "Total ad filters: " + adblock.filtersCount());
+            }
+
+            @Override
+            public void onUpdateFiltersLastUpdated(String today) {
+                Log.i("loremarTest", "Filters updated today: " + today);
+                SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
+                prefs.edit().putString(getString(R.string.adFiltersLastUpdated), today).apply();
+            }
+
+            @Override
+            public void onSaveFilters() {
+                adblock.saveFilters(getActivity());
+            }
+
+            @Override
+            public void onLoadFilters() {
+                Log.i("loremarTest", "Ad filters are up to date. Loading filters.");
+                adblock.loadFilters(getActivity());
+            }
+        });
+    }
+
+    @Deprecated
     private void setupAdBlocker() {
         try {
             File file = new File(getActivity().getFilesDir(), "ad_filters.dat");
@@ -172,6 +216,7 @@ public class BrowserManager extends LMvdFragment {
         }
     }
 
+    @Deprecated
     public void updateAdFilters() {
         if (adBlocker != null) {
             adBlocker.update(getActivity());
@@ -193,8 +238,18 @@ public class BrowserManager extends LMvdFragment {
         }
     }
 
+    @Deprecated
     public boolean checkUrlIfAds(String url) {
         return adBlocker.checkThroughFilters(url);
+    }
+
+    public boolean isUrlAd(String url) {
+        Log.i("loremarTest", "Finding ad in url: " + url);
+        boolean isAd = adblock.checkThroughFilters(url);
+        if (isAd) {
+            Log.i("loremarTest", "Detected ad: " + url);
+        }
+        return isAd;
     }
 
     private class AllWindowsAdapter extends RecyclerView.Adapter<WindowItem> {

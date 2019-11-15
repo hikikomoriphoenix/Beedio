@@ -321,7 +321,6 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         if (appLinkData != null) {
             browserManager.newWindow(appLinkData.toString());
         }
-        browserManager.updateAdFilters();
     }
 
     @Override
