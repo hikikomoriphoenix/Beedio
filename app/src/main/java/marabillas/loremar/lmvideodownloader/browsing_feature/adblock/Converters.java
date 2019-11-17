@@ -18,21 +18,28 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader.utils;
+package marabillas.loremar.lmvideodownloader.browsing_feature.adblock;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.util.AttributeSet;
+import androidx.room.TypeConverter;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import marabillas.loremar.lmvideodownloader.R;
+import java.lang.reflect.Type;
+import java.util.List;
 
-public class CustomButton extends AppCompatTextView {
-    public CustomButton(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        setBackground(getResources().getDrawable(R.drawable.rounded_button));
-        setTextColor(Color.BLACK);
+class Converters {
+    private static Gson gson = new Gson();
+
+    @TypeConverter
+    public static List<String> fromString(String value) {
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
+        return gson.fromJson(value, listType);
+    }
+
+    @TypeConverter
+    public static String fromList(List<String> list) {
+        return gson.toJson(list);
     }
 }

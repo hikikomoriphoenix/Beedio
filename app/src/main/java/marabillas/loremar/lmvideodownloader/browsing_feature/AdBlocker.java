@@ -43,6 +43,7 @@ import java.util.Locale;
 
 import marabillas.loremar.lmvideodownloader.R;
 
+@Deprecated
 class AdBlocker implements Serializable {
     private List<String> filters;
     private String easylistLastModified;

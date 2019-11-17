@@ -20,7 +20,6 @@
 
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -34,12 +33,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 
-public abstract class VideoContentSearch extends Thread {
-    private Context context;
+public abstract class VideoContentSearch implements Runnable {
     private String url;
     private String page;
     private String title;
-    private boolean reserve;
     private int numLinksInspected;
 
     private final String TAG = "loremarTest";
@@ -51,12 +48,10 @@ public abstract class VideoContentSearch extends Thread {
     public abstract void onVideoFound(String size, String type, String link, String name,
                                       String page, boolean chunked, String website);
 
-    VideoContentSearch(Context context, String url, String page, String title, boolean reserve) {
-        this.context = context;
+    public void newSearch(String url, String page, String title) {
         this.url = url;
         this.page = page;
         this.title = title;
-        this.reserve = reserve;
         numLinksInspected = 0;
     }
 

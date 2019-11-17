@@ -26,11 +26,12 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.IBinder;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;

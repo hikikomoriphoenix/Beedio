@@ -18,21 +18,22 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.lmvideodownloader.utils;
+package marabillas.loremar.lmvideodownloader.browsing_feature.adblock;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.util.AttributeSet;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.Query;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
+import java.util.List;
 
-import marabillas.loremar.lmvideodownloader.R;
+@Dao
+public interface AdFilterDao {
+    @Query("SELECT * FROM adfilter")
+    List<AdFilter> getAll();
 
-public class CustomButton extends AppCompatTextView {
-    public CustomButton(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        setBackground(getResources().getDrawable(R.drawable.rounded_button));
-        setTextColor(Color.BLACK);
-    }
+    @Insert
+    void insertAll(List<AdFilter> adFilters);
+
+    @Query("DELETE FROM adfilter")
+    void deleteAll();
 }
