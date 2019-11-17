@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -175,7 +176,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
         Bundle data = getArguments();
         url = data.getString("url");
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory();
-        videoDetectionInitiator = new VideoDetectionInitiator();
+        videoDetectionInitiator = new VideoDetectionInitiator(new ConcreteVideoContentSearch());
         SharedPreferences prefs = getActivity().getSharedPreferences("settings", 0);
         isDetecting = prefs.getBoolean(getString(R.string.autoVideoDetect), true);
         setRetainInstance(true);
@@ -430,6 +431,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         if (!loadedFirsTime) {
+            HandlerThread thread = new HandlerThread("Video Extraction Thread");
+            thread.start();
+            final Handler extractVideoHandler = new Handler(thread.getLooper());
+
             WebSettings webSettings = page.getSettings();
             webSettings.setJavaScriptEnabled(true);
             webSettings.setDomStorageEnabled(true);
@@ -437,6 +442,10 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
             webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
             page.setWebViewClient(new WebViewClient() {//it seems not setting webclient, launches
                 //default browser instead of opening the page in webview
+
+                private VideoExtractionRunnable videoExtract = new VideoExtractionRunnable();
+                private ConcreteVideoContentSearch videoSearch = new ConcreteVideoContentSearch();
+
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                     return super.shouldOverrideUrlLoading(view, request);
@@ -470,67 +479,51 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     final String page = view.getUrl();
                     final String title = view.getTitle();
 
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            String urlLowerCase = url.toLowerCase();
-                            String[] filters = getResources().getStringArray(R.array.videourl_filters);
-                            boolean urlMightBeVideo = false;
-                            for (String filter : filters) {
-                                if (urlLowerCase.contains(filter)) {
-                                    urlMightBeVideo = true;
-                                    break;
-                                }
-                            }
+                    videoExtract.setUrl(url);
+                    videoExtract.setTitle(title);
+                    videoExtract.setPage(page);
+                    extractVideoHandler.post(videoExtract);
+                }
 
-                            if (urlMightBeVideo) {
-                                VideoContentSearch search = new VideoContentSearch(getActivity(),
-                                        url, page, title, !isDetecting) {
+                class VideoExtractionRunnable implements Runnable {
+                    private String url = "https://";
+                    private String title = "";
+                    private String page = "";
 
-                                    @Override
-                                    public void onStartInspectingURL() {
-                                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (findingVideoInProgress.getVisibility() == View.GONE) {
-                                                    findingVideoInProgress.setVisibility(View.VISIBLE);
-                                                }
-                                            }
-                                        });
+                    public void setUrl(String url) {
+                        this.url = url;
+                    }
 
-                                        Utils.disableSSLCertificateChecking();
-                                    }
+                    public void setTitle(String title) {
+                        this.title = title;
+                    }
 
-                                    @Override
-                                    public void onFinishedInspectingURL(boolean finishedAll) {
-                                        HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
-                                        if (finishedAll) {
-                                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    findingVideoInProgress.setVisibility(View.GONE);
-                                                }
-                                            });
-                                        }
-                                    }
+                    public void setPage(String page) {
+                        this.page = page;
+                    }
 
-                                    @Override
-                                    public void onVideoFound(String size, String type, String link,
-                                                             String name, String page, boolean chunked,
-                                                             String website) {
-                                        videoList.addItem(size, type, link, name, page, chunked, website);
-                                        updateFoundVideosBar();
-                                    }
-                                };
-
-                                if (isDetecting) {
-                                    search.start();
-                                } else {
-                                    videoDetectionInitiator.reserve(search);
-                                }
+                    @Override
+                    public void run() {
+                        String urlLowerCase = url.toLowerCase();
+                        String[] filters = getResources().getStringArray(R.array.videourl_filters);
+                        boolean urlMightBeVideo = false;
+                        for (String filter : filters) {
+                            if (urlLowerCase.contains(filter)) {
+                                urlMightBeVideo = true;
+                                break;
                             }
                         }
-                    }.start();
+
+                        if (urlMightBeVideo) {
+                            videoSearch.newSearch(url, page, title);
+
+                            if (isDetecting) {
+                                videoSearch.run();
+                            } else {
+                                videoDetectionInitiator.reserve(url, page, title);
+                            }
+                        }
+                    }
                 }
 
                 @Override
@@ -689,5 +682,44 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
     public WebView getWebView() {
         return page;
+    }
+
+
+    class ConcreteVideoContentSearch extends VideoContentSearch {
+
+        @Override
+        public void onStartInspectingURL() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (findingVideoInProgress.getVisibility() == View.GONE) {
+                        findingVideoInProgress.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+
+            Utils.disableSSLCertificateChecking();
+        }
+
+        @Override
+        public void onFinishedInspectingURL(boolean finishedAll) {
+            HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF);
+            if (finishedAll) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        findingVideoInProgress.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onVideoFound(String size, String type, String link,
+                                 String name, String page, boolean chunked,
+                                 String website) {
+            videoList.addItem(size, type, link, name, page, chunked, website);
+            updateFoundVideosBar();
+        }
     }
 }

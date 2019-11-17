@@ -20,19 +20,44 @@
 
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 final class VideoDetectionInitiator {
-    private Queue<VideoContentSearch> reservedSearches = new ArrayDeque<>();
+    private Queue<VideoSearch> reservedSearches = new ArrayDeque<>();
+    private Handler handler;
+    private BrowserWindow.ConcreteVideoContentSearch videoContentSearch;
 
-    void reserve(VideoContentSearch search) {
-        reservedSearches.add(search);
+    VideoDetectionInitiator(BrowserWindow.ConcreteVideoContentSearch videoContentSearch) {
+        HandlerThread thread = new HandlerThread("Video Detect Thread");
+        thread.start();
+        handler = new Handler(thread.getLooper());
+
+        this.videoContentSearch = videoContentSearch;
+    }
+
+    void reserve(String url, String page, String title) {
+        VideoSearch videoSearch = new VideoSearch();
+        videoSearch.url = url;
+        videoSearch.page = page;
+        videoSearch.title = title;
+        reservedSearches.add(videoSearch);
     }
 
     void initiate() {
         while (reservedSearches.size() != 0) {
-            reservedSearches.remove().start();
+            VideoSearch search = reservedSearches.remove();
+            videoContentSearch.newSearch(search.url, search.page, search.title);
+            handler.post(videoContentSearch);
         }
+    }
+
+    class VideoSearch {
+        String url;
+        String page;
+        String title;
     }
 }
