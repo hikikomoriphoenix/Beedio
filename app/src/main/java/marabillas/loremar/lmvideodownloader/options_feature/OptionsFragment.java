@@ -31,6 +31,9 @@ import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import marabillas.loremar.lmvideodownloader.R;
 
@@ -38,7 +41,7 @@ public final class OptionsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.options, container, false);
         Switch adBlockSwitch = view.findViewById(R.id.options_block_ads);
         Switch autoVideoDetectSwitch = view.findViewById(R.id.options_auto_video_detection);
@@ -62,6 +65,25 @@ public final class OptionsFragment extends Fragment {
                 prefs.edit().putBoolean(getString(R.string.autoVideoDetect), isChecked).apply();
             }
         });
+
+        Toolbar toolbar = view.findViewById(R.id.options_toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_black_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View root = container != null ? container.getRootView() : null;
+                DrawerLayout drawer = root != null ? (DrawerLayout) root.findViewById(R.id.drawer) : null;
+                if (drawer != null) {
+                    drawer.openDrawer(GravityCompat.START);
+                }
+            }
+        });
+        int density = (int) getResources().getDisplayMetrics().density;
+        toolbar.setPadding(8 * density, 16 * density, 8 * density, 16 * density);
+
+        toolbar.setTitle("Options");
+        toolbar.setTitleMarginStart(16 * density);
+        toolbar.setTitleTextAppearance(inflater.getContext(), android.R.style.TextAppearance_Medium);
 
         return view;
     }
