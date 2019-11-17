@@ -19,13 +19,13 @@
   ~     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
             android:paddingLeft="10dp"
             android:paddingEnd="10dp"
             android:paddingRight="10dp" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ProgressBar
         android:id="@+id/loadingPageProgress"
@@ -249,13 +249,13 @@
 
     </LinearLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/foundVideosWindow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="30dp">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/videoList"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -266,7 +266,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:background="@drawable/found_videos_window_bg" />
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/foundVideosFooter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -324,8 +324,8 @@
                 android:paddingRight="14dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

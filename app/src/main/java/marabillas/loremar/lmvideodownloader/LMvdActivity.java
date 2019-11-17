@@ -29,14 +29,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +40,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
@@ -88,7 +89,7 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layout.openDrawer(Gravity.START);
+                layout.openDrawer(GravityCompat.START);
             }
         });
 
@@ -155,8 +156,8 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         Fragment sourcePage = getFragmentManager().findFragmentByTag("updateSourcePage");
         if (sourcePage != null) {
             getFragmentManager().beginTransaction().remove(sourcePage).commit();
-        } else if (layout.isDrawerVisible(Gravity.START)) {
-            layout.closeDrawer(Gravity.START);
+        } else if (layout.isDrawerVisible(GravityCompat.START)) {
+            layout.closeDrawer(GravityCompat.START);
         } else if (LMvdApp.getInstance().getOnBackPressedListener() != null) {
             LMvdApp.getInstance().getOnBackPressedListener().onBackpressed();
         } else super.onBackPressed();

@@ -24,8 +24,9 @@ import android.app.AlertDialog;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

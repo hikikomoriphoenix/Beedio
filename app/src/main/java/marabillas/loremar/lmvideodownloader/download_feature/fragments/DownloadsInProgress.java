@@ -18,26 +18,6 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- *     LM videodownloader is a browser app for android, made to easily
- *     download videos.
- *     Copyright (C) 2018 Loremar Marabillas
- *
- *     This program is free software; you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation; either version 2 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License along
- *     with this program; if not, write to the Free Software Foundation, Inc.,
- *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 package marabillas.loremar.lmvideodownloader.download_feature.fragments;
 
 import android.Manifest;
@@ -47,10 +27,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.TypedValue;
@@ -63,6 +39,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.text.DecimalFormat;

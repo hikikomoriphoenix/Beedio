@@ -18,26 +18,6 @@
  *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- *     LM videodownloader is a browser app for android, made to easily
- *     download videos.
- *     Copyright (C) 2018 Loremar Marabillas
- *
- *     This program is free software; you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation; either version 2 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License along
- *     with this program; if not, write to the Free Software Foundation, Inc.,
- *     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 package marabillas.loremar.lmvideodownloader.download_feature.fragments;
 
 import android.app.AlertDialog;
@@ -48,15 +28,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.Formatter;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +39,12 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager.widget.ViewPager;
 
 import marabillas.loremar.lmvideodownloader.LMvdActivity;
 import marabillas.loremar.lmvideodownloader.LMvdFragment;
@@ -119,7 +100,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
             menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    layout.openDrawer(Gravity.START);
+                    layout.openDrawer(GravityCompat.START);
                 }
             });
 
@@ -409,7 +390,7 @@ public class Downloads extends LMvdFragment implements LMvdActivity.OnBackPresse
         });
     }
 
-    class PagerAdapter extends android.support.v4.view.PagerAdapter {
+    class PagerAdapter extends androidx.viewpager.widget.PagerAdapter {
         @NonNull
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
