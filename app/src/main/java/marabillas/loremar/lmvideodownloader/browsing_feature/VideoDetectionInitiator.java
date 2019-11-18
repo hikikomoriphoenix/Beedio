@@ -59,6 +59,14 @@ final class VideoDetectionInitiator {
         }
     }
 
+    void clear() {
+        handler.getLooper().quit();
+        HandlerThread thread = new HandlerThread("Video Detect Thread");
+        thread.start();
+        handler = new Handler(thread.getLooper());
+        reservedSearches.clear();
+    }
+
     class VideoSearch {
         String url;
         String page;

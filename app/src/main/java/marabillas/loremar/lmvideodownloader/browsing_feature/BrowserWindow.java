@@ -445,6 +445,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                 private VideoExtractionRunnable videoExtract = new VideoExtractionRunnable();
                 private ConcreteVideoContentSearch videoSearch = new ConcreteVideoContentSearch();
+                private String currentPage = page.getUrl();
 
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -478,6 +479,11 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 public void onLoadResource(final WebView view, final String url) {
                     final String page = view.getUrl();
                     final String title = view.getTitle();
+
+                    if (!page.equals(currentPage)) {
+                        currentPage = page;
+                        videoDetectionInitiator.clear();
+                    }
 
                     videoExtract.setUrl(url);
                     videoExtract.setTitle(title);
