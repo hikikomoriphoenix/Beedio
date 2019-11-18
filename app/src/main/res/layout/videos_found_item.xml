@@ -68,7 +68,52 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/videoFoundCheck"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:paddingBottom="8dp">
+
+        <ProgressBar
+            android:id="@+id/videoFoundExtractDetailsProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/videoFoundDetailsBarrier"
+            android:visibility="gone" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/videoFoundDetailsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/videoFoundDetailsBarrier"
+            android:visibility="gone"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/videoFoundDetailsBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="videoFoundDetailsText,videoFoundExtractDetailsProgress" />
+
+        <marabillas.loremar.lmvideodownloader.utils.CustomButton
+            android:id="@+id/videoFoundDetailsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/details"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textSize="12sp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/videoFoundRename"
+            app:layout_constraintTop_toBottomOf="@id/videoFoundDetailsBarrier"
+            app:layout_constraintHorizontal_chainStyle="packed" />
 
         <marabillas.loremar.lmvideodownloader.utils.CustomButton
             android:id="@+id/videoFoundRename"
@@ -78,9 +123,11 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/videoFoundDetailsBtn"
             app:layout_constraintEnd_toStartOf="@id/videoFoundDownload"
-            app:layout_constraintTop_toTopOf="@id/videoFoundDownload"
-            android:layout_marginEnd="10dp" />
+            app:layout_constraintTop_toBottomOf="@id/videoFoundDetailsBarrier"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="8dp" />
 
         <marabillas.loremar.lmvideodownloader.utils.CustomButton
             android:id="@+id/videoFoundDownload"
@@ -90,10 +137,11 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="parent"
-            app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="5dp" />
+            app:layout_constraintStart_toEndOf="@id/videoFoundRename"
+            app:layout_constraintEnd_toStartOf="@id/videoFoundDelete"
+            app:layout_constraintTop_toBottomOf="@id/videoFoundDetailsBarrier"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="8dp" />
 
         <marabillas.loremar.lmvideodownloader.utils.CustomButton
             android:id="@+id/videoFoundDelete"
@@ -104,8 +152,9 @@
             android:paddingRight="10dp"
             android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@id/videoFoundDownload"
-            app:layout_constraintTop_toTopOf="@id/videoFoundDownload"
-            android:layout_marginStart="10dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/videoFoundDetailsBarrier"
+            android:layout_marginTop="5dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

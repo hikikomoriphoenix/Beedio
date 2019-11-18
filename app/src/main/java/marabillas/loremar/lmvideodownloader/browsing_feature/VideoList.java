@@ -36,11 +36,13 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,6 +67,7 @@ public abstract class VideoList {
     private Activity activity;
     private RecyclerView view;
     private List<Video> videos;
+    private VideoDetailsFetcher videoDetailsFetcher = new VideoDetailsFetcher();
 
     class Video {
         String size, type, link, name, page, website;
@@ -205,6 +208,7 @@ public abstract class VideoList {
                 expand.findViewById(R.id.videoFoundRename).setOnClickListener(this);
                 expand.findViewById(R.id.videoFoundDownload).setOnClickListener(this);
                 expand.findViewById(R.id.videoFoundDelete).setOnClickListener(this);
+                expand.findViewById(R.id.videoFoundDetailsBtn).setOnClickListener(this);
             }
 
             @Override
@@ -262,6 +266,40 @@ public abstract class VideoList {
                             })
                             .create()
                             .show();
+                } else if (v == expand.findViewById(R.id.videoFoundDetailsBtn)) {
+                    ProgressBar progress = expand.findViewById(R.id.videoFoundExtractDetailsProgress);
+                    progress.setVisibility(View.VISIBLE);
+                    videoDetailsFetcher.fetchDetails(
+                            videos.get(getAdapterPosition()).link,
+                            new VideoDetailsFetcher.FetchDetailsListener() {
+                                @Override
+                                public void onUnFetched(final String message) {
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(activity, "Unable to fetch video details",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onFetched(final String details) {
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ProgressBar progress = expand.findViewById(
+                                                    R.id.videoFoundExtractDetailsProgress);
+                                            progress.setVisibility(View.GONE);
+
+                                            AppCompatTextView detailsText =
+                                                    expand.findViewById(R.id.videoFoundDetailsText);
+                                            detailsText.setVisibility(View.VISIBLE);
+                                            detailsText.setText(details);
+                                        }
+                                    });
+                                }
+                            });
                 } else {
                     if (expandedItem != -1) {
                         videos.get(expandedItem).expanded = false;
