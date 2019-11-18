@@ -48,10 +48,14 @@ final class VideoDetectionInitiator {
     }
 
     void initiate() {
-        while (reservedSearches.size() != 0) {
-            VideoSearch search = reservedSearches.remove();
-            videoContentSearch.newSearch(search.url, search.page, search.title);
-            handler.post(videoContentSearch);
+        try {
+            while (reservedSearches.size() != 0) {
+                VideoSearch search = reservedSearches.remove();
+                videoContentSearch.newSearch(search.url, search.page, search.title);
+                handler.post(videoContentSearch);
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
     }
 

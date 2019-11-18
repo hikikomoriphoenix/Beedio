@@ -504,24 +504,28 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
                     @Override
                     public void run() {
-                        String urlLowerCase = url.toLowerCase();
-                        String[] filters = getResources().getStringArray(R.array.videourl_filters);
-                        boolean urlMightBeVideo = false;
-                        for (String filter : filters) {
-                            if (urlLowerCase.contains(filter)) {
-                                urlMightBeVideo = true;
-                                break;
+                        try {
+                            String urlLowerCase = url.toLowerCase();
+                            String[] filters = getResources().getStringArray(R.array.videourl_filters);
+                            boolean urlMightBeVideo = false;
+                            for (String filter : filters) {
+                                if (urlLowerCase.contains(filter)) {
+                                    urlMightBeVideo = true;
+                                    break;
+                                }
                             }
-                        }
 
-                        if (urlMightBeVideo) {
-                            videoSearch.newSearch(url, page, title);
+                            if (urlMightBeVideo) {
+                                videoSearch.newSearch(url, page, title);
 
-                            if (isDetecting) {
-                                videoSearch.run();
-                            } else {
-                                videoDetectionInitiator.reserve(url, page, title);
+                                if (isDetecting) {
+                                    videoSearch.run();
+                                } else {
+                                    videoDetectionInitiator.reserve(url, page, title);
+                                }
                             }
+                        } catch (IllegalStateException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
