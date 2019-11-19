@@ -136,7 +136,7 @@ public abstract class VideoContentSearch implements Runnable {
                 size = ytCon.getHeaderField("content-length");
 
                 if (host.contains("youtube.com")) {
-                    URL embededURL = new URL("http://www.youtube.com/oembed?url=" + page +
+                    URL embededURL = new URL("https://www.youtube.com/oembed?url=" + page +
                             "&format=json");
                     try {
                         //name = new JSONObject(IOUtils.toString(embededURL)).getString("title");
