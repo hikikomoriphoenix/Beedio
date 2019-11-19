@@ -89,7 +89,10 @@ public final class VideoDetailsFetcher {
                     if (copyright != null) sb.append("\nCopyright: ").append(copyright);
                     if (publisher != null) sb.append("\nPublisher: ").append(publisher);
                     if (language != null) sb.append("\nLanguage: ").append(language);
-                    sb.deleteCharAt(0);
+
+                    if (sb.length() > 0) {
+                        sb.deleteCharAt(0);
+                    }
 
                     listener.onFetched(sb.toString());
                 } catch (IllegalArgumentException e) {

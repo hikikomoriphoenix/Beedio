@@ -70,7 +70,7 @@ public abstract class VideoList {
     private VideoDetailsFetcher videoDetailsFetcher = new VideoDetailsFetcher();
 
     class Video {
-        String size, type, link, name, page, website;
+        String size, type, link, name, page, website, details;
         boolean chunked = false, checked = false, expanded = false;
     }
 
@@ -202,6 +202,9 @@ public abstract class VideoList {
                 name.setText(video.name);
                 if (video.expanded) {
                     expand.setVisibility(View.VISIBLE);
+                    AppCompatTextView detailsText = expand.findViewById(R.id.videoFoundDetailsText);
+                    detailsText.setVisibility(View.VISIBLE);
+                    detailsText.setText(video.details);
                 } else {
                     expand.setVisibility(View.GONE);
                 }
@@ -269,6 +272,7 @@ public abstract class VideoList {
                 } else if (v == expand.findViewById(R.id.videoFoundDetailsBtn)) {
                     ProgressBar progress = expand.findViewById(R.id.videoFoundExtractDetailsProgress);
                     progress.setVisibility(View.VISIBLE);
+                    final int targetPosition = getAdapterPosition();
                     videoDetailsFetcher.fetchDetails(
                             videos.get(getAdapterPosition()).link,
                             new VideoDetailsFetcher.FetchDetailsListener() {
@@ -288,14 +292,16 @@ public abstract class VideoList {
                                     activity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
+                                            videos.get(targetPosition).details = details;
                                             ProgressBar progress = expand.findViewById(
                                                     R.id.videoFoundExtractDetailsProgress);
                                             progress.setVisibility(View.GONE);
-
-                                            AppCompatTextView detailsText =
-                                                    expand.findViewById(R.id.videoFoundDetailsText);
-                                            detailsText.setVisibility(View.VISIBLE);
-                                            detailsText.setText(details);
+                                            if (targetPosition == getAdapterPosition()) {
+                                                AppCompatTextView detailsText =
+                                                        expand.findViewById(R.id.videoFoundDetailsText);
+                                                detailsText.setVisibility(View.VISIBLE);
+                                                detailsText.setText(details);
+                                            }
                                         }
                                     });
                                 }
