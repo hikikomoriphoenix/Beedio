@@ -27,3 +27,5 @@
     public static int v(...);
     public static int i(...);
 }
+
+-keep class wseemann.media.** { *; }
