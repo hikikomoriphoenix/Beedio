@@ -381,4 +381,8 @@ public abstract class VideoList {
         Toast.makeText(activity, "Selected videos are queued for downloading. Go to Downloads " +
                 "panel to start downloading videos", Toast.LENGTH_LONG).show();
     }
+
+    void closeVideoDetailsFetcher() {
+        videoDetailsFetcher.close();
+    }
 }

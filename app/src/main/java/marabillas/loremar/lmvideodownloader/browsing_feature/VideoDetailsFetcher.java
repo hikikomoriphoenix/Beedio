@@ -128,6 +128,10 @@ public final class VideoDetailsFetcher {
         }
     }
 
+    void close() {
+        metadataRetriever.release();
+    }
+
     interface FetchDetailsListener {
         void onUnFetched(String message);
 

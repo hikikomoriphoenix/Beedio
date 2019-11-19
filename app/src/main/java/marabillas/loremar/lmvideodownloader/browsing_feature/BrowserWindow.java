@@ -595,6 +595,7 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
 
     @Override
     public void onDestroy() {
+        videoList.closeVideoDetailsFetcher();
         page.stopLoading();
         page.destroy();
         super.onDestroy();
