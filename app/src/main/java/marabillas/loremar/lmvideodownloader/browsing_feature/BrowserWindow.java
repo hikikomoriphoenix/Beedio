@@ -448,6 +448,14 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 private String currentPage = page.getUrl();
 
                 @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    if (!url.startsWith("intent")) {
+                        super.shouldOverrideUrlLoading(view, url);
+                    }
+                    return true;
+                }
+
+                @Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                     return super.shouldOverrideUrlLoading(view, request);
                 }
