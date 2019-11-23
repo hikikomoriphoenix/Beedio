@@ -21,6 +21,7 @@
 package marabillas.loremar.lmvideodownloader.browsing_feature;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -59,6 +60,7 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -450,14 +452,19 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     if (!url.startsWith("intent")) {
-                        super.shouldOverrideUrlLoading(view, url);
+                        return super.shouldOverrideUrlLoading(view, url);
                     }
                     return true;
                 }
 
+                @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                    return super.shouldOverrideUrlLoading(view, request);
+                    if (!request.getUrl().toString().startsWith("intent")) {
+                        return super.shouldOverrideUrlLoading(view, request);
+                    }
+                    return true;
                 }
 
                 @Override
