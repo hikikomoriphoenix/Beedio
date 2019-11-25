@@ -63,8 +63,8 @@ dependencies {
     implementation deps.core_ktx
     implementation deps.material
     implementation deps.constraintlayout
-    testImplementation deps.junit
-    testImplementation deps.truth
+    implementation deps.ffmpeg
+    implementation deps.okhttp
 
     implementation deps.lifecycle.viewmodel
     implementation deps.lifecycle.extensions
@@ -74,4 +74,12 @@ dependencies {
     implementation deps.dagger.android_support
     kapt deps.dagger.compiler
     kapt deps.dagger.android_processor
+
+    testImplementation deps.junit
+    testImplementation deps.truth
+    androidTestImplementation deps.test.core
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.test.rules
+    androidTestImplementation deps.test.ext_junit
+    androidTestImplementation deps.espresso
 }

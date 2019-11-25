@@ -17,4 +17,11 @@
   ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<manifest package="marabillas.loremar.beedio.base" />
+<manifest package="marabillas.loremar.beedio.base"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application />
+</manifest>
