@@ -23,6 +23,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -52,8 +53,10 @@ class WebViewSwitcherSheetAdapter @Inject constructor() : RecyclerView.Adapter<W
         val itemView = AppCompatTextView(parent.context).apply {
             setPadding((8 * density).roundToInt())
             compoundDrawablePadding = (16 * density).roundToInt()
-            background = ResourcesCompat.getDrawable(
-                    parent.context.resources, R.drawable.yellow_ripple, null)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                background = ResourcesCompat.getDrawable(
+                        parent.context.resources, R.drawable.yellow_ripple, null)
+            }
             setTextColor(Color.WHITE)
             layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             gravity = Gravity.CENTER_VERTICAL
