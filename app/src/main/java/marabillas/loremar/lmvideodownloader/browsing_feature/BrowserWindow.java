@@ -47,7 +47,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -77,8 +76,6 @@ import marabillas.loremar.lmvideodownloader.R;
 import marabillas.loremar.lmvideodownloader.WebConnect;
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.AddBookmarkDialog;
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmark;
-import marabillas.loremar.lmvideodownloader.history_feature.HistorySQLite;
-import marabillas.loremar.lmvideodownloader.history_feature.VisitedPage;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
 public class BrowserWindow extends LMvdFragment implements View.OnTouchListener, View
@@ -584,21 +581,8 @@ public class BrowserWindow extends LMvdFragment implements View.OnTouchListener,
                     }
                 }
             });
-            page.setWebChromeClient(new WebChromeClient() {
-                @Override
-                public void onProgressChanged(WebView view, int newProgress) {
-                    loadingPageProgress.setProgress(newProgress);
-                }
-
-                @Override
-                public void onReceivedTitle(WebView view, String title) {
-                    super.onReceivedTitle(view, title);
-                    VisitedPage vp = new VisitedPage();
-                    vp.title = title;
-                    vp.link = view.getUrl();
-                    new HistorySQLite(getActivity()).addPageToHistory(vp);
-                }
-            });
+            page.setWebChromeClient(new BrowserWebChromeClient(getActivity(), loadingPageProgress,
+                    getLMvdActivity()));
             page.setOnLongClickListener(this);
             page.loadUrl(url);
             loadedFirsTime = true;
