@@ -33,6 +33,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -52,16 +53,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import marabillas.loremar.lmvideodownloader.bookmarks_feature.Bookmarks;
 import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserManager;
+import marabillas.loremar.lmvideodownloader.browsing_feature.BrowserWebChromeClient;
 import marabillas.loremar.lmvideodownloader.download_feature.fragments.Downloads;
 import marabillas.loremar.lmvideodownloader.history_feature.History;
 import marabillas.loremar.lmvideodownloader.options_feature.OptionsFragment;
 import marabillas.loremar.lmvideodownloader.utils.Utils;
 
-public class LMvdActivity extends Activity implements TextView.OnEditorActionListener, View.OnClickListener, AdapterView.OnItemClickListener {
+public class LMvdActivity extends Activity implements TextView.OnEditorActionListener,
+        View.OnClickListener, AdapterView.OnItemClickListener, BrowserWebChromeClient.FileChooseListener {
     private EditText webBox;
     private BrowserManager browserManager;
     private Uri appLinkData;
     private DrawerLayout layout;
+
+    private ValueCallback<Uri[]> fileChooseValueCallbackMultiUri;
+    private ValueCallback<Uri> fileChooseValueCallbackSingleUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,4 +344,50 @@ public class LMvdActivity extends Activity implements TextView.OnEditorActionLis
         this.onRequestPermissionsResultCallback = onRequestPermissionsResultCallback;
     }
 
+    @Override
+    public ValueCallback<Uri[]> getValueCallbackMultiUri() {
+        return fileChooseValueCallbackMultiUri;
+    }
+
+    @Override
+    public ValueCallback<Uri> getValueCallbackSingleUri() {
+        return fileChooseValueCallbackSingleUri;
+    }
+
+    @Override
+    public void setValueCallbackMultiUri(ValueCallback<Uri[]> valueCallback) {
+        fileChooseValueCallbackMultiUri = valueCallback;
+    }
+
+    @Override
+    public void setValueCallbackSingleUri(ValueCallback<Uri> valueCallback) {
+        fileChooseValueCallbackSingleUri = valueCallback;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == BrowserWebChromeClient.FILE_CHOOSER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null && fileChooseValueCallbackSingleUri != null) {
+                    fileChooseValueCallbackSingleUri.onReceiveValue(data.getData());
+                    fileChooseValueCallbackSingleUri = null;
+                } else if (data != null && fileChooseValueCallbackMultiUri != null) {
+                    Uri[] dataUris;
+                    try {
+                        dataUris = new Uri[]{Uri.parse(data.getDataString())};
+                    } catch (Exception e) {
+                        dataUris = null;
+                    }
+                    fileChooseValueCallbackMultiUri.onReceiveValue(dataUris);
+                    fileChooseValueCallbackMultiUri = null;
+                }
+            } else if (fileChooseValueCallbackSingleUri != null) {
+                fileChooseValueCallbackSingleUri.onReceiveValue(null);
+                fileChooseValueCallbackSingleUri = null;
+            } else if (fileChooseValueCallbackMultiUri != null) {
+                fileChooseValueCallbackMultiUri.onReceiveValue(null);
+                fileChooseValueCallbackMultiUri = null;
+            }
+        }
+    }
 }
