@@ -24,8 +24,8 @@ import androidx.core.util.PatternsCompat
 class WebNavigationImpl : WebNavigation {
     override fun navigateTo(dest: String): String {
         return if (PatternsCompat.WEB_URL.matcher(dest).matches()) {
-            return if (!dest.startsWith("http://") || !dest.startsWith("https://")) {
-                "http://$dest"
+            return if (!dest.startsWith("http://") && !dest.startsWith("https://")) {
+                "https://$dest"
             } else {
                 dest
             }
