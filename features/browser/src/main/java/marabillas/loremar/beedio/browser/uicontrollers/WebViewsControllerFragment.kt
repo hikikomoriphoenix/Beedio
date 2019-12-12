@@ -179,7 +179,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
         this.also { webViewsController ->
             activeWebView?.visibility = View.GONE
             activeWebView = WebView(activity).apply {
-                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 webViewClient = webViewsController.webViewClient
                 webChromeClient = webViewsController.webChromeClient
                 settings.javaScriptEnabled = true
