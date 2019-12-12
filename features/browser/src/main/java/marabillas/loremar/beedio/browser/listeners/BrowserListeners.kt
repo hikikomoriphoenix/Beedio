@@ -33,3 +33,7 @@ interface OnWebPageTitleRecievedListener {
 interface BrowserSearchWidgetListener {
     fun onSearchCloseBtnClicked()
 }
+
+interface OnLoadResourceListener {
+    fun onLoadResource(view: WebView?, url: String?)
+}

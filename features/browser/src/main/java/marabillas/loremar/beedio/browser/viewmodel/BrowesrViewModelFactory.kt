@@ -57,6 +57,10 @@ class BrowserViewModelFactory : ViewModelProvider.Factory {
                 WebViewsCountIndicatorVMImpl() as T
             }
 
+            VideoDetectionVM::class.java -> {
+                VideoDetectionVMImpl() as T
+            }
+
             else -> throw IllegalArgumentException("Unidentified ViewModel for Browser")
         }
     }

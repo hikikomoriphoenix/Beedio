@@ -103,3 +103,24 @@ abstract class BrowserSearchWidgetStateVM : ObservableViewModel() {
 
     abstract fun setSearchCloseBtnVisibility(value: Int)
 }
+
+abstract class VideoDetectionVM : ObservableViewModel() {
+    abstract val foundVideos: List<FoundVideo>
+
+    abstract fun analyzeUrlForVideo(
+            url: String,
+            title: String,
+            sourceWebPage: String,
+            actionOnFoundVideo: (FoundVideo) -> Unit
+    )
+
+    data class FoundVideo(
+            val name: String,
+            val url: String,
+            val ext: String,
+            val size: String,
+            val sourceWebPage: String,
+            val sourceWebsite: String,
+            val isChunked: Boolean = false
+    )
+}

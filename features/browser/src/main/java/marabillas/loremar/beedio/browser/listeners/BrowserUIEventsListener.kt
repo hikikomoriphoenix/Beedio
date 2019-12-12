@@ -24,16 +24,19 @@ import android.webkit.WebView
 import marabillas.loremar.beedio.base.di.ActivityScope
 import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
+import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
+import timber.log.Timber
 import javax.inject.Inject
 
 @ActivityScope
 class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
-        OnWebPageTitleRecievedListener, BrowserSearchWidgetListener {
+        OnWebPageTitleRecievedListener, BrowserSearchWidgetListener, OnLoadResourceListener {
 
     var webViewsControllerVM: WebViewsControllerVM? = null
     var titleStateVM: BrowserTitleStateVM? = null
     var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
+    var videoDetectionVM: VideoDetectionVM? = null
 
     override fun onWebPageChanged(webView: WebView?, url: String?, favicon: Bitmap?) {
         val updateTitle = { activeWebView: WebView? ->
@@ -56,5 +59,23 @@ class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
 
     override fun onSearchCloseBtnClicked() {
         searchWidgetControllerVM?.onCloseBtnClicked()
+    }
+
+    override fun onLoadResource(view: WebView?, url: String?) {
+        val page = view?.url
+        val title = view?.title ?: ""
+        if (url != null && page != null)
+            videoDetectionVM?.analyzeUrlForVideo(url, title, page) {
+                Timber.i("""
+                Found video: 
+                    url = ${it.url}
+                    name = ${it.name}
+                    ext = ${it.ext}
+                    size = ${it.size}
+                    page = ${it.sourceWebPage}
+                    site = ${it.sourceWebsite}
+                    chunked = ${if (it.isChunked) "yes" else "no"}
+            """.trimIndent())
+            }
     }
 }

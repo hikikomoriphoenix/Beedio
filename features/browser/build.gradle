@@ -67,11 +67,14 @@ dependencies {
     implementation deps.material
     implementation deps.constraintlayout
     implementation deps.timber
+    implementation deps.okhttp
+    implementation deps.gson
     testImplementation deps.junit
     testImplementation deps.truth
 
     implementation deps.lifecycle.viewmodel
     implementation deps.lifecycle.extensions
+    implementation deps.lifecycle.viewmodel_ktx
 
     implementation deps.dagger.runtime
     implementation deps.dagger.android

@@ -22,12 +22,14 @@ package marabillas.loremar.beedio.browser.web
 import android.graphics.Bitmap
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import marabillas.loremar.beedio.browser.listeners.OnLoadResourceListener
 import marabillas.loremar.beedio.browser.listeners.OnWebPageChangedListener
 import javax.inject.Inject
 
 class BrowserWebViewClient @Inject constructor() : WebViewClient() {
 
     var onWebPageChangedListener: OnWebPageChangedListener? = null
+    var onLoadResourceListener: OnLoadResourceListener? = null
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -44,4 +46,7 @@ class BrowserWebViewClient @Inject constructor() : WebViewClient() {
         onWebPageChangedListener?.onWebPageChanged(view, url, null)
     }
 
+    override fun onLoadResource(view: WebView?, url: String?) {
+        onLoadResourceListener?.onLoadResource(view, url)
+    }
 }

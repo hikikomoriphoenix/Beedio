@@ -31,6 +31,7 @@ versions.ext_junit = "1.1.1"
 versions.espresso = "3.2.0"
 versions.lifecycle_viewmodel = "2.2.0-alpha03"
 versions.lifecycle_extensions = "2.0.0"
+versions.viewmodel_ktx = "2.2.0-rc03"
 versions.dagger = '2.25.2'
 versions.recyclerview = '1.1.0'
 versions.okhttp = '4.2.2'
@@ -69,6 +70,7 @@ deps.test = test
 def lifecycle = [:]
 lifecycle.viewmodel = "androidx.lifecycle:lifecycle-viewmodel:$versions.lifecycle_viewmodel"
 lifecycle.extensions = "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle_extensions"
+lifecycle.viewmodel_ktx = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel_ktx"
 deps.lifecycle = lifecycle
 
 def dagger = [:]

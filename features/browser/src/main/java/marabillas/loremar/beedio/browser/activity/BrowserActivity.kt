@@ -35,6 +35,7 @@ import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragmen
 import marabillas.loremar.beedio.browser.viewmodel.*
 import marabillas.loremar.beedio.browser.web.BrowserWebChromeClient
 import marabillas.loremar.beedio.browser.web.BrowserWebViewClient
+import timber.log.Timber
 import javax.inject.Inject
 
 class BrowserActivity : DaggerAppCompatActivity() {
@@ -65,6 +66,7 @@ class BrowserActivity : DaggerAppCompatActivity() {
     private lateinit var actionBarStateVM: BrowserActionBarStateVM
     private lateinit var searchWidgetStateVM: BrowserSearchWidgetStateVM
     private lateinit var webViewsCountIndicatorVM: WebViewsCountIndicatorVM
+    private lateinit var videoDetectionVM: VideoDetectionVM
 
     private lateinit var controllersUpdater: BrowserControllersUpdater
     private lateinit var actionBarUpdater: BrowserActionBarUpdater
@@ -73,6 +75,8 @@ class BrowserActivity : DaggerAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Timber.plant(Timber.DebugTree())
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browser)
         binding.lifecycleOwner = this
@@ -84,13 +88,14 @@ class BrowserActivity : DaggerAppCompatActivity() {
         actionBarStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserActionBarStateVM::class.java)
         searchWidgetStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserSearchWidgetStateVM::class.java)
         webViewsCountIndicatorVM = ViewModelProviders.of(this, viewModelFactory).get(WebViewsCountIndicatorVM::class.java)
+        videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)[VideoDetectionVM::class.java]
 
         actionBarUpdater = BrowserActionBarUpdater(this, binding, webViewsCountIndicatorVM)
         viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, actionBarStateVM,
                 searchWidgetStateVM, titleStateVM, binding)
         controllersUpdater = BrowserControllersUpdater(this)
         listenersUpdater = BrowserListenersUpdater(this, webPageNavigationVM,
-                webViewsControllerVM, titleStateVM, searchWidgetControllerVM)
+                webViewsControllerVM, titleStateVM, searchWidgetControllerVM, videoDetectionVM)
 
         actionBarUpdater.update()
         viewModelBinder.bind()
