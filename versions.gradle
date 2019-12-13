@@ -36,6 +36,7 @@ versions.recyclerview = '1.1.0'
 versions.okhttp = '4.2.2'
 versions.gson = "2.8.6"
 versions.ffmpeg = "0.3.2"
+versions.timber = "4.7.1"
 ext.versions = versions
 
 def deps = [:]
@@ -50,6 +51,7 @@ deps.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
 deps.okhttp = "com.squareup.okhttp3:okhttp:$versions.okhttp"
 deps.gson = "com.google.code.gson:gson:$versions.gson"
 deps.ffmpeg = "com.writingminds:FFmpegAndroid:$versions.ffmpeg"
+deps.timber = "com.jakewharton.timber:timber:$versions.timber"
 
 def kotlin = [:]
 kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"

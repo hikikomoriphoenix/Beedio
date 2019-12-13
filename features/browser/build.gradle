@@ -66,6 +66,7 @@ dependencies {
     implementation deps.core_ktx
     implementation deps.material
     implementation deps.constraintlayout
+    implementation deps.timber
     testImplementation deps.junit
     testImplementation deps.truth
 
