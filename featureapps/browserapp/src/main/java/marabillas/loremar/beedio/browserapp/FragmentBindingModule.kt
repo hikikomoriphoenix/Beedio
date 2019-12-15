@@ -23,6 +23,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import marabillas.loremar.beedio.base.di.FragmentScope
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
+import marabillas.loremar.beedio.browser.uicontrollers.ExpandingFoundVideosFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherSheetFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
 
@@ -40,4 +41,8 @@ abstract class FragmentBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract fun contributeWebViewSwitcherSheetFragment(): WebViewSwitcherSheetFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeExpandingFoundVideosFragment(): ExpandingFoundVideosFragment
 }

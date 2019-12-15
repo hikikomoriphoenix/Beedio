@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.browser.activity
 
+import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
 
 class BrowserControllersUpdater(private val activity: BrowserActivity) {
@@ -26,6 +27,7 @@ class BrowserControllersUpdater(private val activity: BrowserActivity) {
     fun update() {
         setupWebViewsController()
         setSearchWidgetController()
+        setupExpandingFoundVideosFragment()
     }
 
     private fun setupWebViewsController() {
@@ -51,6 +53,13 @@ class BrowserControllersUpdater(private val activity: BrowserActivity) {
         activity.supportFragmentManager
                 .beginTransaction()
                 .add(activity.searchWidgeController, null)
+                .commit()
+    }
+
+    private fun setupExpandingFoundVideosFragment() {
+        activity.supportFragmentManager
+                .beginTransaction()
+                .add(R.id.main_content_browser, activity.expandingFoundVideosFragment)
                 .commit()
     }
 }

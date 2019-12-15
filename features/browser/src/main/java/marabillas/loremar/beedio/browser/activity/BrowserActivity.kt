@@ -30,6 +30,7 @@ import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
 import marabillas.loremar.beedio.browser.listeners.BrowserMenuItemClickListener
 import marabillas.loremar.beedio.browser.listeners.BrowserUIEventsListener
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
+import marabillas.loremar.beedio.browser.uicontrollers.ExpandingFoundVideosFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherSheetFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
 import marabillas.loremar.beedio.browser.viewmodel.*
@@ -48,6 +49,8 @@ class BrowserActivity : DaggerAppCompatActivity() {
     lateinit var searchWidgeController: BrowserSearchWidgetControllerFragment
     @Inject
     lateinit var switcherSheet: WebViewSwitcherSheetFragment
+    @Inject
+    lateinit var expandingFoundVideosFragment: ExpandingFoundVideosFragment
     @Inject
     lateinit var browserWebViewClient: BrowserWebViewClient
     @Inject
