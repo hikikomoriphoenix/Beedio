@@ -1,0 +1,74 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="8.466667"
+    android:viewportHeight="8.466667">
+    <path
+        android:pathData="m4.64371,4.52557 l1.93005,-2.0791"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.21535486"
+        android:fillColor="#666666"
+        android:strokeColor="#808080"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m3.99166,4.61404 l-1.98222,-2.3003"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.21535486"
+        android:fillColor="#666666"
+        android:strokeColor="#808080"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="M1.39285,6.38348a2.93787,2.09137 0,1 0,5.87575 0a2.93787,2.09137 0,1 0,-5.87575 0z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.03647682"
+        android:fillColor="#000000"
+        android:strokeColor="#00000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+    <path
+        android:pathData="m3.66028,5.27762 l1.37927,0.0322 -0.04757,1.614h0.90366l-1.66463,0.74245 -1.56951,-0.87156 1.04634,0.0322z"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.35132286"
+        android:fillColor="#d9ac1d"
+        android:strokeColor="#00000000"
+        android:fillAlpha="1"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="M6.15645,2.26953a0.4866,0.52164 90.00004,1 1,1.04327 -0a0.4866,0.52164 90.00004,1 1,-1.04327 -0z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.21535482"
+        android:fillColor="#d9ac1d"
+        android:strokeColor="#00000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+    <path
+        android:pathData="M1.3574,2.22525a0.52164,0.4866 0,1 0,1.04327 0a0.52164,0.4866 0,1 0,-1.04327 0z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.21535482"
+        android:fillColor="#d9ac1d"
+        android:strokeColor="#00000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+</vector>

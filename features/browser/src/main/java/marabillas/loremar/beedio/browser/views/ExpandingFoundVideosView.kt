@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.browser.views
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -76,6 +77,8 @@ class ExpandingFoundVideosView : FrameLayout {
             else
                 contract()
         }
+
+        (binding.foundVideosBouncyIcon.drawable as AnimationDrawable).start()
     }
 
     private fun expand() {

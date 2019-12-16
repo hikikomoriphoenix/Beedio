@@ -22,28 +22,42 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/found_videos_sheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingTop="14dp">
 
         <LinearLayout
             android:id="@+id/found_videos_head"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:background="@drawable/found_videos_head_background"
             android:orientation="horizontal"
-            android:paddingStart="12dp"
+            android:paddingStart="0dp"
             android:paddingTop="12dp"
             android:paddingEnd="8dp"
             android:paddingBottom="8dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:layout_marginTop="-14dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
+            <ImageView
+                android:id="@+id/found_videos_bouncy_icon"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:src="@drawable/ic_bouncing_bug"
+                android:layout_gravity="bottom"
+                android:layout_marginTop="-14dp" />
+
             <TextView
                 android:id="@+id/found_videos_num_found_text"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="VIDEOS"
-                android:textColor="@color/yellow" />
+                android:textColor="@color/yellow"
+                android:layout_gravity="center_vertical" />
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
