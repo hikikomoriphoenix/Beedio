@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.browser.views
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -31,12 +32,16 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.transition.*
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.FoundVideosSheetBinding
+import kotlin.math.roundToInt
 
 class ExpandingFoundVideosView : FrameLayout {
 
@@ -83,9 +88,12 @@ class ExpandingFoundVideosView : FrameLayout {
 
     private fun expand() {
         body.visibility = VISIBLE
-        initTransition { isExpanded = true }
+        initTransition {
+            isExpanded = true
+            head.updateLayout { height = WRAP_CONTENT }
+        }
         sheet.updateLayout { height = MATCH_PARENT }
-        animateHead(head.left, 0, MATCH_PARENT, false)
+        expandHead()
     }
 
     private fun contract() {
@@ -94,7 +102,7 @@ class ExpandingFoundVideosView : FrameLayout {
             body.visibility = GONE
         }
         sheet.updateLayout { height = WRAP_CONTENT }
-        animateHead(0, headContractedLeft, WRAP_CONTENT, true)
+        contractHead()
     }
 
     private fun initTransition(doOnEnd: () -> Unit) {
@@ -109,12 +117,34 @@ class ExpandingFoundVideosView : FrameLayout {
         TransitionManager.beginDelayedTransition(this, transitionSet)
     }
 
-    private fun animateHead(startLeft: Int, endLeft: Int, endWidth: Int, isDelay: Boolean) {
+    private fun expandHead() {
         head.apply {
-            ObjectAnimator.ofInt(this, "left", startLeft, endLeft).apply {
-                if (isDelay) startDelay = animationDuration * 3 / 5
+            ObjectAnimator.ofInt(this, "left", left, 0).apply {
                 duration = animationDuration * 2 / 5
-                doOnEnd { updateLayout { width = endWidth } }
+                doOnEnd {
+                    updateLayout { width = MATCH_PARENT }
+                    val black = ResourcesCompat.getColor(resources, R.color.lesser_black, null)
+                    background = ColorDrawable(black)
+                    sheet.setPadding(0)
+                }
+                start()
+            }
+        }
+    }
+
+    private fun contractHead() {
+        head.apply {
+            ObjectAnimator.ofInt(this, "left", 0, headContractedLeft).apply {
+                startDelay = animationDuration * 3 / 5
+                duration = animationDuration * 2 / 5
+                doOnStart {
+                    background = ResourcesCompat.getDrawable(
+                            resources, R.drawable.found_videos_head_background, null)
+                    val topPadding = (14 * resources.displayMetrics.density).roundToInt()
+                    sheet.setPadding(0, topPadding, 0, 0)
+                    updateLayout { height = (48 * resources.displayMetrics.density).roundToInt() }
+                }
+                doOnEnd { updateLayout { width = WRAP_CONTENT } }
                 start()
             }
         }
