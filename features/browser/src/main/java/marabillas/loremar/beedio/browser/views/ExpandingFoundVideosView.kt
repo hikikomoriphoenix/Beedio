@@ -21,8 +21,14 @@ package marabillas.loremar.beedio.browser.views
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.ColorDrawable
+import android.os.Handler
+import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -31,6 +37,8 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.content.res.ResourcesCompat
@@ -48,9 +56,12 @@ class ExpandingFoundVideosView : FrameLayout {
     private lateinit var sheet: ViewGroup
     private lateinit var head: ViewGroup
     private lateinit var body: ViewGroup
+    private lateinit var bouncingBug: ImageView
+    private lateinit var foundCountText: TextView
     private var isExpanded = false
     private var headContractedLeft = 0
     private val animationDuration = 200L
+    private val bouncingBugHandler = Handler(Looper.getMainLooper())
 
     constructor(context: Context) : super(context) {
         initView()
@@ -58,6 +69,43 @@ class ExpandingFoundVideosView : FrameLayout {
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         initView()
+    }
+
+    fun animateBouncingBug(isAnimating: Boolean) {
+        val bugDrawable = bouncingBug.drawable as AnimationDrawable
+        if (isAnimating) {
+            bouncingBugHandler.removeCallbacksAndMessages(null)
+            TransitionManager.beginDelayedTransition(head)
+            if (head.visibility == GONE)
+                head.visibility = VISIBLE
+            if (bouncingBug.visibility == GONE)
+                bouncingBug.visibility = VISIBLE
+            bugDrawable.start()
+        } else {
+            bouncingBugHandler.postDelayed(
+                    {
+                        TransitionManager.beginDelayedTransition(head)
+                        bugDrawable.stop()
+                        bugDrawable.selectDrawable(0)
+                        if (foundCountText.visibility == GONE || foundCountText.text.isNullOrBlank()) {
+                            bouncingBug.visibility = GONE
+                            head.visibility = GONE
+                        }
+                    }, 1000
+            )
+        }
+    }
+
+    fun updateFoundVideosCountText(count: Int) {
+        if (count > 0 && foundCountText.visibility == GONE)
+            foundCountText.visibility = View.VISIBLE
+
+        val text = resources.getString(R.string.found_videos_count_text, count)
+        val spannable = SpannableString(text)
+        val countText = text.substringBeforeLast(" VIDEOS")
+        val colorSpan = ForegroundColorSpan(Color.WHITE)
+        spannable.setSpan(colorSpan, 0, countText.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        foundCountText.text = spannable
     }
 
     private fun initView() {
@@ -68,6 +116,8 @@ class ExpandingFoundVideosView : FrameLayout {
                     sheet = foundVideosSheet
                     head = foundVideosHead
                     body = foundVideosBody
+                    bouncingBug = foundVideosBouncyIcon
+                    foundCountText = foundVideosNumFoundText
                 }
         LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
             gravity = Gravity.BOTTOM
@@ -82,8 +132,6 @@ class ExpandingFoundVideosView : FrameLayout {
             else
                 contract()
         }
-
-        (binding.foundVideosBouncyIcon.drawable as AnimationDrawable).start()
     }
 
     private fun expand() {

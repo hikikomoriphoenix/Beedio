@@ -19,10 +19,14 @@
 
 package marabillas.loremar.beedio.browser.viewmodel
 
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,25 +43,45 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     private val filters = arrayOf("mp4", "video", "googleusercontent", "embed")
     private val okhttp = OkHttpClient()
 
-    override fun analyzeUrlForVideo(
-            url: String,
-            title: String,
-            sourceWebPage: String,
-            actionOnFoundVideo: (FoundVideo) -> Unit
-    ) {
+    private val sendFoundVideo = SendLiveData<FoundVideo>()
+    private val isAnalyzing = MutableLiveData<Boolean>()
+
+    private var analysisCount = 0
+
+    init {
+        isAnalyzing.value = false
+    }
+
+    override fun analyzeUrlForVideo(url: String, title: String, sourceWebPage: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            onStartAnalysis()
+
             filter(url) {
                 Timber.i("Analyzing $url")
                 getResponse(url) {
                     getHeaders {
                         if (contentType().containsVideoOrAudio())
-                            extractVideo(title, sourceWebPage, actionOnFoundVideo)
+                            extractVideo(title, sourceWebPage)
                         else if (contentType().isM3U8())
-                            extractM3U8Video(title, sourceWebPage, actionOnFoundVideo)
+                            extractM3U8Video(title, sourceWebPage)
                     }
                 }
             }
+
+            onEndAnalysis()
         }
+    }
+
+    private fun onStartAnalysis() {
+        analysisCount++
+        if (analysisCount == 1)
+            isAnalyzing.postValue(true)
+    }
+
+    private fun onEndAnalysis() {
+        analysisCount--
+        if (analysisCount == 0)
+            isAnalyzing.postValue(false)
     }
 
     private fun filter(url: String, doIfTrue: (String) -> Unit) {
@@ -74,8 +98,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
 
     private fun Response.extractVideo(
             title: String,
-            sourceWebPage: String,
-            actionOnFoundVideo: (FoundVideo) -> Unit
+            sourceWebPage: String
     ) {
 
         getHeaders {
@@ -133,7 +156,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
                     sourceWebPage = sourceWebPage,
                     sourceWebsite = sourceWebsite,
                     isChunked = isChunked
-            ).apply(actionOnFoundVideo)
+            ).apply { onFoundVideo(this) }
         }
     }
 
@@ -159,8 +182,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
 
     private fun Response.extractM3U8Video(
             title: String,
-            sourceWebPage: String,
-            actionOnFoundVideo: (FoundVideo) -> Unit
+            sourceWebPage: String
     ) {
 
         getHeaders {
@@ -194,7 +216,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
                                 sourceWebPage = sourceWebPage,
                                 sourceWebsite = "myspace.com",
                                 isChunked = true
-                        ).apply(actionOnFoundVideo)
+                        ).apply { onFoundVideo(this) }
                         return@getHeaders
                     }
                 }
@@ -209,7 +231,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
                                 sourceWebPage = sourceWebPage,
                                 sourceWebsite = sourceWebsite,
                                 isChunked = true
-                        ).apply(actionOnFoundVideo)
+                        ).apply { onFoundVideo(this) }
                     }
                 }
             }
@@ -227,4 +249,31 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     }
 
     private fun Response.getHeaders(block: Headers.() -> Unit) = headers.apply(block)
+
+    private fun onFoundVideo(video: FoundVideo) {
+        Timber.i("""
+                    FoundVideo:
+                        url = ${video.url}
+                        name = ${video.name}
+                        ext = ${video.ext}
+                        size = ${video.size}
+                        page = ${video.sourceWebPage}
+                        site = ${video.sourceWebsite}
+                        chunked = ${if (video.isChunked) "yes" else "no"}                    
+                """.trimIndent())
+
+        _foundVideos.add(video)
+
+        viewModelScope.launch(Dispatchers.Main) {
+            sendFoundVideo.send(video)
+        }
+    }
+
+    override fun observeIsAnalyzing(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>) {
+        isAnalyzing.observe(lifecycleOwner, observer)
+    }
+
+    override fun receiveForFoundVideo(lifecycleOwner: LifecycleOwner, observer: Observer<FoundVideo>) {
+        sendFoundVideo.observeSend(lifecycleOwner, observer)
+    }
 }

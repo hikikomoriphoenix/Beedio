@@ -110,9 +110,12 @@ abstract class VideoDetectionVM : ObservableViewModel() {
     abstract fun analyzeUrlForVideo(
             url: String,
             title: String,
-            sourceWebPage: String,
-            actionOnFoundVideo: (FoundVideo) -> Unit
+            sourceWebPage: String
     )
+
+    abstract fun observeIsAnalyzing(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>)
+
+    abstract fun receiveForFoundVideo(lifecycleOwner: LifecycleOwner, observer: Observer<FoundVideo>)
 
     data class FoundVideo(
             val name: String,

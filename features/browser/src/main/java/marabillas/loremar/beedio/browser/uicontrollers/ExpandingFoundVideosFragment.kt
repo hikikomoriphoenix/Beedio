@@ -25,11 +25,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.views.ExpandingFoundVideosView
 import javax.inject.Inject
 
 class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private lateinit var videoDetectionVM: VideoDetectionVM
+    private lateinit var foundVideosView: ExpandingFoundVideosView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return context?.let {
@@ -37,7 +46,32 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
                     layoutParams = this
                 }
+                foundVideosView = this
             }
         }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        activity?.apply {
+            videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)
+                    .get(VideoDetectionVM::class.java)
+
+            val activity = this
+            videoDetectionVM.apply {
+                observeIsAnalyzing(activity, Observer { onIsAnalyzingChanged(it) })
+                receiveForFoundVideo(activity, Observer { onVideoFound(it) })
+            }
+        }
+    }
+
+    private fun onIsAnalyzingChanged(isAnalyzing: Boolean) {
+        foundVideosView.animateBouncingBug(isAnalyzing)
+    }
+
+    private fun onVideoFound(video: VideoDetectionVM.FoundVideo) {
+        val count = videoDetectionVM.foundVideos.count()
+        foundVideosView.updateFoundVideosCountText(count)
     }
 }

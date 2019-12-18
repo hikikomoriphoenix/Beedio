@@ -26,7 +26,6 @@ import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetController
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
-import timber.log.Timber
 import javax.inject.Inject
 
 @ActivityScope
@@ -65,17 +64,6 @@ class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         val page = view?.url
         val title = view?.title ?: ""
         if (url != null && page != null)
-            videoDetectionVM?.analyzeUrlForVideo(url, title, page) {
-                Timber.i("""
-                Found video: 
-                    url = ${it.url}
-                    name = ${it.name}
-                    ext = ${it.ext}
-                    size = ${it.size}
-                    page = ${it.sourceWebPage}
-                    site = ${it.sourceWebsite}
-                    chunked = ${if (it.isChunked) "yes" else "no"}
-            """.trimIndent())
-            }
+            videoDetectionVM?.analyzeUrlForVideo(url, title, page)
     }
 }
