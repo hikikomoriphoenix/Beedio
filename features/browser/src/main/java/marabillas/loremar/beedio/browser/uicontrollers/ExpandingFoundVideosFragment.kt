@@ -27,7 +27,11 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.browser.R
+import marabillas.loremar.beedio.browser.adapters.FoundVideosAdapter
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.views.ExpandingFoundVideosView
 import javax.inject.Inject
@@ -39,6 +43,8 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
 
     private lateinit var videoDetectionVM: VideoDetectionVM
     private lateinit var foundVideosView: ExpandingFoundVideosView
+    private lateinit var foundVideosRecyclerView: RecyclerView
+    private val foundVideosAdapter = FoundVideosAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return context?.let {
@@ -47,6 +53,10 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
                     layoutParams = this
                 }
                 foundVideosView = this
+                foundVideosRecyclerView = findViewById<RecyclerView>(R.id.found_videos_recycler_view).apply {
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = foundVideosAdapter
+                }
             }
         }
     }
@@ -73,5 +83,6 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
     private fun onVideoFound(video: VideoDetectionVM.FoundVideo) {
         val count = videoDetectionVM.foundVideos.count()
         foundVideosView.updateFoundVideosCountText(count)
+        foundVideosAdapter.addItem(video)
     }
 }
