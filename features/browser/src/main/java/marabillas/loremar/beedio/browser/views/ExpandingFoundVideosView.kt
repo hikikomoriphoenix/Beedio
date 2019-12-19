@@ -76,8 +76,6 @@ class ExpandingFoundVideosView : FrameLayout {
         if (isAnimating) {
             bouncingBugHandler.removeCallbacksAndMessages(null)
             TransitionManager.beginDelayedTransition(head)
-            if (head.visibility == GONE)
-                head.visibility = VISIBLE
             if (bouncingBug.visibility == GONE)
                 bouncingBug.visibility = VISIBLE
             bugDrawable.start()
@@ -87,11 +85,9 @@ class ExpandingFoundVideosView : FrameLayout {
                         TransitionManager.beginDelayedTransition(head)
                         bugDrawable.stop()
                         bugDrawable.selectDrawable(0)
-                        if (foundCountText.visibility == GONE || foundCountText.text.isNullOrBlank()) {
+                        if (foundCountText.visibility == GONE || foundCountText.text.isNullOrBlank())
                             bouncingBug.visibility = GONE
-                            head.visibility = GONE
-                        }
-                    }, 1000
+                    }, 2000
             )
         }
     }
