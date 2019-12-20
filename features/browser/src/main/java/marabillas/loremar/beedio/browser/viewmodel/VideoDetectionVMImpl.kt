@@ -27,10 +27,7 @@ import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
-import okhttp3.Headers
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import marabillas.loremar.beedio.base.web.HttpNetwork
 import timber.log.Timber
 import java.net.URL
 import java.util.*
@@ -41,7 +38,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
 
     private val _foundVideos = mutableListOf<FoundVideo>()
     private val filters = arrayOf("mp4", "video", "googleusercontent", "embed")
-    private val okhttp = OkHttpClient()
+    private val network = HttpNetwork()
 
     private val sendFoundVideo = SendLiveData<FoundVideo>()
     private val isAnalyzing = MutableLiveData<Boolean>()
@@ -58,13 +55,11 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
 
             filter(url) {
                 Timber.i("Analyzing $url")
-                getResponse(url) {
-                    getHeaders {
-                        if (contentType().containsVideoOrAudio())
-                            extractVideo(title, sourceWebPage)
-                        else if (contentType().isM3U8())
-                            extractM3U8Video(title, sourceWebPage)
-                    }
+                connect(url) {
+                    if (contentType().containsVideoOrAudio())
+                        extractVideo(title, sourceWebPage)
+                    else if (contentType().isM3U8())
+                        extractM3U8Video(title, sourceWebPage)
                 }
             }
 
@@ -90,80 +85,75 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
                 doIfTrue(url)
     }
 
-    private fun Headers.contentType() = get("Content-Type")?.toLowerCase(Locale.US) ?: ""
+    private fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
+            ?: ""
 
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
     private fun String.isM3U8() = equals("application/x-mpegurl") || equals("application/vnd.apple.mpegurl")
 
-    private fun Response.extractVideo(
+    private fun HttpNetwork.Connection.extractVideo(
             title: String,
             sourceWebPage: String
     ) {
+        val host = URL(sourceWebPage).host
+        val contentType = contentType()
 
-        getHeaders {
-            val host = URL(sourceWebPage).host
-            val contentType = contentType()
+        if (host.contains("twitter.com") && contentType == "video/mp2t")
+            return
 
-            if (host.contains("twitter.com") && contentType == "video/mp2t")
-                return@getHeaders
-
-            var url = get("Location") ?: request.url.toString()
-            var size = get("Content-Length") ?: "0"
-            var name = when {
-                title.isNotBlank() -> title
-                contentType.contains("audio") -> "audio"
-                else -> "video"
-            }
-            var sourceWebsite = ""
-            var isChunked = false
-
-            if (host.contains("youtube.com") || request.url.host.contains("googlevideo.com")) {
-                url = url.substringBeforeLast("&range")
-                getResponse(url) {
-                    getHeaders {
-                        size = get("Content-Length") ?: "0"
-                        name = getYoutubeVideoTitle(sourceWebPage)
-                    }
-                }
-            } else if (host.contains("dailymotion.com")) {
-                isChunked = true
-                sourceWebsite = "dailymotion.com"
-                url = url.replace("(frag\\()+(\\d+)+(\\))", "FRAGMENT")
-                size = "0"
-            } else if (host.contains("vimeo.com") && url.endsWith("m4s")) {
-                isChunked = true
-                sourceWebsite = "vimeo.com"
-                url = url.replace("(segment-)+(\\d+)", "SEGMENT")
-                size = "0"
-            } else if (host.contains("facebook.com") && url.contains("bytestart")) {
-                url = "https://video.xx.fbcdn${url.substringAfter("fbcdn").substringBeforeLast("&bytestart")}"
-                sourceWebsite = "facebook.com"
-                getResponse(url) {
-                    getHeaders {
-                        size = get("Content-Length") ?: "0"
-                    }
-                }
-            }
-
-            val ext = getExtensionFor(contentType)
-
-            FoundVideo(
-                    name = name,
-                    url = url,
-                    ext = ext,
-                    size = size,
-                    sourceWebPage = sourceWebPage,
-                    sourceWebsite = sourceWebsite,
-                    isChunked = isChunked
-            ).apply { onFoundVideo(this) }
+        var url = getResponseHeader("Location") ?: urlHandler.url ?: return
+        var size = getResponseHeader("Content-Length") ?: "0"
+        var name = when {
+            title.isNotBlank() -> title
+            contentType.contains("audio") -> "audio"
+            else -> "video"
         }
+        var sourceWebsite = ""
+        var isChunked = false
+
+        if (host.contains("youtube.com") || urlHandler.host?.contains("googlevideo.com") == true) {
+            url = url.substringBeforeLast("&range").also {
+                connect(it) {
+                    size = getResponseHeader("Content-Length") ?: "0"
+                    name = getYoutubeVideoTitle(sourceWebPage)
+                }
+            }
+        } else if (host.contains("dailymotion.com")) {
+            isChunked = true
+            sourceWebsite = "dailymotion.com"
+            url = url.replace("(frag\\()+(\\d+)+(\\))", "FRAGMENT")
+            size = "0"
+        } else if (host.contains("vimeo.com") && url.endsWith("m4s")) {
+            isChunked = true
+            sourceWebsite = "vimeo.com"
+            url = url.replace("(segment-)+(\\d+)", "SEGMENT")
+            size = "0"
+        } else if (host.contains("facebook.com") && url.contains("bytestart")) {
+            url = "https://video.xx.fbcdn${url.substringAfter("fbcdn").substringBeforeLast("&bytestart")}"
+            sourceWebsite = "facebook.com"
+            connect(url) {
+                size = getResponseHeader("Content-Length") ?: "0"
+            }
+        }
+
+        val ext = getExtensionFor(contentType)
+
+        FoundVideo(
+                name = name,
+                url = url,
+                ext = ext,
+                size = size,
+                sourceWebPage = sourceWebPage,
+                sourceWebsite = sourceWebsite,
+                isChunked = isChunked
+        ).apply { onFoundVideo(this) }
     }
 
     private fun getYoutubeVideoTitle(sourcePage: String): String {
         var title = ""
-        getResponse("https://www.youtube.com/oembed?url=$sourcePage&format=json") {
-            val json = body?.string()
+        connect("https://www.youtube.com/oembed?url=$sourcePage&format=json") {
+            val json = content
             val jsonObject = JsonParser.parseString(json).asJsonObject
             title = jsonObject.get("title").asString
         }
@@ -180,75 +170,69 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
         }
     }
 
-    private fun Response.extractM3U8Video(
+    private fun HttpNetwork.Connection.extractM3U8Video(
             title: String,
             sourceWebPage: String
     ) {
 
-        getHeaders {
-            val host = URL(sourceWebPage).host
-            if (host.contains("twitter.com") || host.contains("metacafe.com")
-                    || host.contains("myspace.com")) {
+        val host = URL(sourceWebPage).host
+        if (host.contains("twitter.com") || host.contains("metacafe.com")
+                || host.contains("myspace.com")) {
 
-                val name = if (title.isNotBlank()) title else "video"
+            val name = if (title.isNotBlank()) title else "video"
 
-                var prefix = ""
-                var ext = "mp4"
-                var sourceWebsite = ""
-                when {
-                    host.contains("twitter.com") -> {
-                        prefix = "https://video.twimg.com"
-                        ext = "ts"
-                        sourceWebsite = "twitter.com"
-                    }
-                    host.contains("metacafe.com") -> {
-                        val url = request.url.toString()
-                        prefix = "${url.substringBeforeLast("/")}/"
-                        sourceWebsite = "metacafe.com"
-                        ext = "mp4"
-                    }
-                    host.contains("myspace.com") -> {
-                        FoundVideo(
-                                name = name,
-                                url = request.url.toString(),
-                                ext = "ts",
-                                size = "0",
-                                sourceWebPage = sourceWebPage,
-                                sourceWebsite = "myspace.com",
-                                isChunked = true
-                        ).apply { onFoundVideo(this) }
-                        return@getHeaders
-                    }
+            var prefix = ""
+            var ext = "mp4"
+            var sourceWebsite = ""
+            when {
+                host.contains("twitter.com") -> {
+                    prefix = "https://video.twimg.com"
+                    ext = "ts"
+                    sourceWebsite = "twitter.com"
                 }
-                body?.charStream()?.forEachLine {
-                    if (it.endsWith(".m3u8")) {
-                        val url = "$prefix$it"
-                        FoundVideo(
-                                name = name,
-                                url = url,
-                                ext = ext,
-                                size = "0",
-                                sourceWebPage = sourceWebPage,
-                                sourceWebsite = sourceWebsite,
-                                isChunked = true
-                        ).apply { onFoundVideo(this) }
-                    }
+                host.contains("metacafe.com") -> {
+                    val url = urlHandler.url ?: return
+                    prefix = "${url.substringBeforeLast("/")}/"
+                    sourceWebsite = "metacafe.com"
+                    ext = "mp4"
+                }
+                host.contains("myspace.com") -> {
+                    FoundVideo(
+                            name = name,
+                            url = urlHandler.url ?: return,
+                            ext = "ts",
+                            size = "0",
+                            sourceWebPage = sourceWebPage,
+                            sourceWebsite = "myspace.com",
+                            isChunked = true
+                    ).apply { onFoundVideo(this) }
+                    return
+                }
+            }
+            stream?.reader()?.forEachLine {
+                if (it.endsWith(".m3u8")) {
+                    val url = "$prefix$it"
+                    FoundVideo(
+                            name = name,
+                            url = url,
+                            ext = ext,
+                            size = "0",
+                            sourceWebPage = sourceWebPage,
+                            sourceWebsite = sourceWebsite,
+                            isChunked = true
+                    ).apply { onFoundVideo(this) }
                 }
             }
         }
     }
 
-    private fun getResponse(url: String, block: Response.() -> Unit): Response? {
-        return try {
-            val request = Request.Builder().url(url).build()
-            okhttp.newCall(request).execute().apply(block)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed connecting to $url")
-            null
-        }
-    }
-
-    private fun Response.getHeaders(block: Headers.() -> Unit) = headers.apply(block)
+    private fun connect(url: String, block: HttpNetwork.Connection.() -> Unit) =
+            try {
+                network.open(url).apply(block)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed connecting to $url")
+                null
+            }
 
     private fun onFoundVideo(video: FoundVideo) {
         Timber.i("""
