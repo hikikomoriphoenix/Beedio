@@ -40,9 +40,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnStart
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.doOnLayout
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
@@ -59,7 +57,6 @@ class ExpandingFoundVideosView : FrameLayout {
     private lateinit var bouncingBug: ImageView
     private lateinit var foundCountText: TextView
     private var isExpanded = false
-    private var headContractedLeft = 0
     private val animationDuration = 200L
     private val bouncingBugHandler = Handler(Looper.getMainLooper())
 
@@ -120,7 +117,6 @@ class ExpandingFoundVideosView : FrameLayout {
             binding.root.layoutParams = this
             addView(binding.root)
         }
-        doOnLayout { headContractedLeft = binding.foundVideosHead.measuredWidth }
 
         head.setOnClickListener {
             if (!isExpanded)
@@ -141,6 +137,7 @@ class ExpandingFoundVideosView : FrameLayout {
     }
 
     private fun contract() {
+        beforeContract()
         initTransition {
             isExpanded = false
             body.visibility = GONE
@@ -178,19 +175,23 @@ class ExpandingFoundVideosView : FrameLayout {
 
     private fun contractHead() {
         head.apply {
-            ObjectAnimator.ofInt(this, "left", 0, headContractedLeft).apply {
+            head.measure(WRAP_CONTENT, WRAP_CONTENT)
+            ObjectAnimator.ofInt(this, "left", 0, head.measuredWidth).apply {
                 startDelay = animationDuration * 3 / 5
                 duration = animationDuration * 2 / 5
-                doOnStart {
-                    background = ResourcesCompat.getDrawable(
-                            resources, R.drawable.found_videos_head_background, null)
-                    val topPadding = (14 * resources.displayMetrics.density).roundToInt()
-                    sheet.setPadding(0, topPadding, 0, 0)
-                    updateLayout { height = (48 * resources.displayMetrics.density).roundToInt() }
-                }
                 doOnEnd { updateLayout { width = WRAP_CONTENT } }
                 start()
             }
+        }
+    }
+
+    private fun beforeContract() {
+        head.apply {
+            background = ResourcesCompat.getDrawable(
+                    resources, R.drawable.found_videos_head_background, null)
+            val topPadding = (14 * resources.displayMetrics.density).roundToInt()
+            sheet.setPadding(0, topPadding, 0, 0)
+            updateLayout { height = (48 * resources.displayMetrics.density).roundToInt() }
         }
     }
 
