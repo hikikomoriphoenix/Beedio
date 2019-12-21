@@ -22,7 +22,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/lesser_black"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:theme="@style/FoundVideosListItem">
 
     <ImageView
         android:id="@+id/found_video_icon"
@@ -64,7 +65,7 @@
         android:id="@+id/found_video_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/yellow_ripple_circle"
+        android:background="?found_video_more_background"
         android:clickable="true"
         android:focusable="true"
         app:srcCompat="@drawable/ic_unfold_more_white_24dp"
