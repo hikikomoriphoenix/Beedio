@@ -19,7 +19,7 @@
 
 ext.deps = [:]
 def versions = [:]
-versions.appcompat = "1.1.0"
+versions.appcompat = "1.1.0-rc01"
 versions.constraintlayout="1.1.3"
 versions.material = "1.0.0"
 versions.kotlin = '1.3.61'
