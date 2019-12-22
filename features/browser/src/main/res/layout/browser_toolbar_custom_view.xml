@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/yellow"
+        android:singleLine="true"
         android:maxLines="1"
         android:ellipsize="end"
         android:textStyle="bold" />
@@ -36,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
+        android:singleLine="true"
         android:maxLines="1"
         android:ellipsize="end" />
 </LinearLayout>
