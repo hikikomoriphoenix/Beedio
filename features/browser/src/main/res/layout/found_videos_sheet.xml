@@ -27,7 +27,7 @@
         android:clipToPadding="false"
         android:paddingTop="14dp">
 
-        <LinearLayout
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/found_videos_head"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
@@ -47,10 +47,10 @@
                 android:layout_width="54dp"
                 android:layout_height="54dp"
                 android:src="@drawable/ic_bouncing_bug"
-                android:layout_gravity="bottom"
                 android:layout_marginTop="-14dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="7dp"
+                android:layout_gravity="bottom"
                 android:visibility="gone"
                 android:contentDescription="@string/bouncing_bug_icon_desc" />
 
@@ -58,12 +58,24 @@
                 android:id="@+id/found_videos_num_found_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginEnd="16dp"
-                android:textColor="@color/yellow"
                 android:layout_gravity="center_vertical"
+                android:text=""
+                android:textColor="@color/yellow"
                 android:visibility="gone"
                 android:fontFamily="serif" />
-        </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/found_videos_close_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="8dp"
+                app:srcCompat="@drawable/ic_expand_more_white_24dp"
+                android:visibility="gone" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/found_videos_body"
@@ -82,8 +94,32 @@
                 android:layout_height="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/found_videos_toolbar"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/found_videos_toolbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/grey"
+                android:padding="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select"
+                    android:textColor="@color/white"
+                    app:drawableTopCompat="@drawable/ic_touch_app_white_24dp"
+                    android:drawablePadding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

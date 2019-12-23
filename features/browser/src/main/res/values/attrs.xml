@@ -19,4 +19,5 @@
 
 <resources>
     <attr name="found_video_more_background" format="reference|color" />
+    <attr name="found_video_close_btn_background" format="reference|color" />
 </resources>

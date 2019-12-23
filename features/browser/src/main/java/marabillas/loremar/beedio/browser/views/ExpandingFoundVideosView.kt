@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.browser.views
 
+import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Color
@@ -39,6 +40,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
@@ -56,6 +58,8 @@ class ExpandingFoundVideosView : FrameLayout {
     private lateinit var body: ViewGroup
     private lateinit var bouncingBug: ImageView
     private lateinit var foundCountText: TextView
+    private lateinit var closeBtn: ImageView
+    private lateinit var toolbar: ViewGroup
     private var isExpanded = false
     private val animationDuration = 200L
     private val bouncingBugHandler = Handler(Looper.getMainLooper())
@@ -111,6 +115,8 @@ class ExpandingFoundVideosView : FrameLayout {
                     body = foundVideosBody
                     bouncingBug = foundVideosBouncyIcon
                     foundCountText = foundVideosNumFoundText
+                    closeBtn = foundVideosCloseBtn
+                    toolbar = foundVideosToolbar
                 }
         LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
             gravity = Gravity.BOTTOM
@@ -124,13 +130,28 @@ class ExpandingFoundVideosView : FrameLayout {
             else
                 contract()
         }
+
+        closeBtn.setOnClickListener {
+            if (isExpanded)
+                contract()
+        }
     }
 
     private fun expand() {
         body.visibility = VISIBLE
+        head.layoutTransition = null
         initTransition {
             isExpanded = true
             head.updateLayout { height = WRAP_CONTENT }
+            foundCountText.apply {
+                updateLayoutParams<LinearLayoutCompat.LayoutParams> {
+                    width = 0
+                    leftMargin = (16 * resources.displayMetrics.density).roundToInt()
+                }
+                visibility = View.VISIBLE
+            }
+            closeBtn.visibility = VISIBLE
+            toolbar.visibility = View.VISIBLE
         }
         sheet.updateLayout { height = MATCH_PARENT }
         expandHead()
@@ -141,6 +162,16 @@ class ExpandingFoundVideosView : FrameLayout {
         initTransition {
             isExpanded = false
             body.visibility = GONE
+            foundCountText.apply {
+                updateLayoutParams<LinearLayoutCompat.LayoutParams> {
+                    leftMargin = 0
+                    width = WRAP_CONTENT
+                }
+                if (text.isNullOrBlank())
+                    visibility = GONE
+            }
+            closeBtn.visibility = GONE
+            head.layoutTransition = LayoutTransition()
         }
         sheet.updateLayout { height = WRAP_CONTENT }
         contractHead()
@@ -186,6 +217,7 @@ class ExpandingFoundVideosView : FrameLayout {
     }
 
     private fun beforeContract() {
+        toolbar.visibility = GONE
         head.apply {
             background = ResourcesCompat.getDrawable(
                     resources, R.drawable.found_videos_head_background, null)
