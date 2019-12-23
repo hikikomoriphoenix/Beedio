@@ -21,6 +21,9 @@
 
     <style name="FoundVideosListItem">
         <item name="found_video_more_background">@drawable/yellow_circle_on_pressed</item>
+    </style>
+
+    <style name="FoundVideosSheet">
         <item name="found_video_close_btn_background">@drawable/yellow_circle_on_pressed</item>
     </style>
 </resources>
