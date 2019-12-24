@@ -107,6 +107,7 @@ class ExpandingFoundVideosView : FrameLayout {
 
     private fun initView() {
         val inflater = LayoutInflater.from(context)
+
         val binding = DataBindingUtil.inflate<FoundVideosSheetBinding>(
                 inflater, R.layout.found_videos_sheet, null, false)
                 .apply {
@@ -118,12 +119,17 @@ class ExpandingFoundVideosView : FrameLayout {
                     closeBtn = foundVideosCloseBtn
                     toolbar = foundVideosToolbar
                 }
+
         LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
             gravity = Gravity.BOTTOM
             binding.root.layoutParams = this
             addView(binding.root)
         }
 
+        setupListeners()
+    }
+
+    private fun setupListeners() {
         head.setOnClickListener {
             if (!isExpanded)
                 expand()
@@ -140,39 +146,14 @@ class ExpandingFoundVideosView : FrameLayout {
     private fun expand() {
         body.visibility = VISIBLE
         head.layoutTransition = null
-        initTransition {
-            isExpanded = true
-            head.updateLayout { height = WRAP_CONTENT }
-            foundCountText.apply {
-                updateLayoutParams<LinearLayoutCompat.LayoutParams> {
-                    width = 0
-                    leftMargin = (16 * resources.displayMetrics.density).roundToInt()
-                }
-                visibility = View.VISIBLE
-            }
-            closeBtn.visibility = VISIBLE
-            toolbar.visibility = View.VISIBLE
-        }
+        initTransition(this::doOnEndOfExpand)
         sheet.updateLayout { height = MATCH_PARENT }
         expandHead()
     }
 
     private fun contract() {
         beforeContract()
-        initTransition {
-            isExpanded = false
-            body.visibility = GONE
-            foundCountText.apply {
-                updateLayoutParams<LinearLayoutCompat.LayoutParams> {
-                    leftMargin = 0
-                    width = WRAP_CONTENT
-                }
-                if (text.isNullOrBlank())
-                    visibility = GONE
-            }
-            closeBtn.visibility = GONE
-            head.layoutTransition = LayoutTransition()
-        }
+        initTransition(this::doOnEndOfContract)
         sheet.updateLayout { height = WRAP_CONTENT }
         contractHead()
     }
@@ -187,6 +168,35 @@ class ExpandingFoundVideosView : FrameLayout {
             doOnEnd { doOnEnd() }
         }
         TransitionManager.beginDelayedTransition(this, transitionSet)
+    }
+
+    private fun doOnEndOfExpand() {
+        isExpanded = true
+        head.updateLayout { height = WRAP_CONTENT }
+        foundCountText.apply {
+            updateLayoutParams<LinearLayoutCompat.LayoutParams> {
+                width = 0
+                leftMargin = (16 * resources.displayMetrics.density).roundToInt()
+            }
+            visibility = View.VISIBLE
+        }
+        closeBtn.visibility = VISIBLE
+        toolbar.visibility = View.VISIBLE
+    }
+
+    private fun doOnEndOfContract() {
+        isExpanded = false
+        body.visibility = GONE
+        foundCountText.apply {
+            updateLayoutParams<LinearLayoutCompat.LayoutParams> {
+                leftMargin = 0
+                width = WRAP_CONTENT
+            }
+            if (text.isNullOrBlank())
+                visibility = GONE
+        }
+        closeBtn.visibility = GONE
+        head.layoutTransition = LayoutTransition()
     }
 
     private fun expandHead() {
