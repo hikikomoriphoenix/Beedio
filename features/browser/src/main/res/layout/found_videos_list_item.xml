@@ -44,7 +44,6 @@
         android:textStyle="bold"
         android:textColor="@color/white"
         android:fontFamily="sans-serif-condensed"
-        android:text="Hello World"
         app:layout_constraintStart_toEndOf="@id/found_video_icon"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/found_video_more" />
@@ -56,7 +55,6 @@
         android:layout_marginStart="16dp"
         android:textColor="@color/yellow"
         android:textStyle="bold"
-        android:text="300MB"
         android:fontFamily="serif-monospace"
         app:layout_constraintTop_toBottomOf="@id/found_video_name"
         app:layout_constraintStart_toEndOf="@id/found_video_icon" />
