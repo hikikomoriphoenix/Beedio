@@ -22,7 +22,9 @@
     <item android:state_pressed="true">
         <ripple android:color="@color/yellow" tools:targetApi="lollipop">
             <item>
-                <shape android:shape="oval" />
+                <shape android:shape="oval">
+                    <solid android:color="@color/lesser_black" />
+                </shape>
             </item>
         </ripple>
     </item>

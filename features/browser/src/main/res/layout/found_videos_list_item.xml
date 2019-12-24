@@ -65,6 +65,7 @@
         android:id="@+id/found_video_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="8dp"
         android:background="?found_video_more_background"
         android:clickable="true"
         android:focusable="true"

@@ -24,6 +24,6 @@
     </style>
 
     <style name="FoundVideosSheet">
-        <item name="found_video_close_btn_background">@drawable/yellow_ripple_circle</item>
+        <item name="found_video_close_btn_background">@drawable/yellow_ripple</item>
     </style>
 </resources>
