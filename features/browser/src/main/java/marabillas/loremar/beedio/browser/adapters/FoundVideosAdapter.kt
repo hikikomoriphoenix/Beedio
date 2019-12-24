@@ -22,14 +22,21 @@ package marabillas.loremar.beedio.browser.adapters
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 
 class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosViewHolder>() {
+    var eventsListener: EventsListener? = null
+
     private var foundVideos = mutableListOf<VideoDetectionVM.FoundVideo>()
+    private var isSelectionMode = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoundVideosViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -55,15 +62,40 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         notifyItemInserted(foundVideos.lastIndex)
     }
 
-    class FoundVideosViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    fun switchToSelectionMode(isSelectionMode: Boolean) {
+        this.isSelectionMode = isSelectionMode
+        notifyDataSetChanged()
+    }
+
+    inner class FoundVideosViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var name: TextView = itemView.findViewById(R.id.found_video_name)
         private var size: TextView = itemView.findViewById(R.id.found_video_size)
+        private var more: ImageView = itemView.findViewById(R.id.found_video_more)
+        private var checkBox: CheckBox = itemView.findViewById(R.id.found_video_checkbox)
+
+        init {
+            checkBox.setOnCheckedChangeListener { _, isChecked ->
+                eventsListener?.onItemCheckedChanged(adapterPosition, isChecked)
+            }
+        }
 
         fun bind(foundVideo: VideoDetectionVM.FoundVideo) {
             name.text = itemView.resources.getString(
                     R.string.found_video_item_name, foundVideo.name, foundVideo.ext)
             size.text = Formatter.formatFileSize(itemView.context, foundVideo.size.toLong())
+            if (isSelectionMode) {
+                more.visibility = GONE
+                checkBox.visibility = VISIBLE
+                checkBox.isChecked = foundVideo.isSelected
+            } else {
+                more.visibility = VISIBLE
+                checkBox.visibility = GONE
+            }
         }
 
+    }
+
+    interface EventsListener {
+        fun onItemCheckedChanged(index: Int, isChecked: Boolean)
     }
 }

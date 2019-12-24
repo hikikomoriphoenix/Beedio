@@ -34,4 +34,6 @@
     <string name="bouncing_bug_icon_desc">Searching for videos</string>
     <string name="found_video_item_name" formatted="true">%1$s.%2$s</string>
     <string name="select">Select</string>
+    <string name="all">All</string>
+    <string name="cancel">Cancel</string>
 </resources>

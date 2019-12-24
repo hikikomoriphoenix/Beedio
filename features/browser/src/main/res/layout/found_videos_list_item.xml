@@ -46,7 +46,7 @@
         android:fontFamily="sans-serif-condensed"
         app:layout_constraintStart_toEndOf="@id/found_video_icon"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/found_video_more" />
+        app:layout_constraintEnd_toStartOf="@id/found_video_end_tool_barrier" />
 
     <TextView
         android:id="@+id/found_video_size"
@@ -70,5 +70,20 @@
         app:srcCompat="@drawable/ic_unfold_more_white_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/found_video_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/found_video_end_tool_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="found_video_more,found_video_checkbox"
+        app:barrierDirection="start" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

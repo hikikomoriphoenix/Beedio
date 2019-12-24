@@ -111,14 +111,37 @@
                 app:layout_constraintBottom_toBottomOf="parent">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_select"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/select"
-                    android:textColor="@color/white"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
                     app:drawableTopCompat="@drawable/ic_touch_app_white_24dp"
-                    android:drawablePadding="4dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancel"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
+                    android:visibility="gone"
+                    app:drawableTopCompat="@drawable/ic_close_white_24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/all"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
+                    android:visibility="gone"
+                    app:drawableTopCompat="@drawable/ic_check_all"
+                    app:layout_constraintEnd_toStartOf="@id/found_video_menu_cancel"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
 

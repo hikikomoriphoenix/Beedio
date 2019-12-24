@@ -117,6 +117,12 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun receiveForFoundVideo(lifecycleOwner: LifecycleOwner, observer: Observer<FoundVideo>)
 
+    abstract fun selectAll()
+
+    abstract fun unselectAll()
+
+    abstract fun setSelection(index: Int, isSelected: Boolean)
+
     data class FoundVideo(
             val name: String,
             val url: String,
@@ -124,6 +130,7 @@ abstract class VideoDetectionVM : ObservableViewModel() {
             val size: String,
             val sourceWebPage: String,
             val sourceWebsite: String,
-            val isChunked: Boolean = false
+            val isChunked: Boolean = false,
+            var isSelected: Boolean = false
     )
 }

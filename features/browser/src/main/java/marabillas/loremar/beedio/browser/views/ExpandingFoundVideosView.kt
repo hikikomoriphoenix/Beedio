@@ -43,6 +43,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
@@ -51,7 +52,9 @@ import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.FoundVideosSheetBinding
 import kotlin.math.roundToInt
 
-class ExpandingFoundVideosView : FrameLayout {
+class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
+
+    var toolbarEventsListener: ToolBarEventsListener? = null
 
     private lateinit var sheet: ViewGroup
     private lateinit var head: ViewGroup
@@ -60,6 +63,11 @@ class ExpandingFoundVideosView : FrameLayout {
     private lateinit var foundCountText: TextView
     private lateinit var closeBtn: ImageView
     private lateinit var toolbar: ViewGroup
+    private lateinit var select: TextView
+    private lateinit var cancel: TextView
+    private lateinit var all: TextView
+
+
     private var isExpanded = false
     private val animationDuration = 200L
     private val bouncingBugHandler = Handler(Looper.getMainLooper())
@@ -118,6 +126,9 @@ class ExpandingFoundVideosView : FrameLayout {
                     foundCountText = foundVideosNumFoundText
                     closeBtn = foundVideosCloseBtn
                     toolbar = foundVideosToolbar
+                    select = foundVideoMenuSelect
+                    cancel = foundVideoMenuCancel
+                    all = foundVideoMenuAll
                 }
 
         LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
@@ -130,16 +141,40 @@ class ExpandingFoundVideosView : FrameLayout {
     }
 
     private fun setupListeners() {
-        head.setOnClickListener {
-            if (!isExpanded)
-                expand()
-            else
-                contract()
-        }
+        head.setOnClickListener(this)
 
-        closeBtn.setOnClickListener {
-            if (isExpanded)
-                contract()
+        closeBtn.setOnClickListener(this)
+
+        select.setOnClickListener(this)
+
+        cancel.setOnClickListener(this)
+
+        all.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        when (v) {
+            head -> {
+                if (!isExpanded)
+                    expand()
+                else
+                    contract()
+            }
+            closeBtn -> {
+                if (isExpanded)
+                    contract()
+            }
+            select -> {
+                showMenu()
+                toolbarEventsListener?.onActivateSelection()
+            }
+            cancel -> {
+                hideMenu()
+                toolbarEventsListener?.onDeactivateSelection()
+            }
+            all -> {
+                toolbarEventsListener?.onSelectionAll()
+            }
         }
     }
 
@@ -237,6 +272,29 @@ class ExpandingFoundVideosView : FrameLayout {
         }
     }
 
+    private fun showMenu() {
+        select.visibility = GONE
+        val transition = Slide(GravityCompat.END)
+        TransitionManager.beginDelayedTransition(toolbar, transition)
+        cancel.visibility = VISIBLE
+        all.visibility = VISIBLE
+    }
+
+    private fun hideMenu() {
+        cancel.visibility = GONE
+        val appearTransition = Fade().apply { addTarget(select) }
+        val slideTransition = Slide(GravityCompat.END).apply {
+            addTarget(all)
+        }
+        val transitionSet = TransitionSet().apply {
+            addTransition(appearTransition)
+            addTransition(slideTransition)
+        }
+        TransitionManager.beginDelayedTransition(toolbar, transitionSet)
+        select.visibility = VISIBLE
+        all.visibility = GONE
+    }
+
     private fun View.updateLayout(block: ViewGroup.LayoutParams.() -> Unit) {
         updateLayoutParams<ViewGroup.LayoutParams> {
             block()
@@ -249,5 +307,13 @@ class ExpandingFoundVideosView : FrameLayout {
                 block()
             }
         })
+    }
+
+    interface ToolBarEventsListener {
+        fun onActivateSelection()
+
+        fun onDeactivateSelection()
+
+        fun onSelectionAll()
     }
 }

@@ -19,14 +19,9 @@
 
 <resources>
 
-    <style name="FoundVideosListItem" parent="Theme.AppCompat">
-        <item name="found_video_more_background">@drawable/yellow_ripple_circle</item>
-        <item name="colorPrimary">@color/yellow</item>
-        <item name="colorPrimaryDark">@color/lesser_black</item>
-        <item name="colorAccent">@color/yellow</item>
-    </style>
-
-    <style name="FoundVideosSheet">
-        <item name="found_video_close_btn_background">@drawable/yellow_ripple</item>
+    <style name="FoundVideosSheet.ToolBarItem" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
     </style>
 </resources>

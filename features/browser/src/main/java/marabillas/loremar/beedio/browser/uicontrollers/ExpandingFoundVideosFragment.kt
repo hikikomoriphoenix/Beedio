@@ -36,7 +36,8 @@ import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.views.ExpandingFoundVideosView
 import javax.inject.Inject
 
-class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
+class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
+        ExpandingFoundVideosView.ToolBarEventsListener, FoundVideosAdapter.EventsListener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -48,6 +49,7 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return context?.let {
+            val toolbarListener = this
             ExpandingFoundVideosView(it).apply {
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
                     layoutParams = this
@@ -57,6 +59,7 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
                     layoutManager = LinearLayoutManager(context)
                     adapter = foundVideosAdapter
                 }
+                toolbarEventsListener = toolbarListener
             }
         }
     }
@@ -76,6 +79,11 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        foundVideosAdapter.eventsListener = this
+    }
+
     private fun onIsAnalyzingChanged(isAnalyzing: Boolean) {
         foundVideosView.animateBouncingBug(isAnalyzing)
     }
@@ -84,5 +92,32 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment() {
         val count = videoDetectionVM.foundVideos.count()
         foundVideosView.updateFoundVideosCountText(count)
         foundVideosAdapter.addItem(video)
+    }
+
+    override fun onActivateSelection() {
+        foundVideosAdapter.apply {
+            loadData(videoDetectionVM.foundVideos)
+            switchToSelectionMode(true)
+        }
+    }
+
+    override fun onDeactivateSelection() {
+        foundVideosAdapter.switchToSelectionMode(false)
+    }
+
+    override fun onSelectionAll() {
+        videoDetectionVM.apply {
+            foundVideos.all { it.isSelected }.also { allSelected ->
+                if (allSelected)
+                    unselectAll()
+                else
+                    selectAll()
+            }
+            foundVideosAdapter.loadData(foundVideos)
+        }
+    }
+
+    override fun onItemCheckedChanged(index: Int, isChecked: Boolean) {
+        videoDetectionVM.setSelection(index, isChecked)
     }
 }

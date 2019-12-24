@@ -1,0 +1,41 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="6.35"
+    android:viewportHeight="6.3500004">
+    <path
+        android:pathData="m1.13089,0.71829c-0.277,0 -0.50023,0.20004 -0.50023,0.44883v3.34557c0,0.2488 0.22323,0.44929 0.50023,0.44929h0.06666c-0.00007,-0.003 -0.00103,-0.006 -0.00103,-0.009v-3.34557c0,-0.24879 0.22271,-0.44883 0.49971,-0.44883h3.20497c-0.00534,-0.24457 -0.22557,-0.44001 -0.49919,-0.44001z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.75225484"
+        android:fillColor="#ffffff"
+        android:strokeColor="#00000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+    <path
+        android:pathData="m2.00887,1.4397c-0.27238,0 -0.49196,0.2069 -0.49196,0.46405v3.45819c0,0.25715 0.21958,0.46405 0.49196,0.46405h3.21634c0.27238,0 0.49196,-0.2069 0.49196,-0.46405v-3.45819c0,-0.25715 -0.21958,-0.46405 -0.49196,-0.46405zM4.75496,2.58432 L5.08103,2.9166 3.14782,4.80899 2.3644,3.80338 2.73182,3.51605 3.19433,4.11343z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.75837618"
+        android:fillColor="#ffffff"
+        android:strokeColor="#00000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+</vector>

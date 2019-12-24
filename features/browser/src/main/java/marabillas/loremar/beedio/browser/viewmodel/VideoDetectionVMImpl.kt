@@ -260,4 +260,16 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     override fun receiveForFoundVideo(lifecycleOwner: LifecycleOwner, observer: Observer<FoundVideo>) {
         sendFoundVideo.observeSend(lifecycleOwner, observer)
     }
+
+    override fun selectAll() {
+        _foundVideos.forEach { it.isSelected = true }
+    }
+
+    override fun unselectAll() {
+        _foundVideos.forEach { it.isSelected = false }
+    }
+
+    override fun setSelection(index: Int, isSelected: Boolean) {
+        _foundVideos[index].isSelected = isSelected
+    }
 }
