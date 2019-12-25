@@ -36,4 +36,7 @@
     <string name="select">Select</string>
     <string name="all">All</string>
     <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="queue">Queue</string>
+    <string name="merge">Merge</string>
 </resources>

@@ -66,7 +66,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
     private lateinit var select: TextView
     private lateinit var cancel: TextView
     private lateinit var all: TextView
-
+    private lateinit var delete: TextView
+    private lateinit var queue: TextView
+    private lateinit var merge: TextView
 
     private var isExpanded = false
     private val animationDuration = 200L
@@ -129,6 +131,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
                     select = foundVideoMenuSelect
                     cancel = foundVideoMenuCancel
                     all = foundVideoMenuAll
+                    delete = foundVideoMenuDelete
+                    queue = foundVideoMenuQueue
+                    merge = foundVideoMenuMerge
                 }
 
         LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
@@ -274,10 +279,16 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
 
     private fun showMenu() {
         select.visibility = GONE
-        val transition = Slide(GravityCompat.END)
+        val transition = TransitionSet().apply {
+            addTransition(Slide(GravityCompat.END))
+            addTransition(Fade())
+        }
         TransitionManager.beginDelayedTransition(toolbar, transition)
         cancel.visibility = VISIBLE
         all.visibility = VISIBLE
+        delete.visibility = VISIBLE
+        queue.visibility = VISIBLE
+        merge.visibility = VISIBLE
     }
 
     private fun hideMenu() {
@@ -285,6 +296,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         val appearTransition = Fade().apply { addTarget(select) }
         val slideTransition = Slide(GravityCompat.END).apply {
             addTarget(all)
+            addTarget(delete)
+            addTarget(queue)
+            addTarget(merge)
         }
         val transitionSet = TransitionSet().apply {
             addTransition(appearTransition)
@@ -293,6 +307,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         TransitionManager.beginDelayedTransition(toolbar, transitionSet)
         select.visibility = VISIBLE
         all.visibility = GONE
+        delete.visibility = GONE
+        queue.visibility = GONE
+        merge.visibility = GONE
     }
 
     private fun View.updateLayout(block: ViewGroup.LayoutParams.() -> Unit) {

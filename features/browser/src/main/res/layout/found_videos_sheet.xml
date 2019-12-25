@@ -129,6 +129,7 @@
                     android:theme="@style/FoundVideosSheet.ToolBarItem"
                     android:visibility="gone"
                     app:drawableTopCompat="@drawable/ic_close_white_24dp"
+                    app:layout_constraintStart_toEndOf="@id/found_video_menu_all"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
@@ -141,7 +142,47 @@
                     android:theme="@style/FoundVideosSheet.ToolBarItem"
                     android:visibility="gone"
                     app:drawableTopCompat="@drawable/ic_check_all"
+                    app:layout_constraintStart_toEndOf="@id/found_video_menu_delete"
                     app:layout_constraintEnd_toStartOf="@id/found_video_menu_cancel"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/delete"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
+                    android:visibility="gone"
+                    app:drawableTopCompat="@drawable/ic_delete_white_24dp"
+                    app:layout_constraintStart_toEndOf="@id/found_video_menu_queue"
+                    app:layout_constraintEnd_toStartOf="@id/found_video_menu_all"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_queue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/queue"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
+                    android:visibility="gone"
+                    app:drawableTopCompat="@drawable/ic_add_to_queue_white_24dp"
+                    app:layout_constraintStart_toEndOf="@id/found_video_menu_merge"
+                    app:layout_constraintEnd_toStartOf="@id/found_video_menu_delete"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_merge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/merge"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
+                    android:visibility="gone"
+                    app:drawableTopCompat="@drawable/ic_found_video_merge_white_24dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/found_video_menu_queue"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
 
