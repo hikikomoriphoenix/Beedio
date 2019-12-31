@@ -157,11 +157,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
 
         private fun expandItem() {
             binding.apply {
-                foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                    topToBottom = -1
-                    bottomToBottom = PARENT_ID
-                    bottomMargin = (8 * itemView.resources.displayMetrics.density).roundToInt()
-                }
+                foundVideoSize.visibility = GONE
                 foundVideoName.apply {
                     setTypeface(typeface, Typeface.BOLD)
                 }
@@ -182,13 +178,13 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 doOnEnd {
                     setContentsVisibility(true)
                     isExpanded = true
-                    binding.foundVideoSize.apply {
-                        visibility = GONE
-                        updateLayoutParams<ConstraintLayout.LayoutParams> {
-                            startToEnd = -1
-                            startToStart = PARENT_ID
-                            marginStart = 0
-                        }
+                    binding.foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                        topToBottom = -1
+                        bottomToBottom = PARENT_ID
+                        bottomMargin = (8 * itemView.resources.displayMetrics.density).roundToInt()
+                        startToEnd = -1
+                        startToStart = PARENT_ID
+                        marginStart = 0
                     }
                     showSize()
                     itemView.updateLayoutParams<ViewGroup.LayoutParams> {
@@ -199,6 +195,8 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         }
 
         private fun collapseItem() {
+            binding.foundVideoSize.visibility = GONE
+
             ValueAnimator.ofFloat(1f, 0f).apply {
                 addUpdateListener {
                     val value = it.animatedValue as Float
@@ -213,14 +211,11 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 doOnEnd {
                     setContentsVisibility(false)
                     isExpanded = false
-                    binding.apply {
-                        foundVideoSize.visibility = GONE
-                        resetVideoSizeLayoutParamsOnCollapsedPosition()
-                        foundVideoName.apply {
-                            typeface = Typeface.create(typeface, Typeface.NORMAL)
-                        }
-                        showSize()
+                    resetVideoSizeLayoutParamsOnCollapsedPosition()
+                    binding.foundVideoName.apply {
+                        typeface = Typeface.create(typeface, Typeface.NORMAL)
                     }
+                    showSize()
                     itemView.updateLayoutParams<ViewGroup.LayoutParams> {
                         height = ViewGroup.LayoutParams.WRAP_CONTENT
                     }
