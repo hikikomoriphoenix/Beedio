@@ -227,12 +227,11 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         }
 
         private fun setContentsVisibility(isVisible: Boolean) {
-            val visibility = if (isVisible) VISIBLE else GONE
             binding.apply {
-                foundVideoContentSpace.visibility = visibility
-                foundVideoDelete.visibility = visibility
-                foundVideoRename.visibility = visibility
-                foundVideoDownload.visibility = visibility
+                foundVideoContentSpace.isVisible = isVisible
+                foundVideoDelete.isVisible = isVisible
+                foundVideoRename.isVisible = isVisible
+                foundVideoDownload.isVisible = isVisible
             }
         }
 
