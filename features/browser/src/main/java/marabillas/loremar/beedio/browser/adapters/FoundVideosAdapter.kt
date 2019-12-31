@@ -31,7 +31,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
-import androidx.core.view.*
+import androidx.core.view.doOnLayout
+import androidx.core.view.isVisible
+import androidx.core.view.setPadding
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Slide
@@ -118,11 +121,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
             itemView.apply {
                 doOnLayout {
                     origHeight = measuredHeight
-                    setContentsVisibility(true)
-                    doOnNextLayout {
-                        expandedHeight = measuredHeight
-                        doOnPreDraw { setContentsVisibility(false) }
-                    }
+                    getExpandedHeight()
                 }
             }
         }
@@ -150,6 +149,10 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
             }
             setContentsVisibility(false)
             isExpanded = false
+        }
+
+        private fun getExpandedHeight() {
+            expandedHeight = origHeight + (72 * itemView.resources.displayMetrics.density).roundToInt()
         }
 
         private fun expandItem() {
@@ -188,6 +191,9 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                         }
                     }
                     showSize()
+                    itemView.updateLayoutParams<ViewGroup.LayoutParams> {
+                        height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    }
                 }
             }.start()
         }
