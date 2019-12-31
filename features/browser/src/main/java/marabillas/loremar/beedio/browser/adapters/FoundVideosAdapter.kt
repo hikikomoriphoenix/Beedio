@@ -113,10 +113,9 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 }
             }
 
+            if (isExpanded) setAsCollapsed()
+
             itemView.apply {
-                updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
-                }
                 doOnLayout {
                     origHeight = measuredHeight
                     setContentsVisibility(true)
@@ -126,6 +125,31 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     }
                 }
             }
+        }
+
+        private fun setAsCollapsed() {
+            binding.apply {
+                foundVideoIcon.apply {
+                    updateLayoutParams<ViewGroup.LayoutParams> {
+                        width = (32 * resources.displayMetrics.density).roundToInt()
+                        height = (32 * resources.displayMetrics.density).roundToInt()
+                    }
+                    setPadding(4)
+                }
+                foundVideoName.apply {
+                    typeface = Typeface.create(typeface, Typeface.NORMAL)
+                }
+                foundVideoSize.visibility = VISIBLE
+            }
+            resetVideoSizeLayoutParamsOnCollapsedPosition()
+            itemView.apply {
+                updateLayoutParams<ViewGroup.LayoutParams> {
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                setPadding(16)
+            }
+            setContentsVisibility(false)
+            isExpanded = false
         }
 
         private fun expandItem() {
@@ -184,21 +208,15 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     setContentsVisibility(false)
                     isExpanded = false
                     binding.apply {
-                        foundVideoSize.apply {
-                            visibility = GONE
-                            updateLayoutParams<ConstraintLayout.LayoutParams> {
-                                startToStart = -1
-                                startToEnd = R.id.found_video_icon
-                                marginStart = (16 * itemView.resources.displayMetrics.density).roundToInt()
-                                bottomToBottom = -1
-                                topToBottom = R.id.found_video_name
-                                bottomMargin = 0
-                            }
-                        }
+                        foundVideoSize.visibility = GONE
+                        resetVideoSizeLayoutParamsOnCollapsedPosition()
                         foundVideoName.apply {
                             typeface = Typeface.create(typeface, Typeface.NORMAL)
                         }
                         showSize()
+                    }
+                    itemView.updateLayoutParams<ViewGroup.LayoutParams> {
+                        height = ViewGroup.LayoutParams.WRAP_CONTENT
                     }
                 }
             }.start()
@@ -238,6 +256,17 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         private fun showSize() {
             TransitionManager.beginDelayedTransition(itemView as ViewGroup, Slide(Gravity.BOTTOM))
             binding.foundVideoSize.visibility = VISIBLE
+        }
+
+        private fun resetVideoSizeLayoutParamsOnCollapsedPosition() {
+            binding.foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                startToStart = -1
+                startToEnd = R.id.found_video_icon
+                marginStart = (16 * itemView.resources.displayMetrics.density).roundToInt()
+                bottomToBottom = -1
+                topToBottom = R.id.found_video_name
+                bottomMargin = 0
+            }
         }
     }
 
