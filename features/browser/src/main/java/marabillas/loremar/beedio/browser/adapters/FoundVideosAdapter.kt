@@ -114,6 +114,9 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
             }
 
             itemView.apply {
+                updateLayoutParams<ViewGroup.LayoutParams> {
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
                 doOnLayout {
                     origHeight = measuredHeight
                     setContentsVisibility(true)
