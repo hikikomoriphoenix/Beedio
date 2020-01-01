@@ -49,6 +49,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
 
     private var foundVideos = mutableListOf<VideoDetectionVM.FoundVideo>()
     private var isSelectionMode = false
+    private var expandedViewHolder: FoundVideosViewHolder? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoundVideosViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -95,8 +96,11 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 foundVideoMore.setOnClickListener {
                     if (isExpanded)
                         collapseItem()
-                    else
+                    else {
+                        if (expandedViewHolder?.isExpanded == true)
+                            expandedViewHolder?.collapseItem()
                         expandItem()
+                    }
                 }
             }
         }
@@ -157,6 +161,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         }
 
         private fun expandItem() {
+            val viewHolder = this
 
             ValueAnimator.ofFloat(0f, 1f).apply {
                 addUpdateListener {
@@ -180,6 +185,8 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 }
                 doOnEnd {
                     isExpanded = true
+                    expandedViewHolder = viewHolder
+
                     binding.foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
                         topToBottom = -1
                         bottomToBottom = PARENT_ID
