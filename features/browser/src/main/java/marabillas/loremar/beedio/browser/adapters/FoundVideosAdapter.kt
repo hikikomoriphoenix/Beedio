@@ -147,7 +147,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 }
                 setPadding(16)
             }
-            setContentsVisibility(false)
+            setContentsCollapsed()
             isExpanded = false
         }
 
@@ -156,12 +156,6 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         }
 
         private fun expandItem() {
-            binding.apply {
-                foundVideoSize.visibility = GONE
-                foundVideoName.apply {
-                    setTypeface(typeface, Typeface.BOLD)
-                }
-            }
 
             ValueAnimator.ofFloat(0f, 1f).apply {
                 addUpdateListener {
@@ -174,9 +168,16 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     transformPadding(value)
                     transformIcon(value)
                 }
-                doOnStart { setContentsVisibility(true) }
+                doOnStart {
+                    binding.apply {
+                        foundVideoSize.visibility = GONE
+                        foundVideoName.apply {
+                            setTypeface(typeface, Typeface.BOLD)
+                        }
+                        foundVideoContentSpace.isVisible = true
+                    }
+                }
                 doOnEnd {
-                    setContentsVisibility(true)
                     isExpanded = true
                     binding.foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
                         topToBottom = -1
@@ -186,6 +187,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                         startToStart = PARENT_ID
                         marginStart = 0
                     }
+                    showTools()
                     showSize()
                     itemView.updateLayoutParams<ViewGroup.LayoutParams> {
                         height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -197,7 +199,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         private fun collapseItem() {
             binding.foundVideoSize.visibility = GONE
 
-            ValueAnimator.ofFloat(1f, 0f).apply {
+            val collapse = ValueAnimator.ofFloat(1f, 0f).apply {
                 addUpdateListener {
                     val value = it.animatedValue as Float
                     itemView.apply {
@@ -209,18 +211,22 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     transformIcon(value)
                 }
                 doOnEnd {
-                    setContentsVisibility(false)
                     isExpanded = false
                     resetVideoSizeLayoutParamsOnCollapsedPosition()
-                    binding.foundVideoName.apply {
-                        typeface = Typeface.create(typeface, Typeface.NORMAL)
+                    binding.apply {
+                        foundVideoName.apply {
+                            typeface = Typeface.create(typeface, Typeface.NORMAL)
+                        }
+                        foundVideoContentSpace.isVisible = false
                     }
                     showSize()
                     itemView.updateLayoutParams<ViewGroup.LayoutParams> {
                         height = ViewGroup.LayoutParams.WRAP_CONTENT
                     }
                 }
-            }.start()
+            }
+
+            hideTools { collapse.start() }
         }
 
         private fun transformPadding(value: Float) {
@@ -245,18 +251,22 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
             }
         }
 
-        private fun setContentsVisibility(isVisible: Boolean) {
+        private fun setContentsCollapsed() {
             binding.apply {
-                foundVideoContentSpace.isVisible = isVisible
-                foundVideoDelete.isVisible = isVisible
-                foundVideoRename.isVisible = isVisible
-                foundVideoDownload.isVisible = isVisible
+                foundVideoContentSpace.isVisible = false
+                foundVideoDelete.isVisible = false
+                foundVideoRename.isVisible = false
+                foundVideoDownload.isVisible = false
+
+                foundVideoDelete.translationX = 0f
+                foundVideoDownload.translationX = 0f
             }
         }
 
         private fun showSize() {
-            TransitionManager.beginDelayedTransition(itemView as ViewGroup, Slide(Gravity.BOTTOM))
-            binding.foundVideoSize.visibility = VISIBLE
+            val transition = Slide(Gravity.BOTTOM)
+            TransitionManager.beginDelayedTransition(itemView as ViewGroup, transition)
+            binding.foundVideoSize.isVisible = true
         }
 
         private fun resetVideoSizeLayoutParamsOnCollapsedPosition() {
@@ -267,6 +277,42 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 bottomToBottom = -1
                 topToBottom = R.id.found_video_name
                 bottomMargin = 0
+            }
+        }
+
+        private fun showTools() {
+            binding.apply {
+                foundVideoDelete.isVisible = true
+                foundVideoRename.isVisible = true
+                foundVideoDownload.isVisible = true
+
+                ValueAnimator.ofFloat(0f, 1f).apply {
+                    addUpdateListener {
+                        val value = it.animatedValue as Float
+                        foundVideoDelete.translationX = value * (48 * itemView.resources.displayMetrics.density)
+                        foundVideoDownload.translationX = -value * (48 * itemView.resources.displayMetrics.density)
+                    }
+                    duration = 200
+                }.start()
+            }
+        }
+
+        private fun hideTools(actionAfterHiding: () -> Unit) {
+            binding.apply {
+                ValueAnimator.ofFloat(1f, 0f).apply {
+                    addUpdateListener {
+                        val value = it.animatedValue as Float
+                        foundVideoDelete.translationX = value * (48 * itemView.resources.displayMetrics.density)
+                        foundVideoDownload.translationX = -value * (48 * itemView.resources.displayMetrics.density)
+                    }
+                    doOnEnd {
+                        foundVideoDelete.isVisible = false
+                        foundVideoRename.isVisible = false
+                        foundVideoDownload.isVisible = false
+                        actionAfterHiding()
+                    }
+                    duration = 200
+                }.start()
             }
         }
     }
