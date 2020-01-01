@@ -142,10 +142,11 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
             }
             resetVideoSizeLayoutParamsOnCollapsedPosition()
             itemView.apply {
+                val padding = (16 * resources.displayMetrics.density).roundToInt()
+                setPadding(padding, padding, padding, padding)
                 updateLayoutParams<ViewGroup.LayoutParams> {
                     height = ViewGroup.LayoutParams.WRAP_CONTENT
                 }
-                setPadding(16)
             }
             setContentsCollapsed()
             isExpanded = false
