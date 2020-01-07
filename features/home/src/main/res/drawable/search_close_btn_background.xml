@@ -17,19 +17,15 @@
   ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<selector xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_hovered="true">
-        <shape android:shape="rectangle">
+        <shape android:shape="oval">
             <solid android:color="#EEEEEE" />
         </shape>
     </item>
     <item android:state_pressed="true">
-        <ripple android:color="#AAAAAA" tools:targetApi="lollipop">
-            <item>
-                <shape android:shape="rectangle">
-                    <solid android:color="#DDDDDD" />
-                </shape>
-            </item>
-        </ripple>
+        <shape android:shape="oval">
+            <solid android:color="#DDDDDD" />
+        </shape>
     </item>
 </selector>

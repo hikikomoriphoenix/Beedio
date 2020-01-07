@@ -18,8 +18,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -38,9 +37,8 @@
         android:layout_width="304dp"
         android:layout_height="56dp"
         android:background="@drawable/search_box"
-        android:elevation="8dp"
         android:onClick="@{() -> onSearchWidgetInteractionListener.onSearchWidgetClick()}"
-        tools:targetApi="lollipop"
+        android:theme="@style/HomeSearchWidget"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -68,7 +66,7 @@
             android:id="@+id/home_search_close_btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="@drawable/search_close_btn_state"
+            android:background="@drawable/search_close_btn_background"
             android:contentDescription="@string/close_button"
             android:visibility="@{ searchWidgetStateHolder.searchCloseBtnVisibility }"
             app:layout_constraintBottom_toBottomOf="parent"
