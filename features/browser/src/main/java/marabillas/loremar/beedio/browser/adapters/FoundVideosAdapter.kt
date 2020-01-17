@@ -24,6 +24,7 @@ import android.graphics.Typeface
 import android.text.format.Formatter
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
@@ -76,32 +77,31 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         notifyItemInserted(foundVideos.lastIndex)
     }
 
+    fun removeItem(index: Int) {
+        foundVideos.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
     fun switchToSelectionMode(isSelectionMode: Boolean) {
         this.isSelectionMode = isSelectionMode
         notifyDataSetChanged()
     }
 
     inner class FoundVideosViewHolder(private val binding: FoundVideosListItemBinding)
-        : RecyclerView.ViewHolder(binding.root) {
+        : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
         private var origHeight = 0
         private var expandedHeight = 0
         private var isExpanded = false
 
         init {
+            val onClickListener = this
             binding.apply {
                 foundVideoCheckbox.setOnCheckedChangeListener { _, isChecked ->
                     eventsListener?.onItemCheckedChanged(adapterPosition, isChecked)
                 }
-                foundVideoMore.setOnClickListener {
-                    if (isExpanded)
-                        collapseItem()
-                    else {
-                        if (expandedViewHolder?.isExpanded == true)
-                            expandedViewHolder?.collapseItem()
-                        expandItem()
-                    }
-                }
+                foundVideoMore.setOnClickListener(onClickListener)
+                foundVideoDelete.setOnClickListener(onClickListener)
             }
         }
 
@@ -323,9 +323,27 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 }.start()
             }
         }
+
+        override fun onClick(v: View?) {
+            when (v) {
+                binding.foundVideoMore -> {
+                    if (isExpanded)
+                        collapseItem()
+                    else {
+                        if (expandedViewHolder?.isExpanded == true)
+                            expandedViewHolder?.collapseItem()
+                        expandItem()
+                    }
+                }
+                binding.foundVideoDelete -> {
+                    eventsListener?.onItemDelete(adapterPosition)
+                }
+            }
+        }
     }
 
     interface EventsListener {
         fun onItemCheckedChanged(index: Int, isChecked: Boolean)
+        fun onItemDelete(index: Int)
     }
 }

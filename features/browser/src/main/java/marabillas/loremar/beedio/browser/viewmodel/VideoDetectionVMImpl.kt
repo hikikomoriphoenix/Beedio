@@ -272,4 +272,12 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     override fun setSelection(index: Int, isSelected: Boolean) {
         _foundVideos[index].isSelected = isSelected
     }
+
+    override fun deleteItem(index: Int) {
+        _foundVideos.removeAt(index)
+    }
+
+    override fun deleteAllSelected() {
+        _foundVideos.removeAll { it.isSelected }
+    }
 }

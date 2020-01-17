@@ -120,4 +120,16 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
     override fun onItemCheckedChanged(index: Int, isChecked: Boolean) {
         videoDetectionVM.setSelection(index, isChecked)
     }
+
+    override fun onItemDelete(index: Int) {
+        videoDetectionVM.deleteItem(index)
+        foundVideosAdapter.removeItem(index)
+        foundVideosView.updateFoundVideosCountText(foundVideosAdapter.itemCount)
+    }
+
+    override fun onDeleteAllSelected() {
+        videoDetectionVM.deleteAllSelected()
+        foundVideosAdapter.loadData(videoDetectionVM.foundVideos)
+        foundVideosView.updateFoundVideosCountText(foundVideosAdapter.itemCount)
+    }
 }

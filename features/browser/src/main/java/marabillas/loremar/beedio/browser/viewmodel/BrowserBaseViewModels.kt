@@ -123,6 +123,10 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun setSelection(index: Int, isSelected: Boolean)
 
+    abstract fun deleteItem(index: Int)
+
+    abstract fun deleteAllSelected()
+
     data class FoundVideo(
             val name: String,
             val url: String,
