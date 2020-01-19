@@ -280,4 +280,8 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     override fun deleteAllSelected() {
         _foundVideos.removeAll { it.isSelected }
     }
+
+    override fun renameItem(index: Int, newName: String) {
+        _foundVideos[index].name = newName
+    }
 }

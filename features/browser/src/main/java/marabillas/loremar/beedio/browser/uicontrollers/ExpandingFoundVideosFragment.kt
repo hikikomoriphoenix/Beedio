@@ -132,4 +132,9 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
         foundVideosAdapter.loadData(videoDetectionVM.foundVideos)
         foundVideosView.updateFoundVideosCountText(foundVideosAdapter.itemCount)
     }
+
+    override fun onItemRename(index: Int, newName: String) {
+        videoDetectionVM.renameItem(index, newName)
+        foundVideosAdapter.loadData(videoDetectionVM.foundVideos)
+    }
 }

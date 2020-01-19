@@ -43,6 +43,7 @@ import androidx.transition.TransitionManager
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.FoundVideosListItemBinding
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
+import marabillas.loremar.beedio.browser.views.RenameDialog
 import kotlin.math.roundToInt
 
 class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosViewHolder>() {
@@ -102,6 +103,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 }
                 foundVideoMore.setOnClickListener(onClickListener)
                 foundVideoDelete.setOnClickListener(onClickListener)
+                foundVideoRename.setOnClickListener(onClickListener)
             }
         }
 
@@ -338,6 +340,11 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 binding.foundVideoDelete -> {
                     eventsListener?.onItemDelete(adapterPosition)
                 }
+                binding.foundVideoRename -> {
+                    RenameDialog(itemView.context) {
+                        eventsListener?.onItemRename(adapterPosition, it)
+                    }
+                }
             }
         }
     }
@@ -345,5 +352,6 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
     interface EventsListener {
         fun onItemCheckedChanged(index: Int, isChecked: Boolean)
         fun onItemDelete(index: Int)
+        fun onItemRename(index: Int, newName: String)
     }
 }

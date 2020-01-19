@@ -127,8 +127,10 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun deleteAllSelected()
 
+    abstract fun renameItem(index: Int, newName: String)
+
     data class FoundVideo(
-            val name: String,
+            var name: String,
             val url: String,
             val ext: String,
             val size: String,
