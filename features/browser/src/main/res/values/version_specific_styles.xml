@@ -22,7 +22,7 @@
     <style name="FoundVideosListItem" parent="Theme.AppCompat">
         <item name="found_video_more_background">@drawable/yellow_circle_on_pressed</item>
         <item name="colorPrimary">@color/yellow</item>
-        <item name="colorPrimaryDark">@color/lesser_black</item>
+        <item name="colorPrimaryDark">@color/black1</item>
         <item name="colorAccent">@color/yellow</item>
     </style>
 

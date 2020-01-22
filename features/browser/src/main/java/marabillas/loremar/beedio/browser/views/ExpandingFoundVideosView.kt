@@ -250,7 +250,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
                 duration = animationDuration * 2 / 5
                 doOnEnd {
                     updateLayout { width = MATCH_PARENT }
-                    val black = ResourcesCompat.getColor(resources, R.color.lesser_black, null)
+                    val black = ResourcesCompat.getColor(resources, R.color.black1, null)
                     background = ColorDrawable(black)
                     sheet.setPadding(0)
                 }

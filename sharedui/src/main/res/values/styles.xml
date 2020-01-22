@@ -22,18 +22,18 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/yellow</item>
-        <item name="colorPrimaryDark">@color/lesser_black</item>
+        <item name="colorPrimaryDark">@color/black1</item>
         <item name="colorAccent">@color/yellow</item>
     </style>
 
     <style name="DarkAppBar" parent="Widget.AppCompat.ActionBar">
-        <item name="background">@color/lesser_black</item>
+        <item name="background">@color/black1</item>
         <item name="android:textColorPrimary">@color/yellow</item>
         <item name="android:textColorSecondary">@color/white</item>
     </style>
 
     <style name="DarkToolBar" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/lesser_black</item>
+        <item name="android:background">@color/black1</item>
         <item name="android:textColorPrimary">@color/yellow</item>
         <item name="android:textColorSecondary">@color/white</item>
         <item name="android:itemTextAppearance">@style/CustomItemTextAppearance</item>

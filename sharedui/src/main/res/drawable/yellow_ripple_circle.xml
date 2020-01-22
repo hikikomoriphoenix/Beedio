@@ -23,7 +23,7 @@
         <ripple android:color="@color/yellow" tools:targetApi="lollipop">
             <item>
                 <shape android:shape="oval">
-                    <solid android:color="@color/lesser_black" />
+                    <solid android:color="@color/black1" />
                 </shape>
             </item>
         </ripple>

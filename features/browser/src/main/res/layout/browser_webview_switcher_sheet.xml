@@ -22,7 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lesser_black">
+    android:background="@color/black1">
 
     <LinearLayout
         android:id="@+id/browser_webview_switcher_sheet_header"
@@ -32,7 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/lesser_black"
+        android:background="@color/black1"
         android:elevation="8dp"
         tools:targetApi="lollipop"
         android:visibility="gone">

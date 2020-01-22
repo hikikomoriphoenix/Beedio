@@ -38,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:visibility="@{searchWidgetState.searchWidgetContainerVisibility}"
-        android:background="@color/lesser_black">
+        android:background="@color/black1">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/browser_search_widget"
