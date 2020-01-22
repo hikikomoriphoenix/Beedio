@@ -40,4 +40,5 @@
     <string name="queue">Queue</string>
     <string name="merge">Merge</string>
     <string name="enter_new_title">Enter new title…</string>
+    <string name="more">MORE…</string>
 </resources>

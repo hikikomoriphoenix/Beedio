@@ -19,32 +19,19 @@
 
 package marabillas.loremar.beedio.browser.adapters
 
-import android.animation.ValueAnimator
-import android.graphics.Typeface
 import android.text.format.Formatter
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnStart
-import androidx.core.view.doOnLayout
-import androidx.core.view.isVisible
-import androidx.core.view.setPadding
-import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.Slide
-import androidx.transition.TransitionManager
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.FoundVideosListItemBinding
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
+import marabillas.loremar.beedio.browser.views.ExpandingItemView
 import marabillas.loremar.beedio.browser.views.RenameDialog
-import kotlin.math.roundToInt
 
 class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosViewHolder>() {
     var eventsListener: EventsListener? = null
@@ -91,9 +78,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
     inner class FoundVideosViewHolder(private val binding: FoundVideosListItemBinding)
         : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
-        private var origHeight = 0
-        private var expandedHeight = 0
-        private var isExpanded = false
+        private val expandingItemView: ExpandingItemView = itemView as ExpandingItemView
 
         init {
             val onClickListener = this
@@ -104,244 +89,48 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 foundVideoMore.setOnClickListener(onClickListener)
                 foundVideoDelete.setOnClickListener(onClickListener)
                 foundVideoRename.setOnClickListener(onClickListener)
+                foundVideoDetailsMore.setOnClickListener(onClickListener)
             }
         }
 
         fun bind(foundVideo: VideoDetectionVM.FoundVideo) {
-            binding.apply {
-                foundVideoName.text = itemView.resources.getString(
-                        R.string.found_video_item_name, foundVideo.name, foundVideo.ext)
-                foundVideoSize.text = Formatter.formatFileSize(itemView.context, foundVideo.size.toLong())
-                if (isSelectionMode) {
-                    foundVideoMore.visibility = GONE
-                    foundVideoCheckbox.visibility = VISIBLE
-                    foundVideoCheckbox.isChecked = foundVideo.isSelected
-                } else {
-                    foundVideoMore.visibility = VISIBLE
-                    foundVideoCheckbox.visibility = GONE
-                }
-            }
+            expandingItemView.apply {
+                measureCollapseExpandHeights = true
 
-            if (isExpanded) setAsCollapsed()
-
-            itemView.apply {
-                doOnLayout {
-                    origHeight = measuredHeight
-                    getExpandedHeight()
-                }
-            }
-        }
-
-        private fun setAsCollapsed() {
-            binding.apply {
-                foundVideoIcon.apply {
-                    updateLayoutParams<ViewGroup.LayoutParams> {
-                        width = (32 * resources.displayMetrics.density).roundToInt()
-                        height = (32 * resources.displayMetrics.density).roundToInt()
-                    }
-                    setPadding(4)
-                }
-                foundVideoName.apply {
-                    typeface = Typeface.create(typeface, Typeface.NORMAL)
-                }
-                foundVideoSize.visibility = VISIBLE
-            }
-            resetVideoSizeLayoutParamsOnCollapsedPosition()
-            itemView.apply {
-                val padding = (16 * resources.displayMetrics.density).roundToInt()
-                setPadding(padding, padding, padding, padding)
-                updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
-                }
-            }
-            setContentsCollapsed()
-            isExpanded = false
-        }
-
-        private fun getExpandedHeight() {
-            expandedHeight = origHeight + (72 * itemView.resources.displayMetrics.density).roundToInt()
-        }
-
-        private fun expandItem() {
-            val viewHolder = this
-
-            ValueAnimator.ofFloat(0f, 1f).apply {
-                addUpdateListener {
-                    val value = it.animatedValue as Float
-                    itemView.apply {
-                        updateLayoutParams<ViewGroup.LayoutParams> {
-                            height = (origHeight + value * (expandedHeight - origHeight)).roundToInt()
-                        }
-                    }
-                    transformPadding(value)
-                    transformIcon(value)
-                }
-                doOnStart {
-                    binding.apply {
-                        foundVideoSize.visibility = GONE
-                        foundVideoName.apply {
-                            setTypeface(typeface, Typeface.BOLD)
-                        }
-                        foundVideoContentSpace.isVisible = true
+                binding.apply {
+                    foundVideoName.text = itemView.resources.getString(
+                            R.string.found_video_item_name, foundVideo.name, foundVideo.ext)
+                    foundVideoSize.text = Formatter.formatFileSize(context, foundVideo.size.toLong())
+                    if (isSelectionMode) {
+                        foundVideoMore.visibility = GONE
+                        foundVideoCheckbox.visibility = VISIBLE
+                        foundVideoCheckbox.isChecked = foundVideo.isSelected
+                    } else {
+                        foundVideoMore.visibility = VISIBLE
+                        foundVideoCheckbox.visibility = GONE
                     }
                 }
-                doOnEnd {
-                    isExpanded = true
-                    expandedViewHolder = viewHolder
 
-                    binding.foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                        topToBottom = -1
-                        bottomToBottom = PARENT_ID
-                        bottomMargin = (8 * itemView.resources.displayMetrics.density).roundToInt()
-                        startToEnd = -1
-                        startToStart = PARENT_ID
-                        marginStart = 0
-                    }
-                    showTools()
-                    showSize()
-                    itemView.updateLayoutParams<ViewGroup.LayoutParams> {
-                        height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
-                }
-            }.start()
-        }
-
-        private fun collapseItem() {
-            binding.foundVideoSize.visibility = GONE
-
-            val collapse = ValueAnimator.ofFloat(1f, 0f).apply {
-                addUpdateListener {
-                    val value = it.animatedValue as Float
-                    itemView.apply {
-                        updateLayoutParams<ViewGroup.LayoutParams> {
-                            height = (origHeight + value * (expandedHeight - origHeight)).roundToInt()
-                        }
-                    }
-                    transformPadding(value)
-                    transformIcon(value)
-                }
-                doOnEnd {
-                    isExpanded = false
-                    resetVideoSizeLayoutParamsOnCollapsedPosition()
-                    binding.apply {
-                        foundVideoName.apply {
-                            typeface = Typeface.create(typeface, Typeface.NORMAL)
-                        }
-                        foundVideoContentSpace.isVisible = false
-                    }
-                    showSize()
-                    itemView.updateLayoutParams<ViewGroup.LayoutParams> {
-                        height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
-                }
-            }
-
-            hideTools { collapse.start() }
-        }
-
-        private fun transformPadding(value: Float) {
-            itemView.apply {
-                val px8 = (8 * resources.displayMetrics.density).roundToInt()
-                val px16 = (16 * resources.displayMetrics.density).roundToInt()
-                val newPadding = (px16 - (px16 - px8) * value).roundToInt()
-                setPadding(newPadding, px16, newPadding, px16)
-            }
-        }
-
-        private fun transformIcon(value: Float) {
-            binding.foundVideoIcon.apply {
-                val px32 = (32 * resources.displayMetrics.density).roundToInt()
-                val px40 = (40 * resources.displayMetrics.density).roundToInt()
-                val newIconSize = (px32 + (px40 - px32) * value).roundToInt()
-                updateLayoutParams<ViewGroup.LayoutParams> {
-                    width = newIconSize
-                    height = newIconSize
-                }
-                setPadding((4 + 4 * value).roundToInt())
-            }
-        }
-
-        private fun setContentsCollapsed() {
-            binding.apply {
-                foundVideoContentSpace.isVisible = false
-                foundVideoDelete.isVisible = false
-                foundVideoRename.isVisible = false
-                foundVideoDownload.isVisible = false
-
-                foundVideoDelete.translationX = 0f
-                foundVideoDownload.translationX = 0f
-            }
-        }
-
-        private fun showSize() {
-            val transition = Slide(Gravity.BOTTOM)
-            TransitionManager.beginDelayedTransition(itemView as ViewGroup, transition)
-            binding.foundVideoSize.isVisible = true
-        }
-
-        private fun resetVideoSizeLayoutParamsOnCollapsedPosition() {
-            binding.foundVideoSize.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                startToStart = -1
-                startToEnd = R.id.found_video_icon
-                marginStart = (16 * itemView.resources.displayMetrics.density).roundToInt()
-                bottomToBottom = -1
-                topToBottom = R.id.found_video_name
-                bottomMargin = 0
-            }
-        }
-
-        private fun showTools() {
-            binding.apply {
-                foundVideoDelete.isVisible = true
-                foundVideoRename.isVisible = true
-                foundVideoDownload.isVisible = true
-
-                ValueAnimator.ofFloat(0f, 1f).apply {
-                    addUpdateListener {
-                        val value = it.animatedValue as Float
-                        foundVideoDelete.translationX = value * (48 * itemView.resources.displayMetrics.density)
-                        foundVideoDownload.translationX = -value * (48 * itemView.resources.displayMetrics.density)
-                    }
-                    duration = 200
-                }.start()
-            }
-        }
-
-        private fun hideTools(actionAfterHiding: () -> Unit) {
-            binding.apply {
-                ValueAnimator.ofFloat(1f, 0f).apply {
-                    addUpdateListener {
-                        val value = it.animatedValue as Float
-                        foundVideoDelete.translationX = value * (48 * itemView.resources.displayMetrics.density)
-                        foundVideoDownload.translationX = -value * (48 * itemView.resources.displayMetrics.density)
-                    }
-                    doOnEnd {
-                        foundVideoDelete.isVisible = false
-                        foundVideoRename.isVisible = false
-                        foundVideoDownload.isVisible = false
-                        actionAfterHiding()
-                    }
-                    duration = 200
-                }.start()
+                if (isExpanded) setAsCollapsed()
             }
         }
 
         override fun onClick(v: View?) {
             when (v) {
                 binding.foundVideoMore -> {
-                    if (isExpanded)
-                        collapseItem()
+                    if (expandingItemView.isExpanded)
+                        expandingItemView.collapse()
                     else {
-                        if (expandedViewHolder?.isExpanded == true)
-                            expandedViewHolder?.collapseItem()
-                        expandItem()
+                        if (expandedViewHolder?.expandingItemView?.isExpanded == true)
+                            expandedViewHolder?.expandingItemView?.collapse()
+                        expandingItemView.expand { expandedViewHolder = this }
                     }
                 }
                 binding.foundVideoDelete -> {
                     eventsListener?.onItemDelete(adapterPosition)
                 }
                 binding.foundVideoRename -> {
-                    RenameDialog(itemView.context) {
+                    RenameDialog(expandingItemView.context) {
                         eventsListener?.onItemRename(adapterPosition, it)
                     }
                 }
