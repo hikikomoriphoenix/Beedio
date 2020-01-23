@@ -23,6 +23,8 @@ import android.webkit.WebView
 import androidx.databinding.Bindable
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import marabillas.loremar.beedio.base.media.VideoDetails
+import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.ObservableViewModel
 
 abstract class BrowserTitleStateVM : ObservableViewModel() {
@@ -129,6 +131,8 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun renameItem(index: Int, newName: String)
 
+    abstract fun fetchDetails(index: Int, fetchListener: VideoDetailsFetcher.FetchListener)
+
     data class FoundVideo(
             var name: String,
             val url: String,
@@ -137,6 +141,8 @@ abstract class VideoDetectionVM : ObservableViewModel() {
             val sourceWebPage: String,
             val sourceWebsite: String,
             val isChunked: Boolean = false,
-            var isSelected: Boolean = false
+            var isSelected: Boolean = false,
+            var details: VideoDetails? = null,
+            var isFetchingDetails: Boolean = false
     )
 }

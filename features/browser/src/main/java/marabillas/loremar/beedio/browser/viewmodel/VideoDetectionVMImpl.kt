@@ -25,12 +25,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import marabillas.loremar.beedio.base.media.VideoDetails
+import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import marabillas.loremar.beedio.base.web.HttpNetwork
 import timber.log.Timber
 import java.net.URL
 import java.util.*
+import java.util.concurrent.Executors
 
 class VideoDetectionVMImpl : VideoDetectionVM() {
     override val foundVideos: List<FoundVideo>
@@ -39,6 +43,8 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     private val _foundVideos = mutableListOf<FoundVideo>()
     private val filters = arrayOf("mp4", "video", "googleusercontent", "embed")
     private val network = HttpNetwork()
+    private val detailsFetcher = VideoDetailsFetcher()
+    private val detailsFetcherThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     private val sendFoundVideo = SendLiveData<FoundVideo>()
     private val isAnalyzing = MutableLiveData<Boolean>()
@@ -283,5 +289,27 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
 
     override fun renameItem(index: Int, newName: String) {
         _foundVideos[index].name = newName
+    }
+
+    override fun fetchDetails(index: Int, fetchListener: VideoDetailsFetcher.FetchListener) {
+        viewModelScope.launch(detailsFetcherThread) {
+            _foundVideos[index].isFetchingDetails = true
+            detailsFetcher.fetchDetails(_foundVideos[index].url, object : VideoDetailsFetcher.FetchListener {
+                override fun onUnFetched(error: Throwable) {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        _foundVideos[index].isFetchingDetails = false
+                        fetchListener.onUnFetched(error)
+                    }
+                }
+
+                override fun onFetched(details: VideoDetails) {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        _foundVideos[index].isFetchingDetails = false
+                        _foundVideos[index].details = details
+                        fetchListener.onFetched(details)
+                    }
+                }
+            })
+        }
     }
 }

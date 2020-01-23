@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.adapters.FoundVideosAdapter
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
@@ -136,5 +137,9 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
     override fun onItemRename(index: Int, newName: String) {
         videoDetectionVM.renameItem(index, newName)
         foundVideosAdapter.loadData(videoDetectionVM.foundVideos)
+    }
+
+    override fun onFetchDetails(index: Int, fetchListener: VideoDetailsFetcher.FetchListener) {
+        videoDetectionVM.fetchDetails(index, fetchListener)
     }
 }

@@ -51,7 +51,7 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
 
     private var visibleDetailsHeight = 0
     private var measureVisibleDetailsHeight = true
-    private var initialDetailsVisible = false
+    private var initialDetailsVisibility = View.GONE
     private var origHeight = 0
     private var expandHeight = 0
     private var isNewLayoutPass = false
@@ -84,10 +84,10 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         isNewLayoutPass = true
         if (measureCollapseExpandHeights && measureVisibleDetailsHeight) {
-            initialDetailsVisible = detailsView.isVisible
+            initialDetailsVisibility = detailsView.visibility
             detailsView.visibility = View.INVISIBLE
         } else if (measureCollapseExpandHeights) {
-            detailsView.isVisible = initialDetailsVisible
+            detailsView.visibility = initialDetailsVisibility
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }

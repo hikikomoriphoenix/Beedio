@@ -19,19 +19,28 @@
 
 package marabillas.loremar.beedio.browser.adapters
 
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import android.text.format.Formatter
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import marabillas.loremar.beedio.base.media.VideoDetails
+import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.FoundVideosListItemBinding
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.views.ExpandingItemView
 import marabillas.loremar.beedio.browser.views.RenameDialog
+import timber.log.Timber
 
 class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosViewHolder>() {
     var eventsListener: EventsListener? = null
@@ -109,10 +118,17 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                         foundVideoMore.visibility = VISIBLE
                         foundVideoCheckbox.visibility = GONE
                     }
-                }
 
-                if (isExpanded) setAsCollapsed()
+                    when {
+                        foundVideo.isFetchingDetails -> showFetchingDetails()
+                        foundVideo.details == null -> showNoDetails()
+                        else -> foundVideo.details?.showDetails()
+                    }
+                }
             }
+
+            if (expandingItemView.isExpanded && (isSelectionMode || expandedViewHolder != this))
+                expandingItemView.setAsCollapsed()
         }
 
         override fun onClick(v: View?) {
@@ -134,6 +150,97 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                         eventsListener?.onItemRename(adapterPosition, it)
                     }
                 }
+                binding.foundVideoDetailsMore -> {
+                    binding.apply {
+                        foundVideoDetailsMore.isVisible = false
+                        foundVideoDetailsProgress.isVisible = true
+                        val targetPosition = adapterPosition
+                        eventsListener?.onFetchDetails(adapterPosition, object : VideoDetailsFetcher.FetchListener {
+                            override fun onUnFetched(error: Throwable) {
+                                if (targetPosition == adapterPosition) {
+                                    Timber.e(error)
+                                    notifyItemChanged(adapterPosition)
+                                }
+                            }
+
+                            override fun onFetched(details: VideoDetails) {
+                                if (targetPosition == adapterPosition) {
+                                    foundVideos[adapterPosition].details = details
+                                    notifyItemChanged(adapterPosition)
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        }
+
+        private fun VideoDetails.buildDetailsText(): Spannable {
+            return SpannableStringBuilder().apply {
+                appendDetail("Filename: ", filename)
+                appendDetail("Title: ", title)
+                appendDetail("vcodec: ", vcodec ?: "none")
+                appendDetail("acodec: ", acodec ?: "none")
+                appendDetail("Duration: ", duration)
+                appendDetail("Filesize: ", filesize)
+                appendDetail("Width: ", width)
+                appendDetail("Height: ", height)
+                appendDetail("Bitrate: ", bitrate)
+                appendDetail("Framerate: ", framerate)
+                appendDetail("Encoder: ", encoder)
+                appendDetail("Encoded By: ", encodedBy)
+                appendDetail("Date: ", date)
+                appendDetail("Creation Time: ", creationTime)
+                appendDetail("Artist: ", artist)
+                appendDetail("Album: ", album)
+                appendDetail("Album Artist: ", albumArtist)
+                appendDetail("Track: ", track)
+                appendDetail("Genre: ", genre)
+                appendDetail("Composer: ", composer)
+                appendDetail("Performer: ", performer)
+                appendDetail("Copyright: ", copyright)
+                appendDetail("Publisher: ", publisher)
+                appendDetail("Language: ", language)
+            }
+        }
+
+        private fun SpannableStringBuilder.appendDetail(entryLabel: String, entryValue: String?) {
+            entryValue?.let {
+                append(SpannableString(entryLabel).style()).appendln(it)
+            }
+        }
+
+        private fun Spannable.style(): Spannable {
+            val color = ResourcesCompat.getColor(itemView.resources, R.color.yellow, null)
+            val span = ForegroundColorSpan(color)
+            setSpan(span, 0, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+            return this
+        }
+
+        private fun VideoDetails.showDetails() {
+            binding.apply {
+                foundVideoDetailsProgress.isVisible = false
+                foundVideoDetailsMore.isVisible = false
+                foundVideoDetailsText.apply {
+                    text = buildDetailsText()
+                    isVisible = true
+                }
+            }
+        }
+
+        private fun showNoDetails() {
+            binding.apply {
+                foundVideoDetailsProgress.isVisible = false
+                foundVideoDetailsText.isVisible = false
+                foundVideoDetailsMore.isVisible = true
+            }
+        }
+
+        private fun showFetchingDetails() {
+            binding.apply {
+                foundVideoDetailsProgress.isVisible = true
+                foundVideoDetailsText.isVisible = false
+                foundVideoDetailsMore.isVisible = false
             }
         }
     }
@@ -142,5 +249,6 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         fun onItemCheckedChanged(index: Int, isChecked: Boolean)
         fun onItemDelete(index: Int)
         fun onItemRename(index: Int, newName: String)
+        fun onFetchDetails(index: Int, fetchListener: VideoDetailsFetcher.FetchListener)
     }
 }
