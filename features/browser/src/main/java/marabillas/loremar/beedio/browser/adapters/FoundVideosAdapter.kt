@@ -124,12 +124,12 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                         else -> foundVideo.details?.showDetails()
                     }
                 }
+
+                if (isExpanded)
+                    setAsCollapsed()
+
+                measureExpandHeight()
             }
-
-            if (expandingItemView.isExpanded && (isSelectionMode || expandedViewHolder != this))
-                expandingItemView.setAsCollapsed()
-
-            expandingItemView.measureExpandHeight()
         }
 
         override fun onClick(v: View?) {
@@ -160,14 +160,22 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                             override fun onUnFetched(error: Throwable) {
                                 if (targetPosition == adapterPosition) {
                                     Timber.e(error)
-                                    notifyItemChanged(adapterPosition)
+                                    showNoDetails()
+                                    expandingItemView.apply {
+                                        setAsExpanded()
+                                        measureExpandHeight()
+                                    }
                                 }
                             }
 
                             override fun onFetched(details: VideoDetails) {
                                 if (targetPosition == adapterPosition) {
                                     foundVideos[adapterPosition].details = details
-                                    notifyItemChanged(adapterPosition)
+                                    details.showDetails()
+                                    expandingItemView.apply {
+                                        setAsExpanded()
+                                        measureExpandHeight()
+                                    }
                                 }
                             }
                         })

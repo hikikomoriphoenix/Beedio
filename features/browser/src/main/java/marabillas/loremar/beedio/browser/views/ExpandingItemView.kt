@@ -28,6 +28,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -71,7 +72,8 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
             visibility = View.VISIBLE
             requestLayout()
             postDelayed(20) {
-                origHeight = height
+                if (!detailsView.isVisible)
+                    origHeight = height
                 val topHeight = maxOf(nameView.height, iconView.height)
                 val otherHeights = (72 * resources.displayMetrics.density).roundToInt()
 
@@ -101,10 +103,36 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
         val padding = (16 * resources.displayMetrics.density).roundToInt()
         setPadding(padding, padding, padding, padding)
         updateLayoutParams<ViewGroup.LayoutParams> {
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
+            height = WRAP_CONTENT
         }
-        setContentsCollapsed()
+        setContentsCollapsed(true)
         isExpanded = false
+    }
+
+    fun setAsExpanded() {
+        val color = ResourcesCompat.getColor(resources, R.color.black2, null)
+        background = ColorDrawable(color)
+
+        iconView.apply {
+            updateLayoutParams<ViewGroup.LayoutParams> {
+                width = (40 * resources.displayMetrics.density).roundToInt()
+                height = (40 * resources.displayMetrics.density).roundToInt()
+            }
+            setPadding(8)
+        }
+        nameView.apply {
+            setTypeface(typeface, Typeface.BOLD)
+        }
+        sizeView.visibility = View.VISIBLE
+
+        updateVideoSizeLayoutParamsOnExpandedPosition()
+        val padding = (8 * resources.displayMetrics.density).roundToInt()
+        setPadding(padding, padding, padding, padding)
+        updateLayoutParams<ViewGroup.LayoutParams> {
+            height = WRAP_CONTENT
+        }
+        setContentsCollapsed(false)
+        isExpanded = true
     }
 
     fun expand(doAfter: () -> Unit) {
@@ -134,14 +162,7 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
                 isExpanded = true
                 doAfter()
 
-                sizeView.updateLayoutParams<LayoutParams> {
-                    topToBottom = -1
-                    bottomToBottom = LayoutParams.PARENT_ID
-                    bottomMargin = (8 * resources.displayMetrics.density).roundToInt()
-                    startToEnd = -1
-                    startToStart = LayoutParams.PARENT_ID
-                    marginStart = 0
-                }
+                updateVideoSizeLayoutParamsOnExpandedPosition()
                 showTools()
                 showSize()
             }
@@ -175,7 +196,7 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
                 detailsView.isVisible = false
                 showSize()
                 updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    height = WRAP_CONTENT
                 }
             }
         }
@@ -203,14 +224,14 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
         }
     }
 
-    private fun setContentsCollapsed() {
-        detailsView.isVisible = false
-        deleteBtn.isVisible = false
-        renameBtn.isVisible = false
-        downloadBtn.isVisible = false
+    private fun setContentsCollapsed(isTrue: Boolean) {
+        detailsView.isVisible = !isTrue
+        deleteBtn.isVisible = !isTrue
+        renameBtn.isVisible = !isTrue
+        downloadBtn.isVisible = !isTrue
 
-        deleteBtn.translationX = 0f
-        downloadBtn.translationX = 0f
+        deleteBtn.translationX = if (isTrue) 0f else 48f
+        downloadBtn.translationX = if (isTrue) 0f else -48f
     }
 
     private fun showSize() {
@@ -227,6 +248,17 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
             bottomToBottom = -1
             topToBottom = R.id.found_video_name
             bottomMargin = 0
+        }
+    }
+
+    private fun updateVideoSizeLayoutParamsOnExpandedPosition() {
+        sizeView.updateLayoutParams<LayoutParams> {
+            topToBottom = -1
+            bottomToBottom = LayoutParams.PARENT_ID
+            bottomMargin = (8 * resources.displayMetrics.density).roundToInt()
+            startToEnd = -1
+            startToStart = LayoutParams.PARENT_ID
+            marginStart = 0
         }
     }
 
