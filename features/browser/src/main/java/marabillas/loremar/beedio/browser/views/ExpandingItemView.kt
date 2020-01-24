@@ -22,7 +22,6 @@ package marabillas.loremar.beedio.browser.views
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
@@ -31,13 +30,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.transition.Slide
@@ -46,75 +45,40 @@ import marabillas.loremar.beedio.browser.R
 import kotlin.math.roundToInt
 
 class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
-    var measureCollapseExpandHeights = false
     var isExpanded = false; private set
 
     private var visibleDetailsHeight = 0
-    private var measureVisibleDetailsHeight = true
     private var initialDetailsVisibility = View.GONE
     private var origHeight = 0
     private var expandHeight = 0
-    private var isNewLayoutPass = false
 
-    private lateinit var nameView: TextView
-    private lateinit var detailsView: FrameLayout
-    private lateinit var detailsText: TextView
-    private lateinit var detailsMore: TextView
-    private lateinit var detailsProgress: ProgressBar
-    private lateinit var iconView: ImageView
-    private lateinit var sizeView: TextView
-    private lateinit var deleteBtn: ImageView
-    private lateinit var renameBtn: ImageView
-    private lateinit var downloadBtn: ImageView
+    private val nameView: TextView by lazy { findViewById<TextView>(R.id.found_video_name) }
+    private val detailsView: FrameLayout by lazy { findViewById<FrameLayout>(R.id.found_video_details) }
+    private val iconView: ImageView by lazy { findViewById<ImageView>(R.id.found_video_icon) }
+    private val sizeView: TextView by lazy { findViewById<TextView>(R.id.found_video_size) }
+    private val deleteBtn: ImageView by lazy { findViewById<ImageView>(R.id.found_video_delete) }
+    private val renameBtn: ImageView by lazy { findViewById<ImageView>(R.id.found_video_rename) }
+    private val downloadBtn: ImageView by lazy { findViewById<ImageView>(R.id.found_video_download) }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        detailsView = findViewById(R.id.found_video_details)
-        detailsText = findViewById(R.id.found_video_details_text)
-        detailsMore = findViewById(R.id.found_video_details_more)
-        detailsProgress = findViewById(R.id.found_video_details_progress)
-        nameView = findViewById(R.id.found_video_name)
-        iconView = findViewById(R.id.found_video_icon)
-        sizeView = findViewById(R.id.found_video_size)
-        deleteBtn = findViewById(R.id.found_video_delete)
-        renameBtn = findViewById(R.id.found_video_rename)
-        downloadBtn = findViewById(R.id.found_video_download)
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        isNewLayoutPass = true
-        if (measureCollapseExpandHeights && measureVisibleDetailsHeight) {
-            initialDetailsVisibility = detailsView.visibility
-            detailsView.visibility = View.INVISIBLE
-        } else if (measureCollapseExpandHeights) {
-            detailsView.visibility = initialDetailsVisibility
-        }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        if (!isNewLayoutPass) {
-            super.onDraw(canvas)
-            return
-        } else
-            isNewLayoutPass = false
-
-        if (measureCollapseExpandHeights && measureVisibleDetailsHeight) {
+    fun measureExpandHeight() {
+        initialDetailsVisibility = detailsView.visibility
+        detailsView.visibility = View.INVISIBLE
+        visibility = View.INVISIBLE
+        requestLayout()
+        postDelayed(20) {
             visibleDetailsHeight = detailsView.height
-            measureVisibleDetailsHeight = false
+            detailsView.visibility = initialDetailsVisibility
+            visibility = View.VISIBLE
             requestLayout()
-        } else if (measureCollapseExpandHeights) {
-            if (!detailsView.isVisible)
+            postDelayed(20) {
                 origHeight = height
+                val topHeight = maxOf(nameView.height, iconView.height)
+                val otherHeights = (72 * resources.displayMetrics.density).roundToInt()
 
-            val topHeight = maxOf(nameView.height, iconView.height)
-            val otherHeights = (72 * resources.displayMetrics.density).roundToInt()
-
-            expandHeight = topHeight + visibleDetailsHeight + otherHeights
-            measureCollapseExpandHeights = false
-            measureVisibleDetailsHeight = true
+                expandHeight = topHeight + visibleDetailsHeight + otherHeights
+                requestLayout()
+            }
         }
-        super.onDraw(canvas)
     }
 
     fun setAsCollapsed() {

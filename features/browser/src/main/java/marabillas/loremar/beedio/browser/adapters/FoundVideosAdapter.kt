@@ -104,7 +104,6 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
 
         fun bind(foundVideo: VideoDetectionVM.FoundVideo) {
             expandingItemView.apply {
-                measureCollapseExpandHeights = true
 
                 binding.apply {
                     foundVideoName.text = itemView.resources.getString(
@@ -129,6 +128,8 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
 
             if (expandingItemView.isExpanded && (isSelectionMode || expandedViewHolder != this))
                 expandingItemView.setAsCollapsed()
+
+            expandingItemView.measureExpandHeight()
         }
 
         override fun onClick(v: View?) {
