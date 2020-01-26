@@ -104,6 +104,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
 
         fun bind(foundVideo: VideoDetectionVM.FoundVideo) {
             expandingItemView.apply {
+                setIconToDefault()
 
                 binding.apply {
                     foundVideoName.text = itemView.resources.getString(
@@ -234,6 +235,10 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     text = buildDetailsText()
                     isVisible = true
                 }
+                if (vcodec == null && acodec != null)
+                    setIconToNoVideo()
+                else if (vcodec != null && acodec == null)
+                    setIconToNoAudio()
             }
         }
 
@@ -250,6 +255,30 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 foundVideoDetailsProgress.isVisible = true
                 foundVideoDetailsText.isVisible = false
                 foundVideoDetailsMore.isVisible = false
+            }
+        }
+
+        private fun setIconToNoAudio() {
+            binding.foundVideoIcon.apply {
+                background = ResourcesCompat.getDrawable(itemView.resources, R.drawable.green_icon_background, null)
+                val src = ResourcesCompat.getDrawable(itemView.resources, R.drawable.ic_noaudio, null)
+                setImageDrawable(src)
+            }
+        }
+
+        private fun setIconToNoVideo() {
+            binding.foundVideoIcon.apply {
+                background = ResourcesCompat.getDrawable(itemView.resources, R.drawable.blue_icon_background, null)
+                val src = ResourcesCompat.getDrawable(itemView.resources, R.drawable.ic_audio_black_24dp, null)
+                setImageDrawable(src)
+            }
+        }
+
+        private fun setIconToDefault() {
+            binding.foundVideoIcon.apply {
+                background = ResourcesCompat.getDrawable(itemView.resources, R.drawable.yellow_icon_background, null)
+                val src = ResourcesCompat.getDrawable(itemView.resources, R.drawable.ic_video_black_24dp, null)
+                setImageDrawable(src)
             }
         }
     }
