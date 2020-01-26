@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.browser.activity
 
 import android.os.Bundle
 import android.view.Menu
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -80,6 +81,7 @@ class BrowserActivity : DaggerAppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         Timber.plant(Timber.DebugTree())
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browser)
         binding.lifecycleOwner = this
