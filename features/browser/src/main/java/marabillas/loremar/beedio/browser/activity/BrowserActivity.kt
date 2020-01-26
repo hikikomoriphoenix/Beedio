@@ -110,4 +110,9 @@ class BrowserActivity : DaggerAppCompatActivity() {
         actionBarUpdater.setupOptionsMenu(menu)
         return true
     }
+
+    override fun onDestroy() {
+        videoDetectionVM.closeDetailsFetcher()
+        super.onDestroy()
+    }
 }

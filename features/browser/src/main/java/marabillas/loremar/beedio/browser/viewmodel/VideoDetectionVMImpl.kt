@@ -312,4 +312,8 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
             })
         }
     }
+
+    override fun closeDetailsFetcher() {
+        detailsFetcher.close()
+    }
 }
