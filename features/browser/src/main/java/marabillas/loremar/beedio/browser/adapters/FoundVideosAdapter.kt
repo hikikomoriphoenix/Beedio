@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.browser.adapters
 
+import android.graphics.drawable.BitmapDrawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -239,12 +240,22 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     setIconToNoVideo()
                 else if (vcodec != null && acodec == null)
                     setIconToNoAudio()
+
+                foundVideoDetailsThumbnail.apply {
+                    isVisible = false
+                    if (thumbnail != null) {
+                        val src = BitmapDrawable(itemView.resources, thumbnail)
+                        setImageDrawable(src)
+                        isVisible = true
+                    }
+                }
             }
         }
 
         private fun showNoDetails() {
             binding.apply {
                 foundVideoDetailsProgress.isVisible = false
+                foundVideoDetailsThumbnail.isVisible = false
                 foundVideoDetailsText.isVisible = false
                 foundVideoDetailsMore.isVisible = true
             }
@@ -253,6 +264,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         private fun showFetchingDetails() {
             binding.apply {
                 foundVideoDetailsProgress.isVisible = true
+                foundVideoDetailsThumbnail.isVisible = false
                 foundVideoDetailsText.isVisible = false
                 foundVideoDetailsMore.isVisible = false
             }

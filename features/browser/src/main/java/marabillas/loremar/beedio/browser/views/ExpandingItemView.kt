@@ -29,8 +29,8 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
@@ -54,7 +54,7 @@ class ExpandingItemView(context: Context?, attrs: AttributeSet?) : ConstraintLay
     private var expandHeight = 0
 
     private val nameView: TextView by lazy { findViewById<TextView>(R.id.found_video_name) }
-    private val detailsView: FrameLayout by lazy { findViewById<FrameLayout>(R.id.found_video_details) }
+    private val detailsView: LinearLayout by lazy { findViewById<LinearLayout>(R.id.found_video_details) }
     private val iconView: ImageView by lazy { findViewById<ImageView>(R.id.found_video_icon) }
     private val sizeView: TextView by lazy { findViewById<TextView>(R.id.found_video_size) }
     private val deleteBtn: ImageView by lazy { findViewById<ImageView>(R.id.found_video_delete) }

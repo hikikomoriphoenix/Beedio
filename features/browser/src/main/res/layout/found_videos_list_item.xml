@@ -94,11 +94,12 @@
             app:constraint_referenced_ids="found_video_more,found_video_checkbox"
             app:barrierDirection="start" />
 
-        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/found_video_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
+            android:orientation="vertical"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/found_video_top_barrier">
 
@@ -124,13 +125,25 @@
                 android:gravity="center"
                 android:layout_gravity="center" />
 
+            <ImageView
+                android:id="@+id/found_video_details_thumbnail"
+                android:layout_width="160dp"
+                android:layout_height="90dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center_horizontal"
+                android:padding="1dp"
+                android:background="@drawable/found_video_thumbnail_background"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/found_video_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:gravity="center_horizontal" />
 
-        </FrameLayout>
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/found_video_delete"

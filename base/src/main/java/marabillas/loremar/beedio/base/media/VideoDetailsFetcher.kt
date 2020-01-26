@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.base.media
 
+import android.graphics.Bitmap
 import wseemann.media.FFmpegMediaMetadataRetriever
 import wseemann.media.FFmpegMediaMetadataRetriever.*
 import java.text.DecimalFormat
@@ -59,6 +60,8 @@ class VideoDetailsFetcher {
                     publisher = extract(METADATA_KEY_PUBLISHER),
                     language = extract(METADATA_KEY_LANGUAGE)
             )
+            if (details.vcodec != null)
+                details.thumbnail = metadataRetriever.frameAtTime
             fetchListener.onFetched(details)
         } catch (e: IllegalArgumentException) {
             fetchListener.onUnFetched(e)
@@ -125,5 +128,6 @@ data class VideoDetails(
         val performer: String? = null,
         val copyright: String? = null,
         val publisher: String? = null,
-        val language: String? = null
+        val language: String? = null,
+        var thumbnail: Bitmap? = null
 )
