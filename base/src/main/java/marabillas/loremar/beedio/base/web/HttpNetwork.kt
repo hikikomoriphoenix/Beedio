@@ -38,20 +38,24 @@ class HttpNetwork {
         }
     }
 
-    fun open(url: String): Connection {
+    fun open(url: String, headers: Map<String, String> = mapOf()): Connection {
         return if (Build.VERSION.SDK_INT >= 21)
-            OkHttpConnection(url)
+            OkHttpConnection(url, headers)
         else
-            BasicConnection(url)
+            BasicConnection(url, headers)
     }
 
-    inner class OkHttpConnection(url: String) : Connection {
+    inner class OkHttpConnection(url: String, requestHeaders: Map<String, String>) : Connection {
 
         private val response: Response
         private val headers: Headers
 
         init {
-            val request = Request.Builder().url(url).build()
+            val requestBuilder = Request.Builder().url(url)
+            requestHeaders.forEach {
+                requestBuilder.addHeader(it.key, it.value)
+            }
+            val request = requestBuilder.build()
             response = okhttp.newCall(request).execute()
             headers = response.headers
         }
@@ -86,7 +90,7 @@ class HttpNetwork {
         }
     }
 
-    inner class BasicConnection(url: String) : Connection {
+    inner class BasicConnection(url: String, requestProperties: Map<String, String>) : Connection {
 
         private val urlConn: URLConnection = URL(url).openConnection().apply { connect() }
         private val reader: Reader? by lazy { urlConn.getInputStream()?.reader() }

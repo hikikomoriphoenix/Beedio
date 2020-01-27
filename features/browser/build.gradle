@@ -54,6 +54,15 @@ android {
         useBuildCache = true
         correctErrorTypes = true
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
@@ -81,4 +90,13 @@ dependencies {
     implementation deps.dagger.android_support
     kapt deps.dagger.compiler
     kapt deps.dagger.android_processor
+
+    implementation deps.room.runtime
+    implementation deps.room.ktx
+    testImplementation deps.room.testing
+    kapt deps.room.compiler
+
+    implementation deps.work.runtime_ktx
+    implementation deps.work.gcm
+    implementation deps.work.testing
 }

@@ -135,6 +135,8 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun closeDetailsFetcher()
 
+    abstract fun download(index: Int)
+
     data class FoundVideo(
             var name: String,
             val url: String,

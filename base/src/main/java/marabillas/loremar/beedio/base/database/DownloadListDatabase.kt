@@ -17,20 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.browserapp
+package marabillas.loremar.beedio.base.database
 
-import androidx.lifecycle.ViewModelProvider
-import dagger.Module
-import dagger.Provides
-import marabillas.loremar.beedio.browser.viewmodel.BrowserViewModelFactory
-import javax.inject.Singleton
+import androidx.room.Database
+import androidx.room.RoomDatabase
 
-@Module
-class BrowserViewModelModule {
-
-    @Singleton
-    @Provides
-    fun provideBrowserViewModelFactory(app: BrowserApp): ViewModelProvider.Factory {
-        return BrowserViewModelFactory(app)
-    }
+@Database(entities = [DownloadItem::class], version = 1)
+abstract class DownloadListDatabase : RoomDatabase() {
+    abstract fun downloadListDao(): DownloadListDao
 }

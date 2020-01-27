@@ -142,4 +142,10 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
     override fun onFetchDetails(index: Int, fetchListener: VideoDetailsFetcher.FetchListener) {
         videoDetectionVM.fetchDetails(index, fetchListener)
     }
+
+    override fun onDownloadItem(index: Int) {
+        videoDetectionVM.download(index)
+        foundVideosAdapter.removeItem(index)
+        foundVideosView.updateFoundVideosCountText(foundVideosAdapter.itemCount)
+    }
 }

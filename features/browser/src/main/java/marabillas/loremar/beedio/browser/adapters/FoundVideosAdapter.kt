@@ -100,6 +100,7 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 foundVideoDelete.setOnClickListener(onClickListener)
                 foundVideoRename.setOnClickListener(onClickListener)
                 foundVideoDetailsMore.setOnClickListener(onClickListener)
+                foundVideoDownload.setOnClickListener(onClickListener)
             }
         }
 
@@ -182,6 +183,9 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                             }
                         })
                     }
+                }
+                binding.foundVideoDownload -> {
+                    eventsListener?.onDownloadItem(adapterPosition)
                 }
             }
         }
@@ -300,5 +304,6 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
         fun onItemDelete(index: Int)
         fun onItemRename(index: Int, newName: String)
         fun onFetchDetails(index: Int, fetchListener: VideoDetailsFetcher.FetchListener)
+        fun onDownloadItem(index: Int)
     }
 }

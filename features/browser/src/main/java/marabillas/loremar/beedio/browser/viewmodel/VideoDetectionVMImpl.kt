@@ -19,24 +19,33 @@
 
 package marabillas.loremar.beedio.browser.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import androidx.room.Room
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import marabillas.loremar.beedio.base.database.DownloadItem
+import marabillas.loremar.beedio.base.database.DownloadListDatabase
+import marabillas.loremar.beedio.base.download.DownloadQueueWorker
+import marabillas.loremar.beedio.base.download.VideoDownloader
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import marabillas.loremar.beedio.base.web.HttpNetwork
 import timber.log.Timber
+import java.io.File
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class VideoDetectionVMImpl : VideoDetectionVM() {
+class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     override val foundVideos: List<FoundVideo>
         get() = _foundVideos
 
@@ -45,6 +54,15 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
     private val network = HttpNetwork()
     private val detailsFetcher = VideoDetailsFetcher()
     private val detailsFetcherThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val downloadStarterThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val downloads = Room
+            .databaseBuilder(
+                    context,
+                    DownloadListDatabase::class.java,
+                    "downloads"
+            )
+            .build()
+            .downloadListDao()
 
     private val sendFoundVideo = SendLiveData<FoundVideo>()
     private val isAnalyzing = MutableLiveData<Boolean>()
@@ -252,6 +270,7 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
                         chunked = ${if (video.isChunked) "yes" else "no"}                    
                 """.trimIndent())
 
+        video.name = video.name.validateName(video.ext)
         _foundVideos.add(video)
 
         viewModelScope.launch(Dispatchers.Main) {
@@ -315,5 +334,62 @@ class VideoDetectionVMImpl : VideoDetectionVM() {
 
     override fun closeDetailsFetcher() {
         detailsFetcher.close()
+    }
+
+    override fun download(index: Int) {
+        viewModelScope.launch(downloadStarterThread) {
+            val list = downloads.load().toMutableList()
+            downloads.delete(list)
+            val item = _foundVideos[index]
+            deleteItem(index)
+            val new = DownloadItem(
+                    uid = 0,
+                    name = item.name,
+                    videoUrl = item.url,
+                    ext = item.ext,
+                    size = item.size.toLong(),
+                    sourceWebsite = item.sourceWebsite,
+                    sourceWebpage = item.sourceWebPage,
+                    isChunked = item.isChunked
+            )
+            list.add(0, new)
+            list.forEachIndexed { i, it -> it.uid = i }
+            downloads.save(list)
+
+            val downloadRequest = OneTimeWorkRequestBuilder<DownloadQueueWorker>().build()
+            WorkManager.getInstance(context).enqueue(downloadRequest)
+        }
+    }
+
+    private fun String.validateName(ext: String): String {
+        var name = replace("[^\\w ()'!\\[\\]\\-]".toRegex(), "").trim()
+        if (name.length > 127) {//allowed filename length is 127
+            name = name.substring(0, 127)
+        } else if (name == "") {
+            name = "video"
+        }
+
+        val downloadFolder = VideoDownloader.getDownloadFolder(context)
+                ?: return name.getUniqueName()
+
+        var i = 0
+        var file = File(downloadFolder, "$name.$ext")
+        var incName = name
+        while (true) {
+            if (!file.exists() && !incName.nameAlreadyExists())
+                return incName
+            incName = "$name ${++i}"
+            file = File(downloadFolder, "$incName.$ext")
+        }
+    }
+
+    private fun String.nameAlreadyExists() = _foundVideos.any { it.name == this }
+
+    private fun String.getUniqueName(): String {
+        var name = this
+        var i = 0
+        while (name.nameAlreadyExists())
+            name = "$name ${++i}"
+        return name
     }
 }

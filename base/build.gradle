@@ -54,6 +54,14 @@ android {
         enabled = true
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
@@ -66,6 +74,7 @@ dependencies {
     implementation deps.constraintlayout
     implementation deps.ffmpeg
     implementation deps.okhttp
+    implementation deps.gson
 
     implementation deps.lifecycle.viewmodel
     implementation deps.lifecycle.extensions
@@ -83,4 +92,13 @@ dependencies {
     androidTestImplementation deps.test.rules
     androidTestImplementation deps.test.ext_junit
     androidTestImplementation deps.espresso
+
+    implementation deps.room.runtime
+    implementation deps.room.ktx
+    testImplementation deps.room.testing
+    kapt deps.room.compiler
+
+    implementation deps.work.runtime_ktx
+    implementation deps.work.gcm
+    implementation deps.work.testing
 }

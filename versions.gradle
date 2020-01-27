@@ -38,6 +38,8 @@ versions.okhttp = '4.2.2'
 versions.gson = "2.8.6"
 versions.ffmpeg = "0.3.2"
 versions.timber = "4.7.1"
+versions.room = '2.2.2'
+versions.work = '2.3.0'
 ext.versions = versions
 
 def deps = [:]
@@ -80,6 +82,19 @@ dagger.android_support = "com.google.dagger:dagger-android-support:$versions.dag
 dagger.android_processor = "com.google.dagger:dagger-android-processor:$versions.dagger"
 dagger.compiler = "com.google.dagger:dagger-compiler:$versions.dagger"
 deps.dagger = dagger
+
+def room = [:]
+room.runtime = "androidx.room:room-runtime:$versions.room"
+room.ktx = "androidx.room:room-ktx:$versions.room"
+room.testing = "androidx.room:room-testing:$versions.room"
+room.compiler = "androidx.room:room-compiler:$versions.room"
+deps.room = room
+
+def work = [:]
+work.runtime_ktx = "androidx.work:work-runtime-ktx:$versions.work"
+work.gcm = "androidx.work:work-gcm:$versions.work"
+work.testing = "androidx.work:work-testing:$versions.work"
+deps.work = work
 
 ext.deps = deps
 

@@ -19,10 +19,11 @@
 
 package marabillas.loremar.beedio.browser.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class BrowserViewModelFactory : ViewModelProvider.Factory {
+class BrowserViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -58,7 +59,7 @@ class BrowserViewModelFactory : ViewModelProvider.Factory {
             }
 
             VideoDetectionVM::class.java -> {
-                VideoDetectionVMImpl() as T
+                VideoDetectionVMImpl(context) as T
             }
 
             else -> throw IllegalArgumentException("Unidentified ViewModel for Browser")
