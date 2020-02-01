@@ -22,12 +22,14 @@ package marabillas.loremar.beedio.base.download
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.os.Build
 import android.text.format.Formatter
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Data
+import marabillas.loremar.beedio.base.R
 import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_EXT
 import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_IS_CHUNKED
 import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_NAME
@@ -71,9 +73,9 @@ class DownloadNotifier(
         }
 
         notificationBuilder = notificationBuilder.setContentTitle("Downloading $filename")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
                 .setOngoing(true)
-        // TODO setSmallIcon
-        // TODO setLargeIcon
 
         val file = File(directory, filename)
         if (inputData.getBoolean(KEY_IS_CHUNKED, false)) {
@@ -111,15 +113,17 @@ class DownloadNotifier(
             notificationBuilder = notificationBuilder.setTimeoutAfter(1500)
                     .setContentTitle("Download Finished")
                     .setContentText(filename)
-            // TODO setSmallIcon
-            // TODO setLargeIcon
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+
             notificationManager.notify(FINISH_NOTIFY_ID, notificationBuilder.build())
         } else {
             notificationBuilder = notificationBuilder.setTicker("Download Finished")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-            // TODO setSmallIcon
-            // TODO setLargeIcon
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+
             notificationManager.notify(FINISH_NOTIFY_ID, notificationBuilder.build())
             notificationManager.cancel(FINISH_NOTIFY_ID)
         }
