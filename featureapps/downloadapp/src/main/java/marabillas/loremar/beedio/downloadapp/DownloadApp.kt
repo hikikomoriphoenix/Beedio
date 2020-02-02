@@ -17,6 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-include ':legacy', ':beedio', ':features:home', ':featureapps:homeapp', ':features:browser',
-        ':featureapps:browserapp', ':features:download', ':featureapps:downloadapp', ':base',
-        ':extractors', ':sharedui'
+package marabillas.loremar.beedio.downloadapp
+
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
+
+class DownloadApp : DaggerApplication() {
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
+            DaggerDownloadAppComponent.factory().create(this)
+}

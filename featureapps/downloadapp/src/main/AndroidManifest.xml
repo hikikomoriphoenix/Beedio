@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ Beedio is an Android app for downloading videos
   ~ Copyright (C) 2019 Loremar Marabillas
   ~
@@ -17,15 +17,22 @@
   ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<resources>
-    <color name="yellow">#D9AC1D</color>
-    <color name="bright_yellow">#FBCE3F</color>
-    <color name="black">#000</color>
-    <color name="black1">#222</color>
-    <color name="black2">#333</color>
-    <color name="white">#FFF</color>
-    <color name="grey">#888</color>
-    <color name="light_grey">#CCC</color>
-    <color name="mint_green">#98FB98</color>
-    <color name="neon_blue">#2DD2F4</color>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="marabillas.loremar.beedio.downloadapp">
+
+    <application
+        android:name=".DownloadApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name="marabillas.loremar.beedio.download.DownloadActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
