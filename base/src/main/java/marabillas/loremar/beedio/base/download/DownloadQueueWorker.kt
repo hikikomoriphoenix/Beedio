@@ -23,19 +23,14 @@ import android.content.Context
 import androidx.room.Room
 import androidx.work.*
 import com.google.gson.Gson
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.DOWNLOAD_EXCEPTION_FILE
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_AUDIO_URL
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_EXT
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_IS_CHUNKED
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_NAME
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_SIZE
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_SOURCE_WEBSITE
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_URL
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import java.io.File
+import java.util.concurrent.Executors
 
 class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
     private val downloadList = Room
@@ -48,28 +43,74 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
             .downloadListDao()
 
     private val videoDetailsFetcher = VideoDetailsFetcher()
+    private val videoDownloader = VideoDownloader(context)
     private val gson = Gson()
 
+    enum class Status { INACTIVE, FETCHING_DETAILS, DOWNLOADING }
+
     companion object {
+        var status = Status.INACTIVE
         const val QUEUE_EVENT = "queue_event"
         const val QUEUE_EVENT_DATA_FILE = "queue_event_data.json"
+        const val QUEUE_VIDEO_DETAILS_FILE = "queue_video_details.json"
+        const val QUEUE_AUDIO_DETAILS_FILE = "queue_audio_details.json"
         const val QUEUE_START_NEW = 0
-        const val QUEUE_VIDEO_DETAILS = 1
-        const val QUEUE_AUDIO_DETAILS = 2
-        const val QUEUE_DOWNLOAD_START = 3
-        const val QUEUE_EXCEPTION = 4
+        const val QUEUE_FINISHED = 1
+        const val QUEUE_VIDEO_DETAILS = 2
+        const val QUEUE_AUDIO_DETAILS = 3
+        const val QUEUE_DOWNLOAD_START = 4
+        const val QUEUE_EXCEPTION = 5
+        private const val UNIQUE_NAME = "download_queue_worker"
+
+        private val downloadQueueContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
+        fun work(context: Context) {
+            val downloadRequest = OneTimeWorkRequestBuilder<DownloadQueueWorker>()
+                    .build()
+
+            WorkManager
+                    .getInstance(context)
+                    .enqueueUniqueWork(UNIQUE_NAME, ExistingWorkPolicy.REPLACE, downloadRequest)
+        }
+
+        fun stop(context: Context) = WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_NAME)
+
+        fun getQueueEventLiveData(context: Context) =
+                WorkManager.getInstance(context).getWorkInfosForUniqueWorkLiveData(UNIQUE_NAME)
+
+        private fun saveEventData(context: Context, json: String, filename: String) = runBlocking(downloadQueueContext) {
+            File(context.filesDir, filename).writeText(json)
+        }
+
+        private fun deleteEventData(context: Context, filename: String) = runBlocking(downloadQueueContext) {
+            val file = File(context.filesDir, filename)
+            if (file.exists())
+                file.delete()
+        }
+
+        fun loadEventData(context: Context, filename: String): String? = runBlocking(downloadQueueContext) {
+            val file = File(context.filesDir, filename)
+            if (file.exists())
+                file.readText()
+            else
+                null
+        }
     }
 
     override fun doWork(): Result {
-        processTopItem()
+        workOnTopItem()
         return Result.success()
     }
 
-    private fun processTopItem() {
-        val first = downloadList.first() ?: return
+    private fun workOnTopItem() {
+        status = Status.INACTIVE
+        deleteEventData(applicationContext, QUEUE_VIDEO_DETAILS_FILE)
+        deleteEventData(applicationContext, QUEUE_AUDIO_DETAILS_FILE)
+        val first = downloadList.first() ?: return {
+            update(QUEUE_FINISHED)
+        }()
 
-        println("FIRST = $first")
-
+        status = Status.FETCHING_DETAILS
         update(QUEUE_START_NEW)
 
         videoDetailsFetcher.fetchDetails(first.videoUrl, object : VideoDetailsFetcher.FetchListener {
@@ -83,59 +124,37 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
                 if (first.audioUrl != null)
                     videoDetailsFetcher.fetchDetails(first.audioUrl, object : VideoDetailsFetcher.FetchListener {
                         override fun onUnFetched(error: Throwable) {
-                            startDownload(first)
+                            if (!isStopped)
+                                startDownload(first)
                         }
 
                         override fun onFetched(details: VideoDetails) {
                             update(QUEUE_AUDIO_DETAILS, details)
-                            startDownload(first)
+                            if (!isStopped)
+                                startDownload(first)
                         }
                     })
                 else
-                    startDownload(first)
+                    if (!isStopped)
+                        startDownload(first)
             }
         })
 
     }
 
     private fun startDownload(item: DownloadItem) {
+        status = Status.DOWNLOADING
         update(QUEUE_DOWNLOAD_START)
 
-        val input = workDataOf(
-                KEY_NAME to item.name,
-                KEY_URL to item.videoUrl,
-                KEY_EXT to item.ext,
-                KEY_SIZE to item.size,
-                KEY_SOURCE_WEBSITE to item.sourceWebsite,
-                KEY_IS_CHUNKED to item.isChunked,
-                KEY_AUDIO_URL to item.audioUrl
-        )
-        val downloadRequest = OneTimeWorkRequestBuilder<VideoDownloader>()
-                .setInputData(input)
-                .build()
-
-        val workMngr = WorkManager.getInstance(applicationContext)
-
-        workMngr.getWorkInfoById(downloadRequest.id).apply {
-            addListener(
-                    {
-                        get().apply {
-                            if (this != null && state == WorkInfo.State.SUCCEEDED) {
-                                completed()
-                                next()
-                            } else if (this != null && state == WorkInfo.State.FAILED) {
-                                failed()
-                                next()
-                            }
-                        }
-                    },
-                    {
-                        it.run()
-                    }
-            )
+        try {
+            videoDownloader.download(item)
+            if (isStopped)
+                return
+            completed()
+        } catch (e: VideoDownloader.DownloadException) {
+            failed(e)
         }
-
-        workMngr.enqueue(downloadRequest)
+        next()
     }
 
     private fun completed() {
@@ -143,19 +162,19 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
     }
 
     private fun next() {
+        videoDownloader.stop()
+        deleteEventData(applicationContext, QUEUE_VIDEO_DETAILS_FILE)
+        deleteEventData(applicationContext, QUEUE_AUDIO_DETAILS_FILE)
         val list = downloadList.load().toMutableList()
         downloadList.delete(list)
         list.removeAt(0)
         list.forEachIndexed { i, item -> item.uid = i }
         downloadList.save(list)
-        processTopItem()
+        status = Status.INACTIVE
+        workOnTopItem()
     }
 
-    private fun failed() {
-        val file = File(applicationContext.cacheDir, DOWNLOAD_EXCEPTION_FILE)
-        val e = gson.fromJson(file.bufferedReader(),
-                VideoDownloader.DownloadException::class.java)
-
+    private fun failed(e: VideoDownloader.DownloadException) {
         if (e.cause is VideoDownloader.UnavailableException) {
             // TODO Add to inactive list
         } else {
@@ -166,10 +185,21 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
     private fun update(event: Int, data: Any? = null) {
         if (data != null) {
             val json = gson.toJson(data)
-            val file = File(applicationContext.cacheDir, QUEUE_EVENT_DATA_FILE)
-            file.writeText(json)
+            when (event) {
+                QUEUE_VIDEO_DETAILS -> saveEventData(applicationContext, json, QUEUE_VIDEO_DETAILS_FILE)
+                QUEUE_AUDIO_DETAILS -> saveEventData(applicationContext, json, QUEUE_AUDIO_DETAILS_FILE)
+                else -> saveEventData(applicationContext, json, QUEUE_EVENT_DATA_FILE)
+            }
         }
         val workData = workDataOf(QUEUE_EVENT to event)
         setProgressAsync(workData)
+    }
+
+    override fun onStopped() {
+        super.onStopped()
+        status = Status.INACTIVE
+        videoDownloader.stop()
+        deleteEventData(applicationContext, QUEUE_VIDEO_DETAILS_FILE)
+        deleteEventData(applicationContext, QUEUE_AUDIO_DETAILS_FILE)
     }
 }

@@ -25,8 +25,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -356,8 +354,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             list.forEachIndexed { i, it -> it.uid = i }
             downloads.save(list)
 
-            val downloadRequest = OneTimeWorkRequestBuilder<DownloadQueueWorker>().build()
-            WorkManager.getInstance(context).enqueue(downloadRequest)
+            DownloadQueueWorker.work(context)
         }
     }
 

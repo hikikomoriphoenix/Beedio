@@ -17,20 +17,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.downloadapp
+package marabillas.loremar.beedio.download.viewmodels
 
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
-import javax.inject.Singleton
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import marabillas.loremar.beedio.download.R
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class,
-    FragmentBindingModule::class, DownloadViewModelModule::class])
-interface DownloadAppComponent : AndroidInjector<DownloadApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance downloadApp: DownloadApp): DownloadAppComponent
+class DownloadVMImpl : DownloadVM() {
+    private val selectedNavItemData = MutableLiveData<Int>()
+
+    init {
+        selectedNavItemData.value = R.id.download_menu_in_progress
+    }
+
+    override fun setSelectedNavItem(id: Int) {
+        selectedNavItemData.value = id
+    }
+
+    override fun observeSelectedNavItem(lifecycleOwner: LifecycleOwner, observer: Observer<Int>) {
+        selectedNavItemData.observe(lifecycleOwner, observer)
     }
 }

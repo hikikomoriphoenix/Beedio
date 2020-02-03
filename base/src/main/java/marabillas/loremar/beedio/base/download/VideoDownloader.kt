@@ -21,78 +21,69 @@ package marabillas.loremar.beedio.base.download
 
 import android.content.Context
 import android.os.Environment
-import android.os.Handler
-import android.os.HandlerThread
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import com.google.gson.Gson
-import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.*
+import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.web.HttpNetwork
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
+import java.util.concurrent.Executors
 
 
-class VideoDownloader(context: Context, params: WorkerParameters) : Worker(context, params) {
+class VideoDownloader(private val context: Context) {
     private val http = HttpNetwork()
-    private val gson = Gson()
-    private lateinit var progressThread: HandlerThread
-    private lateinit var progressHandler: Handler
+    private val progressNotifyingDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private var progressNotifyingJob: Job? = null
+    private lateinit var notifier: DownloadNotifier
+    private var isStopped = false
 
-    override fun doWork(): Result {
-        val notifier = DownloadNotifier(applicationContext, inputData, prepareTargetDirectory())
-        progressThread = object : HandlerThread("Progress Tracker Thread") {
-            override fun start() {
-                super.start()
-                progressHandler = Handler(looper)
-                startTrackingProgress(notifier)
-            }
-        }
-        progressThread.start()
+    fun download(item: DownloadItem) {
+        isStopped = false
         try {
-            inputData.apply {
-
-                val isChunked = getBoolean(KEY_IS_CHUNKED, false)
-                val audioUrl = getString(KEY_AUDIO_URL)
-
-                if (!audioUrl.isNullOrBlank())
-                    downloadVideoAudio()
-                else if (isChunked)
-                    downloadChunkedVideo()
-                else
-                    downloadDefault()
+            notifier = DownloadNotifier(context, item, prepareTargetDirectory())
+            progressNotifyingJob?.cancel()
+            progressNotifyingJob = CoroutineScope(progressNotifyingDispatcher).launch {
+                while (!isStopped) {
+                    notifier.notifyProgress()
+                    delay(1000)
+                }
             }
-            progressHandler.removeCallbacksAndMessages(null)
-            progressThread.quitSafely()
-            notifier.notifyFinish()
-            return Result.success()
+
+            val isChunked = item.isChunked
+            val audioUrl = item.audioUrl
+
+            if (!audioUrl.isNullOrBlank())
+                downloadVideoAudio(item)
+            else if (isChunked)
+                downloadChunkedVideo(item)
+            else
+                downloadDefault(item)
+
+            progressNotifyingJob?.cancel()
+            if (!isStopped)
+                notifier.notifyFinish()
         } catch (e: DownloadException) {
-            e.printStackTrace()
-            progressHandler.removeCallbacksAndMessages(null)
-            progressThread.quitSafely()
-            notifier.stop()
-            val eJson = gson.toJson(e)
-            val file = File(applicationContext.cacheDir, DOWNLOAD_EXCEPTION_FILE)
-            file.writeText(eJson)
-            return Result.failure()
+            progressNotifyingJob?.cancel()
+            notifier.notifyFinish()
+            throw e
         }
     }
 
-    private fun downloadVideoAudio() {
+    private fun downloadVideoAudio(item: DownloadItem) {
         TODO()
     }
 
-    private fun downloadChunkedVideo() {
+    private fun downloadChunkedVideo(item: DownloadItem) {
         try {
-            val name = inputData.getString(KEY_NAME)
-            val ext = inputData.getString(KEY_EXT)
+            val name = item.name
+            val ext = item.ext
             val targetFilename = "$name.$ext"
             val targetDirectory = prepareTargetDirectory().apply {
                 if (!exists() && !mkdir() && !createNewFile())
                     throw DownloadException("unavailable target directory")
             }
 
-            val progressFile = File(applicationContext.cacheDir, "$name.dat")
+            val progressFile = File(context.cacheDir, "$name.dat")
             val videoFile = File(targetDirectory, targetFilename)
             var totalChunks = 0L
             if (progressFile.exists()) {
@@ -118,15 +109,15 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
             }
 
             if (videoFile.exists() && progressFile.exists()) {
-                while (true) {
-                    val website = inputData.getString(KEY_SOURCE_WEBSITE)
+                while (!isStopped) {
+                    val website = item.sourceWebsite
                     var chunkUrl: String? = null
                     when (website) {
-                        "dailymotion.com" -> chunkUrl = getNextChunkWithDailymotionRule(totalChunks)
-                        "vimeo.com" -> chunkUrl = getNextChunkWithVimeoRule(totalChunks)
-                        "twitter.com" -> chunkUrl = getNextChunkWithM3U8Rule(totalChunks)
-                        "metacafe.com" -> chunkUrl = getNextChunkWithM3U8Rule(totalChunks)
-                        "myspace.com" -> chunkUrl = getNextChunkWithM3U8Rule(totalChunks)
+                        "dailymotion.com" -> chunkUrl = getNextChunkWithDailymotionRule(item.videoUrl, totalChunks)
+                        "vimeo.com" -> chunkUrl = getNextChunkWithVimeoRule(item.videoUrl, totalChunks)
+                        "twitter.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
+                        "metacafe.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
+                        "myspace.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
                     }
                     if (chunkUrl == null) {
                         if (!progressFile.delete()) {
@@ -137,29 +128,31 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
                     val bytesOfChunk = ByteArrayOutputStream()
                     try {
                         val conn = http.open(chunkUrl)
-                        val readChannel = Channels.newChannel(conn.stream)
-                        val writeChannel = Channels.newChannel(bytesOfChunk)
-                        var read: Int
-                        while (true) {
-                            val buffer = ByteBuffer.allocateDirect(1024)
-                            read = readChannel.read(buffer)
-                            if (read != -1) {
-                                buffer.flip()
-                                writeChannel.write(buffer)
-                            } else {
-                                val vAddChunk = FileOutputStream(videoFile, true)
-                                vAddChunk.write(bytesOfChunk.toByteArray())
-                                val outputStream = FileOutputStream(progressFile, false)
-                                val dataOutputStream = DataOutputStream(outputStream)
-                                dataOutputStream.writeLong(++totalChunks)
-                                dataOutputStream.close()
-                                outputStream.close()
-                                break
+                        conn.stream?.let { inputStream ->
+                            val readChannel = Channels.newChannel(inputStream)
+                            val writeChannel = Channels.newChannel(bytesOfChunk)
+                            var read: Int
+                            while (!isStopped) {
+                                val buffer = ByteBuffer.allocateDirect(1024)
+                                read = readChannel.read(buffer)
+                                if (read != -1) {
+                                    buffer.flip()
+                                    writeChannel.write(buffer)
+                                } else {
+                                    val vAddChunk = FileOutputStream(videoFile, true)
+                                    vAddChunk.write(bytesOfChunk.toByteArray())
+                                    val outputStream = FileOutputStream(progressFile, false)
+                                    val dataOutputStream = DataOutputStream(outputStream)
+                                    dataOutputStream.writeLong(++totalChunks)
+                                    dataOutputStream.close()
+                                    outputStream.close()
+                                    break
+                                }
                             }
+                            readChannel.close()
+                            conn.stream?.close()
+                            bytesOfChunk.close()
                         }
-                        readChannel.close()
-                        conn.stream?.close()
-                        bytesOfChunk.close()
                     } catch (e: FileNotFoundException) {
                         if (!progressFile.delete()) {
                             TODO("Log can't delete progressFile")
@@ -177,24 +170,23 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
         }
     }
 
-    private fun getNextChunkWithDailymotionRule(totalChunks: Long): String? {
-        return inputData.getString(KEY_URL)?.replace("FRAGMENT".toRegex(), "frag(${totalChunks + 1})")
+    private fun getNextChunkWithDailymotionRule(url: String, totalChunks: Long): String? {
+        return url.replace("FRAGMENT".toRegex(), "frag(${totalChunks + 1})")
     }
 
-    private fun getNextChunkWithVimeoRule(totalChunks: Long): String? {
-        return inputData.getString(KEY_URL)?.replace("SEGMENT".toRegex(), "segment-${totalChunks + 1}")
+    private fun getNextChunkWithVimeoRule(url: String, totalChunks: Long): String? {
+        return url.replace("SEGMENT".toRegex(), "segment-${totalChunks + 1}")
     }
 
-    private fun getNextChunkWithM3U8Rule(totalChunks: Long): String? {
-        val url = inputData.getString(KEY_URL)
-        val website = inputData.getString(KEY_SOURCE_WEBSITE)
-        if (url == null) throw DownloadException("missing download url")
+    private fun getNextChunkWithM3U8Rule(item: DownloadItem, totalChunks: Long): String? {
+        val url = item.videoUrl
+        val website = item.sourceWebsite
 
         var line: String? = null
         try {
             val m3u8Con = http.open(url)
             m3u8Con.stream?.bufferedReader()?.apply {
-                while (true) {
+                while (!isStopped) {
                     line = readLine()
                     if (line == null)
                         break
@@ -207,7 +199,7 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
                 }
                 if (line != null) {
                     var l: Long = 1
-                    while (l < totalChunks + 1) {
+                    while (l < totalChunks + 1 && !isStopped) {
                         readLine()
                         line = readLine()
                         l++
@@ -238,15 +230,12 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
         }
     }
 
-    private fun downloadDefault() {
+    private fun downloadDefault(item: DownloadItem) {
         try {
-            val url = inputData.getString(KEY_URL)
-            val name = inputData.getString(KEY_NAME)
-            val ext = inputData.getString(KEY_EXT)
-            val totalSize = inputData.getLong(KEY_SIZE, 0)
-
-            if (url == null)
-                throw DownloadException("missing download url")
+            val url = item.videoUrl
+            val name = item.name
+            val ext = item.ext
+            val totalSize = item.size
 
             val targetFilename = "$name.$ext"
             val targetDirectory = prepareTargetDirectory().apply {
@@ -268,18 +257,20 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
                     throw DownloadException("can not create download file")
             }
 
-            if (downloadFile.exists()) {
-                val readChannel = Channels.newChannel(conn.stream)
-                val fileChannel = out.channel
-                while (downloadFile.length() < totalSize) {
-                    fileChannel.transferFrom(readChannel, 0, 1024)
-                }
-                readChannel.close()
-                out.flush()
-                out.close()
-                fileChannel.close()
-            } else
-                throw DownloadException("no download file")
+            conn.stream?.let { inputStream ->
+                if (downloadFile.exists()) {
+                    val readChannel = Channels.newChannel(inputStream)
+                    val fileChannel = out.channel
+                    while (downloadFile.length() < totalSize && !isStopped) {
+                        fileChannel.transferFrom(readChannel, 0, 1024)
+                    }
+                    readChannel.close()
+                    out.flush()
+                    out.close()
+                    fileChannel.close()
+                } else
+                    throw DownloadException("no download file")
+            }
         } catch (e: FileNotFoundException) {
             throw DownloadException(null, UnavailableException())
         } catch (e: IOException) {
@@ -289,21 +280,18 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
         }
     }
 
-    private fun startTrackingProgress(notifier: DownloadNotifier) {
-        object : Runnable {
-            override fun run() {
-                notifier.notifyProgress()
-                progressHandler.postDelayed(this, 1000)
-            }
-        }.run()
-    }
-
     private fun prepareTargetDirectory(): File {
-        val downloadFolder = getDownloadFolder(applicationContext)
+        val downloadFolder = getDownloadFolder(context)
         if (downloadFolder != null) return downloadFolder
 
         val message = getUnavailableDownloadFolderMessage(Environment.getExternalStorageState())
         throw DownloadException(message)
+    }
+
+    fun stop() {
+        isStopped = true
+        progressNotifyingJob?.cancel()
+        notifier.stop()
     }
 
     inner class DownloadException(message: String? = null, e: Throwable? = null)
@@ -312,16 +300,6 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
     inner class UnavailableException : Exception()
 
     companion object {
-        const val KEY_NAME = "key_name"
-        const val KEY_URL = "key_url"
-        const val KEY_EXT = "key_ext"
-        const val KEY_SIZE = "key_size"
-        const val KEY_SOURCE_WEBSITE = "key_source_website"
-        const val KEY_IS_CHUNKED = "key_is_chunked"
-        const val KEY_AUDIO_URL = "key_audio_url"
-
-        const val DOWNLOAD_EXCEPTION_FILE = "download-exception.json"
-
         fun getDownloadFolder(context: Context): File? {
             val downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             if (
@@ -347,7 +325,8 @@ class VideoDownloader(context: Context, params: WorkerParameters) : Worker(conte
             if (
                     appExternal != null
                     && (appExternal.exists() || appExternal.mkdir() || appExternal.createNewFile())
-                    && appExternal.canWrite()) {
+                    && appExternal.canWrite()
+            ) {
                 return File(appExternal, "Download")
             }
 

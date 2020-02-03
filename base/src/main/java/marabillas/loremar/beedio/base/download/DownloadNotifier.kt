@@ -28,19 +28,15 @@ import android.os.Build
 import android.text.format.Formatter
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.work.Data
 import marabillas.loremar.beedio.base.R
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_EXT
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_IS_CHUNKED
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_NAME
-import marabillas.loremar.beedio.base.download.VideoDownloader.Companion.KEY_SIZE
+import marabillas.loremar.beedio.base.database.DownloadItem
 import java.io.File
 import kotlin.math.roundToInt
 
 
 class DownloadNotifier(
         private val context: Context,
-        private val inputData: Data,
+        private val downloadItem: DownloadItem,
         private val directory: File
 ) {
 
@@ -60,8 +56,8 @@ class DownloadNotifier(
     }
 
     fun notifyProgress() {
-        val name = inputData.getString(KEY_NAME)
-        val ext = inputData.getString(KEY_EXT)
+        val name = downloadItem.name
+        val ext = downloadItem.ext
         val filename = "$name.$ext"
 
         var notificationBuilder = NotificationCompat.Builder(context, PROGRESS_CHANNEL).run {
@@ -78,7 +74,7 @@ class DownloadNotifier(
                 .setOngoing(true)
 
         val file = File(directory, filename)
-        if (inputData.getBoolean(KEY_IS_CHUNKED, false)) {
+        if (downloadItem.isChunked) {
             val downloaded = if (file.exists())
                 Formatter.formatFileSize(context, file.length())
             else
@@ -88,7 +84,7 @@ class DownloadNotifier(
                     .setContentText(downloaded)
             notificationManager.notify(PROGRESS_NOTIFY_ID, notificationBuilder.build())
         } else {
-            val size = inputData.getLong(KEY_SIZE, 0)
+            val size = downloadItem.size
             var progress = ((file.length().toDouble() / size.toDouble()) * 100).roundToInt()
             progress = if (progress >= 100) 100 else progress
 
@@ -104,8 +100,8 @@ class DownloadNotifier(
     fun notifyFinish() {
         stop()
 
-        val name = inputData.getString(KEY_NAME)
-        val ext = inputData.getString(KEY_EXT)
+        val name = downloadItem.name
+        val ext = downloadItem.ext
         val filename = "$name.$ext"
 
         var notificationBuilder = NotificationCompat.Builder(context, FINISH_CHANNEL)

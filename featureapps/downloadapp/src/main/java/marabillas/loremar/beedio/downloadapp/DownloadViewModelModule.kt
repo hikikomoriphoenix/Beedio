@@ -19,18 +19,17 @@
 
 package marabillas.loremar.beedio.downloadapp
 
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
+import androidx.lifecycle.ViewModelProvider
+import dagger.Module
+import dagger.Provides
+import marabillas.loremar.beedio.download.viewmodels.DownloadViewModelFactory
 import javax.inject.Singleton
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class,
-    FragmentBindingModule::class, DownloadViewModelModule::class])
-interface DownloadAppComponent : AndroidInjector<DownloadApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance downloadApp: DownloadApp): DownloadAppComponent
+@Module
+class DownloadViewModelModule {
+    @Singleton
+    @Provides
+    fun provideDownloadViewModelFactory(app: DownloadApp): ViewModelProvider.Factory {
+        return DownloadViewModelFactory(app)
     }
 }

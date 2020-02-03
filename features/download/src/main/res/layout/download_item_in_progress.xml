@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="298dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:layout_gravity="center_horizontal"
+        android:padding="16dp"
+        android:background="@drawable/download_item_background">
+
+        <ImageView
+            android:id="@+id/item_in_progress_thumbnail"
+            android:layout_width="160dp"
+            android:layout_height="90dp"
+            android:contentDescription="@string/video_thumbnail"
+            app:srcCompat="@color/black2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/item_in_progress_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:max="100"
+            android:progressDrawable="@drawable/circular_progress"
+            android:indeterminate="false"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/item_in_progress_progress_percent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/zero_percent"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/item_in_progress_progressbar"
+            app:layout_constraintStart_toStartOf="@id/item_in_progress_progressbar"
+            app:layout_constraintEnd_toEndOf="@id/item_in_progress_progressbar"
+            app:layout_constraintBottom_toBottomOf="@id/item_in_progress_progressbar" />
+
+        <ProgressBar
+            android:id="@+id/item_in_progress_progressbar_indeterminate"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/item_in_progress_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/no_title"
+            android:textColor="@color/white"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_in_progress_progressbar" />
+
+        <TextView
+            android:id="@+id/item_in_progress_downloaded"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/zero_downloaded"
+            android:textColor="@color/yellow"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_in_progress_title" />
+
+        <TextView
+            android:id="@+id/item_in_progress_details"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/no_details"
+            android:textColor="@color/white"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_in_progress_downloaded" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

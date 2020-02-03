@@ -17,20 +17,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.downloadapp
+package marabillas.loremar.beedio.download.viewmodels
 
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
-import javax.inject.Singleton
+import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class,
-    FragmentBindingModule::class, DownloadViewModelModule::class])
-interface DownloadAppComponent : AndroidInjector<DownloadApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance downloadApp: DownloadApp): DownloadAppComponent
+class DownloadViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return when (modelClass) {
+            DownloadVM::class.java -> DownloadVMImpl() as T
+            InProgressVM::class.java -> InProgressVMImpl(context) as T
+            else -> throw IllegalArgumentException("Unidentified ViewModel for Download")
+        }
     }
 }

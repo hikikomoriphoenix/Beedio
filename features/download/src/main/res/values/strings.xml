@@ -22,4 +22,9 @@
     <string name="in_progress">In Progress</string>
     <string name="completed">Completed</string>
     <string name="inactive">Inactive</string>
+    <string name="zero_percent">0%</string>
+    <string name="no_title">no title</string>
+    <string name="zero_downloaded">0KB / 0KB</string>
+    <string name="no_details">no details</string>
+    <string name="video_thumbnail">video thumbnail</string>
 </resources>
