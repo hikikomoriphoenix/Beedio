@@ -30,8 +30,10 @@ import kotlin.math.pow
 
 class VideoDetailsFetcher {
     private val metadataRetriever = FFmpegMediaMetadataRetriever()
+    private var isCancelled = false
 
     fun fetchDetails(url: String, fetchListener: FetchListener) {
+        isCancelled = false
         try {
             metadataRetriever.setDataSource(url)
             val details = VideoDetails(
@@ -63,12 +65,19 @@ class VideoDetailsFetcher {
             if (details.vcodec != null)
                 details.thumbnail = metadataRetriever.frameAtTime
             fetchListener.onFetched(details)
+        } catch (e: CancelledException) {
+            fetchListener.onUnFetched(e)
         } catch (e: IllegalArgumentException) {
             fetchListener.onUnFetched(e)
         }
     }
 
-    private fun extract(key: String) = metadataRetriever.extractMetadata(key)
+    private fun extract(key: String) = if (!isCancelled) metadataRetriever.extractMetadata(key)
+    else throw CancelledException()
+
+    fun cancel() {
+        isCancelled = true
+    }
 
     private fun String.formatDuration(): String? {
         return try {
@@ -102,6 +111,8 @@ class VideoDetailsFetcher {
         fun onUnFetched(error: Throwable)
         fun onFetched(details: VideoDetails)
     }
+
+    inner class CancelledException : Exception()
 }
 
 data class VideoDetails(

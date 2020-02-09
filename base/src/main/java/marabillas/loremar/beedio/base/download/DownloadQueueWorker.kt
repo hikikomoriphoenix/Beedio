@@ -197,6 +197,7 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
 
     override fun onStopped() {
         super.onStopped()
+        videoDetailsFetcher.cancel()
         status = Status.INACTIVE
         videoDownloader.stop()
         deleteEventData(applicationContext, QUEUE_VIDEO_DETAILS_FILE)
