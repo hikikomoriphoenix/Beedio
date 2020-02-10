@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.download.viewmodels
 import android.graphics.Bitmap
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.mvvm.ObservableViewModel
 
 abstract class DownloadVM : ObservableViewModel() {
@@ -36,6 +37,7 @@ abstract class InProgressVM : ObservableViewModel() {
     abstract fun pauseDownload()
     abstract fun observeIsDownloading(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>)
     abstract fun observeIsFetching(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>)
+    abstract fun observeVideoDetails(lifecycleOwner: LifecycleOwner, observer: Observer<VideoDetails>)
     abstract fun observeProgress(lifecycleOwner: LifecycleOwner, observer: Observer<ProgressUpdate>)
     abstract fun observeInProgressListUpdate(lifecycleOwner: LifecycleOwner, observer: Observer<List<InProgressItem>>)
 

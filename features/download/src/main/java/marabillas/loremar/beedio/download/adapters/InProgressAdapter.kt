@@ -21,6 +21,10 @@ package marabillas.loremar.beedio.download.adapters
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -32,6 +36,7 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.download.R
 import marabillas.loremar.beedio.download.viewmodels.InProgressVM
 
@@ -45,6 +50,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
         }
 
     private var downloads = listOf<InProgressVM.InProgressItem>()
+    private var topItemDetails: VideoDetails? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InProgressViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -68,7 +74,14 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
 
     fun loadData(downloads: List<InProgressVM.InProgressItem>) {
         this.downloads = downloads
+        topItemDetails = null
         notifyDataSetChanged()
+    }
+
+    fun loadDetails(details: VideoDetails, isAudio: Boolean = false) {
+        println("LOAD DETAILS")
+        topItemDetails = details
+        if (downloads.count() > 0) notifyItemChanged(0)
     }
 
     fun updateProgress(progress: Int?, downloaded: String) {
@@ -115,6 +128,13 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
                 }
                 inProgressTitle.text = item.title
                 inProgressDownloaded.text = item.inProgressDownloaded
+
+                when {
+                    isFetching -> inProgressDetails.text = "Fetching details..."
+                    topItemDetails == null -> inProgressDetails.text = "No details"
+                    else -> inProgressDetails.text = topItemDetails?.buildDetailsText()
+                            ?: "No details"
+                }
             } else {
                 inQueueTitle.text = item.title
                 inQueueDownloaded.text = item.inQueueDownloaded
@@ -136,6 +156,48 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
                 val drawable = ResourcesCompat.getDrawable(itemView.resources, R.drawable.circular_progress, null)
                 progressBarIndeterminate.indeterminateDrawable = drawable
             }
+        }
+
+        private fun VideoDetails.buildDetailsText(): Spannable {
+            return SpannableStringBuilder().apply {
+                appendDetail("Filename: ", filename)
+                appendDetail("Title: ", title)
+                appendDetail("vcodec: ", vcodec ?: "none")
+                appendDetail("acodec: ", acodec ?: "none")
+                appendDetail("Duration: ", duration)
+                appendDetail("Filesize: ", filesize)
+                appendDetail("Width: ", width)
+                appendDetail("Height: ", height)
+                appendDetail("Bitrate: ", bitrate)
+                appendDetail("Framerate: ", framerate)
+                appendDetail("Encoder: ", encoder)
+                appendDetail("Encoded By: ", encodedBy)
+                appendDetail("Date: ", date)
+                appendDetail("Creation Time: ", creationTime)
+                appendDetail("Artist: ", artist)
+                appendDetail("Album: ", album)
+                appendDetail("Album Artist: ", albumArtist)
+                appendDetail("Track: ", track)
+                appendDetail("Genre: ", genre)
+                appendDetail("Composer: ", composer)
+                appendDetail("Performer: ", performer)
+                appendDetail("Copyright: ", copyright)
+                appendDetail("Publisher: ", publisher)
+                appendDetail("Language: ", language)
+            }
+        }
+
+        private fun SpannableStringBuilder.appendDetail(entryLabel: String, entryValue: String?) {
+            entryValue?.let {
+                append(SpannableString(entryLabel).style()).appendln(it)
+            }
+        }
+
+        private fun Spannable.style(): Spannable {
+            val color = ResourcesCompat.getColor(itemView.resources, R.color.yellow, null)
+            val span = ForegroundColorSpan(color)
+            setSpan(span, 0, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+            return this
         }
 
         private fun findTextView(id: Int) = itemView.findViewById<TextView>(id)

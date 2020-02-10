@@ -23,7 +23,9 @@ import android.content.Context
 import androidx.room.Room
 import androidx.work.*
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
@@ -32,7 +34,7 @@ import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import java.io.File
 import java.util.concurrent.Executors
 
-class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+class DownloadQueueWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     private val downloadList = Room
             .databaseBuilder(
                     context,
@@ -56,10 +58,11 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
         const val QUEUE_AUDIO_DETAILS_FILE = "queue_audio_details.json"
         const val QUEUE_START_NEW = 0
         const val QUEUE_FINISHED = 1
-        const val QUEUE_VIDEO_DETAILS = 2
-        const val QUEUE_AUDIO_DETAILS = 3
-        const val QUEUE_DOWNLOAD_START = 4
+        const val QUEUE_DOWNLOAD_START_NO_DETAILS = 2
+        const val QUEUE_DOWNLOAD_START_VIDEO_DETAILS = 3
+        const val QUEUE_DOWNLOAD_START_VID_AUD_DETAILS = 4
         const val QUEUE_EXCEPTION = 5
+
         private const val UNIQUE_NAME = "download_queue_worker"
 
         private val downloadQueueContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
@@ -73,7 +76,15 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
                     .enqueueUniqueWork(UNIQUE_NAME, ExistingWorkPolicy.REPLACE, downloadRequest)
         }
 
-        fun stop(context: Context) = WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_NAME)
+        fun stop(context: Context) {
+            //videoDetailsFetcher.cancel()
+            status = Status.INACTIVE
+            //videoDownloader.stop()
+            println("VIDEODONWLOADER STOPPED")
+            deleteEventData(context, QUEUE_VIDEO_DETAILS_FILE)
+            deleteEventData(context, QUEUE_AUDIO_DETAILS_FILE)
+            WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_NAME)
+        }
 
         fun getQueueEventLiveData(context: Context) =
                 WorkManager.getInstance(context).getWorkInfosForUniqueWorkLiveData(UNIQUE_NAME)
@@ -97,7 +108,7 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
         }
     }
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         workOnTopItem()
         return Result.success()
     }
@@ -119,32 +130,42 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
             }
 
             override fun onFetched(details: VideoDetails) {
-                update(QUEUE_VIDEO_DETAILS, details)
+                println("FETCHED DETAILS")
+                val vidJson = gson.toJson(details)
+                saveEventData(applicationContext, vidJson, QUEUE_VIDEO_DETAILS_FILE)
 
                 if (first.audioUrl != null)
                     videoDetailsFetcher.fetchDetails(first.audioUrl, object : VideoDetailsFetcher.FetchListener {
                         override fun onUnFetched(error: Throwable) {
-                            if (!isStopped)
+                            if (!isStopped) {
+                                update(QUEUE_DOWNLOAD_START_NO_DETAILS)
                                 startDownload(first)
+                            }
                         }
 
                         override fun onFetched(details: VideoDetails) {
-                            update(QUEUE_AUDIO_DETAILS, details)
-                            if (!isStopped)
+                            if (!isStopped) {
+                                val audJson = gson.toJson(details)
+                                saveEventData(applicationContext, audJson, QUEUE_AUDIO_DETAILS_FILE)
+                                update(QUEUE_DOWNLOAD_START_VID_AUD_DETAILS)
                                 startDownload(first)
+                            }
                         }
                     })
                 else
-                    if (!isStopped)
+                    if (!isStopped) {
+                        println("UPDATING DOWNLOAD START VIDEO DETAILS")
+                        update(QUEUE_DOWNLOAD_START_VIDEO_DETAILS)
                         startDownload(first)
+                        println("START DOWNLOAD FINISHED")
+                    }
             }
         })
-
+        println("END OF WORK")
     }
 
     private fun startDownload(item: DownloadItem) {
         status = Status.DOWNLOADING
-        update(QUEUE_DOWNLOAD_START)
 
         try {
             videoDownloader.download(item)
@@ -183,24 +204,28 @@ class DownloadQueueWorker(context: Context, params: WorkerParameters) : Worker(c
     }
 
     private fun update(event: Int, data: Any? = null) {
+        println("UPDATE = $event")
         if (data != null) {
+            println("DATA IS NOT NULL")
             val json = gson.toJson(data)
-            when (event) {
-                QUEUE_VIDEO_DETAILS -> saveEventData(applicationContext, json, QUEUE_VIDEO_DETAILS_FILE)
-                QUEUE_AUDIO_DETAILS -> saveEventData(applicationContext, json, QUEUE_AUDIO_DETAILS_FILE)
-                else -> saveEventData(applicationContext, json, QUEUE_EVENT_DATA_FILE)
-            }
+            saveEventData(applicationContext, json, QUEUE_EVENT_DATA_FILE)
         }
         val workData = workDataOf(QUEUE_EVENT to event)
-        setProgressAsync(workData)
+        println("SETTING PROGRESS ASYNC for $event")
+        CoroutineScope(downloadQueueContext).launch {
+            setProgress(workData)
+        }
     }
 
-    override fun onStopped() {
+    /*override fun onStopped() {
+        WorkManager.getInstance(applicationContext).pruneWork()
         super.onStopped()
+        println("ONSTOPPED")
         videoDetailsFetcher.cancel()
         status = Status.INACTIVE
         videoDownloader.stop()
+        println("VIDEODONWLOADER STOPPED")
         deleteEventData(applicationContext, QUEUE_VIDEO_DETAILS_FILE)
         deleteEventData(applicationContext, QUEUE_AUDIO_DETAILS_FILE)
-    }
+    }*/
 }

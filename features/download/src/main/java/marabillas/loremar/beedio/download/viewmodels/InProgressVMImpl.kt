@@ -27,15 +27,20 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.work.WorkInfo
+import com.google.gson.Gson
 import kotlinx.coroutines.*
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.download.DownloadQueueWorker
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START
+import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START_NO_DETAILS
+import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START_VIDEO_DETAILS
+import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START_VID_AUD_DETAILS
 import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_EVENT
 import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_FINISHED
 import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_START_NEW
+import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_VIDEO_DETAILS_FILE
 import marabillas.loremar.beedio.base.download.VideoDownloader
+import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import java.io.File
 import java.util.concurrent.Executors
@@ -58,11 +63,13 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     private var inProgressList = mutableListOf<InProgressItem>()
     private var queueEventObserver: QueueEventObserver? = null
+    private val gson = Gson()
 
     private val progressUpdate = SendLiveData<ProgressUpdate>()
     private val inProgressListUpdate = SendLiveData<List<InProgressItem>>()
     private val _isDownloading = MutableLiveData<Boolean>()
     private val _isFetching = MutableLiveData<Boolean>()
+    private val videoDetails = SendLiveData<VideoDetails>()
 
     override val isDownloading: Boolean?
         get() = _isDownloading.value
@@ -93,6 +100,8 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     override fun pauseDownload() {
         notifyViewDownloadStopped()
+        stopObservingDownloadQueueEvents()
+        queueEventObserver = null
         DownloadQueueWorker.stop(context)
     }
 
@@ -102,6 +111,10 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     override fun observeIsFetching(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>) {
         _isFetching.observe(lifecycleOwner, observer)
+    }
+
+    override fun observeVideoDetails(lifecycleOwner: LifecycleOwner, observer: Observer<VideoDetails>) {
+        videoDetails.observeSend(lifecycleOwner, observer)
     }
 
     override fun observeProgress(lifecycleOwner: LifecycleOwner, observer: Observer<ProgressUpdate>) {
@@ -162,6 +175,13 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     private fun Long.formatSize(): String = Formatter.formatFileSize(context, this)
 
+    private fun onVideoDetailsFetched() {
+        println("ON VIDEO DETAILS FETCHED")
+        val json = DownloadQueueWorker.loadEventData(context, QUEUE_VIDEO_DETAILS_FILE)
+        val details = gson.fromJson(json, VideoDetails::class.java)
+        videoDetails.send(details)
+    }
+
     private fun observeDownloadQueueEvents() = viewModelScope.launch(Dispatchers.Main) {
         if (queueEventObserver == null) {
             queueEventObserver = QueueEventObserver().apply {
@@ -213,24 +233,41 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     inner class QueueEventObserver : Observer<List<WorkInfo>> {
         override fun onChanged(t: List<WorkInfo>?) {
+            println("QUEUE EVENT count = ${t?.count() ?: "null"}")
             if (t.isNullOrEmpty())
                 return
             t[0].apply {
-                when (progress.getInt(QUEUE_EVENT, -1)) {
+                when (val event = progress.getInt(QUEUE_EVENT, -1)) {
                     QUEUE_START_NEW -> {
+                        println("START NEW")
                         _isDownloading.postValue(true)
                         loadDownloadsList()
                     }
                     QUEUE_FINISHED -> {
+                        println("FINISHED")
                         notifyViewDownloadStopped()
                         loadDownloadsList()
                     }
-                    QUEUE_DOWNLOAD_START -> {
-                        _isFetching.postValue(false)
-                        startTrackingProgress()
+                    QUEUE_DOWNLOAD_START_NO_DETAILS -> onStartDownload()
+                    QUEUE_DOWNLOAD_START_VIDEO_DETAILS -> {
+                        println("QUEUE DONWLOAD START VIDEO DETAILS")
+                        onStartDownload()
+                        onVideoDetailsFetched()
+                    }
+                    QUEUE_DOWNLOAD_START_VID_AUD_DETAILS -> {
+                        onStartDownload()
+                        TODO("On video and audio details fetched")
+                    }
+                    else -> {
+                        println("QUEUE EVENT = $event")
                     }
                 }
             }
+        }
+
+        private fun onStartDownload() {
+            _isFetching.postValue(false)
+            startTrackingProgress()
         }
     }
 }

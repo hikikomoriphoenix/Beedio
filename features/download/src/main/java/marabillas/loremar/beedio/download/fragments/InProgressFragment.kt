@@ -89,6 +89,10 @@ class InProgressFragment @Inject constructor() : DaggerFragment() {
             inProgressAdapter.isFetching = it
         })
 
+        inProgressVM.observeVideoDetails(this, Observer {
+            inProgressAdapter.loadDetails(it, false)
+        })
+
         startButton {
             setOnClickListener {
                 inProgressVM.isDownloading?.let { downloading ->
