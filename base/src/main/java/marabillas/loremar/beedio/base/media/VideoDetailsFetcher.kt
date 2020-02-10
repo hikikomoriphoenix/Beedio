@@ -69,6 +69,8 @@ class VideoDetailsFetcher {
             fetchListener.onUnFetched(e)
         } catch (e: IllegalArgumentException) {
             fetchListener.onUnFetched(e)
+        } catch (e: Exception) {
+            fetchListener.onUnFetched(e)
         }
     }
 

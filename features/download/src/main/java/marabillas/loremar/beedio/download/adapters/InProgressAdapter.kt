@@ -79,17 +79,19 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
     }
 
     fun loadDetails(details: VideoDetails, isAudio: Boolean = false) {
-        println("LOAD DETAILS")
         topItemDetails = details
-        if (downloads.count() > 0) notifyItemChanged(0)
+        if (downloads.count() > 0)
+            notifyItemChanged(0)
     }
 
     fun updateProgress(progress: Int?, downloaded: String) {
-        downloads[0].apply {
-            this.progress = progress
-            inProgressDownloaded = downloaded
+        if (downloads.count() > 0) {
+            downloads[0].apply {
+                this.progress = progress
+                inProgressDownloaded = downloaded
+            }
+            notifyItemChanged(0)
         }
-        notifyItemChanged(0)
     }
 
     inner class InProgressViewHolder(view: View) : RecyclerView.ViewHolder(view) {

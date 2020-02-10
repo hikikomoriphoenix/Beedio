@@ -31,7 +31,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker
+import marabillas.loremar.beedio.base.download.DownloadQueueManager
 import marabillas.loremar.beedio.base.download.VideoDownloader
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
@@ -354,7 +354,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             list.forEachIndexed { i, it -> it.uid = i }
             downloads.save(list)
 
-            DownloadQueueWorker.work(context)
+            DownloadQueueManager.start(context)
         }
     }
 

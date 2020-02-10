@@ -27,22 +27,22 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.work.WorkInfo
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START_NO_DETAILS
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START_VIDEO_DETAILS
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_DOWNLOAD_START_VID_AUD_DETAILS
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_EVENT
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_FINISHED
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_START_NEW
-import marabillas.loremar.beedio.base.download.DownloadQueueWorker.Companion.QUEUE_VIDEO_DETAILS_FILE
+import marabillas.loremar.beedio.base.download.DetailsFetchWorker
+import marabillas.loremar.beedio.base.download.DownloadQueueManager
+import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.DETAILS_FETCH_WORKER
+import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.NEXT_DOWNLOAD_WORKER
+import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.VIDEO_DETAILS_FILE
+import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.VIDEO_DOWNLOAD_WORKER
 import marabillas.loremar.beedio.base.download.VideoDownloader
 import marabillas.loremar.beedio.base.media.VideoDetails
+import marabillas.loremar.beedio.base.media.VideoDetailsTypeAdapter
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import java.io.File
+import java.io.FileReader
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
@@ -61,9 +61,11 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
             .build()
             .downloadListDao()
 
-    private var inProgressList = mutableListOf<InProgressItem>()
     private var queueEventObserver: QueueEventObserver? = null
-    private val gson = Gson()
+    private val downloadStateObserver = DownloadStateObserver()
+    private val gson = GsonBuilder()
+            .registerTypeAdapter(VideoDetails::class.java, VideoDetailsTypeAdapter())
+            .create()
 
     private val progressUpdate = SendLiveData<ProgressUpdate>()
     private val inProgressListUpdate = SendLiveData<List<InProgressItem>>()
@@ -74,35 +76,35 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
     override val isDownloading: Boolean?
         get() = _isDownloading.value
 
+    init {
+        observeDownloadQueueEvents()
+    }
+
     override fun loadDownloadsList(actionOnComplete: (List<InProgressItem>) -> Unit) {
         viewModelScope.launch(listOperationDispatcher) {
-            downloadsDB.load().toInProgressList()
-            actionOnComplete(inProgressList)
-            checkDownloadStatus()
-            observeDownloadQueueEvents()
+            val list = downloadsDB.load().toInProgressList()
+            actionOnComplete(list)
+            observeDownloadState()
         }
     }
 
     private fun loadDownloadsList() {
         viewModelScope.launch(listOperationDispatcher) {
-            downloadsDB.load().toInProgressList()
+            val list = downloadsDB.load().toInProgressList()
             viewModelScope.launch(Dispatchers.Main) {
-                inProgressListUpdate.send(inProgressList)
-                checkDownloadStatus()
+                inProgressListUpdate.send(list)
             }
         }
     }
 
     override fun startDownload() {
-        DownloadQueueWorker.work(context)
-        observeDownloadQueueEvents()
+        DownloadQueueManager.start(context)
     }
 
     override fun pauseDownload() {
         notifyViewDownloadStopped()
-        stopObservingDownloadQueueEvents()
         queueEventObserver = null
-        DownloadQueueWorker.stop(context)
+        DownloadQueueManager.stop(context)
     }
 
     override fun observeIsDownloading(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>) {
@@ -125,19 +127,14 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
         inProgressListUpdate.observeSend(lifecycleOwner, observer)
     }
 
-    private fun checkDownloadStatus() {
-        val downloadStatus = DownloadQueueWorker.status
-        val isFetching = downloadStatus == DownloadQueueWorker.Status.FETCHING_DETAILS
-        val isDownloading = downloadStatus == DownloadQueueWorker.Status.DOWNLOADING
-        if (isDownloading)
-            startTrackingProgress()
-
-        _isDownloading.postValue(isFetching || isDownloading)
-        _isFetching.postValue(isFetching)
+    private fun observeDownloadState() {
+        viewModelScope.launch(Dispatchers.Main) {
+            DownloadQueueManager.state.observeForever(downloadStateObserver)
+        }
     }
 
-    private fun List<DownloadItem>.toInProgressList() {
-        inProgressList.clear()
+    private fun List<DownloadItem>.toInProgressList(): List<InProgressItem> {
+        val list = mutableListOf<InProgressItem>()
         forEach {
             val item = InProgressItem(
                     title = "${it.name}.${it.ext}",
@@ -145,8 +142,9 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
                     inProgressDownloaded = it.getDownloadedText(),
                     inQueueDownloaded = "${it.getProgress()} ${it.getDownloadedText()}"
             )
-            inProgressList.add(item)
+            list.add(item)
         }
+        return list
     }
 
     private fun DownloadItem.getDownloadedText(): String {
@@ -175,25 +173,31 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     private fun Long.formatSize(): String = Formatter.formatFileSize(context, this)
 
-    private fun onVideoDetailsFetched() {
-        println("ON VIDEO DETAILS FETCHED")
-        val json = DownloadQueueWorker.loadEventData(context, QUEUE_VIDEO_DETAILS_FILE)
-        val details = gson.fromJson(json, VideoDetails::class.java)
-        videoDetails.send(details)
-    }
-
     private fun observeDownloadQueueEvents() = viewModelScope.launch(Dispatchers.Main) {
-        if (queueEventObserver == null) {
-            queueEventObserver = QueueEventObserver().apply {
-                DownloadQueueWorker.getQueueEventLiveData(context).observeForever(this)
-            }
+
+        val detailsFetch = DownloadQueueManager.getDetailsFetchLiveData(context)
+        val videoDownload = DownloadQueueManager.getVideoDownloadLiveData(context)
+        val nextDownload = DownloadQueueManager.getNextDownloadLiveData(context)
+        queueEventObserver?.let {
+            detailsFetch.removeObserver(it)
+            videoDownload.removeObserver(it)
+            nextDownload.removeObserver(it)
+        }
+        queueEventObserver = QueueEventObserver()
+        queueEventObserver?.let {
+            detailsFetch.observeForever(it)
+            videoDownload.observeForever(it)
+            nextDownload.observeForever(it)
         }
     }
 
     private fun stopObservingDownloadQueueEvents() = queueEventObserver?.let {
-        DownloadQueueWorker
-                .getQueueEventLiveData(context)
+        DownloadQueueManager
+                .getQueueLiveData(context)
                 .removeObserver(it)
+        DownloadQueueManager.getDetailsFetchLiveData(context).removeObserver(it)
+        DownloadQueueManager.getVideoDownloadLiveData(context).removeObserver(it)
+        DownloadQueueManager.getNextDownloadLiveData(context).removeObserver(it)
     }
 
     private fun notifyViewDownloadStopped() {
@@ -228,46 +232,105 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
     override fun onCleared() {
         progressTrackingJob?.cancel()
         stopObservingDownloadQueueEvents()
+        DownloadQueueManager.state.removeObserver(downloadStateObserver)
         super.onCleared()
     }
 
-    inner class QueueEventObserver : Observer<List<WorkInfo>> {
+    private inner class QueueEventObserver : Observer<List<WorkInfo>> {
+
         override fun onChanged(t: List<WorkInfo>?) {
-            println("QUEUE EVENT count = ${t?.count() ?: "null"}")
             if (t.isNullOrEmpty())
                 return
-            t[0].apply {
-                when (val event = progress.getInt(QUEUE_EVENT, -1)) {
-                    QUEUE_START_NEW -> {
-                        println("START NEW")
-                        _isDownloading.postValue(true)
-                        loadDownloadsList()
+
+            val workInfo = t[0]
+            val isDetailsFetch = workInfo.tags.contains(DETAILS_FETCH_WORKER)
+            val isVideoDownload = workInfo.tags.contains(VIDEO_DOWNLOAD_WORKER)
+            val isNextDownload = workInfo.tags.contains(NEXT_DOWNLOAD_WORKER)
+
+            when {
+                isDetailsFetch -> {
+                    workInfo.apply {
+                        this.state.isFinished
+                        when (state) {
+                            WorkInfo.State.RUNNING -> {
+                                loadDownloadsList()
+                            }
+                            WorkInfo.State.FAILED -> {
+                                notifyViewDownloadStopped()
+                                loadDownloadsList()
+                            }
+                            WorkInfo.State.SUCCEEDED -> {
+                                outputData.apply {
+                                    val hasVideoDetails =
+                                            getBoolean(DetailsFetchWorker.HAS_VIDEO_DETAILS, false)
+                                    val hasAudioDetails =
+                                            getBoolean(DetailsFetchWorker.HAS_AUDIO_DETAILS, false)
+                                    if (hasVideoDetails) {
+                                        onVideoDetailsFetched()
+                                    }
+                                }
+                            }
+                            else -> {
+                            }
+                        }
                     }
-                    QUEUE_FINISHED -> {
-                        println("FINISHED")
-                        notifyViewDownloadStopped()
-                        loadDownloadsList()
+                }
+                isVideoDownload -> {
+                    workInfo.apply {
+                        when (state) {
+                            WorkInfo.State.RUNNING -> {
+                                onStartDownload()
+                            }
+                            WorkInfo.State.FAILED -> {
+                                notifyViewDownloadStopped()
+                                loadDownloadsList()
+                            }
+                            else -> {
+                            }
+                        }
                     }
-                    QUEUE_DOWNLOAD_START_NO_DETAILS -> onStartDownload()
-                    QUEUE_DOWNLOAD_START_VIDEO_DETAILS -> {
-                        println("QUEUE DONWLOAD START VIDEO DETAILS")
-                        onStartDownload()
-                        onVideoDetailsFetched()
-                    }
-                    QUEUE_DOWNLOAD_START_VID_AUD_DETAILS -> {
-                        onStartDownload()
-                        TODO("On video and audio details fetched")
-                    }
-                    else -> {
-                        println("QUEUE EVENT = $event")
+                }
+                isNextDownload -> {
+                    workInfo.apply {
+                        when (state) {
+                            WorkInfo.State.FAILED -> {
+                                notifyViewDownloadStopped()
+                                loadDownloadsList()
+                            }
+                            else -> {
+                            }
+                        }
                     }
                 }
             }
         }
 
         private fun onStartDownload() {
-            _isFetching.postValue(false)
             startTrackingProgress()
+        }
+
+        private fun onVideoDetailsFetched() {
+            viewModelScope.launch(listOperationDispatcher) {
+                val file = File(context.filesDir, VIDEO_DETAILS_FILE)
+                val fileReader = FileReader(file)
+                val details = gson.fromJson(fileReader, VideoDetails::class.java)
+
+                viewModelScope.launch(Dispatchers.Main) {
+                    videoDetails.send(details)
+                }
+            }
+        }
+    }
+
+    private inner class DownloadStateObserver : Observer<DownloadQueueManager.State> {
+        override fun onChanged(t: DownloadQueueManager.State?) {
+            val isFetching = t == DownloadQueueManager.State.FETCHING_DETAILS
+            val isDownloading = t == DownloadQueueManager.State.DOWNLOADING
+            if (isDownloading)
+                startTrackingProgress()
+
+            _isDownloading.postValue(isFetching || isDownloading)
+            _isFetching.postValue(isFetching)
         }
     }
 }
