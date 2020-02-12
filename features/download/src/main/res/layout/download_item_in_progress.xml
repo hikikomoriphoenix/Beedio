@@ -35,6 +35,8 @@
             android:layout_width="160dp"
             android:layout_height="90dp"
             android:contentDescription="@string/video_thumbnail"
+            android:scaleType="fitCenter"
+            android:background="@color/black"
             app:srcCompat="@color/black2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

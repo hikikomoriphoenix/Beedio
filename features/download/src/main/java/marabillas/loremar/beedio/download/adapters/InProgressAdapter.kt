@@ -20,6 +20,7 @@
 package marabillas.loremar.beedio.download.adapters
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
@@ -136,6 +137,13 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
                     topItemDetails == null -> inProgressDetails.text = "No details"
                     else -> inProgressDetails.text = topItemDetails?.buildDetailsText()
                             ?: "No details"
+                }
+
+                topItemDetails?.also {
+                    if (it.thumbnail != null) {
+                        val src = BitmapDrawable(itemView.resources, it.thumbnail)
+                        thumbnail.setImageDrawable(src)
+                    }
                 }
             } else {
                 inQueueTitle.text = item.title

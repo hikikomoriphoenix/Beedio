@@ -30,6 +30,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.download.R
@@ -52,6 +53,7 @@ class InProgressFragment @Inject constructor() : DaggerFragment() {
                 adapter = inProgressAdapter
                 layoutManager = LinearLayoutManager(context)
                 layoutParams = ConstraintLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                (itemAnimator as SimpleItemAnimator?)?.supportsChangeAnimations = false
             }
         }
     }
