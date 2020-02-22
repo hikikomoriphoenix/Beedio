@@ -21,6 +21,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!-- An enclosing FrameLayout is added because wrap_content or defined widths don't work with
+    RecyclerView itemviews-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="298dp"
         android:layout_height="wrap_content"
