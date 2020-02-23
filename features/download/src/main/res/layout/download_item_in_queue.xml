@@ -26,7 +26,10 @@
     android:layout_marginEnd="8dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/download_item_background"
-    android:padding="16dp">
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:paddingEnd="8dp">
 
     <TextView
         android:id="@+id/item_in_queue_title"
@@ -34,9 +37,10 @@
         android:layout_height="wrap_content"
         android:text="@string/no_title"
         android:textColor="@color/white"
+        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/item_in_queue_more" />
 
     <TextView
         android:id="@+id/item_in_queue_downloaded"
@@ -44,8 +48,18 @@
         android:layout_height="wrap_content"
         android:text="@string/zero_downloaded"
         android:textColor="@color/yellow"
+        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/item_in_queue_title"
+        app:layout_constraintEnd_toStartOf="@id/item_in_queue_more" />
+
+    <ImageView
+        android:id="@+id/item_in_queue_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:srcCompat="@drawable/ic_more_vert_white_24dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

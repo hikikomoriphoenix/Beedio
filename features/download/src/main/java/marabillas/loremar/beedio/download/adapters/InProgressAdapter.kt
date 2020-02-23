@@ -34,6 +34,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -95,7 +98,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
         }
     }
 
-    inner class InProgressViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class InProgressViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         private val thumbnail by lazy { findImageView(R.id.item_in_progress_thumbnail) }
         private val progressBar by lazy { findProgressBar(R.id.item_in_progress_progressbar) }
@@ -109,6 +112,9 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
 
         private val inQueueTitle by lazy { findTextView(R.id.item_in_queue_title) }
         private val inQueueDownloaded by lazy { findTextView(R.id.item_in_queue_downloaded) }
+
+        private val inProgressMore by lazy { findImageView(R.id.item_in_progress_more) }
+        private val inQueueMore by lazy { findImageView(R.id.item_in_queue_more) }
 
         @SuppressLint("SetTextI18n")
         fun bind(item: InProgressVM.InProgressItem) {
@@ -145,9 +151,12 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
                         thumbnail.setImageDrawable(src)
                     }
                 }
+
+                inProgressMore.setOnClickListener(this)
             } else {
                 inQueueTitle.text = item.title
                 inQueueDownloaded.text = item.inQueueDownloaded
+                inQueueMore.setOnClickListener(this)
             }
         }
 
@@ -165,6 +174,23 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
             if (Build.VERSION.SDK_INT < 21) {
                 val drawable = ResourcesCompat.getDrawable(itemView.resources, R.drawable.circular_progress, null)
                 progressBarIndeterminate.indeterminateDrawable = drawable
+            }
+        }
+
+        override fun onClick(v: View?) {
+            when (v) {
+                inProgressMore -> showMore(inProgressMore)
+                inQueueMore -> showMore(inQueueMore)
+            }
+        }
+
+        private fun showMore(v: View) {
+            PopupMenu(v.context, v).apply {
+                inflate(R.menu.in_progress_item_menu)
+                MenuPopupHelper(v.context, menu as MenuBuilder, v).apply {
+                    setForceShowIcon(true)
+                    show()
+                }
             }
         }
 

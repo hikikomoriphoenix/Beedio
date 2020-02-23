@@ -24,6 +24,9 @@
         <item name="colorPrimary">@color/yellow</item>
         <item name="colorPrimaryDark">@color/black1</item>
         <item name="colorAccent">@color/yellow</item>
+        <item name="popupMenuStyle">@style/DarkPopupMenu</item>
+        <item name="textAppearanceLargePopupMenu">@style/DarkPopupMenu.TextLarge</item>
+        <item name="textAppearanceSmallPopupMenu">@style/DarkPopupMenu.TextSmall</item>
     </style>
 
     <style name="DarkAppBar" parent="Widget.AppCompat.ActionBar">
@@ -43,4 +46,19 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
+
+    <style name="DarkPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@color/black3</item>
+    </style>
+
+    <style name="DarkPopupMenu.TextLarge" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+
+    <style name="DarkPopupMenu.TextSmall" parent="TextAppearance.AppCompat.Widget.PopupMenu.Small">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+
 </resources>
