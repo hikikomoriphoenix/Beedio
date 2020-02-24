@@ -43,6 +43,7 @@ import androidx.recyclerview.widget.RecyclerView
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.download.R
 import marabillas.loremar.beedio.download.viewmodels.InProgressVM
+import marabillas.loremar.beedio.sharedui.RenameDialog
 
 class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewHolder>() {
     var eventListener: EventListener? = null
@@ -187,6 +188,17 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
         private fun showMore(v: View) {
             PopupMenu(v.context, v).apply {
                 inflate(R.menu.in_progress_item_menu)
+                setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.itemId) {
+                        R.id.in_progress_menu_rename -> RenameDialog(
+                                v.context,
+                                v.context.getString(R.string.enter_new_name)) { newName ->
+                            eventListener?.onRenameItem(adapterPosition, newName)
+                        }
+                        R.id.in_progress_menu_delete -> eventListener?.onDeleteItem(adapterPosition)
+                    }
+                    true
+                }
                 MenuPopupHelper(v.context, menu as MenuBuilder, v).apply {
                     setForceShowIcon(true)
                     show()
@@ -242,6 +254,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
     }
 
     interface EventListener {
-
+        fun onRenameItem(index: Int, newName: String)
+        fun onDeleteItem(index: Int)
     }
 }

@@ -32,6 +32,7 @@ import kotlinx.coroutines.*
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.download.DetailsFetchWorker
+import marabillas.loremar.beedio.base.download.DownloadFileValidator
 import marabillas.loremar.beedio.base.download.DownloadQueueManager
 import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.DETAILS_FETCH_WORKER
 import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.NEXT_DOWNLOAD_WORKER
@@ -66,6 +67,7 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
     private val gson = GsonBuilder()
             .registerTypeAdapter(VideoDetails::class.java, VideoDetailsTypeAdapter())
             .create()
+    private val downloadFileValidator = DownloadFileValidator(context)
 
     private val progressUpdate = SendLiveData<ProgressUpdate>()
     private val inProgressListUpdate = SendLiveData<List<InProgressItem>>()
@@ -227,6 +229,35 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     private fun stopTrackingProgress() {
         progressTrackingJob?.cancel()
+    }
+
+    override fun renameItem(index: Int, newName: String) {
+        viewModelScope.launch(listOperationDispatcher) {
+            val downloads = downloadsDB.load()
+            downloadsDB.delete(downloads)
+
+            if (index < downloads.count() && index >= 0) {
+                val item = downloads[index]
+                val validated = downloadFileValidator.validateName(newName, item.ext) {
+                    downloads.any { item -> item.name == it }
+                }
+                item.name = validated
+
+                downloadsDB.save(downloads)
+                loadDownloadsList()
+            }
+        }
+    }
+
+    override fun deleteItem(index: Int) {
+        viewModelScope.launch(listOperationDispatcher) {
+            val downloads = downloadsDB.load()
+            if (index < downloads.count() && index >= 0) {
+                val item = downloads[index]
+                downloadsDB.delete(listOf(item))
+                loadDownloadsList()
+            }
+        }
     }
 
     override fun onCleared() {

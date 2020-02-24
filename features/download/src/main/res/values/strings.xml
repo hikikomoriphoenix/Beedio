@@ -29,4 +29,5 @@
     <string name="video_thumbnail">video thumbnail</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
+    <string name="enter_new_name">Enter new name</string>
 </resources>

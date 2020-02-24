@@ -28,7 +28,7 @@ data class DownloadItem(
         @PrimaryKey
         var uid: Int,
         @ColumnInfo(name = "name")
-        val name: String,
+        var name: String,
         @ColumnInfo(name = "video_url")
         val videoUrl: String,
         @ColumnInfo(name = "ext")

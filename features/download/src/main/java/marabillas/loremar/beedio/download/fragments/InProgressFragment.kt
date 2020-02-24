@@ -38,7 +38,7 @@ import marabillas.loremar.beedio.download.adapters.InProgressAdapter
 import marabillas.loremar.beedio.download.viewmodels.InProgressVM
 import javax.inject.Inject
 
-class InProgressFragment @Inject constructor() : DaggerFragment() {
+class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAdapter.EventListener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -48,6 +48,7 @@ class InProgressFragment @Inject constructor() : DaggerFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         inProgressAdapter = InProgressAdapter()
+        inProgressAdapter.eventListener = this
         return context?.run {
             RecyclerView(this).apply {
                 adapter = inProgressAdapter
@@ -110,4 +111,8 @@ class InProgressFragment @Inject constructor() : DaggerFragment() {
 
     private fun startButton(block: FloatingActionButton.() -> Unit) =
             activity?.findViewById<FloatingActionButton>(R.id.start_button)?.apply(block)
+
+    override fun onRenameItem(index: Int, newName: String) = inProgressVM.renameItem(index, newName)
+
+    override fun onDeleteItem(index: Int) = inProgressVM.deleteItem(index)
 }
