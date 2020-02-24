@@ -40,7 +40,7 @@ import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.FoundVideosListItemBinding
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.views.ExpandingItemView
-import marabillas.loremar.beedio.browser.views.RenameDialog
+import marabillas.loremar.beedio.sharedui.RenameDialog
 import timber.log.Timber
 
 class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosViewHolder>() {
@@ -150,7 +150,9 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                     eventsListener?.onItemDelete(adapterPosition)
                 }
                 binding.foundVideoRename -> {
-                    RenameDialog(expandingItemView.context) {
+                    val context = expandingItemView.context
+                    val hint = context.getString(R.string.enter_new_title)
+                    RenameDialog(context, hint) {
                         eventsListener?.onItemRename(adapterPosition, it)
                     }
                 }
