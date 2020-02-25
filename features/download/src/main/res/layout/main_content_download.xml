@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:src="@drawable/ic_play_arrow_black_24dp"
+            app:srcCompat="@drawable/ic_play_arrow_black_24dp"
             app:backgroundTint="@color/yellow"
             app:layout_anchor="@id/download_toolbar"
             app:layout_anchorGravity="end|center_vertical"
