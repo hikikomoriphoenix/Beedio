@@ -27,10 +27,12 @@ import android.view.MotionEvent.*
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -166,6 +168,17 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
         draggable = DataBindingUtil.inflate(inflater, R.layout.download_item_draggable, null, false)
         draggable.apply {
             (view?.parent as ViewGroup?)?.addView(root)
+            root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                width = MATCH_PARENT
+                height = WRAP_CONTENT
+                val verticalMargin = resources.getDimensionPixelSize(R.dimen.in_queue_item_margin_vertical)
+                val horizontalMargin = resources.getDimensionPixelSize(R.dimen.in_queue_item_margin_horizontal)
+                topMargin = verticalMargin
+                bottomMargin = verticalMargin
+                leftMargin = horizontalMargin
+                rightMargin = horizontalMargin
+            }
+
             root.isVisible = false
         }
         draggable.root.setOnTouchListener(this)
