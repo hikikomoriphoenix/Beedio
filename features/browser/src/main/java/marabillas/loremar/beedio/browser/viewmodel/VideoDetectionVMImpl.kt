@@ -356,7 +356,9 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             list.forEachIndexed { i, it -> it.uid = i }
             downloads.save(list)
 
-            DownloadQueueManager.start(context)
+            viewModelScope.launch(Dispatchers.Main) {
+                DownloadQueueManager.start(context)
+            }
         }
     }
 
