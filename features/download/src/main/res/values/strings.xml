@@ -30,4 +30,5 @@
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
     <string name="enter_new_name">Enter new name</string>
+    <string name="move">Move</string>
 </resources>

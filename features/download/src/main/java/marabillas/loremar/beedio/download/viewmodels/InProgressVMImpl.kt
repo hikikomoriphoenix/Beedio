@@ -260,6 +260,19 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
         }
     }
 
+    override fun moveItem(srcIndex: Int, destIndex: Int) {
+        viewModelScope.launch(listOperationDispatcher) {
+            val downloads = downloadsDB.load().toMutableList()
+            if (srcIndex in downloads.indices && destIndex in downloads.indices) {
+                downloadsDB.delete(downloads)
+                val item = downloads[srcIndex]
+                downloads.removeAt(srcIndex)
+                downloads.add(destIndex, item)
+                downloadsDB.save(downloads)
+            }
+        }
+    }
+
     override fun onCleared() {
         progressTrackingJob?.cancel()
         stopObservingDownloadQueueEvents()

@@ -1,0 +1,81 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="6.35"
+    android:viewportHeight="6.3500004">
+    <path
+        android:pathData="m2.14696,3.40289v-2.65319c0,0 0.07809,-0.3091 0.42824,-0.31478 0.40356,-0.007 0.37471,0.35977 0.37471,0.35977v1.5739,-0.38223c0,0 0.16491,-0.31884 0.455,-0.31478 0.33708,0.004 0.37471,0.31478 0.37471,0.31478l0,0.40473"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.25042674"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m3.83315,1.98636c0,0 0.135,-0.2457 0.42824,-0.24731 0.24967,-0.001 0.37471,0.33726 0.37471,0.33726l-0,0.40472"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.25042674"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m4.66286,2.07632c0,0 0.11704,-0.21828 0.37471,-0.17988 0.244,0.0364 0.29441,0.35976 0.29441,0.35976l-0,1.68631c-0.00386,0.14541 -0.13265,0.32791 -0.25246,0.4476 -0.13201,0.13186 -0.22931,0.182 -0.22931,0.182l0.02676,0.26982"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.25042674"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m2.14696,3.31296 l-0.9903,-0.62956c0,0 -0.27286,-0.063 -0.455,0.0901 -0.14218,0.11937 0,0.42722 0,0.42722l1.82001,1.64137"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.25042674"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m2.22726,4.8869 l2.86384,0.0224 0.16059,0.29229 -0.05353,0.67455 -3.13149,-0.00004 -0.0803,-0.76448z"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0.25042674"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="M3.47355,4.75937 L2.6291,4.75217 1.73702,3.94978C1.24638,3.50846 0.83053,3.12082 0.81292,3.08834 0.76916,3.00763 0.77205,2.89981 0.81903,2.86082c0.02139,-0.01775 0.09094,-0.03814 0.15455,-0.04531 0.11163,-0.01258 0.13259,-0.00225 0.60259,0.29732 0.46042,0.29345 0.49293,0.30971 0.59709,0.2986l0.11015,-0.01175 0.00058,-1.32559C2.28461,0.62838 2.27877,0.68668 2.43074,0.60897 2.52398,0.56128 2.69137,0.57328 2.74994,0.63185 2.79965,0.68156 2.80178,0.71825 2.80178,1.52603l0,0.84235l0.14255,0 0.14255,0L3.08688,2.19204c0,-0.16501 0.00542,-0.18157 0.08423,-0.25759 0.15249,-0.14709 0.27919,-0.16317 0.40173,-0.05101 0.05204,0.04763 0.05832,0.078 0.05832,0.28212l0,0.22875l0.14255,0 0.14255,0L3.91627,2.23512c0,-0.14341 0.00778,-0.16662 0.07848,-0.23418 0.1507,-0.14402 0.27122,-0.15914 0.39412,-0.04947 0.0809,0.0722 0.08522,0.08566 0.0976,0.30454L4.49943,2.48501 4.6355,2.49285 4.77157,2.50068L4.77157,2.31978c0,-0.16456 0.00617,-0.18575 0.06829,-0.23462 0.09994,-0.07861 0.19903,-0.06938 0.2793,0.02603l0.0671,0.07974l0,0.90686c0,0.62455 -0.00914,0.92448 -0.02934,0.96347 -0.05927,0.11435 -0.20595,0.27338 -0.32469,0.35203l-0.12193,0.08076 0.0066,0.14237 0.00659,0.14237 -0.20275,-0.00611c-0.11151,-0.00336 -0.58275,-0.00935 -1.0472,-0.01331z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.04897959"
+        android:fillColor="#ffffff"
+        android:strokeColor="#000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+    <path
+        android:pathData="m2.15985,5.45915 l-0.02934,-0.27862 0.08293,-0.07776 0.08293,-0.07775 1.35448,0.01296 1.35448,0.01296 0.05262,0.08655c0.0473,0.0778 0.05083,0.11252 0.03493,0.34342l-0.01769,0.25687L3.63219,5.73777 2.18919,5.73777Z"
+        android:strokeAlpha="1"
+        android:strokeWidth="0.04897959"
+        android:fillColor="#ffffff"
+        android:strokeColor="#000000"
+        android:fillType="nonZero"
+        android:fillAlpha="1" />
+</vector>

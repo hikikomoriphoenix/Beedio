@@ -53,8 +53,9 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
             if (itemCount > 0)
                 notifyItemChanged(0)
         }
+    var trenchPosition = -1
 
-    private var downloads = listOf<InProgressVM.InProgressItem>()
+    private var downloads = mutableListOf<InProgressVM.InProgressItem>()
     private var topItemDetails: VideoDetails? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InProgressViewHolder {
@@ -78,7 +79,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
     }
 
     fun loadData(downloads: List<InProgressVM.InProgressItem>) {
-        this.downloads = downloads
+        this.downloads = downloads.toMutableList()
         topItemDetails = null
         notifyDataSetChanged()
     }
@@ -97,6 +98,30 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
             }
             notifyItemChanged(0)
         }
+    }
+
+    fun moveItemDown() {
+        moveItem(isUp = false, animate = true)
+    }
+
+    fun moveItemUp(animate: Boolean) {
+        moveItem(isUp = true, animate = animate)
+    }
+
+    private fun moveItem(isUp: Boolean, animate: Boolean) {
+        val initialPosition = trenchPosition
+        val item = downloads[initialPosition]
+        if (isUp)
+            trenchPosition--
+        else
+            trenchPosition++
+        downloads.removeAt(initialPosition)
+        notifyItemRemoved(initialPosition)
+        downloads.add(item)
+        if (animate)
+            notifyItemInserted(trenchPosition)
+        else
+            notifyDataSetChanged()
     }
 
     inner class InProgressViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
@@ -159,6 +184,11 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
                 inQueueDownloaded.text = item.inQueueDownloaded
                 inQueueMore.setOnClickListener(this)
             }
+
+            if (trenchPosition == adapterPosition)
+                itemView.visibility = INVISIBLE
+            else
+                itemView.visibility = VISIBLE
         }
 
         private fun showDeterminateProgress() {
@@ -195,6 +225,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
                                 v.context.getString(R.string.enter_new_name)) { newName ->
                             eventListener?.onRenameItem(adapterPosition, newName)
                         }
+                        R.id.in_progress_menu_move -> eventListener?.onEnableItemDrag(adapterPosition)
                         R.id.in_progress_menu_delete -> eventListener?.onDeleteItem(adapterPosition)
                     }
                     true
@@ -256,5 +287,6 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
     interface EventListener {
         fun onRenameItem(index: Int, newName: String)
         fun onDeleteItem(index: Int)
+        fun onEnableItemDrag(index: Int)
     }
 }

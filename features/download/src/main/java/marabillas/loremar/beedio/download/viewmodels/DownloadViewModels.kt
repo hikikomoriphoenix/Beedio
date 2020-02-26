@@ -42,6 +42,7 @@ abstract class InProgressVM : ObservableViewModel() {
     abstract fun observeInProgressListUpdate(lifecycleOwner: LifecycleOwner, observer: Observer<List<InProgressItem>>)
     abstract fun renameItem(index: Int, newName: String)
     abstract fun deleteItem(index: Int)
+    abstract fun moveItem(srcIndex: Int, destIndex: Int)
 
     data class InProgressItem(
             val title: String,
