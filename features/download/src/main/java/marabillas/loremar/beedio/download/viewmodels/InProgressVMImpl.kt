@@ -268,6 +268,9 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
                 val item = downloads[srcIndex]
                 downloads.removeAt(srcIndex)
                 downloads.add(destIndex, item)
+                downloads.forEachIndexed { index, downloadItem ->
+                    downloadItem.uid = index
+                }
                 downloadsDB.save(downloads)
             }
         }
