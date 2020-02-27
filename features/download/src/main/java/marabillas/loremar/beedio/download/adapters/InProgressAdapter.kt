@@ -117,7 +117,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
             trenchPosition++
         downloads.removeAt(initialPosition)
         notifyItemRemoved(initialPosition)
-        downloads.add(item)
+        downloads.add(trenchPosition, item)
         if (animate)
             notifyItemInserted(trenchPosition)
         else
