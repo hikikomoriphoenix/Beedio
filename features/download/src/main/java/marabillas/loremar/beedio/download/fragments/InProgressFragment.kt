@@ -145,8 +145,13 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
 
         val selected = recyclerView.findViewHolderForAdapterPosition(index)
         draggable.apply {
-            itemDraggableTitle.text = selected?.itemView?.findViewById<TextView>(R.id.item_in_queue_title)?.text
-            itemDraggableDownloaded.text = selected?.itemView?.findViewById<TextView>(R.id.item_in_queue_downloaded)?.text
+            if (index > 0) {
+                itemDraggableTitle.text = selected?.itemView?.findViewById<TextView>(R.id.item_in_queue_title)?.text
+                itemDraggableDownloaded.text = selected?.itemView?.findViewById<TextView>(R.id.item_in_queue_downloaded)?.text
+            } else {
+                itemDraggableTitle.text = selected?.itemView?.findViewById<TextView>(R.id.item_in_progress_title)?.text
+                itemDraggableDownloaded.text = selected?.itemView?.findViewById<TextView>(R.id.item_in_progress_downloaded)?.text
+            }
             itemDraggableClose.setOnClickListener { disableItemDrag() }
             root.y = selected?.itemView?.y ?: 0f
 
