@@ -63,6 +63,15 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
     private var upwardHeight = Int.MAX_VALUE
     private var downwardHeight = Int.MAX_VALUE
 
+    private val startButtonOnClickListener = View.OnClickListener {
+        inProgressVM.isDownloading?.let { downloading ->
+            if (downloading)
+                inProgressVM.pauseDownload()
+            else
+                inProgressVM.startDownload()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         inProgressAdapter = InProgressAdapter()
         inProgressAdapter.eventListener = this
@@ -118,27 +127,24 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
             inProgressAdapter.loadDetails(it, false)
         })
 
-        startButton {
-            setOnClickListener {
-                inProgressVM.isDownloading?.let { downloading ->
-                    if (downloading)
-                        inProgressVM.pauseDownload()
-                    else
-                        inProgressVM.startDownload()
-                }
-            }
-        }
-
+        enableStartButton()
     }
 
     private fun startButton(block: FloatingActionButton.() -> Unit) =
             activity?.findViewById<FloatingActionButton>(R.id.start_button)?.apply(block)
+
+    private fun enableStartButton() = startButton { setOnClickListener(startButtonOnClickListener) }
+
+    private fun disableStartButton() = startButton { setOnClickListener(null) }
 
     override fun onRenameItem(index: Int, newName: String) = inProgressVM.renameItem(index, newName)
 
     override fun onDeleteItem(index: Int) = inProgressVM.deleteItem(index)
 
     override fun onEnableItemDrag(index: Int) {
+        disableStartButton()
+        inProgressVM.pauseDownload()
+
         val recyclerView = (view as RecyclerView).apply {
             addOnItemTouchListener(recyclerViewItemTouchDisabler)
         }
@@ -166,6 +172,7 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
         draggable.root.isVisible = false
         inProgressAdapter.trenchPosition = -1
         inProgressAdapter.notifyDataSetChanged()
+        enableStartButton()
     }
 
     private fun setupDraggableItemView() {
