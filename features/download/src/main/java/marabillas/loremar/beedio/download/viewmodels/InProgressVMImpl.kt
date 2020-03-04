@@ -85,7 +85,9 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
     override fun loadDownloadsList(actionOnComplete: (List<InProgressItem>) -> Unit) {
         viewModelScope.launch(listOperationDispatcher) {
             val list = downloadsDB.load().toInProgressList()
-            actionOnComplete(list)
+            viewModelScope.launch(Dispatchers.Main) {
+                actionOnComplete(list)
+            }
             observeDownloadState()
         }
     }
