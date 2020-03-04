@@ -254,8 +254,18 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
         val aboveVh = recyclerView.findViewHolderForLayoutPosition(position - 1)
         upwardHeight = aboveVh?.itemView?.height ?: Int.MAX_VALUE
 
-        val belowVh = recyclerView.findViewHolderForLayoutPosition(position + 1)
-        downwardHeight = belowVh?.itemView?.height ?: Int.MAX_VALUE
+        downwardHeight = if (position == 0) {
+            val topVh = recyclerView.findViewHolderForLayoutPosition(0)
+            val belowVh = recyclerView.findViewHolderForLayoutPosition(1)
+            if (topVh != null && belowVh != null) {
+                topVh.itemView.height - draggable.root.height + belowVh.itemView.height
+            } else {
+                Int.MAX_VALUE
+            }
+        } else {
+            val belowVh = recyclerView.findViewHolderForLayoutPosition(position + 1)
+            belowVh?.itemView?.height ?: Int.MAX_VALUE
+        }
     }
 }
 
