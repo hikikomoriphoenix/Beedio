@@ -204,35 +204,10 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
                     ACTION_DOWN -> {
                         y0 = event.rawY
                         moveY = 0f
-                        getTargetHeights()
+                        getTargetHeights(inProgressAdapter.trenchPosition)
                     }
                     ACTION_MOVE -> {
-                        var deltaY = event.rawY - y0
-                        y0 = event.rawY
-                        draggable.root.y += deltaY
-                        if (draggable.root.y <= 0 || draggable.root.y >= recyclerView.height) {
-                            draggable.root.y -= deltaY
-                            deltaY = 0f
-                        }
-                        moveY += deltaY
-                        if (moveY >= downwardHeight) {
-                            moveY -= downwardHeight
-                            if (inProgressAdapter.trenchPosition + 1 < inProgressAdapter.itemCount) {
-                                inProgressVM.moveItem(inProgressAdapter.trenchPosition,
-                                        inProgressAdapter.trenchPosition + 1)
-                                inProgressAdapter.moveItemDown()
-                                getTargetHeights()
-                            }
-                        } else if (moveY <= -upwardHeight) {
-                            moveY -= (-upwardHeight)
-                            if (inProgressAdapter.trenchPosition - 1 >= 0) {
-                                inProgressVM.moveItem(inProgressAdapter.trenchPosition,
-                                        inProgressAdapter.trenchPosition - 1)
-                                getTargetHeights()
-                                val animate = draggable.root.y < upwardHeight
-                                inProgressAdapter.moveItemUp(animate)
-                            }
-                        }
+                        handleItemMove(event)
                     }
                     ACTION_UP -> {
                         y0 = 0f
@@ -246,15 +221,41 @@ class InProgressFragment @Inject constructor() : DaggerFragment(), InProgressAda
             return false
     }
 
-    private fun getTargetHeights() {
-        val above = inProgressAdapter.trenchPosition - 1
-        if (above >= 0) {
-            val aboveVh = recyclerView.findViewHolderForAdapterPosition(above)
-            upwardHeight = aboveVh?.itemView?.height ?: Int.MAX_VALUE
+    private fun handleItemMove(event: MotionEvent) {
+        var deltaY = event.rawY - y0
+        y0 = event.rawY
+        draggable.root.y += deltaY
+        if (draggable.root.y <= 0 || draggable.root.y >= recyclerView.height) {
+            draggable.root.y -= deltaY
+            deltaY = 0f
         }
-        val trenchVh = recyclerView.findViewHolderForAdapterPosition(
-                inProgressAdapter.trenchPosition)
-        downwardHeight = trenchVh?.itemView?.height ?: Int.MAX_VALUE
+        moveY += deltaY
+        if (moveY >= downwardHeight) {
+            moveY -= downwardHeight
+            if (inProgressAdapter.trenchPosition + 1 < inProgressAdapter.itemCount) {
+                inProgressVM.moveItem(inProgressAdapter.trenchPosition,
+                        inProgressAdapter.trenchPosition + 1)
+                inProgressAdapter.moveItemDown()
+                getTargetHeights(inProgressAdapter.trenchPosition)
+            }
+        } else if (moveY <= -upwardHeight) {
+            moveY -= (-upwardHeight)
+            if (inProgressAdapter.trenchPosition - 1 >= 0) {
+                inProgressVM.moveItem(inProgressAdapter.trenchPosition,
+                        inProgressAdapter.trenchPosition - 1)
+                val animate = draggable.root.y < upwardHeight
+                inProgressAdapter.moveItemUp(animate)
+                getTargetHeights(inProgressAdapter.trenchPosition)
+            }
+        }
+    }
+
+    private fun getTargetHeights(position: Int) {
+        val aboveVh = recyclerView.findViewHolderForLayoutPosition(position - 1)
+        upwardHeight = aboveVh?.itemView?.height ?: Int.MAX_VALUE
+
+        val belowVh = recyclerView.findViewHolderForLayoutPosition(position + 1)
+        downwardHeight = belowVh?.itemView?.height ?: Int.MAX_VALUE
     }
 }
 
