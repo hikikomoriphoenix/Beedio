@@ -215,6 +215,7 @@ class InProgressAdapter : RecyclerView.Adapter<InProgressAdapter.InProgressViewH
             }
         }
 
+        @SuppressLint("RestrictedApi")
         private fun showMore(v: View) {
             PopupMenu(v.context, v).apply {
                 inflate(R.menu.in_progress_item_menu)
