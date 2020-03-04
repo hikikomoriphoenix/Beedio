@@ -2,20 +2,20 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Beedio.iml" filepath="$PROJECT_DIR$/Beedio.iml" />
-      <module fileurl="file://$PROJECT_DIR$/base/base.iml" filepath="$PROJECT_DIR$/base/base.iml" />
-      <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" />
-      <module fileurl="file://$PROJECT_DIR$/features/browser/browser.iml" filepath="$PROJECT_DIR$/features/browser/browser.iml" />
-      <module fileurl="file://$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" filepath="$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/features/download/download.iml" filepath="$PROJECT_DIR$/features/download/download.iml" />
-      <module fileurl="file://$PROJECT_DIR$/featureapps/downloadapp/downloadapp.iml" filepath="$PROJECT_DIR$/featureapps/downloadapp/downloadapp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/extractors/extractors.iml" filepath="$PROJECT_DIR$/extractors/extractors.iml" />
-      <module fileurl="file://$PROJECT_DIR$/featureapps/featureapps.iml" filepath="$PROJECT_DIR$/featureapps/featureapps.iml" />
-      <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" />
-      <module fileurl="file://$PROJECT_DIR$/features/home/home.iml" filepath="$PROJECT_DIR$/features/home/home.iml" />
-      <module fileurl="file://$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" filepath="$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/legacy/legacy.iml" filepath="$PROJECT_DIR$/legacy/legacy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sharedui/sharedui.iml" filepath="$PROJECT_DIR$/sharedui/sharedui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Beedio.iml" filepath="$PROJECT_DIR$/Beedio.iml" group="Beedio" />
+      <module fileurl="file://$PROJECT_DIR$/base/base.iml" filepath="$PROJECT_DIR$/base/base.iml" group="Beedio/base" />
+      <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" group="Beedio/beedio" />
+      <module fileurl="file://$PROJECT_DIR$/features/browser/browser.iml" filepath="$PROJECT_DIR$/features/browser/browser.iml" group="Beedio/features/browser" />
+      <module fileurl="file://$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" filepath="$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" group="Beedio/featureapps/browserapp" />
+      <module fileurl="file://$PROJECT_DIR$/features/download/download.iml" filepath="$PROJECT_DIR$/features/download/download.iml" group="Beedio/features/download" />
+      <module fileurl="file://$PROJECT_DIR$/featureapps/downloadapp/downloadapp.iml" filepath="$PROJECT_DIR$/featureapps/downloadapp/downloadapp.iml" group="Beedio/featureapps/downloadapp" />
+      <module fileurl="file://$PROJECT_DIR$/extractors/extractors.iml" filepath="$PROJECT_DIR$/extractors/extractors.iml" group="Beedio/extractors" />
+      <module fileurl="file://$PROJECT_DIR$/featureapps/featureapps.iml" filepath="$PROJECT_DIR$/featureapps/featureapps.iml" group="Beedio/featureapps" />
+      <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" group="Beedio/features" />
+      <module fileurl="file://$PROJECT_DIR$/features/home/home.iml" filepath="$PROJECT_DIR$/features/home/home.iml" group="Beedio/features/home" />
+      <module fileurl="file://$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" filepath="$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" group="Beedio/featureapps/homeapp" />
+      <module fileurl="file://$PROJECT_DIR$/legacy/legacy.iml" filepath="$PROJECT_DIR$/legacy/legacy.iml" group="Beedio/legacy" />
+      <module fileurl="file://$PROJECT_DIR$/sharedui/sharedui.iml" filepath="$PROJECT_DIR$/sharedui/sharedui.iml" group="Beedio/sharedui" />
     </modules>
   </component>
 </project>
