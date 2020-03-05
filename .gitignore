@@ -9,3 +9,5 @@
 .externalNativeBuild
 /app/release
 /base/libs
+/features/download/build/
+/featureapps/downloadapp/build/
