@@ -17,21 +17,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.downloadapp
+package marabillas.loremar.beedio.download.fragments
 
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import marabillas.loremar.beedio.base.di.FragmentScope
-import marabillas.loremar.beedio.download.fragments.CompletedFragment
-import marabillas.loremar.beedio.download.fragments.InProgressFragment
+import dagger.android.support.DaggerFragment
+import javax.inject.Inject
 
-@Module
-abstract class FragmentBindingModule {
-    @FragmentScope
-    @ContributesAndroidInjector
-    abstract fun contributeInProgressFragment(): InProgressFragment
-
-    @FragmentScope
-    @ContributesAndroidInjector
-    abstract fun contributeCompleteFragment(): CompletedFragment
+class CompletedFragment @Inject constructor() : DaggerFragment() {
 }

@@ -20,12 +20,15 @@
 package marabillas.loremar.beedio.download
 
 import android.os.Bundle
+import android.view.Menu
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.download.databinding.ActivityDownloadBinding
+import marabillas.loremar.beedio.download.fragments.CompletedFragment
 import marabillas.loremar.beedio.download.fragments.InProgressFragment
 import marabillas.loremar.beedio.download.viewmodels.DownloadVM
 import marabillas.loremar.beedio.download.viewmodels.InProgressVM
@@ -38,8 +41,12 @@ class DownloadActivity : DaggerAppCompatActivity() {
     @Inject
     lateinit var inProgressFragment: InProgressFragment
 
+    @Inject
+    lateinit var completedFragment: CompletedFragment
+
     private lateinit var downloadVM: DownloadVM
     private lateinit var inProgressVM: InProgressVM
+    private lateinit var binding: ActivityDownloadBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,28 +54,61 @@ class DownloadActivity : DaggerAppCompatActivity() {
         Timber.plant(Timber.DebugTree())
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
-        val binding = DataBindingUtil.setContentView<ActivityDownloadBinding>(
-                this, R.layout.activity_download)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_download)
         binding.lifecycleOwner = this
 
         downloadVM = ViewModelProvider(this::getViewModelStore, viewModelFactory).get(DownloadVM::class.java)
         inProgressVM = ViewModelProvider(this::getViewModelStore, viewModelFactory).get(InProgressVM::class.java)
 
-        binding.mainContentDownload.downloadBottomNavigation.setOnNavigationItemReselectedListener {
-            downloadVM.setSelectedNavItem(it.itemId)
+        binding.mainContentDownload.apply {
+            setSupportActionBar(downloadToolbar)
+            downloadBottomNavigation.setOnNavigationItemSelectedListener {
+                downloadVM.setSelectedNavItem(it.itemId)
+                true
+            }
         }
+
         downloadVM.observeSelectedNavItem(this, Observer {
             when (it) {
-                R.id.download_menu_in_progress -> switchToInProgress()
+                R.id.download_menu_in_progress -> viewInProgress()
+                R.id.download_menu_completed -> viewCompleted()
             }
         })
     }
 
-    private fun switchToInProgress() {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.download_tools_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    private fun viewInProgress() {
+        binding.mainContentDownload.apply {
+            startButton.isVisible = true
+            downloadToolbar.post {
+                downloadToolbar.menu.setGroupVisible(R.id.completed_menu_group, false)
+            }
+        }
+
         if (!inProgressFragment.isAdded) {
             supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.list_container, inProgressFragment)
+                    .commit()
+        }
+    }
+
+    private fun viewCompleted() {
+        binding.mainContentDownload.apply {
+            startButton.isVisible = false
+            downloadToolbar.post {
+                downloadToolbar.menu.setGroupVisible(R.id.completed_menu_group, true)
+            }
+        }
+
+        if (!completedFragment.isAdded) {
+            supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.list_container, completedFragment)
                     .commit()
         }
     }
