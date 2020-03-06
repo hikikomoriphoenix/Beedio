@@ -54,3 +54,16 @@ abstract class InProgressVM : ObservableViewModel() {
 
     data class ProgressUpdate(val progress: Int?, val downloaded: String)
 }
+
+abstract class CompletedVM : ObservableViewModel() {
+    abstract fun loadList(actionOnComplete: (List<String>) -> Unit)
+    abstract fun observeItemDetailsFetched(
+            lifecycleOwner: LifecycleOwner,
+            observer: Observer<CompletedItemMiniDetails>)
+
+    data class CompletedItemMiniDetails(
+            val index: Int,
+            val thumbnail: Bitmap? = null,
+            val duration: String
+    )
+}

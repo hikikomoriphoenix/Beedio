@@ -19,11 +19,14 @@
 
 package marabillas.loremar.beedio.base.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@Database(entities = [DownloadItem::class, CompletedItem::class], version = 1)
-abstract class DownloadListDatabase : RoomDatabase() {
-    abstract fun downloadListDao(): DownloadListDao
-    abstract fun completedListDao(): CompletedListDao
-}
+@Entity
+data class CompletedItem(
+        @PrimaryKey
+        var uid: Int,
+        @ColumnInfo(name = "filepath")
+        val filepath: String
+)

@@ -23,25 +23,36 @@ import android.content.Context
 import androidx.room.Room
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import marabillas.loremar.beedio.base.database.CompletedItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
+import java.io.File
 
 class NextDownloadWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
-    private val downloadList = Room
-            .databaseBuilder(
+    private val downloadsDB = Room.databaseBuilder(
                     context,
                     DownloadListDatabase::class.java,
                     "downloads"
             )
             .build()
-            .downloadListDao()
+    private val downloadList = downloadsDB.downloadListDao()
+
+    private val completedList = downloadsDB.completedListDao()
 
     override fun doWork(): Result {
         val completed = inputData.getBoolean(VideoDownloadWorker.DOWNLOAD_COMPLETED, false)
+        val list = downloadList.load().toMutableList()
 
         // TODO COMPLETED AND FAILED
+        if (completed) {
+            val filename = "${list[0].name}.${list[0].ext}"
+            val file = File(VideoDownloader.getDownloadFolder(applicationContext), filename)
+            val items = completedList.load().toMutableList()
+            completedList.delete(items)
+            items.add(CompletedItem(0, file.absolutePath))
+            items.forEachIndexed { i, item -> item.uid = i }
+            completedList.save(items)
+        }
 
-
-        val list = downloadList.load().toMutableList()
         downloadList.delete(list)
         list.removeAt(0)
         list.forEachIndexed { i, item -> item.uid = i }

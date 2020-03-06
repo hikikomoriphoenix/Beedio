@@ -74,6 +74,28 @@ class VideoDetailsFetcher {
         }
     }
 
+    fun fetchMiniDetails(url: String, fetchListener: FetchListener) {
+        isCancelled = false
+        try {
+            metadataRetriever.setDataSource(url)
+            val details = VideoDetails(
+                    filename = extract(METADATA_KEY_FILENAME),
+                    title = extract(METADATA_KEY_TITLE),
+                    vcodec = extract(METADATA_KEY_VIDEO_CODEC),
+                    duration = extract(METADATA_KEY_DURATION)?.formatDurationShort()
+            )
+            if (details.vcodec != null)
+                details.thumbnail = metadataRetriever.frameAtTime
+            fetchListener.onFetched(details)
+        } catch (e: CancelledException) {
+            fetchListener.onUnFetched(e)
+        } catch (e: IllegalArgumentException) {
+            fetchListener.onUnFetched(e)
+        } catch (e: Exception) {
+            fetchListener.onUnFetched(e)
+        }
+    }
+
     private fun extract(key: String) = if (!isCancelled) metadataRetriever.extractMetadata(key)
     else throw CancelledException()
 
@@ -90,6 +112,22 @@ class VideoDetailsFetcher {
             val h = totalSecs / (60 * 60) % 24
             String.format(Locale.US, "%02d:%02d:%02d.%d", h, m, s, mils)
         } catch (e: NumberFormatException) {
+            null
+        }
+    }
+
+    private fun String.formatDurationShort(): String? {
+        return try {
+            val totalSecs = toLong() / 1000
+            val s = totalSecs % 60
+            val m = totalSecs / 60 % 60
+            val h = totalSecs / (60 * 60) % 24
+            when {
+                h > 0 -> String.format(Locale.US, "%d:%02d:%02d", h, m, s)
+                m > 0 -> String.format(Locale.US, "%d:%02d", m, s)
+                else -> String.format(Locale.US, "%d seconds", s)
+            }
+        } catch (e: java.lang.NumberFormatException) {
             null
         }
     }
