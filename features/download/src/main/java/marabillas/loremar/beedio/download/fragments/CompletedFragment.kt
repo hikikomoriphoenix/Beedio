@@ -19,9 +19,13 @@
 
 package marabillas.loremar.beedio.download.fragments
 
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.download.VideoDownloader
+import marabillas.loremar.beedio.base.extensions.toolbar
 import marabillas.loremar.beedio.download.R
 import marabillas.loremar.beedio.download.adapters.CompletedAdapter
 import marabillas.loremar.beedio.download.viewmodels.CompletedVM
@@ -82,6 +87,15 @@ class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapt
         })
         completedVM.loadList { completedAdapter.loadData(it) }
         completedAdapter.eventListener = this
+
+        activity?.toolbar(R.id.download_toolbar)?.apply {
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.completed_menu_folder -> openDownloadFolder()
+                }
+                true
+            }
+        }
     }
 
     override fun onPlayVideo(filename: String) {
@@ -96,6 +110,26 @@ class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapt
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 activity?.startActivity(this)
             }
+        }
+    }
+
+    private fun openDownloadFolder() {
+        VideoDownloader.getDownloadFolder(requireContext())?.let {
+            if (it.absolutePath == Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath) {
+                activity?.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+            } else {
+                val uri = Uri.parse("content://${it.absolutePath}")
+                Intent(ACTION_VIEW).apply {
+                    try {
+                        setDataAndType(uri, "resource/folder")
+                        activity?.startActivity(this)
+                    } catch (e: ActivityNotFoundException) {
+                        setDataAndType(uri, "*/*")
+                        activity?.startActivity(this)
+                    }
+                }
+            }
+            // TODO("Should implement custom download folder viewer")
         }
     }
 }

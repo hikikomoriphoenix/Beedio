@@ -23,6 +23,7 @@ import android.app.Activity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 
 /* View */
@@ -32,6 +33,7 @@ fun View.imageView(resId: Int): ImageView = findViewById(resId)
 /* Activity */
 fun Activity.textView(resId: Int): TextView = findViewById(resId)
 fun Activity.imageView(resId: Int): ImageView = findViewById(resId)
+fun Activity.toolbar(resId: Int): Toolbar = findViewById(resId)
 
 /* Fragment */
 fun Fragment.textView(resId: Int): TextView? = view?.findViewById(resId)
