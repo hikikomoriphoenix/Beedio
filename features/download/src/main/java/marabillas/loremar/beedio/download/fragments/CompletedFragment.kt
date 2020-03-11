@@ -19,12 +19,15 @@
 
 package marabillas.loremar.beedio.download.fragments
 
+import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -33,12 +36,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.download.VideoDownloader
 import marabillas.loremar.beedio.download.R
 import marabillas.loremar.beedio.download.adapters.CompletedAdapter
 import marabillas.loremar.beedio.download.viewmodels.CompletedVM
+import java.io.File
 import javax.inject.Inject
 
-class CompletedFragment @Inject constructor() : DaggerFragment() {
+class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapter.EventListener {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -76,5 +81,21 @@ class CompletedFragment @Inject constructor() : DaggerFragment() {
             completedAdapter.addDetails(it)
         })
         completedVM.loadList { completedAdapter.loadData(it) }
+        completedAdapter.eventListener = this
+    }
+
+    override fun onPlayVideo(filename: String) {
+        VideoDownloader.getDownloadFolder(requireContext())?.let {
+            val file = File(it, filename)
+            val uri = FileProvider.getUriForFile(
+                    requireContext(),
+                    resources.getString(R.string.file_provider),
+                    file)
+            Intent(ACTION_VIEW).apply {
+                setDataAndType(uri, "video/*")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                activity?.startActivity(this)
+            }
+        }
     }
 }

@@ -32,6 +32,8 @@ import marabillas.loremar.beedio.download.viewmodels.CompletedVM
 import javax.inject.Inject
 
 class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAdapter.CompletedViewHolder>() {
+    var eventListener: EventListener? = null
+
     private val completedList: MutableList<CompletedItem> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CompletedViewHolder {
@@ -62,18 +64,28 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
         notifyItemChanged(details.index)
     }
 
-    inner class CompletedViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class CompletedViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         private val title by lazy { getTextView(R.id.completed_title) }
         private val thumbnail by lazy { getImageView(R.id.completed_thumbnail) }
         private val duration by lazy { getTextView(R.id.completed_duration) }
         private val playBtn by lazy { getImageView(R.id.completed_play) }
         private val deleteBtn by lazy { getImageView(R.id.completed_delete) }
 
+        init {
+            playBtn.setOnClickListener(this)
+        }
+
         fun bind(item: CompletedItem) {
             title.text = item.filename
             duration.text = item.duration
             val drawable = BitmapDrawable(itemView.resources, item.thumbnail)
             thumbnail.setImageDrawable(drawable)
+        }
+
+        override fun onClick(v: View?) {
+            when (v) {
+                playBtn -> eventListener?.onPlayVideo(completedList[adapterPosition].filename)
+            }
         }
 
         private fun getTextView(resId: Int) = itemView.findViewById<TextView>(resId)
@@ -85,4 +97,8 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
             var thumbnail: Bitmap? = null,
             var duration: String? = null
     )
+
+    interface EventListener {
+        fun onPlayVideo(filename: String)
+    }
 }

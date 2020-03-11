@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Beedio is an Android app for downloading videos
   ~ Copyright (C) 2019 Loremar Marabillas
   ~
@@ -17,7 +17,8 @@
   ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
   -->
 
-<resources>
-    <string name="app_name">Base</string>
-    <string name="file_provider">marabillas.loremar.fileprovide</string>
-</resources>
+<paths>
+    <external-path
+        name="downloads"
+        path="Download/" />
+</paths>
