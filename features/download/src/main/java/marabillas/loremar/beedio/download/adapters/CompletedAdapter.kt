@@ -69,6 +69,11 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
         notifyItemRemoved(index)
     }
 
+    fun clearList() {
+        completedList.clear()
+        notifyDataSetChanged()
+    }
+
     inner class CompletedViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         private val title by lazy { getTextView(R.id.completed_title) }
         private val thumbnail by lazy { getImageView(R.id.completed_thumbnail) }

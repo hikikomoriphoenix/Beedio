@@ -60,8 +60,8 @@ abstract class CompletedVM : ObservableViewModel() {
     abstract fun observeItemDetailsFetched(
             lifecycleOwner: LifecycleOwner,
             observer: Observer<CompletedItemMiniDetails>)
-
     abstract fun deleteItem(index: Int)
+    abstract fun clearList()
 
     data class CompletedItemMiniDetails(
             val index: Int,

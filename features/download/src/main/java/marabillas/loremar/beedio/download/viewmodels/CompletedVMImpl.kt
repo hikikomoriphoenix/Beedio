@@ -92,4 +92,11 @@ class CompletedVMImpl(context: Context) : CompletedVM() {
             }
         }
     }
+
+    override fun clearList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val items = completedList.load()
+            completedList.delete(items)
+        }
+    }
 }

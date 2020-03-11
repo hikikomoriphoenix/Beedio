@@ -92,6 +92,7 @@ class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapt
             setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.completed_menu_folder -> openDownloadFolder()
+                    R.id.completed_menu_delete_all -> clearList()
                 }
                 true
             }
@@ -136,5 +137,10 @@ class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapt
             }
             // TODO("Should implement custom download folder viewer")
         }
+    }
+
+    private fun clearList() {
+        completedVM.clearList()
+        completedAdapter.clearList()
     }
 }
