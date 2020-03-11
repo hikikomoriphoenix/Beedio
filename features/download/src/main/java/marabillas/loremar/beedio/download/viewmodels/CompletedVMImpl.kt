@@ -82,4 +82,14 @@ class CompletedVMImpl(context: Context) : CompletedVM() {
     override fun observeItemDetailsFetched(lifecycleOwner: LifecycleOwner, observer: Observer<CompletedItemMiniDetails>) {
         itemDetailsFetched.observeSend(lifecycleOwner, observer)
     }
+
+    override fun deleteItem(index: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val items = completedList.load()
+            if (index in 0 until items.count()) {
+                val item = items[index]
+                completedList.delete(listOf(item))
+            }
+        }
+    }
 }

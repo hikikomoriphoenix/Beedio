@@ -61,6 +61,8 @@ abstract class CompletedVM : ObservableViewModel() {
             lifecycleOwner: LifecycleOwner,
             observer: Observer<CompletedItemMiniDetails>)
 
+    abstract fun deleteItem(index: Int)
+
     data class CompletedItemMiniDetails(
             val index: Int,
             val thumbnail: Bitmap? = null,

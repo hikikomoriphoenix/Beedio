@@ -113,6 +113,11 @@ class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapt
         }
     }
 
+    override fun onDeleteItem(index: Int) {
+        completedAdapter.removeItem(index)
+        completedVM.deleteItem(index)
+    }
+
     private fun openDownloadFolder() {
         VideoDownloader.getDownloadFolder(requireContext())?.let {
             if (it.absolutePath == Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath) {

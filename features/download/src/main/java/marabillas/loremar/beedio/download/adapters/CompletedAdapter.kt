@@ -64,6 +64,11 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
         notifyItemChanged(details.index)
     }
 
+    fun removeItem(index: Int) {
+        completedList.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
     inner class CompletedViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         private val title by lazy { getTextView(R.id.completed_title) }
         private val thumbnail by lazy { getImageView(R.id.completed_thumbnail) }
@@ -73,6 +78,7 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
 
         init {
             playBtn.setOnClickListener(this)
+            deleteBtn.setOnClickListener(this)
         }
 
         fun bind(item: CompletedItem) {
@@ -85,6 +91,7 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
         override fun onClick(v: View?) {
             when (v) {
                 playBtn -> eventListener?.onPlayVideo(completedList[adapterPosition].filename)
+                deleteBtn -> eventListener?.onDeleteItem(adapterPosition)
             }
         }
 
@@ -100,5 +107,6 @@ class CompletedAdapter @Inject constructor() : RecyclerView.Adapter<CompletedAda
 
     interface EventListener {
         fun onPlayVideo(filename: String)
+        fun onDeleteItem(index: Int)
     }
 }
