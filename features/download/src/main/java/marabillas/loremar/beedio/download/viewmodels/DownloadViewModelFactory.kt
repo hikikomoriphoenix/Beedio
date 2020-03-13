@@ -30,6 +30,7 @@ class DownloadViewModelFactory(private val context: Context) : ViewModelProvider
             DownloadVM::class.java -> DownloadVMImpl() as T
             InProgressVM::class.java -> InProgressVMImpl(context) as T
             CompletedVM::class.java -> CompletedVMImpl(context) as T
+            InactiveVM::class.java -> InactiveVMImpl(context) as T
             else -> throw IllegalArgumentException("Unidentified ViewModel for Download")
         }
     }

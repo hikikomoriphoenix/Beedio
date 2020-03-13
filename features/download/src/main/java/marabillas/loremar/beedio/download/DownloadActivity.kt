@@ -30,6 +30,7 @@ import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.download.databinding.ActivityDownloadBinding
 import marabillas.loremar.beedio.download.fragments.CompletedFragment
 import marabillas.loremar.beedio.download.fragments.InProgressFragment
+import marabillas.loremar.beedio.download.fragments.InactiveFragment
 import marabillas.loremar.beedio.download.viewmodels.DownloadVM
 import marabillas.loremar.beedio.download.viewmodels.InProgressVM
 import timber.log.Timber
@@ -38,11 +39,15 @@ import javax.inject.Inject
 class DownloadActivity : DaggerAppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
     @Inject
     lateinit var inProgressFragment: InProgressFragment
 
     @Inject
     lateinit var completedFragment: CompletedFragment
+
+    @Inject
+    lateinit var inactiveFragment: InactiveFragment
 
     private lateinit var downloadVM: DownloadVM
     private lateinit var inProgressVM: InProgressVM
@@ -72,6 +77,7 @@ class DownloadActivity : DaggerAppCompatActivity() {
             when (it) {
                 R.id.download_menu_in_progress -> viewInProgress()
                 R.id.download_menu_completed -> viewCompleted()
+                R.id.download_menu_inactive -> viewInactive()
             }
         })
     }
@@ -109,6 +115,15 @@ class DownloadActivity : DaggerAppCompatActivity() {
             supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.list_container, completedFragment)
+                    .commit()
+        }
+    }
+
+    private fun viewInactive() {
+        if (!inactiveFragment.isAdded) {
+            supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.list_container, inactiveFragment)
                     .commit()
         }
     }

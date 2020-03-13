@@ -69,3 +69,14 @@ abstract class CompletedVM : ObservableViewModel() {
             val duration: String
     )
 }
+
+abstract class InactiveVM : ObservableViewModel() {
+    abstract fun loadList(actionOnComplete: (List<InactiveItem>) -> Unit)
+
+    data class InactiveItem(
+            val filename: String,
+            val downloaded: String,
+            val sourceWebpage: String,
+            val size: Long
+    )
+}

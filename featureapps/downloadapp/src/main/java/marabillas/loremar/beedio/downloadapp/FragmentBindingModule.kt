@@ -24,6 +24,7 @@ import dagger.android.ContributesAndroidInjector
 import marabillas.loremar.beedio.base.di.FragmentScope
 import marabillas.loremar.beedio.download.fragments.CompletedFragment
 import marabillas.loremar.beedio.download.fragments.InProgressFragment
+import marabillas.loremar.beedio.download.fragments.InactiveFragment
 
 @Module
 abstract class FragmentBindingModule {
@@ -34,4 +35,8 @@ abstract class FragmentBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract fun contributeCompleteFragment(): CompletedFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeInactiveFragment(): InactiveFragment
 }

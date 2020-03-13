@@ -28,7 +28,7 @@
         android:icon="@drawable/ic_completed_black_24dp"
         android:title="@string/completed" />
     <item
-        android:id="@+id/donwload_menu_inactive"
+        android:id="@+id/download_menu_inactive"
         android:icon="@drawable/ic_inactive_black_24dp"
         android:title="@string/inactive" />
 </menu>
