@@ -25,6 +25,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import marabillas.loremar.beedio.base.database.CompletedItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
+import marabillas.loremar.beedio.base.database.InactiveItem
 import java.io.File
 
 class NextDownloadWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
@@ -35,14 +36,13 @@ class NextDownloadWorker(context: Context, params: WorkerParameters) : Worker(co
             )
             .build()
     private val downloadList = downloadsDB.downloadListDao()
-
     private val completedList = downloadsDB.completedListDao()
+    private val inactiveList = downloadsDB.inactiveListDao()
 
     override fun doWork(): Result {
         val completed = inputData.getBoolean(VideoDownloadWorker.DOWNLOAD_COMPLETED, false)
         val list = downloadList.load().toMutableList()
 
-        // TODO COMPLETED AND FAILED
         if (completed) {
             val filename = "${list[0].name}.${list[0].ext}"
             val file = File(VideoDownloader.getDownloadFolder(applicationContext), filename)
@@ -51,6 +51,24 @@ class NextDownloadWorker(context: Context, params: WorkerParameters) : Worker(co
             items.add(CompletedItem(0, file.absolutePath))
             items.forEachIndexed { i, item -> item.uid = i }
             completedList.save(items)
+        } else {
+            val items = inactiveList.load().toMutableList()
+            inactiveList.delete(items)
+            list[0].copy()
+            items.add(InactiveItem(
+                    uid = 0,
+                    name = list[0].name,
+                    videoUrl = list[0].videoUrl,
+                    ext = list[0].ext,
+                    size = list[0].size,
+                    sourceWebpage = list[0].sourceWebpage,
+                    sourceWebsite = list[0].sourceWebsite,
+                    isChunked = list[0].isChunked,
+                    audioUrl = list[0].audioUrl,
+                    isAudioChunked = list[0].isAudioChunked
+            ))
+            items.forEachIndexed { i, item -> item.uid = i }
+            inactiveList.save(items)
         }
 
         downloadList.delete(list)

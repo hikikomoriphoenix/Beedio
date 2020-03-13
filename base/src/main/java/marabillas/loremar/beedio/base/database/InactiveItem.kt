@@ -19,12 +19,30 @@
 
 package marabillas.loremar.beedio.base.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@Database(entities = [DownloadItem::class, CompletedItem::class, InactiveItem::class], version = 1)
-abstract class DownloadListDatabase : RoomDatabase() {
-    abstract fun downloadListDao(): DownloadListDao
-    abstract fun completedListDao(): CompletedListDao
-    abstract fun inactiveListDao(): InactiveListDao
-}
+@Entity
+data class InactiveItem(
+        @PrimaryKey
+        var uid: Int,
+        @ColumnInfo(name = "name")
+        var name: String,
+        @ColumnInfo(name = "video_url")
+        val videoUrl: String,
+        @ColumnInfo(name = "ext")
+        val ext: String,
+        @ColumnInfo(name = "size")
+        val size: Long,
+        @ColumnInfo(name = "source_webpage")
+        val sourceWebpage: String,
+        @ColumnInfo(name = "source_website")
+        val sourceWebsite: String,
+        @ColumnInfo(name = "is_chunked")
+        val isChunked: Boolean = false,
+        @ColumnInfo(name = "audio_url")
+        val audioUrl: String? = null,
+        @ColumnInfo(name = "is_audio_chunked")
+        val isAudioChunked: Boolean = false
+)

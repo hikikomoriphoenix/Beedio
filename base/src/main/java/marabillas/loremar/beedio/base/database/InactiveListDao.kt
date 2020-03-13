@@ -19,12 +19,19 @@
 
 package marabillas.loremar.beedio.base.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
 
-@Database(entities = [DownloadItem::class, CompletedItem::class, InactiveItem::class], version = 1)
-abstract class DownloadListDatabase : RoomDatabase() {
-    abstract fun downloadListDao(): DownloadListDao
-    abstract fun completedListDao(): CompletedListDao
-    abstract fun inactiveListDao(): InactiveListDao
+@Dao
+interface InactiveListDao {
+    @Query("SELECT * FROM inactiveitem")
+    fun load(): List<InactiveItem>
+
+    @Delete
+    fun delete(items: List<InactiveItem>)
+
+    @Insert
+    fun save(items: List<InactiveItem>)
 }
