@@ -33,7 +33,7 @@ import marabillas.loremar.beedio.download.adapters.InactiveAdapter
 import marabillas.loremar.beedio.download.viewmodels.InactiveVM
 import javax.inject.Inject
 
-class InactiveFragment @Inject constructor() : DaggerFragment() {
+class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter.EventListener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -62,5 +62,12 @@ class InactiveFragment @Inject constructor() : DaggerFragment() {
         inactiveVM.loadList {
             inactiveAdapter.load(it)
         }
+
+        inactiveAdapter.eventListener = this
+    }
+
+    override fun onRemoveItem(index: Int) {
+        inactiveVM.deleteItem(index)
+        inactiveAdapter.removeItem(index)
     }
 }

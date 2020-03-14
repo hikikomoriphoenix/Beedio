@@ -32,6 +32,8 @@ import marabillas.loremar.beedio.download.viewmodels.InactiveVM
 import javax.inject.Inject
 
 class InactiveAdapter @Inject constructor() : RecyclerView.Adapter<InactiveAdapter.InactiveViewHolder>() {
+    var eventListener: EventListener? = null
+
     private var inactiveList = mutableListOf<InactiveVM.InactiveItem>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InactiveViewHolder {
@@ -51,14 +53,33 @@ class InactiveAdapter @Inject constructor() : RecyclerView.Adapter<InactiveAdapt
         notifyDataSetChanged()
     }
 
-    inner class InactiveViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    fun removeItem(index: Int) {
+        inactiveList.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
+    inner class InactiveViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         private val title: TextView by lazy { itemView.textView(R.id.inactive_title) }
         private val downloaded: TextView by lazy { itemView.textView(R.id.inactive_downloaded) }
         private val removeBtn: ImageView by lazy { itemView.imageView(R.id.inactive_remove) }
+
+        init {
+            removeBtn.setOnClickListener(this)
+        }
 
         fun bind(item: InactiveVM.InactiveItem) {
             title.text = item.filename
             downloaded.text = item.downloaded
         }
+
+        override fun onClick(v: View?) {
+            when (v) {
+                removeBtn -> eventListener?.onRemoveItem(adapterPosition)
+            }
+        }
+    }
+
+    interface EventListener {
+        fun onRemoveItem(index: Int)
     }
 }

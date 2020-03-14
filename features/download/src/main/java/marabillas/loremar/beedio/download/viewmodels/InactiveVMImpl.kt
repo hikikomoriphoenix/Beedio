@@ -90,4 +90,11 @@ class InactiveVMImpl(private val context: Context) : InactiveVM() {
     }
 
     private fun Long.formatSize(): String = Formatter.formatFileSize(context, this)
+
+    override fun deleteItem(index: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val item = inactiveDao.load()[index]
+            inactiveDao.delete(listOf(item))
+        }
+    }
 }
