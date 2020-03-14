@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.base.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -34,4 +35,7 @@ interface CompletedListDao {
 
     @Insert
     fun save(items: List<CompletedItem>)
+
+    @Query("SELECT COUNT(uid) FROM completeditem")
+    fun count(): LiveData<Int>
 }

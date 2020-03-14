@@ -40,4 +40,16 @@ class DownloadVMImpl(private val downloadDB: DownloadListDatabase) : DownloadVM(
     override fun observeSelectedNavItem(lifecycleOwner: LifecycleOwner, observer: Observer<Int>) {
         selectedNavItemData.observe(lifecycleOwner, observer)
     }
+
+    override fun observeInProgressCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int>) {
+        downloadDB.downloadListDao().count().observe(lifecycleOwner, observer)
+    }
+
+    override fun observeCompletedCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int>) {
+        downloadDB.completedListDao().count().observe(lifecycleOwner, observer)
+    }
+
+    override fun observeInactiveCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int>) {
+        downloadDB.inactiveListDao().count().observe(lifecycleOwner, observer)
+    }
 }

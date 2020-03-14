@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.base.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -37,4 +38,7 @@ interface DownloadListDao {
 
     @Query("SELECT * FROM downloaditem WHERE uid = 0")
     fun first(): DownloadItem?
+
+    @Query("SELECT COUNT(uid) FROM downloaditem")
+    fun count(): LiveData<Int>
 }

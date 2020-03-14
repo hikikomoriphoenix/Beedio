@@ -80,6 +80,10 @@ class DownloadActivity : DaggerAppCompatActivity() {
                 R.id.download_menu_inactive -> viewInactive()
             }
         })
+
+        downloadVM.observeInProgressCount(this, Observer { updateInProgressBadgeCount(it) })
+        downloadVM.observeCompletedCount(this, Observer { updateCompletedBadgeCount(it) })
+        downloadVM.observeInactiveCount(this, Observer { updateInactiveBadgeCount(it) })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -142,5 +146,44 @@ class DownloadActivity : DaggerAppCompatActivity() {
                     .replace(R.id.list_container, inactiveFragment)
                     .commit()
         }
+    }
+
+    private fun updateInProgressBadgeCount(count: Int) {
+        binding.mainContentDownload.downloadBottomNavigation
+                .getOrCreateBadge(R.id.download_menu_in_progress)
+                .apply {
+                    if (count == 0)
+                        isVisible = false
+                    else {
+                        isVisible = true
+                        number = count
+                    }
+                }
+    }
+
+    private fun updateCompletedBadgeCount(count: Int) {
+        binding.mainContentDownload.downloadBottomNavigation
+                .getOrCreateBadge(R.id.download_menu_completed)
+                .apply {
+                    if (count == 0)
+                        isVisible = false
+                    else {
+                        isVisible = true
+                        number = count
+                    }
+                }
+    }
+
+    private fun updateInactiveBadgeCount(count: Int) {
+        binding.mainContentDownload.downloadBottomNavigation
+                .getOrCreateBadge(R.id.download_menu_inactive)
+                .apply {
+                    if (count == 0)
+                        isVisible = false
+                    else {
+                        isVisible = true
+                        number = count
+                    }
+                }
     }
 }

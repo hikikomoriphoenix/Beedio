@@ -28,6 +28,9 @@ import marabillas.loremar.beedio.base.mvvm.ObservableViewModel
 abstract class DownloadVM : ObservableViewModel() {
     abstract fun setSelectedNavItem(id: Int)
     abstract fun observeSelectedNavItem(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
+    abstract fun observeInProgressCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
+    abstract fun observeCompletedCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
+    abstract fun observeInactiveCount(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
 }
 
 abstract class InProgressVM : ObservableViewModel() {
