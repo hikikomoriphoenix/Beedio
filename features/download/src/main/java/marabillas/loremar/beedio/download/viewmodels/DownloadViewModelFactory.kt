@@ -22,15 +22,20 @@ package marabillas.loremar.beedio.download.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import marabillas.loremar.beedio.base.database.DownloadListDatabase
 
-class DownloadViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class DownloadViewModelFactory(
+        private val context: Context,
+        private val downloadDB: DownloadListDatabase
+) : ViewModelProvider.Factory {
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when (modelClass) {
-            DownloadVM::class.java -> DownloadVMImpl() as T
-            InProgressVM::class.java -> InProgressVMImpl(context) as T
-            CompletedVM::class.java -> CompletedVMImpl(context) as T
-            InactiveVM::class.java -> InactiveVMImpl(context) as T
+            DownloadVM::class.java -> DownloadVMImpl(downloadDB) as T
+            InProgressVM::class.java -> InProgressVMImpl(context, downloadDB) as T
+            CompletedVM::class.java -> CompletedVMImpl(downloadDB) as T
+            InactiveVM::class.java -> InactiveVMImpl(context, downloadDB) as T
             else -> throw IllegalArgumentException("Unidentified ViewModel for Download")
         }
     }

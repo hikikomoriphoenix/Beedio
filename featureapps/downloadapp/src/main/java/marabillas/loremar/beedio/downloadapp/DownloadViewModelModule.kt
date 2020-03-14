@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.downloadapp
 import androidx.lifecycle.ViewModelProvider
 import dagger.Module
 import dagger.Provides
+import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.download.viewmodels.DownloadViewModelFactory
 import javax.inject.Singleton
 
@@ -29,7 +30,7 @@ import javax.inject.Singleton
 class DownloadViewModelModule {
     @Singleton
     @Provides
-    fun provideDownloadViewModelFactory(app: DownloadApp): ViewModelProvider.Factory {
-        return DownloadViewModelFactory(app)
+    fun provideDownloadViewModelFactory(app: DownloadApp, downloadDB: DownloadListDatabase): ViewModelProvider.Factory {
+        return DownloadViewModelFactory(app, downloadDB)
     }
 }

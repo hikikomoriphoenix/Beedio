@@ -25,7 +25,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import androidx.work.WorkInfo
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
@@ -47,20 +46,12 @@ import java.io.FileReader
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
-class InProgressVMImpl(private val context: Context) : InProgressVM() {
+class InProgressVMImpl(private val context: Context, downloadDB: DownloadListDatabase) : InProgressVM() {
+    private val inProgressDao = downloadDB.downloadListDao()
 
     private val listOperationDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val progressTrackingDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private var progressTrackingJob: Job? = null
-
-    private val downloadsDB = Room
-            .databaseBuilder(
-                    context,
-                    DownloadListDatabase::class.java,
-                    "downloads"
-            )
-            .build()
-            .downloadListDao()
 
     private var queueEventObserver: QueueEventObserver? = null
     private val downloadStateObserver = DownloadStateObserver()
@@ -84,7 +75,7 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     override fun loadDownloadsList(actionOnComplete: (List<InProgressItem>) -> Unit) {
         viewModelScope.launch(listOperationDispatcher) {
-            val list = downloadsDB.load().toInProgressList()
+            val list = inProgressDao.load().toInProgressList()
             viewModelScope.launch(Dispatchers.Main) {
                 actionOnComplete(list)
             }
@@ -94,7 +85,7 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     private fun loadDownloadsList() {
         viewModelScope.launch(listOperationDispatcher) {
-            val list = downloadsDB.load().toInProgressList()
+            val list = inProgressDao.load().toInProgressList()
             viewModelScope.launch(Dispatchers.Main) {
                 inProgressListUpdate.send(list)
             }
@@ -214,7 +205,7 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
         progressTrackingJob?.cancel()
         progressTrackingJob = viewModelScope.launch(progressTrackingDispatcher) {
             while (_isDownloading.value == true) {
-                downloadsDB.first()?.apply {
+                inProgressDao.first()?.apply {
                     viewModelScope.launch(Dispatchers.Main) {
                         progressUpdate.send(
                                 ProgressUpdate(
@@ -235,8 +226,8 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     override fun renameItem(index: Int, newName: String) {
         viewModelScope.launch(listOperationDispatcher) {
-            val downloads = downloadsDB.load()
-            downloadsDB.delete(downloads)
+            val downloads = inProgressDao.load()
+            inProgressDao.delete(downloads)
 
             if (index < downloads.count() && index >= 0) {
                 val item = downloads[index]
@@ -245,7 +236,7 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
                 }
                 item.name = validated
 
-                downloadsDB.save(downloads)
+                inProgressDao.save(downloads)
                 loadDownloadsList()
             }
         }
@@ -253,10 +244,10 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     override fun deleteItem(index: Int) {
         viewModelScope.launch(listOperationDispatcher) {
-            val downloads = downloadsDB.load()
+            val downloads = inProgressDao.load()
             if (index < downloads.count() && index >= 0) {
                 val item = downloads[index]
-                downloadsDB.delete(listOf(item))
+                inProgressDao.delete(listOf(item))
                 loadDownloadsList()
             }
         }
@@ -264,16 +255,16 @@ class InProgressVMImpl(private val context: Context) : InProgressVM() {
 
     override fun moveItem(srcIndex: Int, destIndex: Int) {
         viewModelScope.launch(listOperationDispatcher) {
-            val downloads = downloadsDB.load().toMutableList()
+            val downloads = inProgressDao.load().toMutableList()
             if (srcIndex in downloads.indices && destIndex in downloads.indices) {
-                downloadsDB.delete(downloads)
+                inProgressDao.delete(downloads)
                 val item = downloads[srcIndex]
                 downloads.removeAt(srcIndex)
                 downloads.add(destIndex, item)
                 downloads.forEachIndexed { index, downloadItem ->
                     downloadItem.uid = index
                 }
-                downloadsDB.save(downloads)
+                inProgressDao.save(downloads)
             }
         }
     }

@@ -19,11 +19,9 @@
 
 package marabillas.loremar.beedio.download.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
@@ -32,22 +30,17 @@ import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import java.io.File
 
-class CompletedVMImpl(context: Context) : CompletedVM() {
-    private val completedList = Room.databaseBuilder(
-                    context,
-                    DownloadListDatabase::class.java,
-                    "downloads"
-            )
-            .build()
-            .completedListDao()
+class CompletedVMImpl(downloadDB: DownloadListDatabase) : CompletedVM() {
 
     private val detailsFetcher = VideoDetailsFetcher()
 
     private val itemDetailsFetched = SendLiveData<CompletedItemMiniDetails>()
 
+    private val completedDao = downloadDB.completedListDao()
+
     override fun loadList(actionOnComplete: (List<String>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val list: List<String> = completedList.load().map {
+            val list: List<String> = completedDao.load().map {
                 File(it.filepath).name
             }
             viewModelScope.launch(Dispatchers.Main) {
@@ -59,7 +52,7 @@ class CompletedVMImpl(context: Context) : CompletedVM() {
 
     private fun fetchDetails() {
         viewModelScope.launch(Dispatchers.IO) {
-            completedList.load().forEachIndexed { i, it ->
+            completedDao.load().forEachIndexed { i, it ->
                 detailsFetcher.fetchMiniDetails(it.filepath, object : VideoDetailsFetcher.FetchListener {
                     override fun onUnFetched(error: Throwable) {
                         TODO("Not yet implemented")
@@ -85,18 +78,18 @@ class CompletedVMImpl(context: Context) : CompletedVM() {
 
     override fun deleteItem(index: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val items = completedList.load()
+            val items = completedDao.load()
             if (index in 0 until items.count()) {
                 val item = items[index]
-                completedList.delete(listOf(item))
+                completedDao.delete(listOf(item))
             }
         }
     }
 
     override fun clearList() {
         viewModelScope.launch(Dispatchers.IO) {
-            val items = completedList.load()
-            completedList.delete(items)
+            val items = completedDao.load()
+            completedDao.delete(items)
         }
     }
 }

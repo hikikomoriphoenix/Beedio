@@ -72,4 +72,13 @@ dependencies {
     implementation deps.dagger.android_support
     kapt deps.dagger.compiler
     kapt deps.dagger.android_processor
+
+    implementation deps.room.runtime
+    implementation deps.room.ktx
+    testImplementation deps.room.testing
+    kapt deps.room.compiler
+
+    implementation deps.work.runtime_ktx
+    implementation deps.work.gcm
+    implementation deps.work.testing
 }

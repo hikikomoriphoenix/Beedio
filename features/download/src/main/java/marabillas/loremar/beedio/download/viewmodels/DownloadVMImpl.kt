@@ -22,9 +22,11 @@ package marabillas.loremar.beedio.download.viewmodels
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.download.R
 
-class DownloadVMImpl : DownloadVM() {
+class DownloadVMImpl(private val downloadDB: DownloadListDatabase) : DownloadVM() {
+
     private val selectedNavItemData = MutableLiveData<Int>()
 
     init {

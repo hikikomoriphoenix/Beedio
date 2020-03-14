@@ -20,7 +20,6 @@
 package marabillas.loremar.beedio.base.download
 
 import android.content.Context
-import androidx.room.Room
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -31,7 +30,11 @@ import kotlinx.coroutines.runBlocking
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import java.io.File
 
-class VideoDownloadWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+class VideoDownloadWorker(
+        context: Context,
+        params: WorkerParameters,
+        downloadDB: DownloadListDatabase
+) : Worker(context, params) {
 
     private val videoDownloader = VideoDownloader(context)
     private var videoDownloadJob: Job? = null
@@ -41,14 +44,7 @@ class VideoDownloadWorker(context: Context, params: WorkerParameters) : Worker(c
         const val DOWNLOAD_COMPLETED = "download_completed"
     }
 
-    private val downloadList = Room
-            .databaseBuilder(
-                    context,
-                    DownloadListDatabase::class.java,
-                    "downloads"
-            )
-            .build()
-            .downloadListDao()
+    private val downloadList = downloadDB.downloadListDao()
 
     override fun doWork(): Result {
         DownloadQueueManager.state.postValue(DownloadQueueManager.State.DOWNLOADING)

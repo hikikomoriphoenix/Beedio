@@ -20,7 +20,6 @@
 package marabillas.loremar.beedio.base.download
 
 import android.content.Context
-import androidx.room.Room
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -34,7 +33,11 @@ import marabillas.loremar.beedio.base.media.VideoDetailsTypeAdapter
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
-class DetailsFetchWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+class DetailsFetchWorker(
+        context: Context,
+        params: WorkerParameters,
+        downloadDB: DownloadListDatabase
+) : Worker(context, params) {
 
     companion object {
         const val HAS_VIDEO_DETAILS = "has_video_details"
@@ -46,14 +49,7 @@ class DetailsFetchWorker(context: Context, params: WorkerParameters) : Worker(co
         }
     }
 
-    private val downloadList = Room
-            .databaseBuilder(
-                    context,
-                    DownloadListDatabase::class.java,
-                    "downloads"
-            )
-            .build()
-            .downloadListDao()
+    private val downloadList = downloadDB.downloadListDao()
 
     private val videoDetailsFetcher = VideoDetailsFetcher()
     private val gson = GsonBuilder()

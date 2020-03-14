@@ -19,10 +19,36 @@
 
 package marabillas.loremar.beedio.downloadapp
 
+import androidx.room.Room
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
+import marabillas.loremar.beedio.base.database.DownloadListDatabase
+import marabillas.loremar.beedio.base.download.DownloadWorkerFactory
 
-class DownloadApp : DaggerApplication() {
+class DownloadApp : DaggerApplication(), Configuration.Provider {
+    private val downloadDB by lazy {
+        Room.databaseBuilder(
+                        this,
+                        DownloadListDatabase::class.java,
+                        "downloads"
+                )
+                .build()
+    }
+
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
-            DaggerDownloadAppComponent.factory().create(this)
+            DaggerDownloadAppComponent.factory().create(this, downloadDB)
+
+    override fun getWorkManagerConfiguration(): Configuration {
+        val workerFactory = DownloadWorkerFactory(downloadDB)
+        return Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .build()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        WorkManager.initialize(this, workManagerConfiguration)
+    }
 }

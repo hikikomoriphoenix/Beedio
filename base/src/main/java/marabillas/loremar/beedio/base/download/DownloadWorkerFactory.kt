@@ -17,21 +17,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.downloadapp
+package marabillas.loremar.beedio.base.download
 
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
+import android.content.Context
+import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
-import javax.inject.Singleton
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class,
-    FragmentBindingModule::class, DownloadViewModelModule::class])
-interface DownloadAppComponent : AndroidInjector<DownloadApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance downloadApp: DownloadApp, @BindsInstance dowloadDB: DownloadListDatabase): DownloadAppComponent
+class DownloadWorkerFactory(private val downloadDB: DownloadListDatabase) : WorkerFactory() {
+    override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters): ListenableWorker? {
+        return when (workerClassName) {
+            DetailsFetchWorker::class.java.name -> DetailsFetchWorker(appContext, workerParameters, downloadDB)
+            VideoDownloadWorker::class.java.name -> VideoDownloadWorker(appContext, workerParameters, downloadDB)
+            NextDownloadWorker::class.java.name -> NextDownloadWorker(appContext, workerParameters, downloadDB)
+            else -> throw IllegalArgumentException("Invalid Worker class name")
+        }
     }
 }

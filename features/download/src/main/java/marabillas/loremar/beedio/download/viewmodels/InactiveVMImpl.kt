@@ -22,7 +22,6 @@ package marabillas.loremar.beedio.download.viewmodels
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
@@ -30,15 +29,8 @@ import marabillas.loremar.beedio.base.download.VideoDownloader
 import java.io.File
 import kotlin.math.roundToInt
 
-class InactiveVMImpl(private val context: Context) : InactiveVM() {
-    private val downloadsDB = Room.databaseBuilder(
-                    context,
-                    DownloadListDatabase::class.java,
-                    "downloads"
-            )
-            .build()
-
-    private val inactiveDao = downloadsDB.inactiveListDao()
+class InactiveVMImpl(private val context: Context, downloadDB: DownloadListDatabase) : InactiveVM() {
+    private val inactiveDao = downloadDB.inactiveListDao()
 
     override fun loadList(actionOnComplete: (List<InactiveItem>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
