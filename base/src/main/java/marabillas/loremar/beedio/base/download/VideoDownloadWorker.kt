@@ -59,13 +59,15 @@ class VideoDownloadWorker(context: Context, params: WorkerParameters) : Worker(c
 
         var data = workDataOf(DOWNLOAD_COMPLETED to false)
         runBlocking {
-            try {
-                videoDownloadJob = launch { videoDownloader.download(first) }
-                videoDownloadJob?.join()
-                data = workDataOf(DOWNLOAD_COMPLETED to true)
-            } catch (e: VideoDownloader.DownloadException) {
-                e.save()
+            videoDownloadJob = launch {
+                try {
+                    videoDownloader.download(first)
+                    data = workDataOf(DOWNLOAD_COMPLETED to true)
+                } catch (e: VideoDownloader.DownloadException) {
+                    e.save()
+                }
             }
+            videoDownloadJob?.join()
         }
 
         videoDownloader.stop()
