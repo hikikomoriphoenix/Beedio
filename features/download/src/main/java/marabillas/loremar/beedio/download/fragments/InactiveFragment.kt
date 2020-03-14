@@ -29,6 +29,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.extensions.toolbar
+import marabillas.loremar.beedio.download.R
 import marabillas.loremar.beedio.download.adapters.InactiveAdapter
 import marabillas.loremar.beedio.download.viewmodels.InactiveVM
 import javax.inject.Inject
@@ -64,10 +66,22 @@ class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter
         }
 
         inactiveAdapter.eventListener = this
+
+        activity?.toolbar(R.id.download_toolbar)?.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.inactive_menu_delete_all -> clearList()
+            }
+            true
+        }
     }
 
     override fun onRemoveItem(index: Int) {
         inactiveVM.deleteItem(index)
         inactiveAdapter.removeItem(index)
+    }
+
+    private fun clearList() {
+        inactiveVM.clearList()
+        inactiveAdapter.clearList()
     }
 }

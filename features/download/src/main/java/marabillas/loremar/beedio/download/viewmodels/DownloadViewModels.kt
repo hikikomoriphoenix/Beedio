@@ -73,6 +73,7 @@ abstract class CompletedVM : ObservableViewModel() {
 abstract class InactiveVM : ObservableViewModel() {
     abstract fun loadList(actionOnComplete: (List<InactiveItem>) -> Unit)
     abstract fun deleteItem(index: Int)
+    abstract fun clearList()
 
     data class InactiveItem(
             val filename: String,

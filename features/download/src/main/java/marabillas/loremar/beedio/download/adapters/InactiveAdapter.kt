@@ -58,6 +58,11 @@ class InactiveAdapter @Inject constructor() : RecyclerView.Adapter<InactiveAdapt
         notifyItemRemoved(index)
     }
 
+    fun clearList() {
+        inactiveList.clear()
+        notifyDataSetChanged()
+    }
+
     inner class InactiveViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         private val title: TextView by lazy { itemView.textView(R.id.inactive_title) }
         private val downloaded: TextView by lazy { itemView.textView(R.id.inactive_downloaded) }

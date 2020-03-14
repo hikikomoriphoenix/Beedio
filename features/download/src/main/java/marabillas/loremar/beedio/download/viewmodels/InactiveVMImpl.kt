@@ -97,4 +97,11 @@ class InactiveVMImpl(private val context: Context) : InactiveVM() {
             inactiveDao.delete(listOf(item))
         }
     }
+
+    override fun clearList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = inactiveDao.load()
+            inactiveDao.delete(list)
+        }
+    }
 }
