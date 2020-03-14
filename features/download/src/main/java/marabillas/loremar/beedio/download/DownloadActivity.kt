@@ -91,7 +91,10 @@ class DownloadActivity : DaggerAppCompatActivity() {
         binding.mainContentDownload.apply {
             startButton.isVisible = true
             downloadToolbar.post {
-                downloadToolbar.menu.setGroupVisible(R.id.completed_menu_group, false)
+                downloadToolbar.menu.apply {
+                    setGroupVisible(R.id.completed_menu_group, false)
+                    setGroupVisible(R.id.inactive_menu_group, false)
+                }
             }
         }
 
@@ -107,7 +110,10 @@ class DownloadActivity : DaggerAppCompatActivity() {
         binding.mainContentDownload.apply {
             startButton.isVisible = false
             downloadToolbar.post {
-                downloadToolbar.menu.setGroupVisible(R.id.completed_menu_group, true)
+                downloadToolbar.menu.apply {
+                    setGroupVisible(R.id.completed_menu_group, true)
+                    setGroupVisible(R.id.inactive_menu_group, false)
+                }
             }
         }
 
@@ -120,6 +126,16 @@ class DownloadActivity : DaggerAppCompatActivity() {
     }
 
     private fun viewInactive() {
+        binding.mainContentDownload.apply {
+            startButton.isVisible = false
+            downloadToolbar.post {
+                downloadToolbar.menu.apply {
+                    setGroupVisible(R.id.completed_menu_group, false)
+                    setGroupVisible(R.id.inactive_menu_group, true)
+                }
+            }
+        }
+
         if (!inactiveFragment.isAdded) {
             supportFragmentManager
                     .beginTransaction()
