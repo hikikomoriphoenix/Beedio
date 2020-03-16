@@ -34,4 +34,5 @@
     <string name="delete_all">Delete All</string>
     <string name="folder">Download Folder</string>
     <string name="help">Help</string>
+    <string name="fresh_link_added">New fresh link added to download list</string>
 </resources>

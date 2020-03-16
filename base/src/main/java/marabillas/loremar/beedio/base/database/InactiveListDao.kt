@@ -38,4 +38,7 @@ interface InactiveListDao {
 
     @Query("SELECT COUNT(uid) FROM inactiveitem")
     fun count(): LiveData<Int>
+
+    @Query("SELECT * FROM inactiveitem WHERE uid = :index")
+    fun get(index: Int): InactiveItem
 }

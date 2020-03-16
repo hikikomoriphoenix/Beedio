@@ -24,13 +24,22 @@ import android.text.format.Formatter
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
+import marabillas.loremar.beedio.base.download.DownloadQueueManager
 import marabillas.loremar.beedio.base.download.VideoDownloader
+import marabillas.loremar.beedio.base.web.HttpNetwork
 import java.io.File
+import java.net.URL
+import java.util.*
 import kotlin.math.roundToInt
 
 class InactiveVMImpl(private val context: Context, downloadDB: DownloadListDatabase) : InactiveVM() {
     private val inactiveDao = downloadDB.inactiveListDao()
+    private val inProgressDao = downloadDB.downloadListDao()
+
+    private val network = HttpNetwork()
+    private val filters = arrayOf("mp4", "video", "googleusercontent", "embed")
 
     override fun loadList(actionOnComplete: (List<InactiveItem>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -95,5 +104,101 @@ class InactiveVMImpl(private val context: Context, downloadDB: DownloadListDatab
             val list = inactiveDao.load()
             inactiveDao.delete(list)
         }
+    }
+
+    override fun getInactiveItemSourcePage(index: Int): String = inactiveDao.get(index).sourceWebpage
+
+    override fun analyzeUrlForFreshLink(url: String, index: Int, onFound: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            filter(url) {
+                connect(url) {
+                    if (contentType().containsVideoOrAudio())
+                        identifyCorrectUrlBySize(index, onFound)
+                }
+            }
+        }
+    }
+
+    private fun filter(url: String, doIfTrue: (String) -> Unit) {
+        for (filter in filters)
+            if (url.contains(filter, true))
+                doIfTrue(url)
+    }
+
+    private fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
+            ?: ""
+
+    private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
+
+    private fun HttpNetwork.Connection.identifyCorrectUrlBySize(index: Int, onFound: () -> Unit) {
+        val inactiveItem = inactiveDao.get(index)
+        val host = URL(inactiveItem.sourceWebpage).host
+        val contentType = contentType()
+
+        if (host.contains("twitter.com") && contentType == "video/mp2t")
+            return
+
+        var url = getResponseHeader("Location") ?: urlHandler.url ?: return
+        var analyzedSize = getResponseHeader("Content-Length") ?: "0"
+
+        if (host.contains("youtube.com") || urlHandler.host?.contains("googlevideo.com") == true) {
+            url.substringBeforeLast("&range").also {
+                connect(it) {
+                    analyzedSize = getResponseHeader("Content-Length") ?: "0"
+                }
+            }
+        } else if (host.contains("facebook.com") && url.contains("bytestart")) {
+            url = "https://video.xx.fbcdn${url.substringAfter("fbcdn").substringBeforeLast("&bytestart")}"
+            connect(url) {
+                analyzedSize = getResponseHeader("Content-Length") ?: "0"
+            }
+        }
+
+        if (inactiveItem.size == analyzedSize.toLong()) {
+            refreshLink(index, url)
+
+            viewModelScope.launch(Dispatchers.Main) {
+                onFound()
+            }
+        }
+    }
+
+    private fun connect(url: String, block: HttpNetwork.Connection.() -> Unit) =
+            try {
+                network.open(url).apply(block)
+            } catch (e: Exception) {
+                null
+            }
+
+    private fun refreshLink(index: Int, freshLink: String) {
+        DownloadQueueManager.stop(context)
+        val downloads = inProgressDao.load().toMutableList()
+        val inactiveItem = inactiveDao.get(index)
+
+        val freshItem = DownloadItem(
+                uid = 0,
+                videoUrl = freshLink,
+                ext = inactiveItem.ext,
+                name = inactiveItem.name,
+                size = inactiveItem.size,
+                sourceWebpage = inactiveItem.sourceWebpage,
+                sourceWebsite = inactiveItem.sourceWebsite,
+                isChunked = inactiveItem.isChunked,
+                audioUrl = inactiveItem.audioUrl,
+                isAudioChunked = inactiveItem.isAudioChunked
+        )
+
+        inProgressDao.delete(downloads)
+        downloads.add(0, freshItem)
+        downloads.forEachIndexed { i, item -> item.uid = i }
+        inProgressDao.save(downloads)
+
+        val inactives = inactiveDao.load().toMutableList()
+        inactiveDao.delete(inactives)
+        inactives.removeAt(index)
+        inactives.forEachIndexed { i, item -> item.uid = i }
+        inactiveDao.save(inactives)
+
+        DownloadQueueManager.start(context)
     }
 }

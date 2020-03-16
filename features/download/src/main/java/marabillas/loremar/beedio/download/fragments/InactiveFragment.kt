@@ -19,6 +19,8 @@
 
 package marabillas.loremar.beedio.download.fragments
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.extensions.toolbar
 import marabillas.loremar.beedio.download.R
@@ -41,6 +44,9 @@ class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter
     lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
     lateinit var inactiveAdapter: InactiveAdapter
+
+    @Inject
+    lateinit var sourcePageFragment: SourcePageFragment
 
     private lateinit var inactiveVM: InactiveVM
 
@@ -83,5 +89,37 @@ class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter
     private fun clearList() {
         inactiveVM.clearList()
         inactiveAdapter.clearList()
+    }
+
+    override fun onGoToSourcePage(index: Int, sourcePage: String) {
+        if (!sourcePageFragment.isAdded) {
+            val data = Bundle().apply {
+                putInt(SourcePageFragment.ARG_INDEX, index)
+                putString(SourcePageFragment.ARG_PAGE, sourcePage)
+            }
+            sourcePageFragment.arguments = data
+            sourcePageFragment.setTargetFragment(this, SourcePageFragment.REQUEST_CODE_REFRESHED)
+            fragmentManager
+                    ?.beginTransaction()
+                    ?.addToBackStack(null)
+                    ?.add(android.R.id.content, sourcePageFragment, null)
+                    ?.commit()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (
+                requestCode == SourcePageFragment.REQUEST_CODE_REFRESHED &&
+                resultCode == RESULT_OK
+        )
+            data?.getIntExtra(SourcePageFragment.RESULT_INDEX, -1)?.let {
+                if (it != -1) inactiveAdapter.removeItem(it)
+            }
+
+        activity?.apply {
+            val targetView = findViewById<View>(R.id.list_container)
+            Snackbar.make(targetView, getString(R.string.fresh_link_added), Snackbar.LENGTH_SHORT)
+                    .show()
+        }
     }
 }

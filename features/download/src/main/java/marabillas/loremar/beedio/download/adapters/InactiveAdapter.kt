@@ -70,6 +70,7 @@ class InactiveAdapter @Inject constructor() : RecyclerView.Adapter<InactiveAdapt
 
         init {
             removeBtn.setOnClickListener(this)
+            itemView.setOnClickListener(this)
         }
 
         fun bind(item: InactiveVM.InactiveItem) {
@@ -80,11 +81,16 @@ class InactiveAdapter @Inject constructor() : RecyclerView.Adapter<InactiveAdapt
         override fun onClick(v: View?) {
             when (v) {
                 removeBtn -> eventListener?.onRemoveItem(adapterPosition)
+                itemView -> eventListener?.onGoToSourcePage(
+                        adapterPosition,
+                        inactiveList[adapterPosition].sourceWebpage
+                )
             }
         }
     }
 
     interface EventListener {
         fun onRemoveItem(index: Int)
+        fun onGoToSourcePage(index: Int, sourcePage: String)
     }
 }
