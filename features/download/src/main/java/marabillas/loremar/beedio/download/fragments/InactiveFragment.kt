@@ -30,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.extensions.toolbar
@@ -76,6 +77,7 @@ class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter
         activity?.toolbar(R.id.download_toolbar)?.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.inactive_menu_delete_all -> clearList()
+                R.id.inactive_menu_help -> showHelpDialog()
             }
             true
         }
@@ -121,5 +123,14 @@ class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter
             Snackbar.make(targetView, getString(R.string.fresh_link_added), Snackbar.LENGTH_SHORT)
                     .show()
         }
+    }
+
+    private fun showHelpDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.inactive_help_title))
+                .setMessage(getString(R.string.inactive_help_message))
+                .setNeutralButton("OK", null)
+                .create()
+                .show()
     }
 }
