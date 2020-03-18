@@ -27,6 +27,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerAppCompatActivity
+import marabillas.loremar.beedio.base.extensions.color
 import marabillas.loremar.beedio.download.databinding.ActivityDownloadBinding
 import marabillas.loremar.beedio.download.fragments.CompletedFragment
 import marabillas.loremar.beedio.download.fragments.InProgressFragment
@@ -67,9 +68,17 @@ class DownloadActivity : DaggerAppCompatActivity() {
 
         binding.mainContentDownload.apply {
             setSupportActionBar(downloadToolbar)
-            downloadBottomNavigation.setOnNavigationItemSelectedListener {
-                downloadVM.setSelectedNavItem(it.itemId)
-                true
+            downloadBottomNavigation.apply {
+                setOnNavigationItemSelectedListener {
+                    downloadVM.setSelectedNavItem(it.itemId)
+                    true
+                }
+                getOrCreateBadge(R.id.download_menu_in_progress)
+                        .backgroundColor = resources.color(R.color.green)
+                getOrCreateBadge(R.id.download_menu_completed)
+                        .backgroundColor = resources.color(R.color.green)
+                getOrCreateBadge(R.id.download_menu_inactive)
+                        .backgroundColor = resources.color(R.color.green)
             }
         }
 

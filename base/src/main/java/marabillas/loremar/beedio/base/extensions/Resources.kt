@@ -26,3 +26,5 @@ import kotlin.math.roundToInt
 fun Int.toPixels(resources: Resources): Int = (this * resources.displayMetrics.density).roundToInt()
 
 fun Resources.drawable(resId: Int) = ResourcesCompat.getDrawable(this, resId, null)
+
+fun Resources.color(resId: Int) = ResourcesCompat.getColor(this, resId, null)
