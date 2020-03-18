@@ -127,9 +127,10 @@ class InactiveFragment @Inject constructor() : DaggerFragment(), InactiveAdapter
 
     private fun showHelpDialog() {
         MaterialAlertDialogBuilder(requireContext())
+                .setIcon(R.drawable.ic_live_help_black_24dp)
                 .setTitle(getString(R.string.inactive_help_title))
                 .setMessage(getString(R.string.inactive_help_message))
-                .setNeutralButton("OK", null)
+                .setNeutralButton(getString(R.string.inactive_help_close), null)
                 .create()
                 .show()
     }

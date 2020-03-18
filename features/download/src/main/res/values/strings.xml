@@ -39,4 +39,5 @@
     <string name="inactive_help_message">Click on an inactive item. Once directed to webpage, play
         the video. Link will be automatically refreshed.
     </string>
+    <string name="inactive_help_close">Close</string>
 </resources>
