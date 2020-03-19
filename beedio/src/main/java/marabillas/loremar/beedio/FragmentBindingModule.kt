@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.browserapp
+package marabillas.loremar.beedio
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -27,9 +27,22 @@ import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetContro
 import marabillas.loremar.beedio.browser.uicontrollers.ExpandingFoundVideosFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherSheetFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
+import marabillas.loremar.beedio.download.fragments.CompletedFragment
+import marabillas.loremar.beedio.download.fragments.InProgressFragment
+import marabillas.loremar.beedio.download.fragments.InactiveFragment
+import marabillas.loremar.beedio.download.fragments.SourcePageFragment
+import marabillas.loremar.beedio.home.HomeRecommendedFragment
+import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
 
 @Module
 abstract class FragmentBindingModule {
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeHomeRecommendedFragment(): HomeRecommendedFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector(modules = [WebNavigationModule::class])
+    abstract fun contributeSearchWidgetControllerFagment(): SearchWidgetControllerFragment
 
     @FragmentScope
     @ContributesAndroidInjector
@@ -46,4 +59,20 @@ abstract class FragmentBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract fun contributeExpandingFoundVideosFragment(): ExpandingFoundVideosFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeInProgressFragment(): InProgressFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeCompleteFragment(): CompletedFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeInactiveFragment(): InactiveFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeSourcePageFragment(): SourcePageFragment
 }

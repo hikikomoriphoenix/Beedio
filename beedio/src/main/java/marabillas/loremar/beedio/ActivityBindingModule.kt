@@ -17,22 +17,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.homeapp
+package marabillas.loremar.beedio
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import marabillas.loremar.beedio.base.di.FragmentScope
-import marabillas.loremar.beedio.base.di.WebNavigationModule
-import marabillas.loremar.beedio.home.HomeRecommendedFragment
-import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
+import marabillas.loremar.beedio.base.di.ActivityScope
+import marabillas.loremar.beedio.browser.activity.BrowserActivity
+import marabillas.loremar.beedio.download.DownloadActivity
+import marabillas.loremar.beedio.home.HomeActivity
 
 @Module
-abstract class HomeFragmentBindingModule {
-    @FragmentScope
-    @ContributesAndroidInjector
-    abstract fun contributeHomeRecommendedFragment(): HomeRecommendedFragment
+abstract class ActivityBindingModule {
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [HomeActivityModule::class])
+    abstract fun contributeHomeActivity(): HomeActivity
 
-    @FragmentScope
-    @ContributesAndroidInjector(modules = [WebNavigationModule::class])
-    abstract fun contributeSearchWidgetControllerFragment(): SearchWidgetControllerFragment
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BrowserActivityModule::class])
+    abstract fun contributeBrowserActivity(): BrowserActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract fun contributeDownloadActivity(): DownloadActivity
 }

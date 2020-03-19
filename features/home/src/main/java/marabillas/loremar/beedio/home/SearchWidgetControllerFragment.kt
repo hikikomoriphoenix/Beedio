@@ -22,14 +22,18 @@ package marabillas.loremar.beedio.home
 import android.app.Activity
 import android.content.Context
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import androidx.fragment.app.Fragment
+import android.widget.TextView
 import androidx.transition.ChangeBounds
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.web.WebNavigation
 import marabillas.loremar.beedio.sharedui.OnTransitionEndListener
 import marabillas.loremar.beedio.sharedui.hideSofKeyboard
 import marabillas.loremar.beedio.sharedui.showSoftKeyboard
@@ -37,7 +41,13 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 
-class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearchWidgetInteractionListener {
+class SearchWidgetControllerFragment :
+        DaggerFragment(),
+        OnSearchWidgetInteractionListener,
+        TextView.OnEditorActionListener {
+
+    @Inject
+    lateinit var webNavigation: WebNavigation
 
     var searchWidgetStateHolder: SearchWidgetStateHolder? = null
     var homeAppBarStateHolder: HomeAppBarStateHolder? = null
@@ -158,6 +168,8 @@ class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearc
             it.searchIconVisibility.value = View.GONE
             it.searchCloseBtnVisibility.value = View.VISIBLE
             it.editTextVisibility.value = View.VISIBLE
+
+            editText?.setOnEditorActionListener(this)
         }
     }
 
@@ -177,5 +189,16 @@ class SearchWidgetControllerFragment @Inject constructor() : Fragment(), OnSearc
                     it.findViewById(android.R.id.content),
                     searchWidgetTransition)
         }
+    }
+
+    override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            v?.text?.let {
+                val validInput = webNavigation.navigateTo(it.toString())
+                TODO("Go to BrowserActivity")
+            }
+            return true
+        }
+        return false
     }
 }

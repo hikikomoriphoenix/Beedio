@@ -27,6 +27,6 @@ import marabillas.loremar.beedio.home.HomeActivity
 @Module
 internal abstract class HomeActivityBindingModule {
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [HomeActivityModule::class])
     abstract fun contributeHomeActivity(): HomeActivity
 }

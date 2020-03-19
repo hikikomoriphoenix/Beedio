@@ -20,19 +20,13 @@
 package marabillas.loremar.beedio.homeapp
 
 import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import marabillas.loremar.beedio.base.di.FragmentScope
-import marabillas.loremar.beedio.base.di.WebNavigationModule
-import marabillas.loremar.beedio.home.HomeRecommendedFragment
+import dagger.Provides
 import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
 
 @Module
-abstract class HomeFragmentBindingModule {
-    @FragmentScope
-    @ContributesAndroidInjector
-    abstract fun contributeHomeRecommendedFragment(): HomeRecommendedFragment
-
-    @FragmentScope
-    @ContributesAndroidInjector(modules = [WebNavigationModule::class])
-    abstract fun contributeSearchWidgetControllerFragment(): SearchWidgetControllerFragment
+class HomeActivityModule {
+    @Provides
+    fun provideSearchWidgetControllerFragment(): SearchWidgetControllerFragment {
+        return SearchWidgetControllerFragment()
+    }
 }

@@ -20,6 +20,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
@@ -44,21 +45,60 @@ android {
         }
     }
 
+    dataBinding {
+        enabled = true
+    }
+
+    kapt {
+        useBuildCache = true
+        correctErrorTypes = true
+        generateStubs = true
+    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':base')
+    implementation project(':sharedui')
+    implementation project(':features:home')
+    implementation project(':features:browser')
+    implementation project(':features:download')
+
     implementation deps.kotlin.stdlib
+    implementation deps.core_ktx
     implementation deps.appcompat
+    implementation deps.material
     implementation deps.constraintlayout
     implementation deps.recyclerview
+    implementation deps.okhttp
+    implementation deps.gson
+    implementation deps.ffmpeg
+    implementation deps.timber
 
     testImplementation deps.junit
+    testImplementation deps.truth
     androidTestImplementation deps.test.core
     androidTestImplementation deps.test.runner
     androidTestImplementation deps.test.rules
     androidTestImplementation deps.test.ext_junit
     androidTestImplementation deps.espresso
 
+    implementation deps.lifecycle.viewmodel
+    implementation deps.lifecycle.extensions
 
+    implementation deps.dagger.runtime
+    implementation deps.dagger.android
+    implementation deps.dagger.android_support
+    kapt deps.dagger.compiler
+    kapt deps.dagger.android_processor
+
+    implementation deps.room.runtime
+    implementation deps.room.ktx
+    testImplementation deps.room.testing
+    kapt deps.room.compiler
+
+    implementation deps.work.runtime_ktx
+    implementation deps.work.gcm
+    implementation deps.work.testing
 }
