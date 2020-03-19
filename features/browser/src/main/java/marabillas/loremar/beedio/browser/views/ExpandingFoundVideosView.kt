@@ -147,16 +147,12 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
 
     private fun setupListeners() {
         head.setOnClickListener(this)
-
         closeBtn.setOnClickListener(this)
-
         select.setOnClickListener(this)
-
         cancel.setOnClickListener(this)
-
         all.setOnClickListener(this)
-
         delete.setOnClickListener(this)
+        queue.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -184,6 +180,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
             }
             delete -> {
                 toolbarEventsListener?.onDeleteAllSelected()
+            }
+            queue -> {
+                toolbarEventsListener?.onQueueAllSelected()
             }
         }
     }
@@ -339,5 +338,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         fun onSelectionAll()
 
         fun onDeleteAllSelected()
+
+        fun onQueueAllSelected()
     }
 }

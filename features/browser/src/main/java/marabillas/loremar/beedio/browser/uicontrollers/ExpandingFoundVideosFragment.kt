@@ -148,4 +148,10 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
         foundVideosAdapter.removeItem(index)
         foundVideosView.updateFoundVideosCountText(foundVideosAdapter.itemCount)
     }
+
+    override fun onQueueAllSelected() {
+        videoDetectionVM.queueAllSelected {
+            onDeleteAllSelected()
+        }
+    }
 }

@@ -362,5 +362,28 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         }
     }
 
+    override fun queueAllSelected(doOnComplete: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = downloads.load().toMutableList()
+            downloads.delete(list)
+            _foundVideos.filter { it.isSelected }.forEach {
+                val new = DownloadItem(
+                        uid = 0,
+                        name = it.name,
+                        videoUrl = it.url,
+                        ext = it.ext,
+                        size = it.size.toLong(),
+                        sourceWebsite = it.sourceWebsite,
+                        sourceWebpage = it.sourceWebPage,
+                        isChunked = it.isChunked
+                )
+                list.add(new)
+            }
+            list.forEachIndexed { i, it -> it.uid = i }
+            downloads.save(list)
+            doOnComplete()
+        }
+    }
+
     private fun checkIfAlreadyExists(name: String) = _foundVideos.any { it.name == name }
 }

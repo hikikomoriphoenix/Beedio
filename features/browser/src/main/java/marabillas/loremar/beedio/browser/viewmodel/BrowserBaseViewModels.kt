@@ -137,6 +137,8 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun download(index: Int)
 
+    abstract fun queueAllSelected(doOnComplete: () -> Unit)
+
     data class FoundVideo(
             var name: String,
             val url: String,
