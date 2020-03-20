@@ -35,7 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:theme="@style/DarkToolBar"
-                app:title="Downloads" />
+                app:title="Downloads"
+                app:navigationIcon="@drawable/ic_menu_white_24dp" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

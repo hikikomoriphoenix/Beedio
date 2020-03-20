@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.download
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -78,6 +79,9 @@ class DownloadActivity : NavigationActivity(), HasAndroidInjector {
 
         binding.mainContentDownload.apply {
             setSupportActionBar(downloadToolbar)
+            downloadToolbar.setNavigationOnClickListener {
+                binding.navDrawerDownload.openDrawer(GravityCompat.START)
+            }
             downloadBottomNavigation.apply {
                 setOnNavigationItemSelectedListener {
                     downloadVM.setSelectedNavItem(it.itemId)
