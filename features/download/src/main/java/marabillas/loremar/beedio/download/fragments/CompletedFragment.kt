@@ -104,7 +104,7 @@ class CompletedFragment @Inject constructor() : DaggerFragment(), CompletedAdapt
             val file = File(it, filename)
             val uri = FileProvider.getUriForFile(
                     requireContext(),
-                    resources.getString(R.string.file_provider),
+                    "${context?.applicationContext?.packageName}.file-provider",
                     file)
             Intent(ACTION_VIEW).apply {
                 setDataAndType(uri, "video/*")

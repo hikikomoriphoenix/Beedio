@@ -19,5 +19,4 @@
 
 <resources>
     <string name="app_name">Base</string>
-    <string name="file_provider">marabillas.loremar.fileprovide</string>
 </resources>
