@@ -26,4 +26,7 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="history">History</string>
     <string name="about">About</string>
+    <string name="action_go_to_home">ACTION_GO_TO_HOME</string>
+    <string name="action_go_to_browser">ACTION_GO_TO_BROWSER</string>
+    <string name="action_go_to_download">ACTION_GO_TO_DOWNLOAD</string>
 </resources>

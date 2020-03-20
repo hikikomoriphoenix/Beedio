@@ -20,21 +20,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/nav_menu_home"
         android:title="@string/home"
         android:icon="@drawable/ic_home_black_24dp" />
     <item
+        android:id="@+id/nav_menu_browser"
         android:title="@string/browser"
         android:icon="@drawable/ic_globe_black_24dp" />
     <item
+        android:id="@+id/nav_menu_download"
         android:title="@string/download"
         android:icon="@drawable/ic_download_black_24dp" />
     <item
+        android:id="@+id/nav_menu_bookmarks"
         android:title="@string/bookmarks"
         android:icon="@drawable/ic_star_black_24dp" />
     <item
+        android:id="@+id/nav_menu_history"
         android:title="@string/history"
         android:icon="@drawable/ic_history_black_24dp" />
     <item
+        android:id="@+id/nav_menu_about"
         android:title="@string/about"
         android:icon="@drawable/ic_info_outline_black_24dp" />
 

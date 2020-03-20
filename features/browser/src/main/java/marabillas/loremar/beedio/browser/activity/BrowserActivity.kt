@@ -25,7 +25,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import dagger.android.support.DaggerAppCompatActivity
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
 import marabillas.loremar.beedio.browser.listeners.BrowserMenuItemClickListener
@@ -37,11 +40,14 @@ import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragmen
 import marabillas.loremar.beedio.browser.viewmodel.*
 import marabillas.loremar.beedio.browser.web.BrowserWebChromeClient
 import marabillas.loremar.beedio.browser.web.BrowserWebViewClient
+import marabillas.loremar.beedio.sharedui.NavigationActivity
 import timber.log.Timber
 import javax.inject.Inject
 
-class BrowserActivity : DaggerAppCompatActivity() {
+class BrowserActivity : NavigationActivity(), HasAndroidInjector {
 
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
@@ -77,7 +83,10 @@ class BrowserActivity : DaggerAppCompatActivity() {
     private lateinit var viewModelBinder: BrowserViewModelBinder
     private lateinit var listenersUpdater: BrowserListenersUpdater
 
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
         Timber.plant(Timber.DebugTree())

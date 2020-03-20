@@ -26,7 +26,10 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import dagger.android.support.DaggerAppCompatActivity
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
 import marabillas.loremar.beedio.base.extensions.color
 import marabillas.loremar.beedio.download.databinding.ActivityDownloadBinding
 import marabillas.loremar.beedio.download.fragments.CompletedFragment
@@ -34,10 +37,14 @@ import marabillas.loremar.beedio.download.fragments.InProgressFragment
 import marabillas.loremar.beedio.download.fragments.InactiveFragment
 import marabillas.loremar.beedio.download.viewmodels.DownloadVM
 import marabillas.loremar.beedio.download.viewmodels.InProgressVM
+import marabillas.loremar.beedio.sharedui.NavigationActivity
 import timber.log.Timber
 import javax.inject.Inject
 
-class DownloadActivity : DaggerAppCompatActivity() {
+class DownloadActivity : NavigationActivity(), HasAndroidInjector {
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -54,7 +61,10 @@ class DownloadActivity : DaggerAppCompatActivity() {
     private lateinit var inProgressVM: InProgressVM
     private lateinit var binding: ActivityDownloadBinding
 
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
         Timber.plant(Timber.DebugTree())

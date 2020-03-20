@@ -25,21 +25,30 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import dagger.android.support.DaggerAppCompatActivity
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
 import marabillas.loremar.beedio.home.databinding.ActivityHomeBinding
+import marabillas.loremar.beedio.sharedui.NavigationActivity
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
+class HomeActivity : NavigationActivity(), HasAndroidInjector, OnRecommendedClickListener {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var viewModel: HomeViewModel
 
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
     @Inject
     lateinit var searchWidgetControllerFragment: SearchWidgetControllerFragment
     @Inject
     lateinit var homeRecommendedFragment: HomeRecommendedFragment
 
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)

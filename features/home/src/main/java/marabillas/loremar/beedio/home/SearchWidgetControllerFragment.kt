@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.home
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -195,7 +196,9 @@ class SearchWidgetControllerFragment :
         if (actionId == EditorInfo.IME_ACTION_DONE) {
             v?.text?.let {
                 val validInput = webNavigation.navigateTo(it.toString())
-                TODO("Go to BrowserActivity")
+                val intent = Intent(getString(R.string.action_go_to_browser))
+                intent.putExtra("url", validInput)
+                startActivity(intent)
             }
             return true
         }
