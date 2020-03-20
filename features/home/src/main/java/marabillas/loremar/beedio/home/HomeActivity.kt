@@ -123,6 +123,7 @@ class HomeActivity : DaggerAppCompatActivity(), OnRecommendedClickListener {
     }
 
     override fun onRecommendedClick() {
-        homeRecommendedFragment.show(supportFragmentManager, null)
+        if (!homeRecommendedFragment.isAdded)
+            homeRecommendedFragment.show(supportFragmentManager, null)
     }
 }
