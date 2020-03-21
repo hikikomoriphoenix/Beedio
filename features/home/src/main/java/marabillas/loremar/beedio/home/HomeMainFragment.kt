@@ -25,12 +25,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
-import marabillas.loremar.beedio.home.databinding.ActivityHomeBinding
+import marabillas.loremar.beedio.home.databinding.MainContentHomeBinding
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -41,7 +40,7 @@ class HomeMainFragment : DaggerFragment(), OnRecommendedClickListener {
     @Inject
     lateinit var homeRecommendedFragment: HomeRecommendedFragment
 
-    private lateinit var binding: ActivityHomeBinding
+    private lateinit var binding: MainContentHomeBinding
     private lateinit var viewModel: HomeViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -61,15 +60,18 @@ class HomeMainFragment : DaggerFragment(), OnRecommendedClickListener {
     }
 
     private fun setupActionBar() {
-        val toolbar = binding.mainContentHome.homeToolbar
+        val toolbar = binding.homeToolbar
         (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
-        toolbar.setNavigationOnClickListener { binding.navDrawerHome.openDrawer(GravityCompat.START) }
+        toolbar.setNavigationOnClickListener {
+            /*binding.navDrawerHome.openDrawer(GravityCompat.START)*/
+            TODO("Open drawer layout")
+        }
     }
 
     private fun bindViewModelOnUI() {
         viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
-        binding.mainContentHome.apply {
+        binding.apply {
             searchWidgetStateHolder = viewModel
             homeAppBarStateHolder = viewModel
         }
@@ -97,7 +99,7 @@ class HomeMainFragment : DaggerFragment(), OnRecommendedClickListener {
     }
 
     private fun setupActionOnSearchWidgetLayoutChanges() {
-        val searchWidgetView = binding.mainContentHome.homeSearchWidget.homeSearchWidgetLayout
+        val searchWidgetView = binding.homeSearchWidget.homeSearchWidgetLayout
 
         viewModel.searchWidgetWidth.observe(this, Observer {
             val params = searchWidgetView.layoutParams
