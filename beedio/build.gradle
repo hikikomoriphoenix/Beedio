@@ -101,4 +101,9 @@ dependencies {
     implementation deps.work.runtime_ktx
     implementation deps.work.gcm
     implementation deps.work.testing
+
+    implementation deps.navigation.fragment_ktx
+    implementation deps.navigation.ui_ktx
+    implementation deps.navigation.dynamic_features_fragment
+    testImplementation deps.navigation.testing
 }

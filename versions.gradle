@@ -40,6 +40,7 @@ versions.ffmpeg = "0.3.2"
 versions.timber = "4.7.1"
 versions.room = '2.2.5'
 versions.work = '2.3.3'
+versions.navigation = '2.3.0-alpha04'
 ext.versions = versions
 
 def deps = [:]
@@ -95,6 +96,13 @@ work.runtime_ktx = "androidx.work:work-runtime-ktx:$versions.work"
 work.gcm = "androidx.work:work-gcm:$versions.work"
 work.testing = "androidx.work:work-testing:$versions.work"
 deps.work = work
+
+def navigation = [:]
+navigation.fragment_ktx = "androidx.navigation:navigation-fragment-ktx:$versions.navigation"
+navigation.ui_ktx = "androidx.navigation:navigation-ui-ktx:$versions.navigation"
+navigation.dynamic_features_fragment = "androidx.navigation:navigation-dynamic-features-fragment:$versions.navigation"
+navigation.testing = "androidx.navigation:navigation-testing:$versions.navigation"
+deps.navigation = navigation
 
 ext.deps = deps
 

@@ -20,14 +20,17 @@
 package marabillas.loremar.beedio
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import com.google.android.material.navigation.NavigationView
 import dagger.android.support.DaggerAppCompatActivity
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import timber.log.Timber
 import javax.inject.Inject
 
-class MainActivity : DaggerAppCompatActivity() {
+class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -43,10 +46,21 @@ class MainActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory).get(VideoDetectionVM::class.java)
+
+        findViewById<NavigationView>(R.id.nav_view).setNavigationItemSelectedListener(this)
     }
 
     override fun onDestroy() {
         videoDetectionVM.closeDetailsFetcher()
         super.onDestroy()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_menu_home -> findNavController(R.id.action_global_homeMainFragment)
+            R.id.nav_menu_browser -> findNavController(R.id.action_global_browserMainFragment)
+            R.id.nav_menu_download -> findNavController(R.id.action_global_downloadMainFragment)
+        }
+        return true
     }
 }
