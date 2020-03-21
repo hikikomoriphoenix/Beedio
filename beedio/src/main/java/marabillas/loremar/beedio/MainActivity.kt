@@ -56,9 +56,14 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_menu_home -> findNavController(R.id.action_global_homeMainFragment)
-            R.id.nav_menu_browser -> findNavController(R.id.action_global_browserMainFragment)
-            R.id.nav_menu_download -> findNavController(R.id.action_global_downloadMainFragment)
+            R.id.nav_menu_home -> findNavController(R.id.main_nav_host)
+                    .navigate(R.id.action_global_homeMainFragment)
+
+            R.id.nav_menu_browser -> findNavController(R.id.main_nav_host)
+                    .navigate(R.id.action_global_browserMainFragment)
+
+            R.id.nav_menu_download -> findNavController(R.id.main_nav_host)
+                    .navigate(R.id.action_global_downloadMainFragment)
         }
         return true
     }
