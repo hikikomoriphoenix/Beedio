@@ -21,14 +21,12 @@ package marabillas.loremar.beedio.browser.listeners
 
 import android.graphics.Bitmap
 import android.webkit.WebView
-import marabillas.loremar.beedio.base.di.ActivityScope
 import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import javax.inject.Inject
 
-@ActivityScope
 class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         OnWebPageTitleRecievedListener, BrowserSearchWidgetListener, OnLoadResourceListener {
 
