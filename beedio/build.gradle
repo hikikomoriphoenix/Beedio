@@ -33,6 +33,7 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -83,6 +84,7 @@ dependencies {
     implementation deps.gson
     implementation deps.ffmpeg
     implementation deps.timber
+    implementation deps.multidex
 
     testImplementation deps.junit
     testImplementation deps.truth

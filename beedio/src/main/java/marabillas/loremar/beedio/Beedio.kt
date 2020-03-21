@@ -19,6 +19,8 @@
 
 package marabillas.loremar.beedio
 
+import android.content.Context
+import androidx.multidex.MultiDex
 import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
@@ -45,6 +47,11 @@ class Beedio : DaggerApplication(), Configuration.Provider {
         return Configuration.Builder()
                 .setWorkerFactory(workerFactory)
                 .build()
+    }
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
     }
 
     override fun onCreate() {

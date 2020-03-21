@@ -41,6 +41,7 @@ versions.timber = "4.7.1"
 versions.room = '2.2.5'
 versions.work = '2.3.3'
 versions.navigation = '2.3.0-alpha04'
+versions.multidex = '2.0.1'
 ext.versions = versions
 
 def deps = [:]
@@ -56,6 +57,7 @@ deps.okhttp = "com.squareup.okhttp3:okhttp:$versions.okhttp"
 deps.gson = "com.google.code.gson:gson:$versions.gson"
 deps.ffmpeg = "com.writingminds:FFmpegAndroid:$versions.ffmpeg"
 deps.timber = "com.jakewharton.timber:timber:$versions.timber"
+deps.multidex = "androidx.multidex:multidex:$versions.multidex"
 
 def kotlin = [:]
 kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
