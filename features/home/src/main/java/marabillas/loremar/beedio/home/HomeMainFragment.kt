@@ -89,7 +89,7 @@ class HomeMainFragment : DaggerFragment(), OnRecommendedClickListener {
 
         parentFragmentManager
                 .beginTransaction()
-                .add(android.R.id.content, searchWidgetControllerFragment)
+                .add(searchWidgetControllerFragment, null)
                 .commit()
     }
 
