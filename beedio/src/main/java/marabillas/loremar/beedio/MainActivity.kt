@@ -34,8 +34,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    @Inject
-    lateinit var videoDetectionVM: VideoDetectionVM
+    private lateinit var videoDetectionVM: VideoDetectionVM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
