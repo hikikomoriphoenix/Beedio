@@ -23,19 +23,30 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import marabillas.loremar.beedio.base.di.FragmentScope
 import marabillas.loremar.beedio.base.di.WebNavigationModule
+import marabillas.loremar.beedio.browser.fragment.BrowserMainFragment
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
 import marabillas.loremar.beedio.browser.uicontrollers.ExpandingFoundVideosFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherSheetFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
-import marabillas.loremar.beedio.download.fragments.CompletedFragment
-import marabillas.loremar.beedio.download.fragments.InProgressFragment
-import marabillas.loremar.beedio.download.fragments.InactiveFragment
-import marabillas.loremar.beedio.download.fragments.SourcePageFragment
+import marabillas.loremar.beedio.download.fragments.*
+import marabillas.loremar.beedio.home.HomeMainFragment
 import marabillas.loremar.beedio.home.HomeRecommendedFragment
 import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
 
 @Module
 abstract class FragmentBindingModule {
+    @FragmentScope
+    @ContributesAndroidInjector(modules = [HomeMainFragmentModule::class])
+    abstract fun contributeHomeMainFragment(): HomeMainFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector(modules = [BrowserMainFragmentModule::class])
+    abstract fun contributeBrowserMainFragment(): BrowserMainFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeDownloadMainFragment(): DownloadMainFragment
+
     @FragmentScope
     @ContributesAndroidInjector
     abstract fun contributeHomeRecommendedFragment(): HomeRecommendedFragment

@@ -22,21 +22,10 @@ package marabillas.loremar.beedio
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import marabillas.loremar.beedio.base.di.ActivityScope
-import marabillas.loremar.beedio.browser.activity.BrowserActivity
-import marabillas.loremar.beedio.download.DownloadActivity
-import marabillas.loremar.beedio.home.HomeActivity
 
 @Module
 abstract class ActivityBindingModule {
     @ActivityScope
-    @ContributesAndroidInjector(modules = [HomeActivityModule::class])
-    abstract fun contributeHomeActivity(): HomeActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [BrowserActivityModule::class])
-    abstract fun contributeBrowserActivity(): BrowserActivity
-
-    @ActivityScope
     @ContributesAndroidInjector
-    abstract fun contributeDownloadActivity(): DownloadActivity
+    abstract fun contributeMainActivity(): MainActivity
 }

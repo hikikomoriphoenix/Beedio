@@ -24,8 +24,7 @@ import dagger.Provides
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
 
 @Module
-class BrowserActivityModule {
-
+class BrowserMainFragmentModule {
     @Provides
     fun provideBrowserSearchWidgetControllerFragment(): BrowserSearchWidgetControllerFragment {
         return BrowserSearchWidgetControllerFragment()

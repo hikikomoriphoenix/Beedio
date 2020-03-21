@@ -24,7 +24,7 @@ import dagger.Provides
 import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
 
 @Module
-class HomeActivityModule {
+class HomeMainFragmentModule {
     @Provides
     fun provideSearchWidgetControllerFragment(): SearchWidgetControllerFragment {
         return SearchWidgetControllerFragment()
