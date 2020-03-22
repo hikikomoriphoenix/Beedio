@@ -53,6 +53,11 @@ class DownloadMainFragment : DaggerFragment() {
     private lateinit var inProgressVM: InProgressVM
     private lateinit var binding: MainContentDownloadBinding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.main_content_download, container, false)
         binding.lifecycleOwner = this
