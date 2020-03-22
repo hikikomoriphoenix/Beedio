@@ -22,10 +22,14 @@ package marabillas.loremar.beedio
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
 import dagger.android.support.DaggerAppCompatActivity
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import timber.log.Timber
 import javax.inject.Inject
@@ -34,6 +38,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var videoDetectionVM: VideoDetectionVM
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +49,14 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
         setContentView(R.layout.activity_main)
 
+        mainViewModel = ViewModelProvider(this::getViewModelStore, viewModelFactory).get(MainViewModel::class.java)
         videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory).get(VideoDetectionVM::class.java)
 
         findViewById<NavigationView>(R.id.nav_view).setNavigationItemSelectedListener(this)
+        mainViewModel.isNavDrawerOpenLiveData.observe(this, Observer {
+            if (it == true)
+                findViewById<DrawerLayout>(R.id.main_drawer_layout).openDrawer(GravityCompat.START)
+        })
     }
 
     override fun onDestroy() {

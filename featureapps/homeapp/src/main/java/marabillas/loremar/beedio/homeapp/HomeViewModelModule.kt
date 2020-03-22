@@ -19,18 +19,13 @@
 
 package marabillas.loremar.beedio.homeapp
 
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
-import javax.inject.Singleton
+import androidx.lifecycle.ViewModelProvider
+import dagger.Module
+import dagger.Provides
+import marabillas.loremar.beedio.home.HomeViewModelFactory
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, HomeActivityBindingModule::class,
-    HomeFragmentBindingModule::class, HomeViewModelModule::class])
-internal interface HomeAppComponent : AndroidInjector<HomeApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance homeApp: HomeApp): HomeAppComponent
-    }
+@Module
+class HomeViewModelModule {
+    @Provides
+    fun provideHomeViewModelFactory(): ViewModelProvider.Factory = HomeViewModelFactory()
 }

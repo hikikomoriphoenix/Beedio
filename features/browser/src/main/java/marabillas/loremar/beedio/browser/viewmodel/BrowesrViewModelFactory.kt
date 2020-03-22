@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.browser.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 
 class BrowserViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
@@ -29,6 +30,9 @@ class BrowserViewModelFactory(private val context: Context) : ViewModelProvider.
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
 
         return when (modelClass) {
+            MainViewModel::class.java -> {
+                MainViewModel() as T
+            }
 
             BrowserTitleStateVM::class.java -> {
                 BrowserTitleStateVMImpl() as T

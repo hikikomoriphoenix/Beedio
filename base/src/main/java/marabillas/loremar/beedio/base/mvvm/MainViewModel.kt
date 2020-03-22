@@ -17,20 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.homeapp
+package marabillas.loremar.beedio.base.mvvm
 
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
-import javax.inject.Singleton
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, HomeActivityBindingModule::class,
-    HomeFragmentBindingModule::class, HomeViewModelModule::class])
-internal interface HomeAppComponent : AndroidInjector<HomeApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance homeApp: HomeApp): HomeAppComponent
+class MainViewModel : ViewModel() {
+    private val _isNavDrawerOpen = MutableLiveData<Boolean>()
+
+    val isNavDrawerOpenLiveData = _isNavDrawerOpen as LiveData<Boolean>
+
+    fun setIsNavDrawerOpen(value: Boolean) {
+        _isNavDrawerOpen.value = value
     }
 }

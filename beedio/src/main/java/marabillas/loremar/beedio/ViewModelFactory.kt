@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.browser.viewmodel.*
 import marabillas.loremar.beedio.download.viewmodels.*
 
@@ -34,6 +35,7 @@ class ViewModelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when (modelClass) {
+            MainViewModel::class.java -> MainViewModel() as T
             BrowserTitleStateVM::class.java -> BrowserTitleStateVMImpl() as T
             WebPageNavigationVM::class.java -> WebPageNavigationVMImpl() as T
             WebViewsControllerVM::class.java -> WebViewsControllerVMImpl() as T

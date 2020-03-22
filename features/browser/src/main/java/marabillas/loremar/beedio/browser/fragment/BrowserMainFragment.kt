@@ -34,6 +34,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.MainContentBrowserBinding
 import marabillas.loremar.beedio.browser.listeners.BrowserMenuItemClickListener
@@ -77,6 +78,7 @@ class BrowserMainFragment : DaggerFragment() {
 
     private lateinit var binding: MainContentBrowserBinding
 
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var titleStateVM: BrowserTitleStateVM
     private lateinit var webPageNavigationVM: WebPageNavigationVM
     private lateinit var webViewsControllerVM: WebViewsControllerVM
@@ -97,6 +99,7 @@ class BrowserMainFragment : DaggerFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         activity?.let {
+            mainViewModel = initViewModel(it, MainViewModel::class.java)
             titleStateVM = initViewModel(it, BrowserTitleStateVM::class.java)
             webPageNavigationVM = initViewModel(it, WebPageNavigationVM::class.java)
             webViewsControllerVM = initViewModel(it, WebViewsControllerVM::class.java)
@@ -129,8 +132,7 @@ class BrowserMainFragment : DaggerFragment() {
         val toolbar = binding.browserToolbar
         (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
-            /*binding.navDrawerBrowser.openDrawer(GravityCompat.START) */
-            TODO("Open drawer layout")
+            mainViewModel.setIsNavDrawerOpen(true)
         }
         toolbar.setOnMenuItemClickListener(menuItemClickListener)
     }

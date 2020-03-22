@@ -17,28 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.download.viewmodels
+package marabillas.loremar.beedio.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
 
-class DownloadViewModelFactory(
-        private val context: Context,
-        private val downloadDB: DownloadListDatabase
-) : ViewModelProvider.Factory {
-
+class HomeViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when (modelClass) {
             MainViewModel::class.java -> MainViewModel() as T
-            DownloadVM::class.java -> DownloadVMImpl(downloadDB) as T
-            InProgressVM::class.java -> InProgressVMImpl(context, downloadDB) as T
-            CompletedVM::class.java -> CompletedVMImpl(downloadDB) as T
-            InactiveVM::class.java -> InactiveVMImpl(context, downloadDB) as T
-            else -> throw IllegalArgumentException("Unidentified ViewModel for Download")
+            else -> throw IllegalArgumentException("Invalid ViewModel")
         }
     }
 }

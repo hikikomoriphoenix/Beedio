@@ -27,26 +27,39 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.home.databinding.MainContentHomeBinding
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 class HomeMainFragment : DaggerFragment(), OnRecommendedClickListener {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
     lateinit var searchWidgetControllerFragment: SearchWidgetControllerFragment
-
     @Inject
     lateinit var homeRecommendedFragment: HomeRecommendedFragment
 
     private lateinit var binding: MainContentHomeBinding
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: HomeViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.main_content_home, container, false)
         binding.lifecycleOwner = this
         return binding.root
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            mainViewModel = ViewModelProvider(it::getViewModelStore, viewModelFactory)
+                    .get(MainViewModel::class.java)
+        }
     }
 
     override fun onStart() {
@@ -63,8 +76,7 @@ class HomeMainFragment : DaggerFragment(), OnRecommendedClickListener {
         val toolbar = binding.homeToolbar
         (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
-            /*binding.navDrawerHome.openDrawer(GravityCompat.START)*/
-            TODO("Open drawer layout")
+            mainViewModel.setIsNavDrawerOpen(true)
         }
     }
 

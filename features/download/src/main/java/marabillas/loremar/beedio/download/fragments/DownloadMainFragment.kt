@@ -28,6 +28,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.extensions.color
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.download.R
 import marabillas.loremar.beedio.download.databinding.MainContentDownloadBinding
 import marabillas.loremar.beedio.download.viewmodels.DownloadVM
@@ -47,6 +48,7 @@ class DownloadMainFragment : DaggerFragment() {
     @Inject
     lateinit var inactiveFragment: InactiveFragment
 
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var downloadVM: DownloadVM
     private lateinit var inProgressVM: InProgressVM
     private lateinit var binding: MainContentDownloadBinding
@@ -55,6 +57,13 @@ class DownloadMainFragment : DaggerFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.main_content_download, container, false)
         binding.lifecycleOwner = this
         return binding.root
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            mainViewModel = ViewModelProvider(it::getViewModelStore, viewModelFactory).get(MainViewModel::class.java)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,8 +83,7 @@ class DownloadMainFragment : DaggerFragment() {
         binding.apply {
             (activity as AppCompatActivity?)?.setSupportActionBar(downloadToolbar)
             downloadToolbar.setNavigationOnClickListener {
-                /*binding.navDrawerDownload.openDrawer(GravityCompat.START)*/
-                TODO("Open drawer")
+                mainViewModel.setIsNavDrawerOpen(true)
             }
             downloadBottomNavigation.apply {
                 setOnNavigationItemSelectedListener {
