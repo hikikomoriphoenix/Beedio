@@ -26,6 +26,8 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
 import dagger.android.support.DaggerAppCompatActivity
@@ -34,7 +36,7 @@ import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
 import timber.log.Timber
 import javax.inject.Inject
 
-class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, NavController.OnDestinationChangedListener {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -55,8 +57,15 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         findViewById<NavigationView>(R.id.nav_view).setNavigationItemSelectedListener(this)
         mainViewModel.isNavDrawerOpenLiveData.observe(this, Observer {
             if (it == true)
-                findViewById<DrawerLayout>(R.id.main_drawer_layout).openDrawer(GravityCompat.START)
+                openNavDrawer()
+            else
+                closeNavDrawer()
         })
+    }
+
+    override fun onStart() {
+        super.onStart()
+        findNavController(R.id.main_nav_host).addOnDestinationChangedListener(this)
     }
 
     override fun onDestroy() {
@@ -77,4 +86,12 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         }
         return true
     }
+
+    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
+        closeNavDrawer()
+    }
+
+    private fun openNavDrawer() = findViewById<DrawerLayout>(R.id.main_drawer_layout).openDrawer(GravityCompat.START)
+
+    private fun closeNavDrawer() = findViewById<DrawerLayout>(R.id.main_drawer_layout).closeDrawer(GravityCompat.START)
 }
