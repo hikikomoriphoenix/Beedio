@@ -222,7 +222,7 @@ class BrowserMainFragment : DaggerFragment() {
     private fun setupExpandingFoundVideosFragment() {
         parentFragmentManager
                 .beginTransaction()
-                .add(R.id.main_content_browser, expandingFoundVideosFragment)
+                .add(R.id.browser_coordinator_layout, expandingFoundVideosFragment)
                 .commit()
     }
 
