@@ -63,6 +63,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             else
                 closeNavDrawer()
         })
+        mainViewModel.goToBrowserEvent.observeSend(this, Observer {
+            navController.navigate(R.id.action_global_browserMainFragment)
+        })
     }
 
     override fun onStart() {

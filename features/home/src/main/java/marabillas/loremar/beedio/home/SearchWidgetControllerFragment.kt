@@ -21,7 +21,7 @@ package marabillas.loremar.beedio.home
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -29,11 +29,13 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.transition.ChangeBounds
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.base.web.WebNavigation
 import marabillas.loremar.beedio.sharedui.OnTransitionEndListener
 import marabillas.loremar.beedio.sharedui.hideSofKeyboard
@@ -48,10 +50,15 @@ class SearchWidgetControllerFragment :
         TextView.OnEditorActionListener {
 
     @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
     lateinit var webNavigation: WebNavigation
+
 
     var searchWidgetStateHolder: SearchWidgetStateHolder? = null
     var homeAppBarStateHolder: HomeAppBarStateHolder? = null
+
+    private lateinit var mainViewModel: MainViewModel
 
     private val searchWidgetTransition = TransitionSet()
     private val collapseOnActivateEnd = OnTransitionEndListener(this::riseSearchWidget)
@@ -60,6 +67,14 @@ class SearchWidgetControllerFragment :
     private val fallEnd = OnTransitionEndListener(this::expandOnDeactivateSearchWidget)
     private val expandOnActivateEnd = OnTransitionEndListener(this::enableSearchInput)
     private val expandOnDeactivateEnd = OnTransitionEndListener(this::disableSearchInput)
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            mainViewModel = ViewModelProvider(it::getViewModelStore, viewModelFactory)
+                    .get(MainViewModel::class.java)
+        }
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -196,9 +211,10 @@ class SearchWidgetControllerFragment :
         if (actionId == EditorInfo.IME_ACTION_DONE) {
             v?.text?.let {
                 val validInput = webNavigation.navigateTo(it.toString())
-                val intent = Intent(getString(R.string.action_go_to_browser))
+                /*val intent = Intent(getString(R.string.action_go_to_browser))
                 intent.putExtra("url", validInput)
-                startActivity(intent)
+                startActivity(intent)*/
+                mainViewModel.goToBrowser(validInput)
             }
             return true
         }
