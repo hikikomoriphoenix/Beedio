@@ -43,6 +43,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var mainViewModel: MainViewModel
     private lateinit var videoDetectionVM: VideoDetectionVM
 
+    private val navController by lazy { findNavController(R.id.main_nav_host) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,7 +67,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     override fun onStart() {
         super.onStart()
-        findNavController(R.id.main_nav_host).addOnDestinationChangedListener(this)
+        navController.addOnDestinationChangedListener(this)
     }
 
     override fun onDestroy() {
@@ -75,14 +77,11 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_menu_home -> findNavController(R.id.main_nav_host)
-                    .navigate(R.id.action_global_homeMainFragment)
+            R.id.nav_menu_home -> navController.navigate(R.id.action_global_homeMainFragment)
 
-            R.id.nav_menu_browser -> findNavController(R.id.main_nav_host)
-                    .navigate(R.id.action_global_browserMainFragment)
+            R.id.nav_menu_browser -> navController.navigate(R.id.action_global_browserMainFragment)
 
-            R.id.nav_menu_download -> findNavController(R.id.main_nav_host)
-                    .navigate(R.id.action_global_downloadMainFragment)
+            R.id.nav_menu_download -> navController.navigate(R.id.action_global_downloadMainFragment)
         }
         return true
     }
