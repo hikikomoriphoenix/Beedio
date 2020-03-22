@@ -22,6 +22,7 @@ package marabillas.loremar.beedio
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -64,7 +65,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 closeNavDrawer()
         })
         mainViewModel.goToBrowserEvent.observeSend(this, Observer {
-            navController.navigate(R.id.action_global_browserMainFragment)
+            val data = bundleOf("url" to it)
+            navController.navigate(R.id.action_global_browserMainFragment, data)
         })
     }
 

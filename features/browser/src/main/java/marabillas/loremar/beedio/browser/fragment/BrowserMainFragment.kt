@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -198,6 +199,8 @@ class BrowserMainFragment : DaggerFragment() {
         var fragment = parentFragmentManager.findFragmentByTag("WebViewsControllerFragment")
 
         if (fragment == null) {
+            val url = arguments?.getString("url")
+            webViewsController.arguments = bundleOf("url" to url)
             parentFragmentManager
                     .beginTransaction()
                     .add(webViewsController, "WebViewsControllerFragment")

@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.browser.activity
 
+import androidx.core.os.bundleOf
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
 
@@ -35,6 +36,8 @@ class BrowserControllersUpdater(private val activity: BrowserActivity) {
         var webViewsController = activity.supportFragmentManager.findFragmentByTag("WebViewsControllerFragment")
 
         if (webViewsController == null) {
+            val url = activity.intent.getStringExtra("url")
+            activity.webViewsController.arguments = bundleOf("url" to url)
             activity.supportFragmentManager
                     .beginTransaction()
                     .add(activity.webViewsController, "WebViewsControllerFragment")

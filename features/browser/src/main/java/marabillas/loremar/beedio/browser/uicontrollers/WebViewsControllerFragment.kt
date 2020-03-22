@@ -86,8 +86,9 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
         updateParent(webViewsContainer, parentContainer)
 
         if (webViews.isEmpty()) {
-            val url = activity?.intent?.getStringExtra("url")
-            url?.let { addWebView(it) }
+            arguments?.getString("url")?.let {
+                addWebView(it)
+            }
         }
 
     }
