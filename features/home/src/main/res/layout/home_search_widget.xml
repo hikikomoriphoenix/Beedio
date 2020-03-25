@@ -55,7 +55,7 @@
             android:hint="@string/search_widget_hint"
             android:importantForAutofill="no"
             android:inputType="textPersonName"
-            android:text="@{ searchWidgetStateHolder.searchWidgetText }"
+            android:text="@={ searchWidgetStateHolder.searchWidgetText }"
             android:visibility="@{ searchWidgetStateHolder.editTextVisibility }"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/home_search_close_btn"
