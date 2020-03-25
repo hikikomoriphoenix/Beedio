@@ -28,11 +28,14 @@ class MainViewModel : ViewModel() {
 
     val isNavDrawerOpenLiveData = _isNavDrawerOpen as LiveData<Boolean>
 
+    val goToHomeEvent = ActionLiveData()
     val goToBrowserEvent = SendLiveData<String>()
 
     fun setIsNavDrawerOpen(value: Boolean) {
         _isNavDrawerOpen.value = value
     }
+
+    fun goToHome() = goToHomeEvent.go()
 
     fun goToBrowser(url: String) = goToBrowserEvent.send(url)
 }

@@ -34,6 +34,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
@@ -46,6 +47,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    private lateinit var mainViewModel: MainViewModel
     private var webViewsControllerVM: WebViewsControllerVM? = null
     private var titleStateVM: BrowserTitleStateVM? = null
     private var webPageNavigationVM: WebPageNavigationVM? = null
@@ -74,6 +76,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
         super.onActivityCreated(savedInstanceState)
 
         activity?.let {
+            mainViewModel = ViewModelProvider(it, viewModelFactory).get(MainViewModel::class.java)
             webViewsControllerVM = ViewModelProviders.of(it, viewModelFactory).get(WebViewsControllerVM::class.java)
             titleStateVM = ViewModelProviders.of(it, viewModelFactory).get(BrowserTitleStateVM::class.java)
             webPageNavigationVM = ViewModelProviders.of(it, viewModelFactory).get(WebPageNavigationVM::class.java)
@@ -141,7 +144,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                 switchWebView(index)
             }
         else
-            activity?.finish()
+            mainViewModel.goToHome()
 
         updateWebViewsCountIndicator()
     }

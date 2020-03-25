@@ -68,6 +68,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             val data = bundleOf("url" to it)
             navController.navigate(R.id.action_global_browserMainFragment, data)
         })
+        mainViewModel.goToHomeEvent.observe(this, Observer {
+            navController.navigate(R.id.action_global_homeMainFragment)
+        })
     }
 
     override fun onStart() {
