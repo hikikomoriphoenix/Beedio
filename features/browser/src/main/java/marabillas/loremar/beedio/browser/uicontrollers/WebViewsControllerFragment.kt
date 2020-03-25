@@ -44,24 +44,39 @@ import javax.inject.Inject
 
 class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
+    var webChromeClient: WebChromeClient? = null
+        set(value) {
+            field = value
+            webViews.forEach { it.webChromeClient = value }
+        }
+
+    var webViewClient: WebViewClient? = null
+        set(value) {
+            field = value
+            webViews.forEach { it.webViewClient = value }
+        }
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private lateinit var mainViewModel: MainViewModel
+    private var mainViewModel: MainViewModel? = null
     private var webViewsControllerVM: WebViewsControllerVM? = null
     private var titleStateVM: BrowserTitleStateVM? = null
     private var webPageNavigationVM: WebPageNavigationVM? = null
     private var webViewsCountIndicatorVM: WebViewsCountIndicatorVM? = null
 
-    private val webViews = mutableListOf<WebView>()
-    private var activeWebView: WebView? = null
-    private val activeWebViewIndex: Int; get() = webViews.indexOf(activeWebView)
     private var webViewsContainer: FrameLayout? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
+    private val webViews; get() = mainViewModel?.webViews ?: mutableListOf()
+    private var activeWebViewIndex
+        get() = mainViewModel?.activeWebViewIndex ?: -1
+        set(value) {
+            mainViewModel?.activeWebViewIndex = value
+        }
+    private val activeWebView: WebView?
+        get() = if (activeWebViewIndex != -1)
+            webViews[activeWebViewIndex]
+        else
+            null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (webViewsContainer == null) {
@@ -87,13 +102,6 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
         val parentContainer = activity?.findViewById<ViewGroup>(R.id.browser_webview_containter)
         updateParent(webViewsContainer, parentContainer)
-
-        if (webViews.isEmpty()) {
-            arguments?.getString("url")?.let {
-                addWebView(it)
-            }
-        }
-
     }
 
     private fun observeWebViewControllerVM() {
@@ -102,8 +110,13 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
             this.also { thisFragment ->
 
                 webViewsControllerVM?.apply {
-                    observeRequestUpdatedWebViews(lifecycleOwer, Observer { it(thisFragment.webViews, activeWebViewIndex) })
-                    observeRequestActiveWebView(lifecycleOwer, Observer { it(thisFragment.activeWebView) })
+                    observeRequestUpdatedWebViews(lifecycleOwer, Observer {
+                        it(thisFragment.webViews, activeWebViewIndex)
+                    }
+                    )
+                    observeRequestActiveWebView(lifecycleOwer, Observer {
+                        it(thisFragment.activeWebView)
+                    })
                     observeNewWebView(lifecycleOwer, Observer { thisFragment.newWebView(it) })
                     observeSwitchWebView(lifecycleOwer, Observer { thisFragment.switchWebView(it) })
                     observeCloseWebView(lifecycleOwer, Observer { thisFragment.closeWebView() })
@@ -119,8 +132,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
     private fun switchWebView(index: Int) {
         activeWebView?.visibility = View.GONE
-
-        activeWebView = webViews[index]
+        activeWebViewIndex = index
         (activeWebView?.parent as ViewGroup?)?.removeView(activeWebView)
         webViewsContainer?.addView(activeWebView)
 
@@ -144,7 +156,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                 switchWebView(index)
             }
         else
-            mainViewModel.goToHome()
+            mainViewModel?.goToHome()
 
         updateWebViewsCountIndicator()
     }
@@ -166,23 +178,11 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
         parent?.addView(view)
     }
 
-    var webChromeClient: WebChromeClient? = null
-        set(value) {
-            field = value
-            webViews.forEach { it.webChromeClient = value }
-        }
-
-    var webViewClient: WebViewClient? = null
-        set(value) {
-            field = value
-            webViews.forEach { it.webViewClient = value }
-        }
-
     @SuppressLint("SetJavaScriptEnabled")
     private fun addWebView(url: String) {
         this.also { webViewsController ->
             activeWebView?.visibility = View.GONE
-            activeWebView = WebView(activity).apply {
+            WebView(activity).apply {
                 layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 webViewClient = webViewsController.webViewClient
                 webChromeClient = webViewsController.webChromeClient
@@ -190,12 +190,14 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.allowUniversalAccessFromFileURLs = true
                 settings.domStorageEnabled = true
+
+                webViews.add(this)
+                activeWebViewIndex = webViews.indexOf(this)
+                webViewsContainer?.addView(activeWebView)
+
                 loadUrl(url)
             }
         }
-
-        webViewsContainer?.addView(activeWebView)
-        activeWebView?.let { webViews.add(it) }
     }
 
     private fun updateWebViewsCountIndicator() {
@@ -204,6 +206,25 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
     override fun onStart() {
         super.onStart()
+
+        if (webViews.isEmpty()) {
+            arguments?.getString("url")?.let {
+                addWebView(it)
+            }
+        } else {
+            webViewsContainer?.apply {
+                webViews.forEach {
+                    (it.parent as ViewGroup).removeView(it)
+                    addView(it)
+                }
+                activeWebView?.let {
+                    (it.parent as ViewGroup).removeView(it)
+                    addView(it)
+                    it.reload()
+                }
+            }
+        }
+
         updateWebViewsCountIndicator()
     }
 }

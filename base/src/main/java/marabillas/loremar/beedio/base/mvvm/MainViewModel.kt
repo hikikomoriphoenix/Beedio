@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.base.mvvm
 
+import android.webkit.WebView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,6 +31,9 @@ class MainViewModel : ViewModel() {
 
     val goToHomeEvent = ActionLiveData()
     val goToBrowserEvent = SendLiveData<String>()
+
+    val webViews = mutableListOf<WebView>()
+    var activeWebViewIndex = -1
 
     fun setIsNavDrawerOpen(value: Boolean) {
         _isNavDrawerOpen.value = value
