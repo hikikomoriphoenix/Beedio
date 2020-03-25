@@ -147,8 +147,9 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
     private fun closeWebView() {
         (activeWebView?.parent as ViewGroup?)?.removeView(activeWebView)
-        val index = webViews.indexOf(activeWebView)
+        val index = activeWebViewIndex
         webViews.removeAt(index)
+        activeWebViewIndex--
         if (webViews.isNotEmpty())
             if (index > 0) {
                 switchWebView(index - 1)
