@@ -216,7 +216,6 @@ class SearchWidgetControllerFragment :
                 startActivity(intent)*/
                 mainViewModel.goToBrowser(validInput)
             }
-            return true
         }
         return false
     }
