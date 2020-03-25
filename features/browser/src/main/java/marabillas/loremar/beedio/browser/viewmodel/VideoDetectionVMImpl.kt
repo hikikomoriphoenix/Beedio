@@ -381,7 +381,10 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             }
             list.forEachIndexed { i, it -> it.uid = i }
             downloads.save(list)
-            doOnComplete()
+
+            viewModelScope.launch(Dispatchers.Main) {
+                doOnComplete()
+            }
         }
     }
 
