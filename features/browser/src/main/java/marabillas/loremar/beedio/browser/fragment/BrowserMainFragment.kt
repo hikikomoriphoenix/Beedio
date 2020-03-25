@@ -177,7 +177,7 @@ class BrowserMainFragment : DaggerFragment() {
 
     private fun openWebViewSwitcherSheet() {
         if (!switcherSheet.isAdded) {
-            switcherSheet.show(parentFragmentManager, null)
+            switcherSheet.show(childFragmentManager, null)
         }
     }
 
@@ -201,12 +201,12 @@ class BrowserMainFragment : DaggerFragment() {
     }
 
     private fun setupWebViewsController() {
-        var fragment = parentFragmentManager.findFragmentByTag("WebViewsControllerFragment")
+        var fragment = childFragmentManager.findFragmentByTag("WebViewsControllerFragment")
 
         if (fragment == null) {
             val url = arguments?.getString("url")
             webViewsController.arguments = bundleOf("url" to url)
-            parentFragmentManager
+            childFragmentManager
                     .beginTransaction()
                     .add(webViewsController, "WebViewsControllerFragment")
                     .commit()
@@ -221,14 +221,14 @@ class BrowserMainFragment : DaggerFragment() {
     }
 
     private fun setSearchWidgetController() {
-        parentFragmentManager
+        childFragmentManager
                 .beginTransaction()
                 .add(searchWidgeController, null)
                 .commit()
     }
 
     private fun setupExpandingFoundVideosFragment() {
-        parentFragmentManager
+        childFragmentManager
                 .beginTransaction()
                 .add(R.id.browser_coordinator_layout, expandingFoundVideosFragment)
                 .commit()
