@@ -51,6 +51,8 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     private val network = HttpNetwork()
     private val detailsFetcher = VideoDetailsFetcher()
     private val downloadFileValidator = DownloadFileValidator(context)
+    private val analyzeDispatcher = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+            .asCoroutineDispatcher()
     private val detailsFetcherThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val downloadStarterThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val downloads = Room
@@ -72,7 +74,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     }
 
     override fun analyzeUrlForVideo(url: String, title: String, sourceWebPage: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(analyzeDispatcher) {
             onStartAnalysis()
 
             filter(url) {
