@@ -43,7 +43,6 @@ import android.widget.TextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.GravityCompat
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
@@ -288,7 +287,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
     private fun showMenu() {
         select.visibility = GONE
         val transition = TransitionSet().apply {
-            addTransition(Slide(GravityCompat.END))
+            addTransition(Slide(Gravity.END))
             addTransition(Fade())
         }
         TransitionManager.beginDelayedTransition(toolbar, transition)
@@ -302,7 +301,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
     private fun hideMenu() {
         cancel.visibility = GONE
         val appearTransition = Fade().apply { addTarget(select) }
-        val slideTransition = Slide(GravityCompat.END).apply {
+        val slideTransition = Slide(Gravity.END).apply {
             addTarget(all)
             addTarget(delete)
             addTarget(queue)
