@@ -153,6 +153,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         all.setOnClickListener(this)
         delete.setOnClickListener(this)
         queue.setOnClickListener(this)
+        merge.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -183,6 +184,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
             }
             queue -> {
                 toolbarEventsListener?.onQueueAllSelected()
+            }
+            merge -> {
+                toolbarEventsListener?.onMergeSelected()
             }
         }
     }
@@ -340,5 +344,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         fun onDeleteAllSelected()
 
         fun onQueueAllSelected()
+
+        fun onMergeSelected()
     }
 }

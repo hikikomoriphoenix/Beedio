@@ -41,4 +41,6 @@
     <string name="merge">Merge</string>
     <string name="enter_new_title">Enter new title…</string>
     <string name="more">MORE…</string>
+    <string name="merge_success">Merge SUCCESS</string>
+    <string name="merge_fail">Must select exactly 1 VIDEO-ONLY and 1 AUDIO-ONLY items of matching duration</string>
 </resources>

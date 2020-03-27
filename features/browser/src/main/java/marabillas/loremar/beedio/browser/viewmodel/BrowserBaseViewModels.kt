@@ -139,14 +139,18 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun queueAllSelected(doOnComplete: () -> Unit)
 
+    abstract fun mergeSelected(): Boolean
+
     data class FoundVideo(
             var name: String,
             val url: String,
             val ext: String,
-            val size: String,
+            var size: String,
             val sourceWebPage: String,
             val sourceWebsite: String,
             val isChunked: Boolean = false,
+            var audioUrl: String? = null,
+            var isAudioChunked: Boolean = false,
             var isSelected: Boolean = false,
             var details: VideoDetails? = null,
             var isFetchingDetails: Boolean = false

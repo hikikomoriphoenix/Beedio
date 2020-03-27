@@ -39,8 +39,11 @@ import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import marabillas.loremar.beedio.base.web.HttpNetwork
 import timber.log.Timber
 import java.net.URL
+import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.Executors
+import kotlin.math.log10
+import kotlin.math.pow
 
 class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     override val foundVideos: List<FoundVideo>
@@ -377,7 +380,9 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                         size = it.size.toLong(),
                         sourceWebsite = it.sourceWebsite,
                         sourceWebpage = it.sourceWebPage,
-                        isChunked = it.isChunked
+                        isChunked = it.isChunked,
+                        audioUrl = it.audioUrl,
+                        isAudioChunked = it.isAudioChunked
                 )
                 list.add(new)
             }
@@ -387,6 +392,68 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             viewModelScope.launch(Dispatchers.Main) {
                 doOnComplete()
             }
+        }
+    }
+
+    override fun mergeSelected(): Boolean {
+        val selected = _foundVideos.filter { it.isSelected }
+        if (selected.count() != 2)
+            return false
+
+        if (selected.component1().details == null || selected.component2().details == null)
+            return false
+
+        if (selected.component1().details?.duration != selected.component2().details?.duration)
+            return false
+
+        var firstHasVideoOnly = false;
+        var firstHasAudioOnly = false
+        var secondHasVideoOnly = false;
+        var secondHasAudioOnly = false
+
+        selected.component1().details?.let {
+            firstHasVideoOnly = it.vcodec != null && it.acodec == null
+            firstHasAudioOnly = it.acodec != null && it.vcodec == null
+        }
+        selected.component2().details?.let {
+            secondHasVideoOnly = it.vcodec != null && it.acodec == null
+            secondHasAudioOnly = it.acodec != null && it.vcodec == null
+        }
+
+        val isVideoAudio = firstHasVideoOnly && secondHasAudioOnly
+        val isAudioVideo = firstHasAudioOnly && secondHasVideoOnly
+        if (!isVideoAudio && !isAudioVideo)
+            return false
+
+        val merge: (FoundVideo, FoundVideo) -> Unit = { vid, aud ->
+            vid.audioUrl = aud.url
+            vid.isAudioChunked = aud.isChunked
+            vid.size = (vid.size.toLong() + aud.size.toLong()).toString()
+            vid.details?.apply {
+                acodec = aud.details?.acodec
+                filesize = vid.size.formatFilesize()
+            }
+            _foundVideos.remove(aud)
+        }
+
+        if (isVideoAudio)
+            merge(selected.component1(), selected.component2())
+        else
+            merge(selected.component2(), selected.component1())
+
+        return true
+    }
+
+    private fun String.formatFilesize(): String? {
+        return try {
+            val size: Long = toLong()
+            if (size <= 0) return "0"
+            val units = arrayOf("B", "kB", "MB", "GB", "TB")
+            val digitGroups = (log10(size.toDouble()) / log10(1024.0)).toInt()
+            DecimalFormat("#,##0.#").format(size / 1024.0.pow(digitGroups.toDouble()))
+                    .toString() + " " + units[digitGroups]
+        } catch (e: NumberFormatException) {
+            null
         }
     }
 

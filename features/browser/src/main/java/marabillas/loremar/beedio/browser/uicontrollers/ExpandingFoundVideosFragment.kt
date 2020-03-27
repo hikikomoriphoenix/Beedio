@@ -20,15 +20,19 @@
 package marabillas.loremar.beedio.browser.uicontrollers
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.browser.R
@@ -153,5 +157,26 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
         videoDetectionVM.queueAllSelected {
             onDeleteAllSelected()
         }
+    }
+
+    override fun onMergeSelected() {
+        val showMessage: (String, Boolean) -> Unit = { s, b ->
+            val length = if (b) Snackbar.LENGTH_INDEFINITE else Snackbar.LENGTH_SHORT
+            Snackbar.make(requireView(), s, length).apply {
+                view.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                    gravity = Gravity.CENTER
+                }
+                setAction("OK") { dismiss() }
+                view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        ?.maxLines = 5
+                show()
+            }
+        }
+
+        if (videoDetectionVM.mergeSelected()) {
+            foundVideosAdapter.loadData(videoDetectionVM.foundVideos)
+            showMessage(getString(R.string.merge_success), false)
+        } else
+            showMessage(getString(R.string.merge_fail), true)
     }
 }
