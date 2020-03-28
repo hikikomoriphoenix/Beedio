@@ -144,7 +144,7 @@ abstract class VideoDetectionVM : ObservableViewModel() {
     data class FoundVideo(
             var name: String,
             val url: String,
-            val ext: String,
+            var ext: String,
             var size: String,
             val sourceWebPage: String,
             val sourceWebsite: String,

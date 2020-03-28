@@ -89,6 +89,8 @@ class VideoAudioMuxer(context: Context) {
             }
         })
     }
+
+    fun stopMuxer() = ffmpeg.killRunningProcesses()
 }
 
 interface VideoAudioMuxingListener {

@@ -428,6 +428,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         val merge: (FoundVideo, FoundVideo) -> Unit = { vid, aud ->
             vid.audioUrl = aud.url
             vid.isAudioChunked = aud.isChunked
+            vid.ext = "mp4"
             vid.size = (vid.size.toLong() + aud.size.toLong()).toString()
             vid.details?.apply {
                 acodec = aud.details?.acodec

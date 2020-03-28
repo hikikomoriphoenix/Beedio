@@ -23,10 +23,13 @@ import android.content.Context
 import android.os.Environment
 import kotlinx.coroutines.*
 import marabillas.loremar.beedio.base.database.DownloadItem
+import marabillas.loremar.beedio.base.media.VideoAudioMuxer
+import marabillas.loremar.beedio.base.media.VideoAudioMuxingListener
 import marabillas.loremar.beedio.base.web.HttpNetwork
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
 
@@ -70,7 +73,122 @@ class VideoDownloader(private val context: Context) {
     }
 
     private fun downloadVideoAudio(item: DownloadItem) {
-        TODO()
+        try {
+            // Download video
+            if (!item.isChunked) {
+                val size = (http.open(item.videoUrl).getResponseHeader("Content-Length")
+                        ?: "0").toLong()
+                val videoItem = DownloadItem(
+                        uid = 0,
+                        name = item.name,
+                        videoUrl = item.videoUrl,
+                        ext = "video",
+                        size = size,
+                        sourceWebsite = item.sourceWebsite,
+                        sourceWebpage = item.sourceWebpage
+                )
+                downloadDefault(videoItem)
+            } else {
+                val videoItem = DownloadItem(
+                        uid = 0,
+                        name = item.name,
+                        videoUrl = item.videoUrl,
+                        ext = "video",
+                        size = 0,
+                        sourceWebsite = item.sourceWebsite,
+                        sourceWebpage = item.sourceWebpage
+                )
+                downloadChunkedVideo(videoItem)
+            }
+
+            // Download audio
+            if (!item.isAudioChunked) {
+                if (item.audioUrl != null) {
+                    val size = (http.open(item.audioUrl).getResponseHeader("Content-Length")
+                            ?: "0").toLong()
+                    val audioItem = DownloadItem(
+                            uid = 0,
+                            name = item.name,
+                            videoUrl = item.audioUrl,
+                            ext = "audio",
+                            size = size,
+                            sourceWebsite = item.sourceWebsite,
+                            sourceWebpage = item.sourceWebpage
+                    )
+                    downloadDefault(audioItem)
+                }
+            } else {
+                if (item.audioUrl != null) {
+                    val audioItem = DownloadItem(
+                            uid = 0,
+                            name = item.name,
+                            videoUrl = item.audioUrl,
+                            ext = "audio",
+                            size = 0,
+                            sourceWebsite = item.sourceWebsite,
+                            sourceWebpage = item.sourceWebpage
+                    )
+                    downloadChunkedVideo(audioItem)
+                }
+            }
+
+            // Mux video and audio
+            val videoFile = File(getDownloadFolder(context), "${item.name}.video")
+            val audioFile = File(getDownloadFolder(context), "${item.name}.audio")
+            val targetFile = File(getDownloadFolder(context), item.name)
+            var isSuccess = false
+            if (videoFile.exists() && audioFile.exists()) {
+                val cd = CountDownLatch(1)
+                val muxer = VideoAudioMuxer(context)
+                muxer.mux(
+                        videoFile.absolutePath,
+                        audioFile.absolutePath,
+                        targetFile.absolutePath,
+                        object : VideoAudioMuxingListener {
+                            override fun ffmpegNotAvailable() {
+                                cd.countDown()
+                                throw DownloadException("FFMpeg not available")
+                            }
+
+                            override fun onStart() {}
+
+                            override fun onFinish() {
+                                cd.countDown()
+                            }
+
+                            override fun onSuccess(message: String) {
+                                isSuccess = true
+                                cd.countDown()
+                            }
+
+                            override fun onFailure(message: String) {
+                                cd.countDown()
+                                if (targetFile.exists())
+                                    targetFile.delete()
+                                throw DownloadException("Audio/Video muxing failed - $message")
+                            }
+
+                            override fun onProgress(message: String) {
+                                if (isStopped) {
+                                    muxer.stopMuxer()
+                                    cd.countDown()
+                                }
+                            }
+                        }
+                )
+                cd.await()
+                if (isSuccess) {
+                    if (videoFile.exists()) videoFile.delete()
+                    if (audioFile.exists()) audioFile.delete()
+                } else {
+                    if (targetFile.exists()) targetFile.delete()
+                }
+            }
+        } catch (e: IOException) {
+            throw DownloadException("IOException - ${e.message}", e)
+        } catch (e: Exception) {
+            throw DownloadException(e.message ?: "Exception downloading video and audio", e)
+        }
     }
 
     private fun downloadChunkedVideo(item: DownloadItem) {

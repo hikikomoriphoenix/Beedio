@@ -161,9 +161,26 @@ class InProgressVMImpl(private val context: Context, downloadDB: DownloadListDat
     }
 
     private fun DownloadItem.getDownloaded(): Long {
-        val filename = "$name.$ext"
-        val file = File(VideoDownloader.getDownloadFolder(context), filename)
-        return file.length()
+        if (audioUrl == null) {
+            val filename = "$name.$ext"
+            val file = File(VideoDownloader.getDownloadFolder(context), filename)
+            return file.length()
+        } else {
+            val videoFile = File(VideoDownloader.getDownloadFolder(context), "$name.video")
+            val audioFile = File(VideoDownloader.getDownloadFolder(context), "$name.audio")
+            var total = 0L
+            if (videoFile.exists()) total += videoFile.length()
+            if (audioFile.exists()) total += audioFile.length()
+            return if (total < size)
+                total
+            else {
+                val targetFile = File(VideoDownloader.getDownloadFolder(context), "$name.mp4")
+                if (targetFile.exists())
+                    targetFile.length()
+                else
+                    0
+            }
+        }
     }
 
     private fun Long.formatSize(): String = Formatter.formatFileSize(context, this)
