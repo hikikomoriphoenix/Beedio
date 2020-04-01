@@ -40,7 +40,7 @@ class BrowserControllersUpdater(private val activity: BrowserActivity) {
             activity.webViewsController.arguments = bundleOf("url" to url)
             activity.supportFragmentManager
                     .beginTransaction()
-                    .add(activity.webViewsController, "WebViewsControllerFragment")
+                    .add(R.id.main_content_browser, activity.webViewsController, "WebViewsControllerFragment")
                     .commit()
             webViewsController = activity.webViewsController
         }

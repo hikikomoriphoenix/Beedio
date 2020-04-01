@@ -25,17 +25,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.appbar.AppBarLayout
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
-import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
 import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
@@ -80,8 +80,11 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (webViewsContainer == null) {
-            webViewsContainer = FrameLayout(inflater.context)
-            webViewsContainer?.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            webViewsContainer = FrameLayout(inflater.context).apply {
+                layoutParams = CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                    behavior = AppBarLayout.ScrollingViewBehavior()
+                }
+            }
         }
         return webViewsContainer
     }
@@ -99,9 +102,6 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
             observeWebViewControllerVM()
             observeWebPageNavigationVM()
         }
-
-        val parentContainer = activity?.findViewById<ViewGroup>(R.id.browser_webview_containter)
-        updateParent(webViewsContainer, parentContainer)
     }
 
     private fun observeWebViewControllerVM() {
@@ -172,11 +172,6 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                 observeReloadPage(lifecycleOwner, Observer { activeWebView?.reload() })
             }
         }
-    }
-
-    private fun updateParent(view: View?, parent: ViewGroup?) {
-        (view?.parent as ViewGroup?)?.removeView(view)
-        parent?.addView(view)
     }
 
     @SuppressLint("SetJavaScriptEnabled")

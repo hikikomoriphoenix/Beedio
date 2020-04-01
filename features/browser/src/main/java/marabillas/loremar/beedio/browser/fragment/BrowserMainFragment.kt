@@ -208,7 +208,7 @@ class BrowserMainFragment : DaggerFragment() {
             webViewsController.arguments = bundleOf("url" to url)
             childFragmentManager
                     .beginTransaction()
-                    .add(webViewsController, "WebViewsControllerFragment")
+                    .add(R.id.browser_coordinator_layout, webViewsController, "WebViewsControllerFragment")
                     .commit()
             fragment = webViewsController
         }

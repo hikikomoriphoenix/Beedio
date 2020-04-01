@@ -110,16 +110,19 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
         controllersUpdater = BrowserControllersUpdater(this)
         listenersUpdater = BrowserListenersUpdater(this, webPageNavigationVM,
                 webViewsControllerVM, titleStateVM, searchWidgetControllerVM, videoDetectionVM)
-
-        actionBarUpdater.update()
-        viewModelBinder.bind()
-        controllersUpdater.update()
-        listenersUpdater.update()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         actionBarUpdater.setupOptionsMenu(menu)
         return true
+    }
+
+    override fun onStart() {
+        super.onStart()
+        actionBarUpdater.update()
+        viewModelBinder.bind()
+        controllersUpdater.update()
+        listenersUpdater.update()
     }
 
     override fun onDestroy() {
