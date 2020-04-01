@@ -262,6 +262,10 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             }
 
     private fun onFoundVideo(video: FoundVideo) {
+        // Do not add video with duplicate url
+        if (_foundVideos.any { it.url == video.url || it.audioUrl == video.url })
+            return
+
         Timber.i("""
                     FoundVideo:
                         url = ${video.url}
