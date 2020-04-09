@@ -17,7 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-include ':legacy', ':beedio', ':features:home', ':featureapps:homeapp', ':features:browser',
-        ':featureapps:browserapp', ':features:download', ':featureapps:downloadapp', ':base',
-        ':extractors', ':sharedui'
-include ':features:bookmarks'
+package marabillas.loremar.beedio.bookmarks
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
+
+class BookmarksViewModelFactory : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return when (modelClass) {
+            MainViewModel::class.java -> MainViewModel() as T
+            else -> throw IllegalArgumentException("Unidentified ViewModel in Bookmarks")
+        }
+    }
+}

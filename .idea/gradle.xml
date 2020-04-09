@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/featureapps/downloadapp" />
             <option value="$PROJECT_DIR$/featureapps/homeapp" />
             <option value="$PROJECT_DIR$/features" />
+            <option value="$PROJECT_DIR$/features/bookmarks" />
             <option value="$PROJECT_DIR$/features/browser" />
             <option value="$PROJECT_DIR$/features/download" />
             <option value="$PROJECT_DIR$/features/home" />

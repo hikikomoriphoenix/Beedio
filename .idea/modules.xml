@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Beedio.iml" filepath="$PROJECT_DIR$/Beedio.iml" group="Beedio" />
       <module fileurl="file://$PROJECT_DIR$/base/base.iml" filepath="$PROJECT_DIR$/base/base.iml" group="Beedio/base" />
       <module fileurl="file://$PROJECT_DIR$/beedio/beedio.iml" filepath="$PROJECT_DIR$/beedio/beedio.iml" group="Beedio/beedio" />
+      <module fileurl="file://$PROJECT_DIR$/features/bookmarks/bookmarks.iml" filepath="$PROJECT_DIR$/features/bookmarks/bookmarks.iml" group="Beedio/features/bookmarks" />
       <module fileurl="file://$PROJECT_DIR$/features/browser/browser.iml" filepath="$PROJECT_DIR$/features/browser/browser.iml" group="Beedio/features/browser" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" filepath="$PROJECT_DIR$/featureapps/browserapp/browserapp.iml" group="Beedio/featureapps/browserapp" />
       <module fileurl="file://$PROJECT_DIR$/features/download/download.iml" filepath="$PROJECT_DIR$/features/download/download.iml" group="Beedio/features/download" />

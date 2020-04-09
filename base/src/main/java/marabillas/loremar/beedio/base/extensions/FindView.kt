@@ -25,10 +25,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 
 /* View */
 fun View.textView(resId: Int): TextView = findViewById(resId)
 fun View.imageView(resId: Int): ImageView = findViewById(resId)
+fun View.recyclerView(resId: Int): RecyclerView = findViewById(resId)
 
 /* Activity */
 fun Activity.textView(resId: Int): TextView = findViewById(resId)
@@ -38,3 +40,5 @@ fun Activity.toolbar(resId: Int): Toolbar = findViewById(resId)
 /* Fragment */
 fun Fragment.textView(resId: Int): TextView? = view?.findViewById(resId)
 fun Fragment.imageView(resId: Int): TextView? = view?.findViewById(resId)
+fun Fragment.toolbar(resId: Int): Toolbar? = view?.findViewById(resId)
+fun Fragment.recyclerView(resId: Int): RecyclerView? = view?.findViewById(resId)
