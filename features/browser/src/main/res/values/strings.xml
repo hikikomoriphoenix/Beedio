@@ -43,4 +43,10 @@
     <string name="more">MORE…</string>
     <string name="merge_success">Merge SUCCESS</string>
     <string name="merge_fail">Must select exactly 1 VIDEO-ONLY and 1 AUDIO-ONLY items of matching duration</string>
+    <string name="add_bookmark">Add Bookmark</string>
+    <string name="title">Title:</string>
+    <string name="url">Url:</string>
+    <string name="destination_folder">Destination Folder:</string>
+    <string name="create_new_folder">Create New Folder</string>
+    <string name="page_save_into_bookmarks">Page saved into bookmarks.</string>
 </resources>

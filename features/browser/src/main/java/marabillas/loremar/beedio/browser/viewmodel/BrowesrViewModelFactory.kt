@@ -66,6 +66,10 @@ class BrowserViewModelFactory(private val context: Context) : ViewModelProvider.
                 VideoDetectionVMImpl(context) as T
             }
 
+            AddBookmarkVM::class.java -> {
+                AddBookmarkVMImpl() as T
+            }
+
             else -> throw IllegalArgumentException("Unidentified ViewModel for Browser")
         }
     }

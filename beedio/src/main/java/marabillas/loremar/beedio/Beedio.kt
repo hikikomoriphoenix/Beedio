@@ -40,7 +40,7 @@ class Beedio : DaggerApplication(), Configuration.Provider {
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
-            DaggerBeedioComponent.factory().create(this, downloadDB)
+            DaggerBeedioComponent.factory().create(this, this, downloadDB)
 
     override fun getWorkManagerConfiguration(): Configuration {
         val workerFactory = DownloadWorkerFactory(downloadDB)

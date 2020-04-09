@@ -24,5 +24,5 @@ import dagger.android.DaggerApplication
 
 class BrowserApp : DaggerApplication() {
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
-            DaggerBrowserAppComponent.factory().create(this)
+            DaggerBrowserAppComponent.factory().create(this, this)
 }

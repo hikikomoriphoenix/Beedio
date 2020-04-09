@@ -44,6 +44,7 @@ class ViewModelFactory(
             BrowserSearchWidgetStateVM::class.java -> BrowserSearchWidgetStateVMImpl() as T
             WebViewsCountIndicatorVM::class.java -> WebViewsCountIndicatorVMImpl() as T
             VideoDetectionVM::class.java -> VideoDetectionVMImpl(context) as T
+            AddBookmarkVM::class.java -> AddBookmarkVMImpl() as T
             DownloadVM::class.java -> DownloadVMImpl(downloadDB) as T
             InProgressVM::class.java -> InProgressVMImpl(context, downloadDB) as T
             CompletedVM::class.java -> CompletedVMImpl(downloadDB) as T

@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio
 
+import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -34,6 +35,7 @@ interface BeedioComponent : AndroidInjector<Beedio> {
     interface Factory {
         fun create(
                 @BindsInstance beedio: Beedio,
+                @BindsInstance context: Context,
                 @BindsInstance downloadDB: DownloadListDatabase
         ): BeedioComponent
     }

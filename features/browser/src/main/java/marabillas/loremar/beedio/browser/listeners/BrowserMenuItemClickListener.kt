@@ -38,6 +38,7 @@ class BrowserMenuItemClickListener @Inject constructor() : Toolbar.OnMenuItemCli
             R.id.browser_menu_back -> webPageNavigation?.goBack()
             R.id.browser_menu_forward -> webPageNavigation?.goForward()
             R.id.browser_menu_reload -> webPageNavigation?.reloadPage()
+            R.id.browser_menu_bookmark -> webViewsController?.openBookmarker()
             R.id.browser_menu_add_window -> searchWidgetControllerVM?.showSearchWidget()
             R.id.browser_menu_close_window -> webViewsController?.closeWebView()
         }

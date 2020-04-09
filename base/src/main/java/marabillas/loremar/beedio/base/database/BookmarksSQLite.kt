@@ -25,8 +25,9 @@ import android.database.Cursor
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import javax.inject.Inject
 
-class BookmarksSQLite(context: Context) : SQLiteOpenHelper(context, "bookmarks.db", null, 1) {
+class BookmarksSQLite @Inject constructor(context: Context) : SQLiteOpenHelper(context, "bookmarks.db", null, 1) {
     var currentTable: String
     val bookmarksDatabase: SQLiteDatabase
 

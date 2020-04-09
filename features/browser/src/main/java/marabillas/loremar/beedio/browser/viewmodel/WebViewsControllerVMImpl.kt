@@ -32,6 +32,7 @@ class WebViewsControllerVMImpl : WebViewsControllerVM() {
     private val newWebView = SendLiveData<String>()
     private val switchWebView = SendLiveData<Int>()
     private val closeWebView = ActionLiveData()
+    private val openBookmarker = ActionLiveData()
 
     override fun requestUpdatedWebViews(callback: (List<WebView>, Int) -> Unit) {
         requestUpdatedWebView.send(callback)
@@ -61,6 +62,10 @@ class WebViewsControllerVMImpl : WebViewsControllerVM() {
         closeWebView.go()
     }
 
+    override fun openBookmarker() {
+        openBookmarker.go()
+    }
+
     override fun observeNewWebView(lifecycleOwner: LifecycleOwner, observer: Observer<String>) {
         newWebView.observeSend(lifecycleOwner, observer)
     }
@@ -71,6 +76,10 @@ class WebViewsControllerVMImpl : WebViewsControllerVM() {
 
     override fun observeCloseWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Any>) {
         closeWebView.observe(lifecycleOwner, observer)
+    }
+
+    override fun observeOpenBookmarker(lifecycleOwner: LifecycleOwner, observer: Observer<Any>) {
+        openBookmarker.observe(lifecycleOwner, observer)
     }
 
 }

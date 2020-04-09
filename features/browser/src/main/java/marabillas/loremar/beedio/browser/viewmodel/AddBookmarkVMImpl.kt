@@ -17,21 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package marabillas.loremar.beedio.browserapp
+package marabillas.loremar.beedio.browser.viewmodel
 
-import android.content.Context
-import dagger.BindsInstance
-import dagger.Component
-import dagger.android.AndroidInjector
-import dagger.android.support.AndroidSupportInjectionModule
-import javax.inject.Singleton
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import marabillas.loremar.beedio.base.mvvm.ActionLiveData
 
-@Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, ActivityBindingModule::class,
-    FragmentBindingModule::class, BrowserViewModelModule::class])
-interface BrowserAppComponent : AndroidInjector<BrowserApp> {
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance app: BrowserApp, @BindsInstance context: Context): BrowserAppComponent
+class AddBookmarkVMImpl : AddBookmarkVM() {
+    private val openBookmarkerAction = ActionLiveData()
+
+    override fun openBookmarker() = openBookmarkerAction.go()
+
+    override fun observeOpenBookmarker(lifecycleOwner: LifecycleOwner, observer: Observer<Any>) {
+        openBookmarkerAction.observe(lifecycleOwner, observer)
     }
 }

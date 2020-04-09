@@ -36,10 +36,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.appbar.AppBarLayout
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
-import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
-import marabillas.loremar.beedio.browser.viewmodel.WebPageNavigationVM
-import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
-import marabillas.loremar.beedio.browser.viewmodel.WebViewsCountIndicatorVM
+import marabillas.loremar.beedio.browser.fragment.AddBookmarkFragment
+import marabillas.loremar.beedio.browser.viewmodel.*
 import javax.inject.Inject
 
 class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
@@ -59,11 +57,15 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    @Inject
+    lateinit var addBookmarkFragment: AddBookmarkFragment
+
     private var mainViewModel: MainViewModel? = null
     private var webViewsControllerVM: WebViewsControllerVM? = null
     private var titleStateVM: BrowserTitleStateVM? = null
     private var webPageNavigationVM: WebPageNavigationVM? = null
     private var webViewsCountIndicatorVM: WebViewsCountIndicatorVM? = null
+    private var addBookmarkVM: AddBookmarkVM? = null
 
     private var webViewsContainer: FrameLayout? = null
     private val webViews; get() = mainViewModel?.webViews ?: mutableListOf()
@@ -99,6 +101,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
             titleStateVM = ViewModelProviders.of(it, viewModelFactory).get(BrowserTitleStateVM::class.java)
             webPageNavigationVM = ViewModelProviders.of(it, viewModelFactory).get(WebPageNavigationVM::class.java)
             webViewsCountIndicatorVM = ViewModelProviders.of(it, viewModelFactory).get(WebViewsCountIndicatorVM::class.java)
+            addBookmarkVM = ViewModelProvider(it, viewModelFactory).get(AddBookmarkVM::class.java)
             observeWebViewControllerVM()
             observeWebPageNavigationVM()
         }
@@ -120,6 +123,7 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                     observeNewWebView(lifecycleOwer, Observer { thisFragment.newWebView(it) })
                     observeSwitchWebView(lifecycleOwer, Observer { thisFragment.switchWebView(it) })
                     observeCloseWebView(lifecycleOwer, Observer { thisFragment.closeWebView() })
+                    observeOpenBookmarker(lifecycleOwer, Observer { thisFragment.openBookmarker() })
                 }
             }
         }
@@ -161,6 +165,8 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
 
         updateWebViewsCountIndicator()
     }
+
+    private fun openBookmarker() = addBookmarkVM?.openBookmarker()
 
     private fun observeWebPageNavigationVM() {
 

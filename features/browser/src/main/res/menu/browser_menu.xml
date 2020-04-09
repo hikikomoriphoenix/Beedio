@@ -46,6 +46,7 @@
         android:title="@string/reload_this_page"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/browser_menu_bookmark"
         android:icon="@drawable/ic_star_white_24dp"
         android:title="@string/bookmark_this_page"
         app:showAsAction="ifRoom" />

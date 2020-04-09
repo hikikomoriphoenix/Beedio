@@ -55,9 +55,11 @@ abstract class WebViewsControllerVM : ObservableViewModel() {
     abstract fun newWebView(url: String)
     abstract fun switchWebView(index: Int)
     abstract fun closeWebView()
+    abstract fun openBookmarker()
     abstract fun observeNewWebView(lifecycleOwner: LifecycleOwner, observer: Observer<String>)
     abstract fun observeSwitchWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
     abstract fun observeCloseWebView(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
+    abstract fun observeOpenBookmarker(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
 }
 
 abstract class BrowserSearchWidgetControllerVM : ObservableViewModel() {
@@ -155,4 +157,10 @@ abstract class VideoDetectionVM : ObservableViewModel() {
             var details: VideoDetails? = null,
             var isFetchingDetails: Boolean = false
     )
+}
+
+abstract class AddBookmarkVM : ObservableViewModel() {
+    abstract fun openBookmarker()
+
+    abstract fun observeOpenBookmarker(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
 }

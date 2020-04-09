@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.AndroidInjection
@@ -31,6 +32,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.databinding.ActivityBrowserBinding
+import marabillas.loremar.beedio.browser.fragment.AddBookmarkFragment
 import marabillas.loremar.beedio.browser.listeners.BrowserMenuItemClickListener
 import marabillas.loremar.beedio.browser.listeners.BrowserUIEventsListener
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
@@ -58,6 +60,9 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
     lateinit var switcherSheet: WebViewSwitcherSheetFragment
     @Inject
     lateinit var expandingFoundVideosFragment: ExpandingFoundVideosFragment
+
+    @Inject
+    lateinit var addBookmarkFragment: AddBookmarkFragment
     @Inject
     lateinit var browserWebViewClient: BrowserWebViewClient
     @Inject
@@ -77,6 +82,7 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
     private lateinit var searchWidgetStateVM: BrowserSearchWidgetStateVM
     private lateinit var webViewsCountIndicatorVM: WebViewsCountIndicatorVM
     private lateinit var videoDetectionVM: VideoDetectionVM
+    private lateinit var addBookmarkVM: AddBookmarkVM
 
     private lateinit var controllersUpdater: BrowserControllersUpdater
     private lateinit var actionBarUpdater: BrowserActionBarUpdater
@@ -103,6 +109,7 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
         searchWidgetStateVM = ViewModelProviders.of(this, viewModelFactory).get(BrowserSearchWidgetStateVM::class.java)
         webViewsCountIndicatorVM = ViewModelProviders.of(this, viewModelFactory).get(WebViewsCountIndicatorVM::class.java)
         videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)[VideoDetectionVM::class.java]
+        addBookmarkVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)[AddBookmarkVM::class.java]
 
         actionBarUpdater = BrowserActionBarUpdater(this, binding, webViewsCountIndicatorVM)
         viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, actionBarStateVM,
@@ -123,6 +130,13 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
         viewModelBinder.bind()
         controllersUpdater.update()
         listenersUpdater.update()
+
+        addBookmarkVM.observeOpenBookmarker(this, Observer {
+            supportFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .add(R.id.main_content_browser, addBookmarkFragment, null)
+                    .commit()
+        })
     }
 
     override fun onDestroy() {

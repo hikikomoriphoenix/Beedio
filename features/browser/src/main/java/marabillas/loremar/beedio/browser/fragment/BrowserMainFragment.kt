@@ -66,6 +66,9 @@ class BrowserMainFragment : DaggerFragment() {
     lateinit var expandingFoundVideosFragment: ExpandingFoundVideosFragment
 
     @Inject
+    lateinit var addBookmarkFragment: AddBookmarkFragment
+
+    @Inject
     lateinit var browserWebViewClient: BrowserWebViewClient
 
     @Inject
@@ -88,6 +91,7 @@ class BrowserMainFragment : DaggerFragment() {
     private lateinit var searchWidgetStateVM: BrowserSearchWidgetStateVM
     private lateinit var webViewsCountIndicatorVM: WebViewsCountIndicatorVM
     private lateinit var videoDetectionVM: VideoDetectionVM
+    private lateinit var addBookmarkVM: AddBookmarkVM
 
     private lateinit var customTitleView: View
 
@@ -114,6 +118,7 @@ class BrowserMainFragment : DaggerFragment() {
             searchWidgetStateVM = initViewModel(it, BrowserSearchWidgetStateVM::class.java)
             webViewsCountIndicatorVM = initViewModel(it, WebViewsCountIndicatorVM::class.java)
             videoDetectionVM = initViewModel(it, VideoDetectionVM::class.java)
+            addBookmarkVM = initViewModel(it, AddBookmarkVM::class.java)
         }
     }
 
@@ -123,6 +128,14 @@ class BrowserMainFragment : DaggerFragment() {
         bindViewModel()
         initControllers()
         initListeners()
+
+        addBookmarkVM.observeOpenBookmarker(this, Observer {
+            if (!addBookmarkFragment.isAdded)
+                childFragmentManager.beginTransaction()
+                        .addToBackStack(null)
+                        .add(R.id.browser_coordinator_layout, addBookmarkFragment, null)
+                        .commit()
+        })
     }
 
     private fun initActionBar() {
