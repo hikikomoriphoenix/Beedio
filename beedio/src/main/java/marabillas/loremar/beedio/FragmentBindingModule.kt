@@ -23,6 +23,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import marabillas.loremar.beedio.base.di.FragmentScope
 import marabillas.loremar.beedio.base.di.WebNavigationModule
+import marabillas.loremar.beedio.bookmarks.BookmarksFragment
 import marabillas.loremar.beedio.browser.fragment.AddBookmarkFragment
 import marabillas.loremar.beedio.browser.fragment.BrowserMainFragment
 import marabillas.loremar.beedio.browser.uicontrollers.BrowserSearchWidgetControllerFragment
@@ -47,6 +48,10 @@ abstract class FragmentBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract fun contributeDownloadMainFragment(): DownloadMainFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeBookmarksFragment(): BookmarksFragment
 
     @FragmentScope
     @ContributesAndroidInjector

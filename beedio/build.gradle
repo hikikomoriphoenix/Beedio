@@ -73,6 +73,7 @@ dependencies {
     implementation project(':features:home')
     implementation project(':features:browser')
     implementation project(':features:download')
+    implementation project(':features:bookmarks')
 
     implementation deps.kotlin.stdlib
     implementation deps.core_ktx

@@ -35,6 +35,11 @@
         android:name="marabillas.loremar.beedio.download.fragments.DownloadMainFragment"
         android:label="DownloadMainFragment" />
 
+    <fragment
+        android:id="@+id/bookmarksFragment"
+        android:name="marabillas.loremar.beedio.bookmarks.BookmarksFragment"
+        android:label="BookmarksFragment" />
+
     <action
         android:id="@+id/action_global_homeMainFragment"
         app:destination="@id/homeMainFragment" />
@@ -46,4 +51,8 @@
     <action
         android:id="@+id/action_global_downloadMainFragment"
         app:destination="@id/downloadMainFragment" />
+
+    <action
+        android:id="@+id/action_global_bookmarksFragment"
+        app:destination="@id/bookmarksFragment" />
 </navigation>
