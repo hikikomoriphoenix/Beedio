@@ -27,6 +27,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import marabillas.loremar.beedio.base.extensions.imageView
 import marabillas.loremar.beedio.base.extensions.textView
+import marabillas.loremar.beedio.base.extensions.toPixels
 import javax.inject.Inject
 
 class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAdapter.BookmarksViewHolder>() {
@@ -58,8 +59,11 @@ class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAda
         }
 
         fun bind(bookmark: BookmarksItem) {
-            textView.setCompoundDrawablesWithIntrinsicBounds(bookmark.icon, null, null, null)
-            textView.text = bookmark.title
+            textView.apply {
+                setCompoundDrawablesWithIntrinsicBounds(bookmark.icon, null, null, null)
+                compoundDrawablePadding = 8.toPixels(resources)
+                text = bookmark.title
+            }
             itemView.imageView(R.id.bookmarks_item_options).isVisible = bookmark.type != "upFolder"
         }
 

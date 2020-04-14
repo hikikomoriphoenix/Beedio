@@ -20,6 +20,7 @@
 package marabillas.loremar.beedio.bookmarks
 
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.database.BookmarksSQLite
 import marabillas.loremar.beedio.base.extensions.recyclerView
+import marabillas.loremar.beedio.base.extensions.toPixels
 import marabillas.loremar.beedio.base.extensions.toolbar
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.base.web.WebNavigation
@@ -108,7 +110,9 @@ class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapt
                 val iconInBytes = cursor.getBlob(cursor.getColumnIndex("icon"))
                 icon = if (iconInBytes != null) {
                     val iconBitmap = BitmapFactory.decodeByteArray(iconInBytes, 0, iconInBytes.size)
-                    BitmapDrawable(resources, iconBitmap)
+                    val size = 24.toPixels(resources)
+                    val scaledBitmap = Bitmap.createScaledBitmap(iconBitmap, size, size, false)
+                    BitmapDrawable(resources, scaledBitmap)
                 } else {
                     resources.getDrawable(R.drawable.ic_bookmark_border_24dp)
                 }
