@@ -20,6 +20,7 @@
 package marabillas.loremar.beedio.bookmarks
 
 import android.graphics.drawable.Drawable
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,6 +64,7 @@ class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAda
                 setCompoundDrawablesWithIntrinsicBounds(bookmark.icon, null, null, null)
                 compoundDrawablePadding = 8.toPixels(resources)
                 text = bookmark.title
+                gravity = Gravity.CENTER_VERTICAL
             }
             itemView.imageView(R.id.bookmarks_item_options).isVisible = bookmark.type != "upFolder"
         }
