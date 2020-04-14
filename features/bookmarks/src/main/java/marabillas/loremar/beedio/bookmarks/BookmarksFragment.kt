@@ -33,14 +33,18 @@ import marabillas.loremar.beedio.base.database.BookmarksSQLite
 import marabillas.loremar.beedio.base.extensions.recyclerView
 import marabillas.loremar.beedio.base.extensions.toolbar
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
+import marabillas.loremar.beedio.base.web.WebNavigation
 import javax.inject.Inject
 
-class BookmarksFragment @Inject constructor() : DaggerFragment() {
+class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapter.ItemEventListener {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     @Inject
     lateinit var bookmarksAdapter: BookmarksAdapter
+
+    @Inject
+    lateinit var webNavigation: WebNavigation
 
     private lateinit var mainViewModel: MainViewModel
     private lateinit var bookmarksSQLite: BookmarksSQLite
@@ -78,6 +82,8 @@ class BookmarksFragment @Inject constructor() : DaggerFragment() {
         toolbar?.setNavigationOnClickListener { mainViewModel.setIsNavDrawerOpen(true) }
 
         loadBookmarksData()
+
+        bookmarksAdapter.itemEventListener = this
     }
 
     private fun loadBookmarksData() {
@@ -118,5 +124,28 @@ class BookmarksFragment @Inject constructor() : DaggerFragment() {
         }
         cursor.close()
         bookmarksAdapter.bookmarks = bookmarks
+    }
+
+    override fun onBookmarksItemClick(bookmarksItem: BookmarksItem, position: Int) {
+        when (bookmarksItem.type) {
+            "upFolder" -> {
+                bookmarksSQLite.currentTable = bookmarksSQLite.currentTable.substringBeforeLast('_')
+                loadBookmarksData()
+            }
+            "folder" -> {
+                val suffix = if (bookmarksSQLite.currentTable == BookmarksSQLite.ROOT_FOLDER)
+                    position + 1
+                else
+                    position
+                bookmarksSQLite.currentTable = "${bookmarksSQLite.currentTable}_$suffix"
+                loadBookmarksData()
+            }
+            "link" -> {
+                bookmarksItem.url?.let {
+                    val validInput = webNavigation.navigateTo(it)
+                    mainViewModel.goToBrowser(validInput)
+                }
+            }
+        }
     }
 }

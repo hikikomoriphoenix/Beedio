@@ -36,6 +36,8 @@ class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAda
             notifyDataSetChanged()
         }
 
+    var itemEventListener: ItemEventListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookmarksViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.bookmarks_item, parent, false)
@@ -48,14 +50,30 @@ class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAda
         holder.bind(bookmarks[position])
     }
 
-    inner class BookmarksViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class BookmarksViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         private val textView by lazy { itemView.textView(R.id.bookmarks_item_textview) }
+
+        init {
+            textView.setOnClickListener(this)
+        }
 
         fun bind(bookmark: BookmarksItem) {
             textView.setCompoundDrawablesWithIntrinsicBounds(bookmark.icon, null, null, null)
             textView.text = bookmark.title
             itemView.imageView(R.id.bookmarks_item_options).isVisible = bookmark.type != "upFolder"
         }
+
+        override fun onClick(v: View?) {
+            when (v?.id) {
+                R.id.bookmarks_item_textview -> {
+                    itemEventListener?.onBookmarksItemClick(bookmarks[adapterPosition], adapterPosition)
+                }
+            }
+        }
+    }
+
+    interface ItemEventListener {
+        fun onBookmarksItemClick(bookmarksItem: BookmarksItem, position: Int)
     }
 }
 

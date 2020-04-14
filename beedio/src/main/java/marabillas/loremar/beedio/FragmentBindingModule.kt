@@ -50,7 +50,7 @@ abstract class FragmentBindingModule {
     abstract fun contributeDownloadMainFragment(): DownloadMainFragment
 
     @FragmentScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [BookmarksFragmentModule::class])
     abstract fun contributeBookmarksFragment(): BookmarksFragment
 
     @FragmentScope
