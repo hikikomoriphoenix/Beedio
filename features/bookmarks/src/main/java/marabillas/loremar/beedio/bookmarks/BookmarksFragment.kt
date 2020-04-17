@@ -133,12 +133,14 @@ class BookmarksFragment @Inject constructor() :
                 }
                 MaterialAlertDialogBuilder(requireContext()).setView(editText)
                         .setPositiveButton("OK") { _, _ ->
-                            bookmarksSQLite.addFolder(editText.text.toString())
-                            loadBookmarksData()
-                            Snackbar.make(requireView(),
-                                    resources.getString(R.string.new_folder_added),
-                                    Snackbar.LENGTH_SHORT)
-                                    .show()
+                            if (editText.text.isNotBlank()) {
+                                bookmarksSQLite.addFolder(editText.text.toString())
+                                loadBookmarksData()
+                                Snackbar.make(requireView(),
+                                        resources.getString(R.string.new_folder_added),
+                                        Snackbar.LENGTH_SHORT)
+                                        .show()
+                            }
                         }
                         .setNegativeButton("CANCEL", null)
                         .create()
