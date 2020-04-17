@@ -117,6 +117,7 @@ class BookmarksFragment @Inject constructor() :
                     loadBookmarksData()
                 else
                     Snackbar.make(requireView(), R.string.bookmark_not_exist, Snackbar.LENGTH_SHORT)
+                            .show()
                 if (bookmarksClipboardManager.isClipboardEmpty)
                     pasteBtn?.isVisible = false
             }
@@ -257,7 +258,7 @@ class BookmarksFragment @Inject constructor() :
         if (pasted)
             loadBookmarksData()
         else
-            Snackbar.make(requireView(), R.string.bookmark_not_exist, Snackbar.LENGTH_SHORT)
+            Snackbar.make(requireView(), R.string.bookmark_not_exist, Snackbar.LENGTH_SHORT).show()
 
         if (bookmarksClipboardManager.isClipboardEmpty)
             pasteBtn?.isVisible = false
