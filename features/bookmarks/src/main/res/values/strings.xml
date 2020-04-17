@@ -27,4 +27,6 @@
     <string name="enter_new_title">Enter new title</string>
     <string name="paste_here">Paste here</string>
     <string name="bookmark_not_exist">Bookmark to move no longer exist</string>
+    <string name="enter_new_folder_name">Enter name of new folder</string>
+    <string name="new_folder_added">New folder added.</string>
 </resources>

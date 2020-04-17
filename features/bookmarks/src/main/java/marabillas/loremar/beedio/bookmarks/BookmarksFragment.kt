@@ -66,6 +66,11 @@ class BookmarksFragment @Inject constructor() :
     private val pasteBtn: ExtendedFloatingActionButton?
         get() = view?.findViewById(R.id.fab_paste_here)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bookmarks, container, false)
     }
@@ -116,6 +121,30 @@ class BookmarksFragment @Inject constructor() :
                     pasteBtn?.isVisible = false
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.bookmarks_menu_new_folder -> {
+                val editText = EditText(requireContext()).apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                    hint = resources.getString(R.string.enter_new_folder_name)
+                }
+                MaterialAlertDialogBuilder(requireContext()).setView(editText)
+                        .setPositiveButton("OK") { _, _ ->
+                            bookmarksSQLite.addFolder(editText.text.toString())
+                            loadBookmarksData()
+                            Snackbar.make(requireView(),
+                                    resources.getString(R.string.new_folder_added),
+                                    Snackbar.LENGTH_SHORT)
+                                    .show()
+                        }
+                        .setNegativeButton("CANCEL", null)
+                        .create()
+                        .show()
+            }
+        }
+        return true
     }
 
     private fun loadBookmarksData() {
