@@ -20,10 +20,8 @@
 package marabillas.loremar.beedio.bookmarks
 
 import android.graphics.drawable.Drawable
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import marabillas.loremar.beedio.base.extensions.imageView
@@ -52,11 +50,17 @@ class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAda
         holder.bind(bookmarks[position])
     }
 
-    inner class BookmarksViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class BookmarksViewHolder(view: View) :
+            RecyclerView.ViewHolder(view),
+            View.OnClickListener,
+            PopupMenu.OnMenuItemClickListener {
+
         private val textView by lazy { itemView.textView(R.id.bookmarks_item_textview) }
+        private val options by lazy { itemView.imageView(R.id.bookmarks_item_options) }
 
         init {
             textView.setOnClickListener(this)
+            options.setOnClickListener(this)
         }
 
         fun bind(bookmark: BookmarksItem) {
@@ -74,12 +78,38 @@ class BookmarksAdapter @Inject constructor() : RecyclerView.Adapter<BookmarksAda
                 R.id.bookmarks_item_textview -> {
                     itemEventListener?.onBookmarksItemClick(bookmarks[adapterPosition], adapterPosition)
                 }
+                R.id.bookmarks_item_options -> {
+                    PopupMenu(itemView.context, options).apply {
+                        menu.add(itemView.resources.getString(R.string.rename))
+                        menu.add(itemView.resources.getString(R.string.copy))
+                        menu.add(itemView.resources.getString(R.string.cut))
+                        menu.add(itemView.resources.getString(R.string.paste))
+                        menu.add(itemView.resources.getString(R.string.delete))
+                        show()
+                    }.setOnMenuItemClickListener(this)
+                }
             }
+        }
+
+        override fun onMenuItemClick(item: MenuItem?): Boolean {
+            when (item?.title) {
+                itemView.resources.getString(R.string.rename) -> itemEventListener?.onShowRenameDialog(adapterPosition)
+                itemView.resources.getString(R.string.copy) -> itemEventListener?.onCopyItem(adapterPosition)
+                itemView.resources.getString(R.string.cut) -> itemEventListener?.onCutItem(adapterPosition)
+                itemView.resources.getString(R.string.paste) -> itemEventListener?.onPasteItem(adapterPosition)
+                itemView.resources.getString(R.string.delete) -> itemEventListener?.onDeleteItem(adapterPosition)
+            }
+            return true
         }
     }
 
     interface ItemEventListener {
         fun onBookmarksItemClick(bookmarksItem: BookmarksItem, position: Int)
+        fun onShowRenameDialog(position: Int)
+        fun onCopyItem(position: Int)
+        fun onCutItem(position: Int)
+        fun onPasteItem(position: Int)
+        fun onDeleteItem(position: Int)
     }
 }
 

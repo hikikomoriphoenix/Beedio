@@ -26,9 +26,16 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.database.BookmarksSQLite
 import marabillas.loremar.beedio.base.extensions.recyclerView
@@ -50,8 +57,11 @@ class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapt
 
     private lateinit var mainViewModel: MainViewModel
     private lateinit var bookmarksSQLite: BookmarksSQLite
+    private lateinit var bookmarksClipboardManager: BookmarksClipboardManager
 
     private val toolbar; get() = toolbar(R.id.bookmarks_toolbar)
+    private val pasteBtn: ExtendedFloatingActionButton?
+        get() = view?.findViewById(R.id.fab_paste_here)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bookmarks, container, false)
@@ -62,6 +72,7 @@ class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapt
         activity?.let {
             mainViewModel = ViewModelProvider(it::getViewModelStore, viewModelFactory).get(MainViewModel::class.java)
             bookmarksSQLite = BookmarksSQLite(it)
+            bookmarksClipboardManager = BookmarksClipboardManager(bookmarksSQLite)
         }
     }
 
@@ -151,5 +162,67 @@ class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapt
                 }
             }
         }
+    }
+
+    override fun onShowRenameDialog(position: Int) {
+        val editText = EditText(requireContext()).apply {
+            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            hint = resources.getString(R.string.enter_new_title)
+        }
+        MaterialAlertDialogBuilder(requireContext()).setView(editText)
+                .setPositiveButton("OK") { _, _ ->
+                    if (editText.text.isNotBlank()) {
+                        if (bookmarksSQLite.currentTable == BookmarksSQLite.ROOT_FOLDER)
+                            bookmarksSQLite.renameBookmarkTitle(position + 1, editText.text.toString())
+                        else
+                            bookmarksSQLite.renameBookmarkTitle(position, editText.text.toString())
+                    }
+                    loadBookmarksData()
+                }
+                .setNegativeButton("CANCEL", null)
+                .create()
+                .show()
+    }
+
+    override fun onCopyItem(position: Int) {
+        if (bookmarksSQLite.currentTable == BookmarksSQLite.ROOT_FOLDER)
+            bookmarksClipboardManager.copy(position + 1)
+        else
+            bookmarksClipboardManager.copy(position)
+        pasteBtn?.isVisible = true
+    }
+
+    override fun onCutItem(position: Int) {
+        if (bookmarksSQLite.currentTable == BookmarksSQLite.ROOT_FOLDER)
+            bookmarksClipboardManager.cut(position + 1)
+        else
+            bookmarksClipboardManager.cut(position)
+        pasteBtn?.isVisible = true
+    }
+
+    override fun onPasteItem(position: Int) {
+        val pasted = if (bookmarksSQLite.currentTable == BookmarksSQLite.ROOT_FOLDER)
+            bookmarksClipboardManager.paste(position + 1)
+        else
+            bookmarksClipboardManager.paste(position)
+
+        if (pasted)
+            loadBookmarksData()
+        else
+            Snackbar.make(requireView(), R.string.bookmark_not_exist, Snackbar.LENGTH_SHORT)
+
+        if (bookmarksClipboardManager.isClipboardEmpty)
+            pasteBtn?.isVisible = false
+    }
+
+    override fun onDeleteItem(position: Int) {
+        if (bookmarksSQLite.currentTable == BookmarksSQLite.ROOT_FOLDER)
+            bookmarksSQLite.delete(position + 1)
+        else
+            bookmarksSQLite.delete(position)
+        loadBookmarksData()
+
+        if (bookmarksClipboardManager.isClipboardEmpty)
+            pasteBtn?.isVisible = false
     }
 }
