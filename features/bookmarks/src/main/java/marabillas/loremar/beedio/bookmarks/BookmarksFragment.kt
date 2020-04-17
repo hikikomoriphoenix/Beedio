@@ -45,7 +45,10 @@ import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.base.web.WebNavigation
 import javax.inject.Inject
 
-class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapter.ItemEventListener {
+class BookmarksFragment @Inject constructor() :
+        DaggerFragment(),
+        BookmarksAdapter.ItemEventListener,
+        View.OnClickListener {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -97,6 +100,22 @@ class BookmarksFragment @Inject constructor() : DaggerFragment(), BookmarksAdapt
         loadBookmarksData()
 
         bookmarksAdapter.itemEventListener = this
+
+        pasteBtn?.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        when (v) {
+            pasteBtn -> {
+                val pasted = bookmarksClipboardManager.paste()
+                if (pasted)
+                    loadBookmarksData()
+                else
+                    Snackbar.make(requireView(), R.string.bookmark_not_exist, Snackbar.LENGTH_SHORT)
+                if (bookmarksClipboardManager.isClipboardEmpty)
+                    pasteBtn?.isVisible = false
+            }
+        }
     }
 
     private fun loadBookmarksData() {

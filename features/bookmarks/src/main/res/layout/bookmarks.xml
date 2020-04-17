@@ -52,6 +52,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/paste_here"
         android:visibility="gone"
+        app:backgroundTint="@color/yellow"
         app:icon="@drawable/ic_content_paste_white_24dp"
         app:iconGravity="start"
         app:iconPadding="8dp" />
