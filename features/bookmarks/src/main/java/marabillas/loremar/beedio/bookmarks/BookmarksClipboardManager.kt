@@ -31,7 +31,7 @@ internal class BookmarksClipboardManager(private val sqLite: BookmarksSQLite) : 
         var table: String = BookmarksSQLite.ROOT_FOLDER
         var position = 0
         var type: String = "folder"
-        var icon: ByteArray = byteArrayOf()
+        var icon: ByteArray? = null
         var title: String = ""
         var link: String? = null
         var move = false
