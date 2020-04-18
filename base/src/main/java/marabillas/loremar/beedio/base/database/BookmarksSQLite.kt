@@ -146,16 +146,49 @@ class BookmarksSQLite @Inject constructor(context: Context) : SQLiteOpenHelper(c
                 null, null, null)
         c.moveToNext()
         insert(destPosition, c.getString(c.getColumnIndex("type")), c.getBlob(c.getColumnIndex("icon")), c.getString(c.getColumnIndex("title")), c.getString(c.getColumnIndex("link")))
-        if (sourceTable == currentTable && sourcePosition >= destPosition) {
-            if (c.getString(c.getColumnIndex("type")) == "folder") {
+        if (sourceTable == currentTable) {
+            if (c.getString(c.getColumnIndex("type")) == "folder")
                 copyFolderContents(sourceTable + "_" + sourcePosition, currentTable + "_" + destPosition)
-            }
-            delete(sourceTable, sourcePosition + 1)
+            if (sourcePosition >= destPosition)
+                delete(sourceTable, sourcePosition + 1)
+            else
+                delete(sourceTable, sourcePosition)
         } else {
-            if (c.getString(c.getColumnIndex("type")) == "folder") {
-                copyFolderContents(sourceTable + "_" + sourcePosition, currentTable + "_" + destPosition)
+            val destIndices = currentTable.split('_')
+                    .filterIndexed { i, _ -> i > 0 }
+                    .map { it.toInt() }
+            val sourceIndices = sourceTable.split('_')
+                    .filterIndexed { i, _ -> i > 0 }
+                    .map { it.toInt() }
+            var newSourceTable = sourceTable
+
+            var i = 0
+            var isSourceChildOfDest = true
+            if (sourceIndices.count() < destIndices.count())
+                isSourceChildOfDest = false
+            else {
+                while (i < destIndices.count()) {
+                    if (destIndices[i] != sourceIndices[i]) {
+                        isSourceChildOfDest = false
+                        break
+                    }
+                    i++
+                }
             }
-            delete(sourceTable, sourcePosition)
+
+            if (destIndices.count() < sourceIndices.count() && isSourceChildOfDest) {
+                val sourceIndexToUpdate = destIndices.count()
+                val targetSourcePosition = sourceIndices[sourceIndexToUpdate]
+                if (targetSourcePosition >= destPosition) {
+                    val newSourceIndices = sourceIndices.toMutableList()
+                    newSourceIndices[sourceIndexToUpdate] = targetSourcePosition + 1
+                    newSourceTable = "bookmarks_${newSourceIndices.joinToString("_")}"
+                }
+            }
+
+            if (c.getString(c.getColumnIndex("type")) == "folder")
+                copyFolderContents(newSourceTable + "_" + sourcePosition, currentTable + "_" + destPosition)
+            delete(newSourceTable, sourcePosition)
         }
         c.close()
     }
