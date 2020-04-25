@@ -26,18 +26,21 @@ class BrowserListenersUpdater(private val activity: BrowserActivity,
                               private val webViewsControllerVM: WebViewsControllerVM,
                               private val titleStateVM: BrowserTitleStateVM,
                               private val searchWidgetControllerVM: BrowserSearchWidgetControllerVM,
-                              private val videoDetectionVM: VideoDetectionVM
+                              private val videoDetectionVM: VideoDetectionVM,
+                              private val historyVM: BrowserHistoryVM
 ) {
 
     fun update() {
         activity.browserWebViewClient.onWebPageChangedListener = activity.uiListener
         activity.browserWebViewClient.onLoadResourceListener = activity.uiListener
         activity.browserWebChromeClient.titleRecievedListener = activity.uiListener
+        activity.browserWebChromeClient.onReceivedIconListener = activity.uiListener
 
         activity.uiListener.webViewsControllerVM = webViewsControllerVM
         activity.uiListener.titleStateVM = titleStateVM
         activity.uiListener.searchWidgetControllerVM = searchWidgetControllerVM
         activity.uiListener.videoDetectionVM = videoDetectionVM
+        activity.uiListener.historyVM = historyVM
         activity.menuItemClickListener.webPageNavigation = webPageNavigationVM
         activity.menuItemClickListener.searchWidgetControllerVM = searchWidgetControllerVM
         activity.menuItemClickListener.webViewsController = webViewsControllerVM

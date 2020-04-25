@@ -23,6 +23,7 @@ import android.graphics.Bitmap
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.threeten.bp.ZonedDateTime
 
 @Entity
 data class HistoryItem(
@@ -33,7 +34,7 @@ data class HistoryItem(
         @ColumnInfo(name = "url")
         val url: String,
         @ColumnInfo(name = "date")
-        val date: String,
+        val date: ZonedDateTime,
         @ColumnInfo(name = "favicon")
         val favicon: Bitmap? = null
 )

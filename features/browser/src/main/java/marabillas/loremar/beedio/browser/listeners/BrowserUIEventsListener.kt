@@ -21,19 +21,18 @@ package marabillas.loremar.beedio.browser.listeners
 
 import android.graphics.Bitmap
 import android.webkit.WebView
-import marabillas.loremar.beedio.browser.viewmodel.BrowserSearchWidgetControllerVM
-import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
-import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
-import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
+import marabillas.loremar.beedio.browser.viewmodel.*
 import javax.inject.Inject
 
 class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
-        OnWebPageTitleRecievedListener, BrowserSearchWidgetListener, OnLoadResourceListener {
+        OnWebPageTitleRecievedListener, BrowserSearchWidgetListener, OnLoadResourceListener,
+        OnReceivedIconListener {
 
     var webViewsControllerVM: WebViewsControllerVM? = null
     var titleStateVM: BrowserTitleStateVM? = null
     var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
     var videoDetectionVM: VideoDetectionVM? = null
+    var historyVM: BrowserHistoryVM? = null
 
     override fun onWebPageChanged(webView: WebView?, url: String?, favicon: Bitmap?) {
         val updateTitle = { activeWebView: WebView? ->
@@ -49,6 +48,9 @@ class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         val updateTitle = { activeWebView: WebView? ->
             if (activeWebView == webView) {
                 titleStateVM?.title = title
+                webView?.apply {
+                    historyVM?.addNewVisitedPage(url, title ?: this.title, favicon)
+                }
             }
         }
         webViewsControllerVM?.requestActiveWebView(updateTitle)
@@ -63,5 +65,9 @@ class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         val title = view?.title ?: ""
         if (url != null && page != null)
             videoDetectionVM?.analyzeUrlForVideo(url, title, page)
+    }
+
+    override fun onReceivedIcon(view: WebView, icon: Bitmap) {
+        historyVM?.updateVisitedPageIcon(view.url, icon)
     }
 }

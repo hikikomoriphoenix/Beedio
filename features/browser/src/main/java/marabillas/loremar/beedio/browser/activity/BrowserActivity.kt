@@ -83,6 +83,7 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
     private lateinit var webViewsCountIndicatorVM: WebViewsCountIndicatorVM
     private lateinit var videoDetectionVM: VideoDetectionVM
     private lateinit var addBookmarkVM: AddBookmarkVM
+    private lateinit var historyVM: BrowserHistoryVM
 
     private lateinit var controllersUpdater: BrowserControllersUpdater
     private lateinit var actionBarUpdater: BrowserActionBarUpdater
@@ -110,13 +111,14 @@ class BrowserActivity : NavigationActivity(), HasAndroidInjector {
         webViewsCountIndicatorVM = ViewModelProviders.of(this, viewModelFactory).get(WebViewsCountIndicatorVM::class.java)
         videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)[VideoDetectionVM::class.java]
         addBookmarkVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)[AddBookmarkVM::class.java]
+        historyVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)[BrowserHistoryVM::class.java]
 
         actionBarUpdater = BrowserActionBarUpdater(this, binding, webViewsCountIndicatorVM)
         viewModelBinder = BrowserViewModelBinder(this, actionBarUpdater, actionBarStateVM,
                 searchWidgetStateVM, titleStateVM, binding)
         controllersUpdater = BrowserControllersUpdater(this)
         listenersUpdater = BrowserListenersUpdater(this, webPageNavigationVM,
-                webViewsControllerVM, titleStateVM, searchWidgetControllerVM, videoDetectionVM)
+                webViewsControllerVM, titleStateVM, searchWidgetControllerVM, videoDetectionVM, historyVM)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

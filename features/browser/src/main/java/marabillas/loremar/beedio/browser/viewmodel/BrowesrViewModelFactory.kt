@@ -70,6 +70,10 @@ class BrowserViewModelFactory(private val context: Context) : ViewModelProvider.
                 AddBookmarkVMImpl() as T
             }
 
+            BrowserHistoryVM::class.java -> {
+                BrowserHistoryVMImpl(context) as T
+            }
+
             else -> throw IllegalArgumentException("Unidentified ViewModel for Browser")
         }
     }

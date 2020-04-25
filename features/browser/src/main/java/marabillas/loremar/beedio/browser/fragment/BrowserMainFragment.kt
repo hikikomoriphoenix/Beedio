@@ -92,6 +92,7 @@ class BrowserMainFragment : DaggerFragment() {
     private lateinit var webViewsCountIndicatorVM: WebViewsCountIndicatorVM
     private lateinit var videoDetectionVM: VideoDetectionVM
     private lateinit var addBookmarkVM: AddBookmarkVM
+    private lateinit var historyVM: BrowserHistoryVM
 
     private lateinit var customTitleView: View
 
@@ -119,6 +120,7 @@ class BrowserMainFragment : DaggerFragment() {
             webViewsCountIndicatorVM = initViewModel(it, WebViewsCountIndicatorVM::class.java)
             videoDetectionVM = initViewModel(it, VideoDetectionVM::class.java)
             addBookmarkVM = initViewModel(it, AddBookmarkVM::class.java)
+            historyVM = initViewModel(it, BrowserHistoryVM::class.java)
         }
     }
 
@@ -251,11 +253,13 @@ class BrowserMainFragment : DaggerFragment() {
         browserWebViewClient.onWebPageChangedListener = uiListener
         browserWebViewClient.onLoadResourceListener = uiListener
         browserWebChromeClient.titleRecievedListener = uiListener
+        browserWebChromeClient.onReceivedIconListener = uiListener
 
         uiListener.webViewsControllerVM = webViewsControllerVM
         uiListener.titleStateVM = titleStateVM
         uiListener.searchWidgetControllerVM = searchWidgetControllerVM
         uiListener.videoDetectionVM = videoDetectionVM
+        uiListener.historyVM = historyVM
         menuItemClickListener.webPageNavigation = webPageNavigationVM
         menuItemClickListener.searchWidgetControllerVM = searchWidgetControllerVM
         menuItemClickListener.webViewsController = webViewsControllerVM

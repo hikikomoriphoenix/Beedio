@@ -19,15 +19,20 @@
 
 package marabillas.loremar.beedio.base.database
 
+import android.graphics.Bitmap
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import org.threeten.bp.ZonedDateTime
 
 @Dao
 interface HistoryDao {
     @Query("SELECT * FROM historyitem ORDER BY datetime(date) DESC")
     fun getAll(): List<HistoryItem>
+
+    @Query("SELECT COUNT(url) FROM historyitem WHERE url = :url")
+    fun countItemsWithUrl(url: String): Int
 
     @Insert
     fun add(item: HistoryItem)
@@ -37,4 +42,10 @@ interface HistoryDao {
 
     @Delete
     fun delete(items: List<HistoryItem>)
+
+    @Query("UPDATE historyitem SET title = :title, date = :date, favicon = :favicon WHERE url = :url")
+    fun updateItem(title: String, date: ZonedDateTime, favicon: Bitmap?, url: String)
+
+    @Query("UPDATE historyitem SET favicon = :icon WHERE url=:url")
+    fun updateNewIcon(icon: Bitmap, url: String)
 }

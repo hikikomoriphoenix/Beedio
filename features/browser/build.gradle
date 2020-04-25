@@ -78,6 +78,7 @@ dependencies {
     implementation deps.timber
     implementation deps.okhttp
     implementation deps.gson
+    implementation deps.threetenabp
     testImplementation deps.junit
     testImplementation deps.truth
 

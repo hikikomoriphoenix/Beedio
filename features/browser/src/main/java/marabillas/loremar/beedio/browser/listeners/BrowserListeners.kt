@@ -37,3 +37,7 @@ interface BrowserSearchWidgetListener {
 interface OnLoadResourceListener {
     fun onLoadResource(view: WebView?, url: String?)
 }
+
+interface OnReceivedIconListener {
+    fun onReceivedIcon(view: WebView, icon: Bitmap)
+}

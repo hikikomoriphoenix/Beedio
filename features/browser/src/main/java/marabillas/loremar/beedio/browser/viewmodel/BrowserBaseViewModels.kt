@@ -19,6 +19,7 @@
 
 package marabillas.loremar.beedio.browser.viewmodel
 
+import android.graphics.Bitmap
 import android.webkit.WebView
 import androidx.databinding.Bindable
 import androidx.lifecycle.LifecycleOwner
@@ -163,4 +164,10 @@ abstract class AddBookmarkVM : ObservableViewModel() {
     abstract fun openBookmarker()
 
     abstract fun observeOpenBookmarker(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
+}
+
+abstract class BrowserHistoryVM : ObservableViewModel() {
+    abstract fun addNewVisitedPage(url: String, title: String, icon: Bitmap? = null)
+
+    abstract fun updateVisitedPageIcon(url: String, icon: Bitmap)
 }
