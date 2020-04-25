@@ -75,6 +75,7 @@ dependencies {
     implementation deps.ffmpeg
     implementation deps.okhttp
     implementation deps.gson
+    implementation deps.threetenabp
 
     implementation deps.lifecycle.viewmodel
     implementation deps.lifecycle.extensions
