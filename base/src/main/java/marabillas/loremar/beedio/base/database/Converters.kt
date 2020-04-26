@@ -19,10 +19,13 @@
 
 package marabillas.loremar.beedio.base.database
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.room.TypeConverter
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.format.DateTimeFormatter
+import java.io.ByteArrayOutputStream
 
 object HistoryItemConverters {
     private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -35,4 +38,21 @@ object HistoryItemConverters {
     @TypeConverter
     @JvmStatic
     fun fromZonedDateTime(date: ZonedDateTime): String = formatter.format(date)
+
+    @TypeConverter
+    @JvmStatic
+    fun byteArrayFrom(bitmap: Bitmap?): ByteArray? {
+        val bytesOutStream = ByteArrayOutputStream()
+        bitmap?.compress(Bitmap.CompressFormat.PNG, 100, bytesOutStream)
+        return bytesOutStream.toByteArray()
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun bitmapFrom(bytes: ByteArray?): Bitmap? {
+        return if (bytes != null)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        else
+            null
+    }
 }
