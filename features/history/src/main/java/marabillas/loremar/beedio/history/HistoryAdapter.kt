@@ -27,7 +27,9 @@ import androidx.recyclerview.widget.RecyclerView
 import marabillas.loremar.beedio.base.database.HistoryItem
 import marabillas.loremar.beedio.base.extensions.imageView
 import marabillas.loremar.beedio.base.extensions.textView
+import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
+import java.net.URL
 import javax.inject.Inject
 
 class HistoryAdapter @Inject constructor() :
@@ -58,11 +60,18 @@ class HistoryAdapter @Inject constructor() :
                     val drawable = BitmapDrawable(itemView.resources, it)
                     imageView(R.id.image_history_item_icon).setImageDrawable(drawable)
                 }
-                textView(R.id.text_history_item_title).text = item.title
-                textView(R.id.text_history_item_url).text = item.url
 
-                val formatter = DateTimeFormatter.RFC_1123_DATE_TIME
+                val formatter = when {
+                    item.date.toLocalDate().isEqual(LocalDate.now()) -> DateTimeFormatter.ofPattern("h:mm a")
+                    item.date.year == LocalDate.now().year -> DateTimeFormatter.ofPattern("LLL d")
+                    else -> DateTimeFormatter.ofPattern("LLL d, yyyy")
+                }
+
                 textView(R.id.text_history_item_date_time).text = formatter.format(item.date)
+
+                textView(R.id.text_history_item_title).text = item.title
+
+                textView(R.id.text_history_item_url).text = URL(item.url).host
             }
         }
     }

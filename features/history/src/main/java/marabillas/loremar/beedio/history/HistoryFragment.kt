@@ -23,10 +23,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.DaggerFragment
 import marabillas.loremar.beedio.base.extensions.recyclerView
+import marabillas.loremar.beedio.base.extensions.toolbar
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import javax.inject.Inject
 
 class HistoryFragment : DaggerFragment() {
@@ -36,7 +39,10 @@ class HistoryFragment : DaggerFragment() {
     @Inject
     lateinit var historyAdapter: HistoryAdapter
 
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var historyViewModel: HistoryViewModel
+
+    private val toolbar by lazy { requireView().toolbar(R.id.toolbar_history) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_history, container, false)
@@ -45,6 +51,7 @@ class HistoryFragment : DaggerFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         activity?.let {
+            mainViewModel = ViewModelProvider(it, viewModelFactory).get(MainViewModel::class.java)
             historyViewModel = ViewModelProvider(it, viewModelFactory).get(HistoryViewModel::class.java)
         }
     }
@@ -60,5 +67,8 @@ class HistoryFragment : DaggerFragment() {
     override fun onStart() {
         super.onStart()
         historyViewModel.loadAllItems { historyAdapter.historyList = it }
+
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener { mainViewModel.setIsNavDrawerOpen(true) }
     }
 }

@@ -20,7 +20,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black1">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_history"
@@ -35,6 +36,7 @@
             android:theme="@style/DarkToolBar"
             app:title="History"
             app:navigationIcon="@drawable/ic_menu_white_24dp" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView

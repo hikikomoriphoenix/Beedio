@@ -34,6 +34,7 @@ fun View.textView(resId: Int): TextView = findViewById(resId)
 fun View.imageView(resId: Int): ImageView = findViewById(resId)
 fun View.recyclerView(resId: Int): RecyclerView = findViewById(resId)
 fun View.bottomAppBar(resId: Int): BottomAppBar = findViewById(resId)
+fun View.toolbar(resId: Int): Toolbar = findViewById(resId)
 
 /* Activity */
 fun Activity.rootView(): View = findViewById(android.R.id.content)
