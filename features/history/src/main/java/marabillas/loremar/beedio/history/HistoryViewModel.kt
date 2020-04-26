@@ -43,4 +43,16 @@ class HistoryViewModel(context: Context) : ViewModel() {
             }
         }
     }
+
+    fun deleteItem(item: HistoryItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            historyDao.delete(item)
+        }
+    }
+
+    fun clearAll() {
+        viewModelScope.launch(Dispatchers.IO) {
+            historyDao.delete(historyDao.getAll())
+        }
+    }
 }

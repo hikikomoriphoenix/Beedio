@@ -20,19 +20,19 @@
 package marabillas.loremar.beedio.history
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.database.HistoryItem
 import marabillas.loremar.beedio.base.extensions.recyclerView
 import marabillas.loremar.beedio.base.extensions.toolbar
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import javax.inject.Inject
 
-class HistoryFragment : DaggerFragment() {
+class HistoryFragment : DaggerFragment(), HistoryAdapter.ItemEventListener, Toolbar.OnMenuItemClickListener {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -43,6 +43,11 @@ class HistoryFragment : DaggerFragment() {
     private lateinit var historyViewModel: HistoryViewModel
 
     private val toolbar by lazy { requireView().toolbar(R.id.toolbar_history) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_history, container, false)
@@ -64,11 +69,33 @@ class HistoryFragment : DaggerFragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_history, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onStart() {
         super.onStart()
-        historyViewModel.loadAllItems { historyAdapter.historyList = it }
+        historyViewModel.loadAllItems { historyAdapter.historyList = it.toMutableList() }
 
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { mainViewModel.setIsNavDrawerOpen(true) }
+        toolbar.setOnMenuItemClickListener(this)
+
+        historyAdapter.itemEventListener = this
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.menuitem_history_clear_all -> {
+                historyViewModel.clearAll()
+                historyAdapter.historyList = mutableListOf()
+            }
+        }
+        return true
+    }
+
+    override fun onItemDelete(item: HistoryItem) {
+        historyViewModel.deleteItem(item)
     }
 }

@@ -35,11 +35,12 @@ import javax.inject.Inject
 class HistoryAdapter @Inject constructor() :
         RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
 
-    var historyList = listOf<HistoryItem>()
+    var historyList = mutableListOf<HistoryItem>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
+    var itemEventListener: ItemEventListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -54,6 +55,16 @@ class HistoryAdapter @Inject constructor() :
     }
 
     inner class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        init {
+            itemView.imageView(R.id.image_delete_btn).setOnClickListener {
+                itemEventListener?.onItemDelete(historyList[adapterPosition])
+                historyList.removeAt(adapterPosition)
+                notifyItemRemoved(adapterPosition)
+
+            }
+        }
+
         fun bind(item: HistoryItem) {
             itemView.apply {
                 item.favicon?.let {
@@ -74,5 +85,9 @@ class HistoryAdapter @Inject constructor() :
                 textView(R.id.text_history_item_url).text = URL(item.url).host
             }
         }
+    }
+
+    interface ItemEventListener {
+        fun onItemDelete(item: HistoryItem)
     }
 }

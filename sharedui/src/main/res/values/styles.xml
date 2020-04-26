@@ -39,6 +39,7 @@
         <item name="android:background">@color/black1</item>
         <item name="android:textColorPrimary">@color/yellow</item>
         <item name="android:textColorSecondary">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
         <item name="android:itemTextAppearance">@style/CustomItemTextAppearance</item>
     </style>
 
