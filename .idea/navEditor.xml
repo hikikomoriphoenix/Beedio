@@ -8,6 +8,11 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="action_global_bookmarksFragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_browserMainFragment">
                     <value>
                       <LayoutPositions />
@@ -54,6 +59,18 @@
                           <Point>
                             <option name="x" value="10" />
                             <option name="y" value="146" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="historyFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-487" />
+                            <option name="y" value="137" />
                           </Point>
                         </option>
                       </LayoutPositions>

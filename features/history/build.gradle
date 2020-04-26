@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
@@ -26,17 +26,16 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
-
     defaultConfig {
-        applicationId "marabillas.loremar.beedio"
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
 
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -44,16 +43,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-
-    dataBinding {
-        enabled = true
-    }
-
-    kapt {
-        useBuildCache = true
-        correctErrorTypes = true
-        generateStubs = true
     }
 
     compileOptions {
@@ -70,35 +59,20 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':base')
     implementation project(':sharedui')
-    implementation project(':features:home')
-    implementation project(':features:browser')
-    implementation project(':features:download')
-    implementation project(':features:bookmarks')
-    implementation project(':features:history')
 
     implementation deps.kotlin.stdlib
-    implementation deps.core_ktx
     implementation deps.appcompat
+    implementation deps.core_ktx
     implementation deps.material
     implementation deps.constraintlayout
-    implementation deps.recyclerview
-    implementation deps.okhttp
-    implementation deps.gson
-    implementation deps.ffmpeg
     implementation deps.timber
-    implementation deps.multidex
     implementation deps.threetenabp
-
     testImplementation deps.junit
     testImplementation deps.truth
-    androidTestImplementation deps.test.core
-    androidTestImplementation deps.test.runner
-    androidTestImplementation deps.test.rules
-    androidTestImplementation deps.test.ext_junit
-    androidTestImplementation deps.espresso
 
     implementation deps.lifecycle.viewmodel
     implementation deps.lifecycle.extensions
+    implementation deps.lifecycle.viewmodel_ktx
 
     implementation deps.dagger.runtime
     implementation deps.dagger.android
@@ -110,13 +84,4 @@ dependencies {
     implementation deps.room.ktx
     testImplementation deps.room.testing
     kapt deps.room.compiler
-
-    implementation deps.work.runtime_ktx
-    implementation deps.work.gcm
-    implementation deps.work.testing
-
-    implementation deps.navigation.fragment_ktx
-    implementation deps.navigation.ui_ktx
-    implementation deps.navigation.dynamic_features_fragment
-    testImplementation deps.navigation.testing
 }

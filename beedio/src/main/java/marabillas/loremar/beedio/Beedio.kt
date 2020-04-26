@@ -24,6 +24,7 @@ import androidx.multidex.MultiDex
 import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
@@ -57,5 +58,6 @@ class Beedio : DaggerApplication(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         WorkManager.initialize(this, workManagerConfiguration)
+        AndroidThreeTen.init(this);
     }
 }

@@ -92,6 +92,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             R.id.nav_menu_download -> navController.navigate(R.id.action_global_downloadMainFragment)
 
             R.id.nav_menu_bookmarks -> navController.navigate(R.id.action_global_bookmarksFragment)
+
+            R.id.nav_menu_history -> navController.navigate(R.id.action_global_historyFragment)
         }
         return true
     }

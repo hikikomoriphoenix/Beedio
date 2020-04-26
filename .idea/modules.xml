@@ -13,6 +13,7 @@
       <module fileurl="file://$PROJECT_DIR$/extractors/extractors.iml" filepath="$PROJECT_DIR$/extractors/extractors.iml" group="Beedio/extractors" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/featureapps.iml" filepath="$PROJECT_DIR$/featureapps/featureapps.iml" group="Beedio/featureapps" />
       <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" group="Beedio/features" />
+      <module fileurl="file://$PROJECT_DIR$/features/history/history.iml" filepath="$PROJECT_DIR$/features/history/history.iml" group="Beedio/features/history" />
       <module fileurl="file://$PROJECT_DIR$/features/home/home.iml" filepath="$PROJECT_DIR$/features/home/home.iml" group="Beedio/features/home" />
       <module fileurl="file://$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" filepath="$PROJECT_DIR$/featureapps/homeapp/homeapp.iml" group="Beedio/featureapps/homeapp" />
       <module fileurl="file://$PROJECT_DIR$/legacy/legacy.iml" filepath="$PROJECT_DIR$/legacy/legacy.iml" group="Beedio/legacy" />

@@ -40,6 +40,11 @@
         android:name="marabillas.loremar.beedio.bookmarks.BookmarksFragment"
         android:label="BookmarksFragment" />
 
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="marabillas.loremar.beedio.history.HistoryFragment"
+        android:label="HistoryFragment" />
+
     <action
         android:id="@+id/action_global_homeMainFragment"
         app:destination="@id/homeMainFragment" />
@@ -55,4 +60,8 @@
     <action
         android:id="@+id/action_global_bookmarksFragment"
         app:destination="@id/bookmarksFragment" />
+
+    <action
+        android:id="@+id/action_global_historyFragment"
+        app:destination="@id/historyFragment" />
 </navigation>

@@ -17,8 +17,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-include ':legacy', ':beedio', ':features:home', ':featureapps:homeapp', ':features:browser',
-        ':featureapps:browserapp', ':features:download', ':featureapps:downloadapp', ':base',
-        ':extractors', ':sharedui'
-include ':features:bookmarks'
-include ':features:history'
+package marabillas.loremar.beedio.history
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+    @Test
+    fun useAppContext() {
+        // Context of the app under test.
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("marabillas.loremar.beedio.history.test", appContext.packageName)
+    }
+}

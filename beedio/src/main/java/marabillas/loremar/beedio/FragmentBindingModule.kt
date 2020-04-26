@@ -31,6 +31,7 @@ import marabillas.loremar.beedio.browser.uicontrollers.ExpandingFoundVideosFragm
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewSwitcherSheetFragment
 import marabillas.loremar.beedio.browser.uicontrollers.WebViewsControllerFragment
 import marabillas.loremar.beedio.download.fragments.*
+import marabillas.loremar.beedio.history.HistoryFragment
 import marabillas.loremar.beedio.home.HomeMainFragment
 import marabillas.loremar.beedio.home.HomeRecommendedFragment
 import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
@@ -52,6 +53,10 @@ abstract class FragmentBindingModule {
     @FragmentScope
     @ContributesAndroidInjector(modules = [BookmarksFragmentModule::class])
     abstract fun contributeBookmarksFragment(): BookmarksFragment
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract fun contributeHistoryFragment(): HistoryFragment
 
     @FragmentScope
     @ContributesAndroidInjector

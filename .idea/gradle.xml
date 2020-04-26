@@ -22,6 +22,7 @@
             <option value="$PROJECT_DIR$/features/bookmarks" />
             <option value="$PROJECT_DIR$/features/browser" />
             <option value="$PROJECT_DIR$/features/download" />
+            <option value="$PROJECT_DIR$/features/history" />
             <option value="$PROJECT_DIR$/features/home" />
             <option value="$PROJECT_DIR$/legacy" />
             <option value="$PROJECT_DIR$/sharedui" />

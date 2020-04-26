@@ -26,6 +26,7 @@ import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.browser.viewmodel.*
 import marabillas.loremar.beedio.download.viewmodels.*
+import marabillas.loremar.beedio.history.HistoryViewModel
 
 class ViewModelFactory(
         private val context: Context,
@@ -50,6 +51,7 @@ class ViewModelFactory(
             InProgressVM::class.java -> InProgressVMImpl(context, downloadDB) as T
             CompletedVM::class.java -> CompletedVMImpl(downloadDB) as T
             InactiveVM::class.java -> InactiveVMImpl(context, downloadDB) as T
+            HistoryViewModel::class.java -> HistoryViewModel(context) as T
             else -> throw IllegalArgumentException("Unidentified ViewModel")
         }
     }
