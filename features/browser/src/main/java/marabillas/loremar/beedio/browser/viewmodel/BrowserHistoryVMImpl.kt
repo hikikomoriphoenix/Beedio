@@ -23,12 +23,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import marabillas.loremar.beedio.base.database.HistoryDatabase
 import marabillas.loremar.beedio.base.database.HistoryItem
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
+import java.util.concurrent.Executors
 
 class BrowserHistoryVMImpl(context: Context) : BrowserHistoryVM() {
     private val historyDao = Room.databaseBuilder(
@@ -37,8 +38,10 @@ class BrowserHistoryVMImpl(context: Context) : BrowserHistoryVM() {
             "history").build()
             .historyDao()
 
+    private val historyDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
     override fun addNewVisitedPage(url: String, title: String, icon: Bitmap?) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(historyDispatcher) {
             val isStored = historyDao.countItemsWithUrl(url) > 0
             if (isStored) {
                 historyDao.updateItem(title,
@@ -56,7 +59,7 @@ class BrowserHistoryVMImpl(context: Context) : BrowserHistoryVM() {
     }
 
     override fun updateVisitedPageIcon(url: String, icon: Bitmap) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(historyDispatcher) {
             historyDao.updateNewIcon(icon, url)
         }
     }
