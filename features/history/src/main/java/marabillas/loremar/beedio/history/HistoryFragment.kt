@@ -98,4 +98,8 @@ class HistoryFragment : DaggerFragment(), HistoryAdapter.ItemEventListener, Tool
     override fun onItemDelete(item: HistoryItem) {
         historyViewModel.deleteItem(item)
     }
+
+    override fun onItemClicked(item: HistoryItem) {
+        mainViewModel.goToBrowser(item.url)
+    }
 }

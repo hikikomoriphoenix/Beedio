@@ -63,6 +63,10 @@ class HistoryAdapter @Inject constructor() :
                 notifyItemRemoved(adapterPosition)
 
             }
+
+            itemView.setOnClickListener {
+                itemEventListener?.onItemClicked(historyList[adapterPosition])
+            }
         }
 
         fun bind(item: HistoryItem) {
@@ -89,5 +93,6 @@ class HistoryAdapter @Inject constructor() :
 
     interface ItemEventListener {
         fun onItemDelete(item: HistoryItem)
+        fun onItemClicked(item: HistoryItem)
     }
 }
