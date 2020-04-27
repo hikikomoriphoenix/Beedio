@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.browser.listeners
 
 import android.graphics.Bitmap
 import android.webkit.WebView
+import marabillas.loremar.beedio.base.extensions.toPixels
 import marabillas.loremar.beedio.browser.viewmodel.*
 import javax.inject.Inject
 
@@ -68,6 +69,8 @@ class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
     }
 
     override fun onReceivedIcon(view: WebView, icon: Bitmap) {
+        val dstSize = 32.toPixels(view.resources)
+        Bitmap.createScaledBitmap(icon, dstSize, dstSize, false)
         historyVM?.updateVisitedPageIcon(view.url, icon)
     }
 }
