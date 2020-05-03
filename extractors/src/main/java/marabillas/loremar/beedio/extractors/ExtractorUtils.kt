@@ -44,7 +44,7 @@ object ExtractorUtils {
         return try {
             val request = Request.Builder().url(url).method("GET", null).build()
             val response = httpClient.newCall(request).execute()
-            val content = response.body?.string()
+            val content = if (response.code == 429) HTTP_ERROR_429 else response.body?.string()
             response.close()
             content
         } catch (e: IOException) {
@@ -554,3 +554,5 @@ val DATE_FORMATS_MONTH_FIRST = mutableListOf<String>().apply {
     addAll(DATE_FORMATS)
     addAll(listOf("MM-dd-yyyy", "MM.dd.yyyy", "MM/dd/yyyy", "MM/dd/yy", "MM/dd/yyyy HH:mm:ss"))
 }
+
+const val HTTP_ERROR_429 = "YOUTUBE HTTP ERROR 429"

@@ -38,11 +38,11 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
 
     var youtubeIncludeDashManifest = true
 
-    private val playlistIdRe = """(?:PL|LL|EC|UU|FL|RD|UL|TL|OLAK5uy_)[0-9A-Za-z-_]{10,}"""
+    private val playlistIdRe = """(?:PL|LL|EC|UU|FL|RD|UL|TL|PU|OLAK5uy_)[0-9A-Za-z-_]{10,}"""
     private val validUrl = """(?x)^
                      (
                          (?:https?://|//)                                    # http(s):// or protocol-independent URL
-                         (?:(?:(?:(?:\w+\.)?[yY][oO][uU][tT][uU][bB][eE](?:-nocookie)?\.com/|
+                         (?:(?:(?:(?:\w+\.)?[yY][oO][uU][tT][uU][bB][eE](?:-nocookie|kids)?\.com/|
                             (?:www\.)?deturl\.com/www\.youtube\.com/|
                             (?:www\.)?pwnyoutube\.com/|
                             (?:www\.)?hooktube\.com/|
@@ -97,6 +97,9 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
                      (.+)?                                                # if we found the ID, everything can follow
                      ${'$'}""".toRegex(RegexOption.COMMENTS)
     private val nextUrlRe = """[\?&]next_url=([^&]+)""".toRegex()
+    private val playerInfoRe = listOf(
+            """/([a-zA-Z0-9_-]{8,})/player_ias\.vflset(?:/[a-zA-Z]{2,3}_[a-zA-Z]{2,3})?/base\.([a-z]+)${'$'}""".toRegex(),
+            """\b(vfl[a-zA-Z0-9_-]+)\b.*?\.([a-z]+)${'$'}""".toRegex())
 
     private val playerCache = hashMapOf<String, (Any) -> Any?>()
     private val playerUrlContents = hashMapOf<String, String>()
@@ -373,10 +376,16 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
             val original = URLDecoder.decode(it.groupValues[1], "UTF-8").trim('/')
             urlx = "$proto://www.youtube.com/$original"
         }
-        val videoId = extractId(urlx)
+        var videoId = extractId(urlx)
 
         urlx = "$proto://www.youtube.com/watch?v=$videoId&gl=US&hl=en&has_verified=1&bpctr=9999999999"
-        val videoWebPage = ExtractorUtils.contentOf(urlx)
+        val urlResponse = ExtractorUtils.extractResponseFrom(urlx)
+        val videoWebPage = urlResponse?.body?.string()
+
+        urlResponse?.request?.let { urlh ->
+            val qs = ExtractorUtils.parseQueryString(URL(urlh.url.toString()).query)
+            videoId = qs["v"]?.get(0) ?: videoId
+        }
 
         val mObj = videoWebPage?.let {
             """swfConfig.*?"(https?:\\/\\/.*?watch.*?-.*?\.swf)"""".toRegex().find(it)
@@ -429,7 +438,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
         var playerResponse: PlayerResponse? = null
 
         // Get video info
-        var videoInfo: Map<String, List<String>>? = null
+        var videoInfo: Map<String, List<String>>? = hashMapOf()
         var embedWebpage: String? = null
         var ageGate: Boolean
         if (videoWebPage?.let { """player-age-gate-content">""".toRegex().find(it) } != null) {
@@ -456,7 +465,6 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
             viewCount = videoInfo?.let { extractViewCount(it) }
         } else {
             ageGate = false
-            var sts: String? = null
             // Try looking directly into the video webpage
             val ytplayerConfig = videoWebPage?.let { getYtplayerConfig(videoId, it) }
             if (ytplayerConfig != null) {
@@ -477,60 +485,9 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
                     if (playerResponse == null)
                         playerResponse = args.playerResponse?.let { extractPlayerResponse(it, videoId) }
                 }
-                sts = ytplayerConfig.sts
             }
             if (true) { //videoInfo.isNullOrEmpty()) {// TODO self._downloader.params.get('youtube_include_dash_manifest', True)
                 playerResponse?.let { addDashMpdPr(it) }
-                /*# We also try looking in get_video_info since it may contain different dashmpd
-                # URL that points to a DASH manifest with possibly different itag set (some itags
-                # are missing from DASH manifest pointed by webpage's dashmpd, some - from DASH
-                # manifest pointed by get_video_info's dashmpd).
-                # The general idea is to take a union of itags of both DASH manifests (for example
-                # video with such 'manifest behavior' see https://github.com/ytdl-org/youtube-dl/issues/6093)*/
-                // TODO self.report_video_info_webpage_download(video_id)
-                for (el in listOf("embedded", "detailpage", "vevo", "")) {
-                    val query = hashMapOf(
-                            "video_id" to videoId,
-                            "ps" to "default",
-                            "eurl" to "",
-                            "gl" to "US",
-                            "hl" to "en"
-                    )
-                    if (el.isNotBlank())
-                        query["el"] = el
-                    if (!sts.isNullOrBlank())
-                        query["sts"] = sts
-                    val queryString = ExtractorUtils.queryStringFrom(query)
-                    val videoInfoWebpage = ExtractorUtils.contentOf(
-                            "$proto://www.youtube.com/get_video_info?$queryString")
-                    if (videoInfoWebpage.isNullOrBlank()) continue
-                    val getVideoInfo = ExtractorUtils.parseQueryString(videoInfoWebpage)
-                    if (playerResponse == null) {
-                        val plResponse = getVideoInfo["player_response"]?.get(0)
-                        playerResponse = plResponse?.let { extractPlayerResponse(it, videoId) }
-                    }
-                    addDashMpd(getVideoInfo)
-                    if (viewCount == null)
-                        viewCount = extractViewCount(getVideoInfo)
-                    if (videoInfo == null)
-                        videoInfo = getVideoInfo
-                    val getToken = extractToken(getVideoInfo)
-                    if (getToken != null) {
-                        /*# Different get_video_info requests may report different results, e.g.
-                        # some may report video unavailability, but some may serve it without
-                        # any complaint (see https://github.com/ytdl-org/youtube-dl/issues/7362,
-                        # the original webpage as well as el=info and el=embedded get_video_info
-                        # requests report video unavailability due to geo restriction while
-                        # el=detailpage succeeds and returns valid data). This is probably
-                        # due to YouTube measures against IP ranges of hosting providers.
-                        # Working around by preferring the first succeeded video_info containing
-                        # the token if no such video_info yet was found.*/
-                        val token = videoInfo?.let { extractToken(it) }
-                        if (token == null)
-                            videoInfo = getVideoInfo
-                        break
-                    }
-                }
             }
         }
 
@@ -548,12 +505,15 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
                 null
         }
 
-        if (videoInfo == null) {
+        if (videoInfo == null && playerResponse == null) {
             var unavailableMessage = extractUnavailableMessage()
             if (unavailableMessage == null)
                 unavailableMessage = "Unable to extract video data"
             throw Exception("Youtube said: $unavailableMessage")
         }
+
+        if (videoInfo !is Map)
+            videoInfo = hashMapOf()
 
         val videoDetails = playerResponse?.videoDetails
         var videoTitle = stringOrNull(videoInfo?.get("title")?.get(0)
@@ -680,7 +640,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
                     )
                 }
                 for (fmt in streamingFormats) {
-                    if (fmt["drm_families"] != null)
+                    if (fmt["drmFamilies"] != null || fmt["drm_families"] != null)
                         continue
                     var urlz = ExtractorUtils.urlOrNull(fmt["url"])
                     var cipher: String? = null
@@ -1135,29 +1095,12 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
             }
 
             if (formats.isEmpty()) {
-                val token = extractToken(vInfo)
-                        ?: if (vInfo.contains("reason")) {
-                            val reasons = vInfo["reason"]
-                            if (reasons != null && reasons.any {
-                                        it == "The uploader has not made this video" +
-                                                " available in your country."
-                                    }) {
-                                // TODO Raise geo-restricted error.
-                            }
-                            var reason = reasons?.get(0)
-                            if (reason != null && reason.contains("Invalid parameters")) {
-                                val unavailableMessage = extractUnavailableMessage()
-                                if (!unavailableMessage.isNullOrBlank())
-                                    reason = unavailableMessage
-                            }
-                            throw ExtractorException("YouTube said: $reason")
-                        } else {
-                        }
-                // TODO throw ExtractorException("'token' parameter not in video info for unknown reason")
+                if (vInfo.contains("reason")) {
+                    // TODO Handle every reason
+                    throw ExtractorException("No available formats")
+                }
+                // TODO Handle DRM protected video
             }
-
-            if (formats.isEmpty() && (vInfo["license_info"] != null) || !playerResponse?.streamingData?.licenseInfos.isNullOrEmpty())
-                throw ExtractorException("This video is DRM protected.")
 
             playerUrlContents.clear()
             return mapOf(
@@ -1262,13 +1205,20 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
         }
     }
 
-    fun extractSignatureFunction(videoId: String, playerUrl: String, exampleSig: String): ((Any) -> Any?)? {
-        val idM = """.*?-([a-zA-Z0-9_-]+)(?:/watch_as3|/html5player(?:-new)?|(?:/[a-z]{2,3}_[A-Z]{2})?/base)?\.([a-z]+)${'$'}"""
-                .toRegex().find(playerUrl)
-        if (idM == null || !playerUrl.startsWith(idM.value))
+    fun extractPlayerInfo(playerUrl: String): List<String?> {
+        var idM: MatchResult? = null
+        for (playerRe in playerInfoRe) {
+            idM = playerRe.find(playerUrl)
+            if (idM != null)
+                break
+        }
+        if (idM == null)
             throw ExtractorException("Cannot identify player $playerUrl")
-        val playerType = idM.groups.last()?.value
-        val playerId = idM.groups[1]?.value
+        return listOf(idM.groups.last()?.value, idM.groups[1]?.value)
+    }
+
+    fun extractSignatureFunction(videoId: String, playerUrl: String, exampleSig: String): ((Any) -> Any?)? {
+        val (playerType, playerId) = extractPlayerInfo(playerUrl)
 
         // Read from filesystem cache
         val funcId = "${playerType}_${playerId}_${signatureCacheId(exampleSig)}"
@@ -1318,13 +1268,15 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
     fun parseSigJs(jscode: String): (Any) -> Any? {
         val p1 = """\b[cs]\s*&&\s*[adf]\.set\([^,]+\s*,\s*encodeURIComponent\s*\(\s*([a-zA-Z0-9$]+)\(""".toRegex()
         val p2 = """\b[a-zA-Z0-9]+\s*&&\s*[a-zA-Z0-9]+\.set\([^,]+\s*,\s*encodeURIComponent\s*\(\s*([a-zA-Z0-9$]+)\(""".toRegex()
-        val p3 = """([a-zA-Z0-9$]+)\s*=\s*function\(\s*a\s*\)\s*\{\s*a\s*=\s*a\.split\(\s*""\s*\)""".toRegex()
+        val p3 = """\b([a-zA-Z0-9${'$'}]{2})\s*=\s*function\(\s*a\s*\)\s*\{\s*a\s*=\s*a\.split\(\s*""\s*\)""".toRegex()
+        val p4 = """([a-zA-Z0-9$]+)\s*=\s*function\(\s*a\s*\)\s*\{\s*a\s*=\s*a\.split\(\s*""\s*\)""".toRegex()
         /*TODO Obsolete patterns
         *  .................*/
 
         val funcname = searchRegex(p1, jscode, 1)
                 ?: searchRegex(p2, jscode, 1)
                 ?: searchRegex(p3, jscode, 1)
+                ?: searchRegex(p4, jscode, 1)
 
         val jsi = JSInterpreter(jscode)
         val initialFunction = funcname?.let { jsi.extractFunction(it) }
