@@ -45,7 +45,7 @@ data class YoutubeVideoInfo(
         val likeCount: Int? = null,
         val dislikeCount: Int? = null,
         val averageRating: Float? = null,
-        val formats: List<YoutubeFormat>? = null,
+        override val formats: List<YoutubeFormat>? = null,
         val islive: Boolean? = null,
         val startTime: Int? = null,
         val endTime: Int? = null,

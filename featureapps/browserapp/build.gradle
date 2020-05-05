@@ -68,11 +68,14 @@ dependencies {
     implementation project(':base')
     implementation project(':features:browser')
     implementation project(':sharedui')
+    implementation project(':extractors')
 
     implementation deps.kotlin.stdlib
     implementation deps.appcompat
     implementation deps.core_ktx
     implementation deps.material
+    implementation deps.constraintlayout
+    implementation deps.threetenabp
 
     testImplementation deps.junit
     androidTestImplementation deps.test.core

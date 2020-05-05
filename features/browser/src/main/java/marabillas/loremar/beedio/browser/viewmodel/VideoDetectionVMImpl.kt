@@ -37,6 +37,9 @@ import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import marabillas.loremar.beedio.base.web.HttpNetwork
+import marabillas.loremar.beedio.extractors.VideoInfo
+import marabillas.loremar.beedio.extractors.VideoInfoExtractor
+import marabillas.loremar.beedio.extractors.extractors.youtube.YoutubeIE
 import timber.log.Timber
 import java.net.URL
 import java.text.DecimalFormat
@@ -56,6 +59,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     private val downloadFileValidator = DownloadFileValidator(context)
     private val analyzeDispatcher = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
             .asCoroutineDispatcher()
+    private val addFoundVideoDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val detailsFetcherThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val downloadStarterThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val downloads = Room
@@ -71,6 +75,9 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     private val isAnalyzing = MutableLiveData<Boolean>()
 
     private var analysisCount = 0
+
+    private val ALL_FORMATS_EXTRACTION_SUPPORTED_HOSTS = listOf("m.youtube.com", "youtube.com")
+    private val youtubeExtractor = YoutubeIE()
 
     init {
         isAnalyzing.value = false
@@ -293,6 +300,12 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         sendFoundVideo.observeSend(lifecycleOwner, observer)
     }
 
+    override fun addFoundVideo(video: FoundVideo) {
+        viewModelScope.launch(addFoundVideoDispatcher) {
+            onFoundVideo(video)
+        }
+    }
+
     override fun selectAll() {
         _foundVideos.forEach { it.isSelected = true }
     }
@@ -463,4 +476,43 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     }
 
     private fun checkIfAlreadyExists(name: String) = _foundVideos.any { it.name == name }
+
+    override fun isAllFormatsExtractionSupported(host: String): Boolean =
+            ALL_FORMATS_EXTRACTION_SUPPORTED_HOSTS.any { it == host }
+
+    override fun extractAllFormats(url: String,
+                                   sendReport: (report: String) -> Unit,
+                                   doOnComplete: (videoInfo: VideoInfo) -> Unit) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val reportListener = object : VideoInfoExtractor.ExtractionReportListener {
+                override fun onReceiveExtractionReport(report: String) {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        sendReport(report)
+                    }
+                }
+            }
+            val host = URL(url).host
+            selectExtractor(host)?.apply {
+                extractionReportListener = reportListener
+                extractVideoInfo(url).let { videoInfo ->
+                    viewModelScope.launch(Dispatchers.Main) {
+                        if (!videoInfo.formats.isNullOrEmpty())
+                            doOnComplete(videoInfo)
+                        else
+                            sendReport("No formats available")
+                    }
+                }
+            } ?: viewModelScope.launch(Dispatchers.Main) {
+                sendReport("No extractor available for this page")
+            }
+        }
+    }
+
+    private fun selectExtractor(host: String): VideoInfoExtractor? {
+        return when (host) {
+            "youtube.com", "m.youtube.com" -> youtubeExtractor
+            else -> null
+        }
+    }
 }

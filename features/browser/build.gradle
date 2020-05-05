@@ -69,6 +69,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':base')
     implementation project(':sharedui')
+    implementation project(':extractors')
 
     implementation deps.kotlin.stdlib
     implementation deps.appcompat

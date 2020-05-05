@@ -19,9 +19,18 @@
 
 package marabillas.loremar.beedio.extractors
 
-interface VideoInfo {
+interface VideoInfoExtractor {
+    var extractionReportListener: ExtractionReportListener?
+    fun extractVideoInfo(url: String): VideoInfo
+
+    interface ExtractionReportListener {
+        fun onReceiveExtractionReport(report: String)
+    }
 }
 
-interface VideoInfoObjectExtractor {
-    fun extractVideoInfo(url: String): VideoInfo
+interface VideoInfo {
+    val formats: List<VideoFormat>?
+}
+
+interface VideoFormat {
 }

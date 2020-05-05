@@ -54,6 +54,7 @@ import kotlin.math.roundToInt
 class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
 
     var toolbarEventsListener: ToolBarEventsListener? = null
+    var showAllFormatsMenuItem = false
 
     private lateinit var sheet: ViewGroup
     private lateinit var head: ViewGroup
@@ -63,6 +64,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
     private lateinit var closeBtn: ImageView
     private lateinit var toolbar: ViewGroup
     private lateinit var select: TextView
+    private lateinit var allFormats: TextView
     private lateinit var cancel: TextView
     private lateinit var all: TextView
     private lateinit var delete: TextView
@@ -128,6 +130,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
                     closeBtn = foundVideosCloseBtn
                     toolbar = foundVideosToolbar
                     select = foundVideoMenuSelect
+                    allFormats = foundVideoMenuAllFormats
                     cancel = foundVideoMenuCancel
                     all = foundVideoMenuAll
                     delete = foundVideoMenuDelete
@@ -148,6 +151,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         head.setOnClickListener(this)
         closeBtn.setOnClickListener(this)
         select.setOnClickListener(this)
+        allFormats.setOnClickListener(this)
         cancel.setOnClickListener(this)
         all.setOnClickListener(this)
         delete.setOnClickListener(this)
@@ -170,6 +174,9 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
             select -> {
                 showMenu()
                 toolbarEventsListener?.onActivateSelection()
+            }
+            allFormats -> {
+                toolbarEventsListener?.onExtractAllFormats()
             }
             cancel -> {
                 hideMenu()
@@ -286,6 +293,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
 
     private fun showMenu() {
         select.visibility = GONE
+        allFormats.visibility = GONE
         val transition = TransitionSet().apply {
             addTransition(Slide(Gravity.END))
             addTransition(Fade())
@@ -313,6 +321,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         }
         TransitionManager.beginDelayedTransition(toolbar, transitionSet)
         select.visibility = VISIBLE
+        allFormats.visibility = if (showAllFormatsMenuItem) VISIBLE else GONE
         all.visibility = GONE
         delete.visibility = GONE
         queue.visibility = GONE
@@ -345,5 +354,7 @@ class ExpandingFoundVideosView : FrameLayout, View.OnClickListener {
         fun onQueueAllSelected()
 
         fun onMergeSelected()
+
+        fun onExtractAllFormats()
     }
 }

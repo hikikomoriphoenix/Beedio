@@ -27,6 +27,7 @@ import androidx.lifecycle.Observer
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.ObservableViewModel
+import marabillas.loremar.beedio.extractors.VideoInfo
 
 abstract class BrowserTitleStateVM : ObservableViewModel() {
     abstract var title: String?
@@ -122,6 +123,8 @@ abstract class VideoDetectionVM : ObservableViewModel() {
 
     abstract fun receiveForFoundVideo(lifecycleOwner: LifecycleOwner, observer: Observer<FoundVideo>)
 
+    abstract fun addFoundVideo(video: FoundVideo)
+
     abstract fun selectAll()
 
     abstract fun unselectAll()
@@ -143,6 +146,12 @@ abstract class VideoDetectionVM : ObservableViewModel() {
     abstract fun queueAllSelected(doOnComplete: () -> Unit)
 
     abstract fun mergeSelected(): Boolean
+
+    abstract fun isAllFormatsExtractionSupported(host: String): Boolean
+
+    abstract fun extractAllFormats(url: String,
+                                   sendReport: (report: String) -> Unit,
+                                   doOnComplete: (videoInfo: VideoInfo) -> Unit)
 
     data class FoundVideo(
             var name: String,

@@ -19,6 +19,8 @@
 
 package marabillas.loremar.beedio.extractors.extractors.youtube
 
+import marabillas.loremar.beedio.extractors.VideoFormat
+
 data class YoutubeFormat(
         val id: String? = null,
         val url: String? = null,
@@ -35,4 +37,4 @@ data class YoutubeFormat(
         val fps: Int? = null,
         val playerUrl: String? = null,
         val container: String? = null
-)
+) : VideoFormat

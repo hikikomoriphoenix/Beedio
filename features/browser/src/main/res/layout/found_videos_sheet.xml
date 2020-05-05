@@ -122,6 +122,18 @@
                     app:layout_constraintBottom_toBottomOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/found_video_menu_all_formats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/all_formats"
+                    android:theme="@style/FoundVideosSheet.ToolBarItem"
+                    android:visibility="gone"
+                    app:drawableTopCompat="@drawable/ic_all_formats"
+                    app:layout_constraintEnd_toStartOf="@id/found_video_menu_select"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/found_video_menu_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

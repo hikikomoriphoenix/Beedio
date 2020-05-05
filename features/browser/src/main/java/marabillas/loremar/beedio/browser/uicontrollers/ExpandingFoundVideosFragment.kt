@@ -27,6 +27,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,11 +35,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
+import marabillas.loremar.beedio.base.extensions.textView
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.adapters.FoundVideosAdapter
+import marabillas.loremar.beedio.browser.fragment.AllFormatsExtractFragment
+import marabillas.loremar.beedio.browser.viewmodel.BrowserTitleStateVM
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
+import marabillas.loremar.beedio.browser.viewmodel.WebViewsControllerVM
 import marabillas.loremar.beedio.browser.views.ExpandingFoundVideosView
+import java.net.URL
 import javax.inject.Inject
 
 class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
@@ -47,7 +53,12 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    @Inject
+    lateinit var allFormatsExtractFragment: AllFormatsExtractFragment
+
     private lateinit var videoDetectionVM: VideoDetectionVM
+    private lateinit var webViewsControllerVM: WebViewsControllerVM
+    private lateinit var titleStateVM: BrowserTitleStateVM
     private lateinit var foundVideosView: ExpandingFoundVideosView
     private lateinit var foundVideosRecyclerView: RecyclerView
     private val foundVideosAdapter = FoundVideosAdapter()
@@ -65,6 +76,7 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
                     adapter = foundVideosAdapter
                 }
                 toolbarEventsListener = toolbarListener
+                id = View.generateViewId()
             }
         }
     }
@@ -75,6 +87,10 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
         activity?.apply {
             videoDetectionVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)
                     .get(VideoDetectionVM::class.java)
+            webViewsControllerVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)
+                    .get(WebViewsControllerVM::class.java)
+            titleStateVM = ViewModelProvider(this::getViewModelStore, viewModelFactory)
+                    .get(BrowserTitleStateVM::class.java)
 
             val activity = this
             videoDetectionVM.apply {
@@ -87,6 +103,12 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
     override fun onStart() {
         super.onStart()
         foundVideosAdapter.eventsListener = this
+
+        titleStateVM.observeUrl(this, Observer {
+            val host = URL(it).host
+            if (videoDetectionVM.isAllFormatsExtractionSupported(host))
+                textView(R.id.found_video_menu_all_formats)?.isVisible = true
+        })
     }
 
     private fun onIsAnalyzingChanged(isAnalyzing: Boolean) {
@@ -178,5 +200,21 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
             showMessage(getString(R.string.merge_success), false)
         } else
             showMessage(getString(R.string.merge_fail), true)
+    }
+
+    override fun onExtractAllFormats() {
+        if (!allFormatsExtractFragment.isAdded) {
+            webViewsControllerVM.requestActiveWebView { webView ->
+                webView?.url?.let { url ->
+                    allFormatsExtractFragment.arguments = Bundle().apply {
+                        putString(AllFormatsExtractFragment.ARG_URL, url)
+                    }
+                    parentFragmentManager.beginTransaction()
+                            .add(requireView().id, allFormatsExtractFragment, null)
+                            .addToBackStack(null)
+                            .commit()
+                }
+            }
+        }
     }
 }

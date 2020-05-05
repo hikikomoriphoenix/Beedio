@@ -49,4 +49,6 @@
     <string name="destination_folder">Destination Folder:</string>
     <string name="create_new_folder">Create New Folder</string>
     <string name="page_save_into_bookmarks">Page saved into bookmarks.</string>
+    <string name="all_formats">All Formats</string>
+    <string name="extracting_links_for_all_formats">Extracting links for all formats:</string>
 </resources>

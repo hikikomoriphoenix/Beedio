@@ -27,14 +27,16 @@ import marabillas.loremar.beedio.extractors.ExtractorUtils.parseDuration
 import marabillas.loremar.beedio.extractors.ExtractorUtils.stringOrNull
 import marabillas.loremar.beedio.extractors.ExtractorUtils.unquote
 import marabillas.loremar.beedio.extractors.JSInterpreter
-import marabillas.loremar.beedio.extractors.VideoInfoObjectExtractor
+import marabillas.loremar.beedio.extractors.VideoInfoExtractor
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.net.URL
 import java.net.URLDecoder
 import kotlin.math.roundToInt
 
-class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
+class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
+
+    override var extractionReportListener: VideoInfoExtractor.ExtractionReportListener? = null
 
     var youtubeIncludeDashManifest = true
 
@@ -379,6 +381,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
         var videoId = extractId(urlx)
 
         urlx = "$proto://www.youtube.com/watch?v=$videoId&gl=US&hl=en&has_verified=1&bpctr=9999999999"
+        report("Downloading webpage $videoId")
         val urlResponse = ExtractorUtils.extractResponseFrom(urlx)
         val videoWebPage = urlResponse?.body?.string()
 
@@ -446,7 +449,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
             /*# We simulate the access to the video from www.youtube.com/v/{video_id}
             # this can be viewed without login into Youtube*/
             urlx = "$proto://www.youtube.com/embed/$videoId"
-            embedWebpage = ExtractorUtils.contentOf(urlx)
+            embedWebpage = downloadWebpage(urlx, videoId, "Downloading embed webpage $videoId")
             val data = ExtractorUtils.queryStringFrom(
                     hashMapOf(
                             "video_id" to videoId,
@@ -457,7 +460,8 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
                     )
             )
             val videoInfoUrl = "$proto://www.youtube.com/get_video_info?$data"
-            val videoInfoWebPage = ExtractorUtils.contentOf(videoInfoUrl)
+            val videoInfoWebPage = downloadWebpage(videoInfoUrl, videoId,
+                    "Downloading video info webpage $videoInfo")
             videoInfo = videoInfoWebPage?.let { ExtractorUtils.parseQueryString(it) }
             val plResponse = videoInfo?.get("player_response")?.get(0)
             playerResponse = plResponse?.let { extractPlayerResponse(it, videoId) }
@@ -677,7 +681,8 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
                                 // We need the embed website after all
                                 if (embedWebpage == null) {
                                     val embedUrl = "$proto://www.youtube.com/embed/$videoId"
-                                    embedWebpage = ExtractorUtils.contentOf(embedUrl)
+                                    embedWebpage = downloadWebpage(embedUrl, videoId,
+                                            "Downloading embed webpage $videoId")
                                 }
                                 jsplayerUrlJson = embedWebpage?.let { searchRegex(ASSETS_RE, it) }
                             }
@@ -1162,8 +1167,8 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
     }
 
     fun getYtplayerConfig(videoId: String, webpage: String): YtplayerConfig? {
-        val config = searchRegex(";ytplayer\\.config\\s*=\\s*(\\{.+?});ytplayer".toRegex(), webpage)
-                ?: searchRegex(";ytplayer\\.config\\s*=\\s*(\\{.+?});".toRegex(), webpage)
+        val config = searchRegex(""";ytplayer\.config\s*=\s*(\{.+?\});ytplayer""".toRegex(), webpage)
+                ?: searchRegex(""";ytplayer\.config\s*=\s*(\{.+?\});""".toRegex(), webpage)
         return if (config != null)
             YtplayerConfig.from(ExtractorUtils.uppercaseEscape(config))
         else
@@ -1234,12 +1239,14 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
             'Downloading %s player %s' % (player_type, player_id)
         )*/
 
+
         var res: ((Any) -> Any?)? = null
         when (playerType) {
             "js" -> {
                 val code = if (playerUrlContents.contains(playerUrl))
                     playerUrlContents[playerUrl]
                 else {
+                    report("Downloading $playerType player $playerId")
                     ExtractorUtils.contentOf(playerUrl)?.also {
                         playerUrlContents[playerUrl] = it
                     }
@@ -1325,4 +1332,14 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoObjectExtractor {
         }
         return true
     }
+
+    private fun downloadWebpage(url: String, videoId: String, note: String? = null): String? {
+        if (note.isNullOrBlank())
+            report("Downloading webpage $videoId")
+        else
+            report(note)
+        return ExtractorUtils.contentOf(url)
+    }
+
+    private fun report(message: String) = extractionReportListener?.onReceiveExtractionReport(message)
 }

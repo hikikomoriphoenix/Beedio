@@ -24,6 +24,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomappbar.BottomAppBar
@@ -35,6 +36,7 @@ fun View.imageView(resId: Int): ImageView = findViewById(resId)
 fun View.recyclerView(resId: Int): RecyclerView = findViewById(resId)
 fun View.bottomAppBar(resId: Int): BottomAppBar = findViewById(resId)
 fun View.toolbar(resId: Int): Toolbar = findViewById(resId)
+fun View.constraintLayout(resId: Int): ConstraintLayout = findViewById(resId)
 
 /* Activity */
 fun Activity.rootView(): View = findViewById(android.R.id.content)

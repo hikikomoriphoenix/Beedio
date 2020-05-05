@@ -47,7 +47,7 @@ class JSInterpreter(private val code: String, private val objects: HashMap<Strin
         val funcM = """(?x)
                 (?:function\s+$s|[{;,]\s*$s\s*=\s*function|var\s+$s\s*=\s*function)\s*
                 \(([^)]*)\)\s*
-                \{([^}]+)}""".toRegex().find(code)
+                \{([^}]+)\}""".toRegex().find(code)
                 ?: throw ExtractorException("Could not find JS function $funcname")
         val argnames = funcM.groups[1]?.value?.split(",")
 
@@ -394,8 +394,8 @@ class JSInterpreter(private val code: String, private val objects: HashMap<Strin
         val obj = hashMapOf<String, (MutableList<Any>) -> Any?>()
         val objM = """(?x)
                 (?<!this\.)${ExtractorUtils.escape(objname)}\s*=\s*\{\s*
-                    (($FUNC_NAME_RE\s*:\s*function\s*\(.*?\)\s*\{.*?}(?:,\s*)?)*)
-                }\s*;
+                    (($FUNC_NAME_RE\s*:\s*function\s*\(.*?\)\s*\{.*?\}(?:,\s*)?)*)
+                \}\s*;
             """.toRegex().find(code)
         val fields = objM?.groups?.get(1)?.value
         // Currently, it only supports function definitions
