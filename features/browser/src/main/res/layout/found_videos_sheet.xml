@@ -125,6 +125,7 @@
                     android:id="@+id/found_video_menu_all_formats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
                     android:text="@string/all_formats"
                     android:theme="@style/FoundVideosSheet.ToolBarItem"
                     android:visibility="gone"

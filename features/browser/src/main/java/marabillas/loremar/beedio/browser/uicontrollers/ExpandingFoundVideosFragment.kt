@@ -106,8 +106,10 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
 
         titleStateVM.observeUrl(this, Observer {
             val host = URL(it).host
-            if (videoDetectionVM.isAllFormatsExtractionSupported(host))
+            if (videoDetectionVM.isAllFormatsExtractionSupported(host)) {
                 textView(R.id.found_video_menu_all_formats)?.isVisible = true
+                foundVideosView.showAllFormatsMenuItem = true
+            }
         })
     }
 
