@@ -21,14 +21,11 @@ package marabillas.loremar.beedio.extractors.extractors.youtube
 
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
-import marabillas.loremar.beedio.extractors.ExtractorException
-import marabillas.loremar.beedio.extractors.ExtractorUtils
+import marabillas.loremar.beedio.extractors.*
 import marabillas.loremar.beedio.extractors.ExtractorUtils.parseDuration
 import marabillas.loremar.beedio.extractors.ExtractorUtils.stringOrNull
 import marabillas.loremar.beedio.extractors.ExtractorUtils.throwCancel
 import marabillas.loremar.beedio.extractors.ExtractorUtils.unquote
-import marabillas.loremar.beedio.extractors.JSInterpreter
-import marabillas.loremar.beedio.extractors.VideoInfoExtractor
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.net.URL
@@ -384,9 +381,11 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
 
         urlx = "$proto://www.youtube.com/watch?v=$videoId&gl=US&hl=en&has_verified=1&bpctr=9999999999"
         report("Downloading webpage $videoId")
+        stopIfCanceled()
         val urlResponse = ExtractorUtils.extractResponseFrom(urlx)
         stopIfCanceled()
         val videoWebPage = urlResponse?.body?.string()
+        stopIfCanceled()
 
         urlResponse?.request?.let { urlh ->
             val qs = ExtractorUtils.parseQueryString(URL(urlh.url.toString()).query)
@@ -452,6 +451,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
             /*# We simulate the access to the video from www.youtube.com/v/{video_id}
             # this can be viewed without login into Youtube*/
             urlx = "$proto://www.youtube.com/embed/$videoId"
+            stopIfCanceled()
             embedWebpage = downloadWebpage(urlx, videoId, "Downloading embed webpage $videoId")
             stopIfCanceled()
             val data = ExtractorUtils.queryStringFrom(
@@ -464,6 +464,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                     )
             )
             val videoInfoUrl = "$proto://www.youtube.com/get_video_info?$data"
+            stopIfCanceled()
             val videoInfoWebPage = downloadWebpage(videoInfoUrl, videoId,
                     "Downloading video info webpage $videoInfo")
             stopIfCanceled()
@@ -685,6 +686,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                             if (jsplayerUrlJson == null && !ageGate) {
                                 // We need the embed website after all
                                 if (embedWebpage == null) {
+                                    stopIfCanceled()
                                     val embedUrl = "$proto://www.youtube.com/embed/$videoId"
                                     embedWebpage = downloadWebpage(embedUrl, videoId,
                                             "Downloading embed webpage $videoId")
@@ -715,7 +717,9 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                             /* TODO if self._downloader.params.get('verbose'):
                             *   ............................................*/
 
+                            stopIfCanceled()
                             val signature = encryptedSig?.let { decryptSignature(it, videoId, playerUrl, ageGate) }
+                            stopIfCanceled()
                             val sp = urlData["sp"]?.get(0) ?: "signature"
                             urlx += "&$sp=$signature"
                         }
@@ -809,7 +813,9 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                         ?: vInfo["hlsvp"]?.get(0)
                 if (!manifestUrl.isNullOrBlank()) {
                     formats = mutableListOf()
+                    stopIfCanceled()
                     val m3u8Formats = extractM3u8Formats(manifestUrl, videoId, "mp4")
+                    stopIfCanceled()
                     for (aFormat in m3u8Formats) {
                         val aFormatUrl = aFormat["url"]
                         if (aFormatUrl is String) {
@@ -1045,16 +1051,22 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                     try {
                         val decryptSig: (MatchResult) -> String = { mResult ->
                             val s = mResult.groupValues[1]
+                            stopIfCanceled()
                             val decS = decryptSignature(s, videoId, playerUrl, ageGate)
+                            stopIfCanceled()
                             "/signatue/$decS"
                         }
 
                         val decMpdUrl = mpdUrl.replace("""/s/([a-fA-F0-9\.]+)""".toRegex()) { matchResult ->
+                            stopIfCanceled()
                             decryptSig(matchResult)
                         }
+                        stopIfCanceled()
 
+                        stopIfCanceled()
                         for (df in extractMpdFormats(mpdUrl, videoId, fatal = dashMpdFatal,
                                 formatsDict = _formats)) {
+                            stopIfCanceled()
                             if (df["filesize"] == null)
                                 df["url"]?.let {
                                     df["filesize"] = extractFileSize(df["url"].toString())
@@ -1068,8 +1080,11 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                             # burst of bug reports until we figure out the reason and whether it
                             # can be fixed at all.*/
                             dashMpdFatal = false
+                            stopIfCanceled()
                         }
                     } catch (e: Exception) {
+                        if (e is ExtractorCanceledException)
+                            throw ExtractorCanceledException()
                         // TODO Log.w(javaClass.name, "Skipping DASH manifest for $videoId: ${e.message}")
                     }
                     if (!dashFormats.isNullOrEmpty()) {
@@ -1253,13 +1268,16 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                     playerUrlContents[playerUrl]
                 else {
                     report("Downloading $playerType player $playerId")
+                    stopIfCanceled()
                     val contents = ExtractorUtils.contentOf(playerUrl)?.also {
                         playerUrlContents[playerUrl] = it
                     }
                     stopIfCanceled()
                     contents
                 }
+                stopIfCanceled()
                 res = code?.let { parseSigJs(it) }
+                stopIfCanceled()
             }
             "swf" -> TODO("No implementation to handle playerType == swf")
             else -> assert(false) { "Invalid player type $playerType" }

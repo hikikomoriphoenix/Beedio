@@ -508,7 +508,7 @@ object ExtractorUtils {
     }
 
     fun throwCancel() {
-        throw ExtractorException("Cancelled.")
+        throw ExtractorCanceledException()
     }
 }
 

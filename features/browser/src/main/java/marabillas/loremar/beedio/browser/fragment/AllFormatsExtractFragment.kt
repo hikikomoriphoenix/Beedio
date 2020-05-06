@@ -47,8 +47,8 @@ class AllFormatsExtractFragment @Inject constructor() : DaggerFragment(), View.O
 
     private lateinit var videoDetectionVM: VideoDetectionVM
 
-    private val console; get() = requireView().constraintLayout(R.id.container_all_formats_extract_console)
-    private val messages; get() = requireView().textView(R.id.text_all_formats_extract_console_messages)
+    private val console; get() = constraintLayout(R.id.container_all_formats_extract_console)
+    private val messages; get() = textView(R.id.text_all_formats_extract_console_messages)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_all_formats_extract, container, false)
@@ -74,7 +74,7 @@ class AllFormatsExtractFragment @Inject constructor() : DaggerFragment(), View.O
         requireView().setOnClickListener(this)
         requireView().imageView(R.id.image_all_formats_extract_close_btn)
                 .setOnClickListener(this)
-        messages.text = getString(R.string.extracting_links_for_all_formats)
+        messages?.text = getString(R.string.extracting_links_for_all_formats)
         requireArguments().getString(ARG_URL)?.let {
             videoDetectionVM.extractAllFormats(it,
                     this::onReceiveReport,
@@ -83,8 +83,8 @@ class AllFormatsExtractFragment @Inject constructor() : DaggerFragment(), View.O
     }
 
     private fun onReceiveReport(report: String) {
-        val updated = "${messages.text}\n$report"
-        messages.text = updated
+        val updated = "${messages?.text}\n$report"
+        messages?.text = updated
     }
 
     private fun onExtractionComplete(videoInfo: VideoInfo) {

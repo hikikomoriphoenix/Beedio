@@ -37,6 +37,8 @@ import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.mvvm.SendLiveData
 import marabillas.loremar.beedio.base.web.HttpNetwork
+import marabillas.loremar.beedio.extractors.ExtractorCanceledException
+import marabillas.loremar.beedio.extractors.ExtractorException
 import marabillas.loremar.beedio.extractors.VideoInfo
 import marabillas.loremar.beedio.extractors.VideoInfoExtractor
 import marabillas.loremar.beedio.extractors.extractors.youtube.YoutubeIE
@@ -497,17 +499,32 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             }
             val host = URL(url).host
             selectExtractor(host)?.apply {
+                activeExtractor = this
                 extractionReportListener = reportListener
                 isCanceled = false
-                extractVideoInfo(url).let { videoInfo ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        if (!videoInfo.formats.isNullOrEmpty())
-                            doOnComplete(videoInfo)
-                        else
-                            sendReport("No formats available")
+                try {
+                    extractVideoInfo(url).let { videoInfo ->
+                        viewModelScope.launch(Dispatchers.Main) {
+                            if (!videoInfo.formats.isNullOrEmpty())
+                                doOnComplete(videoInfo)
+                            else
+                                sendReport("No formats available")
+                        }
                     }
+                } catch (e: ExtractorException) {
+                    e.message?.let {
+                        viewModelScope.launch(Dispatchers.Main) {
+                            sendReport(it)
+                        }
+                    }
+                } catch (e: ExtractorCanceledException) {
+                    // Ignore
+                } catch (e: Exception) {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        sendReport("Fatal Error")
+                    }
+                    Timber.e(e)
                 }
-                isCanceled = false
             } ?: viewModelScope.launch(Dispatchers.Main) {
                 sendReport("No extractor available for this page")
             }
@@ -515,12 +532,10 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     }
 
     private fun selectExtractor(host: String): VideoInfoExtractor? {
-        activeExtractor?.isCanceled = true
-        activeExtractor = when (host) {
+        return when (host) {
             "youtube.com", "m.youtube.com" -> youtubeExtractor
             else -> null
         }
-        return activeExtractor
     }
 
     override fun cancelAllFormatsExtraction() {
