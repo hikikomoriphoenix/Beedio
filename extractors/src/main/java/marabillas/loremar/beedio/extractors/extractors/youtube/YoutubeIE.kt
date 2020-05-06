@@ -25,6 +25,7 @@ import marabillas.loremar.beedio.extractors.ExtractorException
 import marabillas.loremar.beedio.extractors.ExtractorUtils
 import marabillas.loremar.beedio.extractors.ExtractorUtils.parseDuration
 import marabillas.loremar.beedio.extractors.ExtractorUtils.stringOrNull
+import marabillas.loremar.beedio.extractors.ExtractorUtils.throwCancel
 import marabillas.loremar.beedio.extractors.ExtractorUtils.unquote
 import marabillas.loremar.beedio.extractors.JSInterpreter
 import marabillas.loremar.beedio.extractors.VideoInfoExtractor
@@ -37,6 +38,7 @@ import kotlin.math.roundToInt
 class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
 
     override var extractionReportListener: VideoInfoExtractor.ExtractionReportListener? = null
+    override var isCanceled = false
 
     var youtubeIncludeDashManifest = true
 
@@ -383,6 +385,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
         urlx = "$proto://www.youtube.com/watch?v=$videoId&gl=US&hl=en&has_verified=1&bpctr=9999999999"
         report("Downloading webpage $videoId")
         val urlResponse = ExtractorUtils.extractResponseFrom(urlx)
+        stopIfCanceled()
         val videoWebPage = urlResponse?.body?.string()
 
         urlResponse?.request?.let { urlh ->
@@ -450,6 +453,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
             # this can be viewed without login into Youtube*/
             urlx = "$proto://www.youtube.com/embed/$videoId"
             embedWebpage = downloadWebpage(urlx, videoId, "Downloading embed webpage $videoId")
+            stopIfCanceled()
             val data = ExtractorUtils.queryStringFrom(
                     hashMapOf(
                             "video_id" to videoId,
@@ -462,6 +466,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
             val videoInfoUrl = "$proto://www.youtube.com/get_video_info?$data"
             val videoInfoWebPage = downloadWebpage(videoInfoUrl, videoId,
                     "Downloading video info webpage $videoInfo")
+            stopIfCanceled()
             videoInfo = videoInfoWebPage?.let { ExtractorUtils.parseQueryString(it) }
             val plResponse = videoInfo?.get("player_response")?.get(0)
             playerResponse = plResponse?.let { extractPlayerResponse(it, videoId) }
@@ -683,6 +688,7 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                                     val embedUrl = "$proto://www.youtube.com/embed/$videoId"
                                     embedWebpage = downloadWebpage(embedUrl, videoId,
                                             "Downloading embed webpage $videoId")
+                                    stopIfCanceled()
                                 }
                                 jsplayerUrlJson = embedWebpage?.let { searchRegex(ASSETS_RE, it) }
                             }
@@ -1247,9 +1253,11 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
                     playerUrlContents[playerUrl]
                 else {
                     report("Downloading $playerType player $playerId")
-                    ExtractorUtils.contentOf(playerUrl)?.also {
+                    val contents = ExtractorUtils.contentOf(playerUrl)?.also {
                         playerUrlContents[playerUrl] = it
                     }
+                    stopIfCanceled()
+                    contents
                 }
                 res = code?.let { parseSigJs(it) }
             }
@@ -1342,4 +1350,9 @@ class YoutubeIE : YoutubeBaseInfoExtractor(), VideoInfoExtractor {
     }
 
     private fun report(message: String) = extractionReportListener?.onReceiveExtractionReport(message)
+
+    private fun stopIfCanceled() {
+        if (isCanceled)
+            throwCancel()
+    }
 }

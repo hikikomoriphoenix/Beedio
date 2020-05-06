@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.extractors
 
 interface VideoInfoExtractor {
     var extractionReportListener: ExtractionReportListener?
+    var isCanceled: Boolean
     fun extractVideoInfo(url: String): VideoInfo
 
     interface ExtractionReportListener {

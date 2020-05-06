@@ -153,6 +153,8 @@ abstract class VideoDetectionVM : ObservableViewModel() {
                                    sendReport: (report: String) -> Unit,
                                    doOnComplete: (videoInfo: VideoInfo) -> Unit)
 
+    abstract fun cancelAllFormatsExtraction()
+
     data class FoundVideo(
             var name: String,
             val url: String,

@@ -76,7 +76,9 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
 
     private var analysisCount = 0
 
-    private val ALL_FORMATS_EXTRACTION_SUPPORTED_HOSTS = listOf("m.youtube.com", "youtube.com")
+    private val allFormatsExtractionSupportedHosts = listOf("m.youtube.com", "youtube.com")
+    private val allFormatsExtractionDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private var activeExtractor: VideoInfoExtractor? = null
     private val youtubeExtractor = YoutubeIE()
 
     init {
@@ -478,13 +480,14 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     private fun checkIfAlreadyExists(name: String) = _foundVideos.any { it.name == name }
 
     override fun isAllFormatsExtractionSupported(host: String): Boolean =
-            ALL_FORMATS_EXTRACTION_SUPPORTED_HOSTS.any { it == host }
+            allFormatsExtractionSupportedHosts.any { it == host }
 
     override fun extractAllFormats(url: String,
                                    sendReport: (report: String) -> Unit,
                                    doOnComplete: (videoInfo: VideoInfo) -> Unit) {
 
-        viewModelScope.launch(Dispatchers.IO) {
+        activeExtractor?.isCanceled = true
+        viewModelScope.launch(allFormatsExtractionDispatcher) {
             val reportListener = object : VideoInfoExtractor.ExtractionReportListener {
                 override fun onReceiveExtractionReport(report: String) {
                     viewModelScope.launch(Dispatchers.Main) {
@@ -495,6 +498,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             val host = URL(url).host
             selectExtractor(host)?.apply {
                 extractionReportListener = reportListener
+                isCanceled = false
                 extractVideoInfo(url).let { videoInfo ->
                     viewModelScope.launch(Dispatchers.Main) {
                         if (!videoInfo.formats.isNullOrEmpty())
@@ -503,6 +507,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                             sendReport("No formats available")
                     }
                 }
+                isCanceled = false
             } ?: viewModelScope.launch(Dispatchers.Main) {
                 sendReport("No extractor available for this page")
             }
@@ -510,9 +515,15 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     }
 
     private fun selectExtractor(host: String): VideoInfoExtractor? {
-        return when (host) {
+        activeExtractor?.isCanceled = true
+        activeExtractor = when (host) {
             "youtube.com", "m.youtube.com" -> youtubeExtractor
             else -> null
         }
+        return activeExtractor
+    }
+
+    override fun cancelAllFormatsExtraction() {
+        activeExtractor?.isCanceled = true
     }
 }

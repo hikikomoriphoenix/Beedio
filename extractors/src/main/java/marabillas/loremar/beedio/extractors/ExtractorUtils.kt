@@ -506,6 +506,10 @@ object ExtractorUtils {
         val m = """https?://[^?#&]+/""".toRegex().find(url)?.value
         return if (m != null && url.startsWith(m)) m else null
     }
+
+    fun throwCancel() {
+        throw ExtractorException("Cancelled.")
+    }
 }
 
 private operator fun List<String>.component6() = this[5]
