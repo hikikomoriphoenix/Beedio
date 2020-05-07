@@ -24,6 +24,12 @@
     android:clickable="true"
     android:focusable="true">
 
+    <View
+        android:id="@+id/scrim_all_formats_extract"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container_all_formats_extract_console"
         android:layout_width="300dp"

@@ -19,20 +19,23 @@
 
 package marabillas.loremar.beedio.browser.fragment
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.Gravity.CENTER
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.ViewModelProvider
+import androidx.transition.AutoTransition
+import androidx.transition.Transition
+import androidx.transition.TransitionListenerAdapter
+import androidx.transition.TransitionManager
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
-import marabillas.loremar.beedio.base.extensions.constraintLayout
-import marabillas.loremar.beedio.base.extensions.imageView
-import marabillas.loremar.beedio.base.extensions.rootView
-import marabillas.loremar.beedio.base.extensions.textView
+import marabillas.loremar.beedio.base.extensions.*
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.browser.R
 import marabillas.loremar.beedio.browser.viewmodel.VideoDetectionVM
@@ -49,6 +52,7 @@ class AllFormatsExtractFragment @Inject constructor() : DaggerFragment(), View.O
 
     private val console; get() = constraintLayout(R.id.container_all_formats_extract_console)
     private val messages; get() = textView(R.id.text_all_formats_extract_console_messages)
+    private val scrim; get() = view?.findViewById<View>(R.id.scrim_all_formats_extract)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_all_formats_extract, container, false)
@@ -63,10 +67,7 @@ class AllFormatsExtractFragment @Inject constructor() : DaggerFragment(), View.O
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*console.updateLayoutParams<FrameLayout.LayoutParams> { height = 0 }
-        TransitionManager.beginDelayedTransition(view as ViewGroup)
-        view.background = ColorDrawable(Color.argb(100, 0,0, 0))
-        console.updateLayoutParams<FrameLayout.LayoutParams> { height = 256.toPixels(resources) }*/
+        enterAnimation()
     }
 
     override fun onStart() {
@@ -150,9 +151,57 @@ class AllFormatsExtractFragment @Inject constructor() : DaggerFragment(), View.O
         }
     }
 
-    private fun dismiss() = parentFragmentManager.beginTransaction()
-            .remove(this)
-            .commit()
+    private fun dismiss() = exitAnimation()
+
+    private fun enterAnimation() {
+        val transition = AutoTransition().apply {
+            this.addListener(object : TransitionListenerAdapter() {
+                override fun onTransitionEnd(transition: Transition) {
+                    console?.updateLayoutParams<FrameLayout.LayoutParams> { height = WRAP_CONTENT }
+                }
+            })
+        }
+        console?.post {
+            TransitionManager.beginDelayedTransition(view as ViewGroup, transition)
+            console?.updateLayoutParams<FrameLayout.LayoutParams> { height = 256.toPixels(resources) }
+        }
+        console?.updateLayoutParams<FrameLayout.LayoutParams> { height = 0 }
+
+        ValueAnimator.ofFloat(0f, 0.4f).apply {
+            addUpdateListener {
+                scrim?.alpha = animatedValue as Float
+            }
+            start()
+        }
+    }
+
+    private fun exitAnimation() {
+        val removeFragment = {
+            parentFragmentManager.beginTransaction()
+                    .remove(this)
+                    .commit()
+        }
+        val transition = AutoTransition().apply {
+            addListener(object : TransitionListenerAdapter() {
+                override fun onTransitionEnd(transition: Transition) {
+                    removeFragment()
+                }
+            })
+        }
+        view?.let { v ->
+            TransitionManager.beginDelayedTransition(v as ViewGroup, transition)
+            console?.updateLayoutParams<FrameLayout.LayoutParams> { height = 0 }
+
+            ValueAnimator.ofFloat(0.4f, 0f).apply {
+                addUpdateListener {
+                    scrim?.alpha = animatedValue as Float
+                }
+                start()
+            }
+        }
+
+
+    }
 
     companion object {
         const val ARG_URL = "ARG URL"
