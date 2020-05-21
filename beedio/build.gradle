@@ -75,6 +75,7 @@ dependencies {
     implementation project(':features:download')
     implementation project(':features:bookmarks')
     implementation project(':features:history')
+    implementation project(':extractors')
 
     implementation deps.kotlin.stdlib
     implementation deps.core_ktx
