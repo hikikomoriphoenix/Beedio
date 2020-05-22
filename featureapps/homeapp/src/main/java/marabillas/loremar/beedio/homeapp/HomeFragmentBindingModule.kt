@@ -29,7 +29,7 @@ import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
 @Module
 abstract class HomeFragmentBindingModule {
     @FragmentScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [WebNavigationModule::class])
     abstract fun contributeHomeRecommendedFragment(): HomeRecommendedFragment
 
     @FragmentScope

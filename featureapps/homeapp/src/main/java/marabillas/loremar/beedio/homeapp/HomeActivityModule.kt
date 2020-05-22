@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.homeapp
 
 import dagger.Module
 import dagger.Provides
+import marabillas.loremar.beedio.home.HomeRecommendedFragment
 import marabillas.loremar.beedio.home.SearchWidgetControllerFragment
 
 @Module
@@ -28,5 +29,10 @@ class HomeActivityModule {
     @Provides
     fun provideSearchWidgetControllerFragment(): SearchWidgetControllerFragment {
         return SearchWidgetControllerFragment()
+    }
+
+    @Provides
+    fun provideHomeRecommendedFragment(): HomeRecommendedFragment {
+        return HomeRecommendedFragment()
     }
 }

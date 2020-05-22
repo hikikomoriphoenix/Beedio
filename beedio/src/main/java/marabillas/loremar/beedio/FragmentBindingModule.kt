@@ -60,7 +60,7 @@ abstract class FragmentBindingModule {
     abstract fun contributeHistoryFragment(): HistoryFragment
 
     @FragmentScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [WebNavigationModule::class])
     abstract fun contributeHomeRecommendedFragment(): HomeRecommendedFragment
 
     @FragmentScope

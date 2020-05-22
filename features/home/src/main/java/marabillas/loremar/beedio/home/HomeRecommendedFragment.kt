@@ -21,16 +21,33 @@ package marabillas.loremar.beedio.home
 
 import android.app.Dialog
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.android.support.AndroidSupportInjection
+import marabillas.loremar.beedio.base.mvvm.MainViewModel
+import marabillas.loremar.beedio.base.web.WebNavigation
 import javax.inject.Inject
 
-class HomeRecommendedFragment @Inject constructor() : BottomSheetDialogFragment() {
+class HomeRecommendedFragment : BottomSheetDialogFragment(), HomeRecommendedAdapter.OnWebsiteSelectedListener {
     @Inject
     lateinit var homeRecommendedCallback: HomeRecommendedCallback
+
+    @Inject
+    lateinit var homeRecommendedAdapter: HomeRecommendedAdapter
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var webNavigation: WebNavigation
+
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -49,5 +66,29 @@ class HomeRecommendedFragment @Inject constructor() : BottomSheetDialogFragment(
             behavior.setBottomSheetCallback(homeRecommendedCallback)
             homeRecommendedCallback.actionWhenHidden = this::dismiss
         }
+
+        dialog.findViewById<RecyclerView>(R.id.recycler_home_recommended).apply {
+            layoutManager = GridLayoutManager(requireContext(), GRID_SPAN_COUNT)
+            adapter = homeRecommendedAdapter
+        }
+
+        homeRecommendedAdapter.onWebsiteSelectedListener = this
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            mainViewModel = ViewModelProvider(it, viewModelFactory).get(MainViewModel::class.java)
+        }
+    }
+
+    override fun onWebsiteSelected(url: String) {
+        dismiss()
+        val validatedUrl = webNavigation.navigateTo(url)
+        mainViewModel.goToBrowser(validatedUrl)
+    }
+
+    companion object {
+        private const val GRID_SPAN_COUNT = 3
     }
 }
