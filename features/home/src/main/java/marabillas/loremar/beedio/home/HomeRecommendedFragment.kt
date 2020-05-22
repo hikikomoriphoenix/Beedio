@@ -29,15 +29,12 @@ import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 class HomeRecommendedFragment @Inject constructor() : BottomSheetDialogFragment() {
-    lateinit var activity: HomeActivity
-
     @Inject
     lateinit var homeRecommendedCallback: HomeRecommendedCallback
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        activity = getActivity() as HomeActivity
     }
 
     override fun setupDialog(dialog: Dialog, style: Int) {
