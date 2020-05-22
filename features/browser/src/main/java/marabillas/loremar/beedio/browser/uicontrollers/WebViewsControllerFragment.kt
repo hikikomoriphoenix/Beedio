@@ -108,24 +108,19 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
     }
 
     private fun observeWebViewControllerVM() {
-        activity?.let { lifecycleOwer ->
-
-            this.also { thisFragment ->
-
-                webViewsControllerVM?.apply {
-                    observeRequestUpdatedWebViews(lifecycleOwer, Observer {
-                        it(thisFragment.webViews, activeWebViewIndex)
-                    }
-                    )
-                    observeRequestActiveWebView(lifecycleOwer, Observer {
-                        it(thisFragment.activeWebView)
-                    })
-                    observeNewWebView(lifecycleOwer, Observer { thisFragment.newWebView(it) })
-                    observeSwitchWebView(lifecycleOwer, Observer { thisFragment.switchWebView(it) })
-                    observeCloseWebView(lifecycleOwer, Observer { thisFragment.closeWebView() })
-                    observeOpenBookmarker(lifecycleOwer, Observer { thisFragment.openBookmarker() })
-                }
+        val fragment = this
+        webViewsControllerVM?.apply {
+            observeRequestUpdatedWebViews(fragment, Observer {
+                it(fragment.webViews, activeWebViewIndex)
             }
+            )
+            observeRequestActiveWebView(fragment, Observer {
+                it(fragment.activeWebView)
+            })
+            observeNewWebView(fragment, Observer { fragment.newWebView(it) })
+            observeSwitchWebView(fragment, Observer { fragment.switchWebView(it) })
+            observeCloseWebView(fragment, Observer { fragment.closeWebView() })
+            observeOpenBookmarker(fragment, Observer { fragment.openBookmarker() })
         }
     }
 
