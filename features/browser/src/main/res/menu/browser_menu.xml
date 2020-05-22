@@ -53,6 +53,7 @@
     <item
         android:icon="@drawable/ic_block_white_24dp"
         android:title="@string/turn_off_adblock"
+        android:visible="false"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/browser_menu_add_window"
