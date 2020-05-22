@@ -102,7 +102,12 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         closeNavDrawer()
     }
 
-    private fun openNavDrawer() = findViewById<DrawerLayout>(R.id.main_drawer_layout).openDrawer(GravityCompat.START)
+    private fun openNavDrawer() {
+        findViewById<NavigationView>(R.id.nav_view).menu
+                .findItem(R.id.nav_menu_browser)
+                .isEnabled = mainViewModel.webViews.isNotEmpty()
+        findViewById<DrawerLayout>(R.id.main_drawer_layout).openDrawer(GravityCompat.START)
+    }
 
     private fun closeNavDrawer() = findViewById<DrawerLayout>(R.id.main_drawer_layout).closeDrawer(GravityCompat.START)
 }
