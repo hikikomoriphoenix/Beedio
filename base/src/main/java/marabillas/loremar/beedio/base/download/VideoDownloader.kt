@@ -30,49 +30,47 @@ import java.io.*
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 
 
 class VideoDownloader(private val context: Context) {
     private val http = HttpNetwork()
-    private val progressNotifyingDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private var progressNotifyingJob: Job? = null
     private lateinit var notifier: DownloadNotifier
     private var isStopped = false
 
-    fun download(item: DownloadItem) {
-        isStopped = false
-        try {
-            notifier = DownloadNotifier(context, item, prepareTargetDirectory())
-            progressNotifyingJob?.cancel()
-            progressNotifyingJob = CoroutineScope(progressNotifyingDispatcher).launch {
-                while (!isStopped) {
-                    notifier.notifyProgress()
-                    delay(1000)
+    suspend fun download(item: DownloadItem) {
+            isStopped = false
+            try {
+                notifier = DownloadNotifier(context, item, prepareTargetDirectory())
+                progressNotifyingJob?.cancel()
+                progressNotifyingJob = CoroutineScope(Dispatchers.Default).launch {
+                    while (!isStopped) {
+                        notifier.notifyProgress()
+                        delay(1000)
+                    }
                 }
-            }
 
-            val isChunked = item.isChunked
-            val audioUrl = item.audioUrl
+                val isChunked = item.isChunked
+                val audioUrl = item.audioUrl
 
-            if (!audioUrl.isNullOrBlank())
-                downloadVideoAudio(item)
-            else if (isChunked)
-                downloadChunkedVideo(item)
-            else
-                downloadDefault(item)
+                if (!audioUrl.isNullOrBlank())
+                    downloadVideoAudio(item)
+                else if (isChunked)
+                    downloadChunkedVideo(item)
+                else
+                    downloadDefault(item)
 
-            progressNotifyingJob?.cancel()
-            if (!isStopped)
+                progressNotifyingJob?.cancel()
+                if (!isStopped)
+                    notifier.notifyFinish()
+            } catch (e: DownloadException) {
+                progressNotifyingJob?.cancel()
                 notifier.notifyFinish()
-        } catch (e: DownloadException) {
-            progressNotifyingJob?.cancel()
-            notifier.notifyFinish()
-            throw e
-        }
+                throw e
+            }
     }
 
-    private fun downloadVideoAudio(item: DownloadItem) {
+    private suspend fun downloadVideoAudio(item: DownloadItem) {
         try {
             // Download video
             if (!item.isChunked) {
@@ -191,7 +189,7 @@ class VideoDownloader(private val context: Context) {
         }
     }
 
-    private fun downloadChunkedVideo(item: DownloadItem) {
+    private suspend fun downloadChunkedVideo(item: DownloadItem) {
         try {
             val name = item.name
             val ext = item.ext
@@ -296,7 +294,7 @@ class VideoDownloader(private val context: Context) {
         return url.replace("SEGMENT".toRegex(), "segment-${totalChunks + 1}")
     }
 
-    private fun getNextChunkWithM3U8Rule(item: DownloadItem, totalChunks: Long): String? {
+    private suspend fun getNextChunkWithM3U8Rule(item: DownloadItem, totalChunks: Long): String? {
         val url = item.videoUrl
         val website = item.sourceWebsite
 
@@ -348,7 +346,7 @@ class VideoDownloader(private val context: Context) {
         }
     }
 
-    private fun downloadDefault(item: DownloadItem) {
+    private suspend fun downloadDefault(item: DownloadItem) {
         try {
             val url = item.videoUrl
             val name = item.name

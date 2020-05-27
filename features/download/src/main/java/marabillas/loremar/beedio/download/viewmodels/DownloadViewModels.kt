@@ -78,7 +78,7 @@ abstract class InactiveVM : ObservableViewModel() {
     abstract fun deleteItem(index: Int)
     abstract fun clearList()
     abstract fun getInactiveItemSourcePage(index: Int): String
-    abstract fun analyzeUrlForFreshLink(url: String, index: Int, onFound: () -> Unit)
+    abstract fun analyzeUrlForFreshLink(url: String, index: Int, onFound: suspend () -> Unit)
 
     data class InactiveItem(
             val filename: String,

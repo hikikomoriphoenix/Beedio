@@ -24,6 +24,7 @@ import android.text.format.Formatter
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.download.DownloadQueueManager
@@ -108,7 +109,7 @@ class InactiveVMImpl(private val context: Context, downloadDB: DownloadListDatab
 
     override fun getInactiveItemSourcePage(index: Int): String = inactiveDao.get(index).sourceWebpage
 
-    override fun analyzeUrlForFreshLink(url: String, index: Int, onFound: () -> Unit) {
+    override fun analyzeUrlForFreshLink(url: String, index: Int, onFound: suspend () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             filter(url) {
                 connect(url) {
@@ -119,18 +120,20 @@ class InactiveVMImpl(private val context: Context, downloadDB: DownloadListDatab
         }
     }
 
-    private fun filter(url: String, doIfTrue: (String) -> Unit) {
+    private suspend fun filter(url: String, doIfTrue: suspend (String) -> Unit) {
         for (filter in filters)
             if (url.contains(filter, true))
                 doIfTrue(url)
     }
 
-    private fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
+    private suspend fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
             ?: ""
 
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
-    private fun HttpNetwork.Connection.identifyCorrectUrlBySize(index: Int, onFound: () -> Unit) {
+    private suspend fun HttpNetwork.Connection.identifyCorrectUrlBySize(index: Int,
+                                                                        onFound: suspend () -> Unit) {
+
         val inactiveItem = inactiveDao.get(index)
         val host = URL(inactiveItem.sourceWebpage).host
         val contentType = contentType()
@@ -157,15 +160,15 @@ class InactiveVMImpl(private val context: Context, downloadDB: DownloadListDatab
         if (inactiveItem.size == analyzedSize.toLong()) {
             refreshLink(index, url)
 
-            viewModelScope.launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 onFound()
             }
         }
     }
 
-    private fun connect(url: String, block: HttpNetwork.Connection.() -> Unit) =
+    private suspend fun connect(url: String, block: suspend HttpNetwork.Connection.() -> Unit) =
             try {
-                network.open(url).apply(block)
+                network.open(url).apply { block() }
             } catch (e: Exception) {
                 null
             }

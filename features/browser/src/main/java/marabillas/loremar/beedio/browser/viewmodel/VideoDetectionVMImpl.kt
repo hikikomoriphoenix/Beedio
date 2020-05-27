@@ -29,6 +29,7 @@ import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.download.DownloadFileValidator
@@ -88,7 +89,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     }
 
     override fun analyzeUrlForVideo(url: String, title: String, sourceWebPage: String) {
-        viewModelScope.launch(analyzeDispatcher) {
+        viewModelScope.launch(Dispatchers.IO) {
             onStartAnalysis()
 
             filter(url) {
@@ -117,20 +118,20 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             isAnalyzing.postValue(false)
     }
 
-    private fun filter(url: String, doIfTrue: (String) -> Unit) {
+    private suspend fun filter(url: String, doIfTrue: suspend (String) -> Unit) {
         for (filter in filters)
             if (url.contains(filter, true))
                 doIfTrue(url)
     }
 
-    private fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
+    private suspend fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
             ?: ""
 
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
     private fun String.isM3U8() = equals("application/x-mpegurl") || equals("application/vnd.apple.mpegurl")
 
-    private fun HttpNetwork.Connection.extractVideo(
+    private suspend fun HttpNetwork.Connection.extractVideo(
             title: String,
             sourceWebPage: String
     ) {
@@ -188,7 +189,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         ).apply { onFoundVideo(this) }
     }
 
-    private fun getYoutubeVideoTitle(sourcePage: String): String {
+    private suspend fun getYoutubeVideoTitle(sourcePage: String): String {
         var title = ""
         connect("https://www.youtube.com/oembed?url=$sourcePage&format=json") {
             val json = content
@@ -208,7 +209,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         }
     }
 
-    private fun HttpNetwork.Connection.extractM3U8Video(
+    private suspend fun HttpNetwork.Connection.extractM3U8Video(
             title: String,
             sourceWebPage: String
     ) {
@@ -247,7 +248,8 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                     return
                 }
             }
-            stream?.reader()?.forEachLine {
+
+            stream?.reader()?.readLines()?.forEach {
                 if (it.endsWith(".m3u8")) {
                     val url = "$prefix$it"
                     FoundVideo(
@@ -264,15 +266,15 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         }
     }
 
-    private fun connect(url: String, block: HttpNetwork.Connection.() -> Unit) =
+    private suspend fun connect(url: String, block: suspend HttpNetwork.Connection.() -> Unit) =
             try {
-                network.open(url).apply(block)
+                network.open(url).block()
             } catch (e: Exception) {
                 Timber.e(e, "Failed connecting to $url")
                 null
             }
 
-    private fun onFoundVideo(video: FoundVideo) {
+    private suspend fun onFoundVideo(video: FoundVideo) {
         // Do not add video with duplicate url
         if (_foundVideos.any { it.url == video.url || it.audioUrl == video.url })
             return
@@ -291,7 +293,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         video.name = downloadFileValidator.validateName(video.name, video.ext, this::checkIfAlreadyExists)
         _foundVideos.add(video)
 
-        viewModelScope.launch(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
             sendFoundVideo.send(video)
         }
     }

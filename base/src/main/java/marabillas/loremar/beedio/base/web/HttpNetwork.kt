@@ -20,6 +20,8 @@
 package marabillas.loremar.beedio.base.web
 
 import android.os.Build
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -38,11 +40,13 @@ class HttpNetwork {
         }
     }
 
-    fun open(url: String, headers: Map<String, String> = mapOf()): Connection {
-        return if (Build.VERSION.SDK_INT >= 21)
-            OkHttpConnection(url, headers)
-        else
-            BasicConnection(url, headers)
+    suspend fun open(url: String, headers: Map<String, String> = mapOf()): Connection {
+        return withContext(Dispatchers.IO) {
+            if (Build.VERSION.SDK_INT >= 21)
+                OkHttpConnection(url, headers)
+            else
+                BasicConnection(url, headers)
+        }
     }
 
     inner class OkHttpConnection(url: String, requestHeaders: Map<String, String>) : Connection {
@@ -60,7 +64,11 @@ class HttpNetwork {
             headers = response.headers
         }
 
-        override fun getResponseHeader(name: String): String? = headers[name]
+        override suspend fun getResponseHeader(name: String): String? = headers[name]
+
+        override suspend fun content(): String? = withContext(Dispatchers.IO) {
+            response.body?.string()
+        }
 
         override val content: String? get() = response.body?.string()
 
@@ -95,7 +103,11 @@ class HttpNetwork {
         private val urlConn: URLConnection = URL(url).openConnection().apply { connect() }
         private val reader: Reader? by lazy { urlConn.getInputStream()?.reader() }
 
-        override fun getResponseHeader(name: String): String? = urlConn.getHeaderField(name)
+        override suspend fun getResponseHeader(name: String): String? = withContext(Dispatchers.IO) {
+            urlConn.getHeaderField(name)
+        }
+
+        override suspend fun content(): String? = withContext(Dispatchers.IO) { content }
 
         override val content: String? by lazy { urlConn.getInputStream()?.reader()?.readText() }
 
@@ -126,7 +138,9 @@ class HttpNetwork {
     }
 
     interface Connection {
-        fun getResponseHeader(name: String): String?
+        suspend fun getResponseHeader(name: String): String?
+
+        suspend fun content(): String?
 
         val content: String?
 
