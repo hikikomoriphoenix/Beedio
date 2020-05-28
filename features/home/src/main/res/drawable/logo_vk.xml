@@ -1,0 +1,31 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="2500dp"
+    android:height="2500dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <path
+        android:pathData="M147.928,0h664.144C893.767,0 960,66.23 960,147.929v664.143C960,893.768 893.767,960 812.072,960L147.928,960C66.23,960 0,893.768 0,812.071L0,147.929C0,66.23 66.23,0 147.928,0"
+        android:fillColor="#4c75a3" />
+    <path
+        android:pathData="M471.946,672.029h39.269s11.859,-1.307 17.923,-7.831c5.573,-5.996 5.396,-17.249 5.396,-17.249s-0.769,-52.692 23.683,-60.452c24.113,-7.647 55.07,50.925 87.88,73.449 24.812,17.039 43.667,13.31 43.667,13.31l87.739,-1.227s45.895,-2.832 24.132,-38.917c-1.782,-2.947 -12.679,-26.693 -65.238,-75.48 -55.02,-51.062 -47.644,-42.801 18.626,-131.128 40.358,-53.79 56.49,-86.628 51.449,-100.691 -4.803,-13.399 -34.489,-9.86 -34.489,-9.86l-98.786,0.611s-7.328,-0.998 -12.756,2.25c-5.31,3.177 -8.717,10.599 -8.717,10.599s-15.642,41.622 -36.486,77.024c-43.988,74.693 -61.58,78.647 -68.771,74.002 -16.729,-10.811 -12.549,-43.422 -12.549,-66.596 0,-72.389 10.98,-102.57 -21.381,-110.384 -10.737,-2.591 -18.646,-4.305 -46.11,-4.585 -35.25,-0.358 -65.078,0.108 -81.971,8.384 -11.239,5.504 -19.91,17.766 -14.626,18.472 6.53,0.869 21.313,3.99 29.152,14.655 10.126,13.776 9.772,44.703 9.772,44.703s5.818,85.213 -13.585,95.795c-13.314,7.26 -31.582,-7.561 -70.8,-75.327 -20.091,-34.712 -35.265,-73.085 -35.265,-73.085s-2.922,-7.17 -8.141,-11.008c-6.33,-4.65 -15.175,-6.124 -15.175,-6.124l-93.876,0.613s-14.09,0.394 -19.267,6.521c-4.606,5.455 -0.368,16.725 -0.368,16.725s73.49,171.942 156.711,258.592c76.315,79.454 162.958,74.239 162.958,74.239"
+        android:fillColor="#fff" />
+</vector>

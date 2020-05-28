@@ -37,12 +37,18 @@ class HomeRecommendedAdapter @Inject constructor() :
             "facebook.com" to R.drawable.logo_facebook,
             "twitter.com" to R.drawable.logo_twitter,
             "instagram.com" to R.drawable.logo_instagram,
-            "dailymotion.com" to R.drawable.logo_dailymotion,
-            "veoh.com" to R.drawable.logo_veoh,
+            "www.dailymotion.com" to R.drawable.logo_dailymotion,
+            "www.veoh.com" to R.drawable.logo_veoh,
+            "vimeo.com" to R.drawable.logo_vimeo,
             "tiktok.com" to R.drawable.logo_tiktok,
+            "metacafe.com" to R.drawable.logo_metacafe,
             "bitchute.com" to R.drawable.logo_bitchute,
             "vlive.tv" to R.drawable.logo_vlive,
-            "tv.naver.com" to R.drawable.logo_navertv)
+            "tv.naver.com" to R.drawable.logo_navertv,
+            "m.vk.com" to R.drawable.logo_vk,
+            "www.tudou.com" to R.drawable.logo_tudou,
+            "m.youku.com" to R.drawable.logo_youku,
+            "video.fc2.com" to R.drawable.logo_fc2)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeRecommendedViewHolder {
         val inflater = LayoutInflater.from(parent.context)
