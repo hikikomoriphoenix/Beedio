@@ -52,6 +52,7 @@ class ViewModelFactory(
             CompletedVM::class.java -> CompletedVMImpl(downloadDB) as T
             InactiveVM::class.java -> InactiveVMImpl(context, downloadDB) as T
             HistoryViewModel::class.java -> HistoryViewModel(context) as T
+            PageProgressVM::class.java -> PageProgressVMImpl() as T
             else -> throw IllegalArgumentException("Unidentified ViewModel")
         }
     }

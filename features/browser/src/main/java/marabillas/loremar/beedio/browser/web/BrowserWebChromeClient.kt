@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.browser.web
 import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import marabillas.loremar.beedio.browser.listeners.OnPageProgressListener
 import marabillas.loremar.beedio.browser.listeners.OnReceivedIconListener
 import marabillas.loremar.beedio.browser.listeners.OnWebPageTitleRecievedListener
 import javax.inject.Inject
@@ -30,6 +31,7 @@ class BrowserWebChromeClient @Inject constructor() : WebChromeClient() {
 
     var titleRecievedListener: OnWebPageTitleRecievedListener? = null
     var onReceivedIconListener: OnReceivedIconListener? = null
+    var onPageProgressListener: OnPageProgressListener? = null
 
     override fun onReceivedTitle(view: WebView?, title: String?) {
         super.onReceivedTitle(view, title)
@@ -40,5 +42,10 @@ class BrowserWebChromeClient @Inject constructor() : WebChromeClient() {
         super.onReceivedIcon(view, icon)
         if (view != null && icon != null)
             onReceivedIconListener?.onReceivedIcon(view, icon)
+    }
+
+    override fun onProgressChanged(view: WebView?, newProgress: Int) {
+        super.onProgressChanged(view, newProgress)
+        onPageProgressListener?.onPageProgress(newProgress)
     }
 }

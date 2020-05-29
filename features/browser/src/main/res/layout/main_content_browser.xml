@@ -63,6 +63,16 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <ProgressBar
+            android:id="@+id/progressBarBrowser"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:background="@android:color/transparent"
+            app:layout_anchor="@id/browser_appbar"
+            app:layout_anchorGravity="bottom" />
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

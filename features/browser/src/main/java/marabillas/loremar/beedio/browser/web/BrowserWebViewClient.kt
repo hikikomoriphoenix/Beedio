@@ -23,6 +23,7 @@ import android.graphics.Bitmap
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import marabillas.loremar.beedio.browser.listeners.OnLoadResourceListener
+import marabillas.loremar.beedio.browser.listeners.OnPageProgressListener
 import marabillas.loremar.beedio.browser.listeners.OnWebPageChangedListener
 import javax.inject.Inject
 
@@ -30,10 +31,12 @@ class BrowserWebViewClient @Inject constructor() : WebViewClient() {
 
     var onWebPageChangedListener: OnWebPageChangedListener? = null
     var onLoadResourceListener: OnLoadResourceListener? = null
+    var onPageProgressListener: OnPageProgressListener? = null
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
         onWebPageChangedListener?.onWebPageChanged(view, url, favicon)
+        onPageProgressListener?.onPageStarted()
     }
 
     override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
@@ -44,6 +47,7 @@ class BrowserWebViewClient @Inject constructor() : WebViewClient() {
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
         onWebPageChangedListener?.onWebPageChanged(view, url, null)
+        onPageProgressListener?.onPageFinished()
     }
 
     override fun onLoadResource(view: WebView?, url: String?) {

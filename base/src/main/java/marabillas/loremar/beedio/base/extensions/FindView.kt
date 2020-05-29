@@ -22,6 +22,7 @@ package marabillas.loremar.beedio.base.extensions
 import android.app.Activity
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -37,6 +38,7 @@ fun View.recyclerView(resId: Int): RecyclerView = findViewById(resId)
 fun View.bottomAppBar(resId: Int): BottomAppBar = findViewById(resId)
 fun View.toolbar(resId: Int): Toolbar = findViewById(resId)
 fun View.constraintLayout(resId: Int): ConstraintLayout = findViewById(resId)
+fun View.progressBar(resId: Int): ProgressBar = findViewById(resId)
 
 /* Activity */
 fun Activity.rootView(): View = findViewById(android.R.id.content)

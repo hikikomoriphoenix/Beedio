@@ -29,6 +29,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -93,6 +94,7 @@ class BrowserMainFragment : DaggerFragment() {
     private lateinit var videoDetectionVM: VideoDetectionVM
     private lateinit var addBookmarkVM: AddBookmarkVM
     private lateinit var historyVM: BrowserHistoryVM
+    private lateinit var pageProgressVM: PageProgressVM
 
     private lateinit var customTitleView: View
 
@@ -121,6 +123,7 @@ class BrowserMainFragment : DaggerFragment() {
             videoDetectionVM = initViewModel(it, VideoDetectionVM::class.java)
             addBookmarkVM = initViewModel(it, AddBookmarkVM::class.java)
             historyVM = initViewModel(it, BrowserHistoryVM::class.java)
+            pageProgressVM = initViewModel(it, PageProgressVM::class.java)
         }
     }
 
@@ -138,6 +141,8 @@ class BrowserMainFragment : DaggerFragment() {
                         .add(R.id.browser_coordinator_layout, addBookmarkFragment, null)
                         .commit()
         })
+
+        setupPageProgressBarBehavior()
     }
 
     private fun initActionBar() {
@@ -252,17 +257,32 @@ class BrowserMainFragment : DaggerFragment() {
     private fun initListeners() {
         browserWebViewClient.onWebPageChangedListener = uiListener
         browserWebViewClient.onLoadResourceListener = uiListener
+        browserWebViewClient.onPageProgressListener = uiListener
         browserWebChromeClient.titleRecievedListener = uiListener
         browserWebChromeClient.onReceivedIconListener = uiListener
+        browserWebChromeClient.onPageProgressListener = uiListener
 
         uiListener.webViewsControllerVM = webViewsControllerVM
         uiListener.titleStateVM = titleStateVM
         uiListener.searchWidgetControllerVM = searchWidgetControllerVM
         uiListener.videoDetectionVM = videoDetectionVM
         uiListener.historyVM = historyVM
+        uiListener.pageProgressVM = pageProgressVM
         menuItemClickListener.webPageNavigation = webPageNavigationVM
         menuItemClickListener.searchWidgetControllerVM = searchWidgetControllerVM
         menuItemClickListener.webViewsController = webViewsControllerVM
+    }
+
+    private fun setupPageProgressBarBehavior() {
+        binding.progressBarBrowser.let { progressBar ->
+            pageProgressVM.observePageProgressBarVisibility(this, Observer {
+                progressBar.isVisible = it
+            })
+            pageProgressVM.observePageProgress(this, Observer {
+                progressBar.max = 100
+                progressBar.progress = it
+            })
+        }
     }
 
     private fun <T : ViewModel> initViewModel(activity: FragmentActivity, modelClass: Class<T>): T =

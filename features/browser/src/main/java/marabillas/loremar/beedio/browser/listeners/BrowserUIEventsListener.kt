@@ -27,13 +27,14 @@ import javax.inject.Inject
 
 class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         OnWebPageTitleRecievedListener, BrowserSearchWidgetListener, OnLoadResourceListener,
-        OnReceivedIconListener {
+        OnReceivedIconListener, OnPageProgressListener {
 
     var webViewsControllerVM: WebViewsControllerVM? = null
     var titleStateVM: BrowserTitleStateVM? = null
     var searchWidgetControllerVM: BrowserSearchWidgetControllerVM? = null
     var videoDetectionVM: VideoDetectionVM? = null
     var historyVM: BrowserHistoryVM? = null
+    var pageProgressVM: PageProgressVM? = null
 
     override fun onWebPageChanged(webView: WebView?, url: String?, favicon: Bitmap?) {
         val updateTitle = { activeWebView: WebView? ->
@@ -72,5 +73,17 @@ class BrowserUIEventsListener @Inject constructor() : OnWebPageChangedListener,
         val dstSize = 32.toPixels(view.resources)
         Bitmap.createScaledBitmap(icon, dstSize, dstSize, false)
         historyVM?.updateVisitedPageIcon(view.url, icon)
+    }
+
+    override fun onPageStarted() {
+        pageProgressVM?.setPageProgressBarVisibility(true)
+    }
+
+    override fun onPageFinished() {
+        pageProgressVM?.setPageProgressBarVisibility(false)
+    }
+
+    override fun onPageProgress(progress: Int) {
+        pageProgressVM?.setPageProgress(progress)
     }
 }

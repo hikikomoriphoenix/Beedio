@@ -41,3 +41,9 @@ interface OnLoadResourceListener {
 interface OnReceivedIconListener {
     fun onReceivedIcon(view: WebView, icon: Bitmap)
 }
+
+interface OnPageProgressListener {
+    fun onPageStarted()
+    fun onPageFinished()
+    fun onPageProgress(progress: Int)
+}

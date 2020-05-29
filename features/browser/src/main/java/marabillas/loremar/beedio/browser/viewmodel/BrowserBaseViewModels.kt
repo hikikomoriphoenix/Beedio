@@ -45,6 +45,13 @@ abstract class WebPageNavigationVM : ObservableViewModel() {
     abstract fun observeReloadPage(lifecycleOwner: LifecycleOwner, observer: Observer<Any>)
 }
 
+abstract class PageProgressVM : ObservableViewModel() {
+    abstract fun setPageProgressBarVisibility(isVisible: Boolean)
+    abstract fun observePageProgressBarVisibility(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>)
+    abstract fun setPageProgress(progress: Int)
+    abstract fun observePageProgress(lifecycleOwner: LifecycleOwner, observer: Observer<Int>)
+}
+
 abstract class WebViewsControllerVM : ObservableViewModel() {
     abstract fun requestUpdatedWebViews(callback: (List<WebView>, Int) -> Unit)
     abstract fun observeRequestUpdatedWebViews(lifecycleOwner: LifecycleOwner,

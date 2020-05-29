@@ -74,6 +74,10 @@ class BrowserViewModelFactory(private val context: Context) : ViewModelProvider.
                 BrowserHistoryVMImpl(context) as T
             }
 
+            PageProgressVM::class.java -> {
+                PageProgressVMImpl() as T
+            }
+
             else -> throw IllegalArgumentException("Unidentified ViewModel for Browser")
         }
     }
