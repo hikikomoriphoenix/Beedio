@@ -103,6 +103,7 @@ class ExpandingFoundVideosFragment @Inject constructor() : DaggerFragment(),
     override fun onStart() {
         super.onStart()
         foundVideosAdapter.eventsListener = this
+        foundVideosAdapter.loadData(videoDetectionVM.foundVideos)
 
         titleStateVM.observeUrl(this, Observer {
             val host = URL(it).host
