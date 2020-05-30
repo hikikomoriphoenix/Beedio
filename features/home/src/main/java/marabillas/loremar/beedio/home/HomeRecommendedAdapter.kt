@@ -40,14 +40,20 @@ class HomeRecommendedAdapter @Inject constructor() :
             "www.dailymotion.com" to R.drawable.logo_dailymotion,
             "www.veoh.com" to R.drawable.logo_veoh,
             "vimeo.com" to R.drawable.logo_vimeo,
+            "archive.org" to R.drawable.logo_internet_archive,
+            "ted.com" to R.drawable.logo_ted,
             "tiktok.com" to R.drawable.logo_tiktok,
             "metacafe.com" to R.drawable.logo_metacafe,
             "bitchute.com" to R.drawable.logo_bitchute,
+            "9gag.com" to R.drawable.logo_9gag,
             "vlive.tv" to R.drawable.logo_vlive,
             "tv.naver.com" to R.drawable.logo_navertv,
+            "afreecatv.com" to R.drawable.logo_afreecatv,
+            "rutube.ru" to R.drawable.logo_rutube,
             "m.vk.com" to R.drawable.logo_vk,
-            "www.tudou.com" to R.drawable.logo_tudou,
             "m.youku.com" to R.drawable.logo_youku,
+            "bilibili.com" to R.drawable.logo_bilibili,
+            "www.tudou.com" to R.drawable.logo_tudou,
             "video.fc2.com" to R.drawable.logo_fc2)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeRecommendedViewHolder {

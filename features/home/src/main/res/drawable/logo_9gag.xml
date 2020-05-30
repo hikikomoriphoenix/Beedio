@@ -1,0 +1,34 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="256dp"
+    android:height="256dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <path
+        android:pathData="M0,0L256,0L256,256L0,256L0,0M59.99,88.74C60.01,94.06 60,99.39 60,104.72C82.69,117.65 105.31,130.69 128,143.6C141.67,135.71 155.34,127.81 168.99,119.89C169.04,130.34 168.93,140.78 169.05,151.23C155.46,159.32 141.64,167.02 128,175.03C114.33,167.08 100.59,159.23 86.89,151.33C77.83,156.45 68.8,161.61 59.76,166.76C82.42,179.99 105.27,192.9 128,206.02C150.67,193.01 173.4,180.12 196.03,167.03C195.98,140.92 195.99,114.81 196.02,88.7C173.38,75.63 150.68,62.65 128.01,49.63C105.33,62.64 82.66,75.68 59.99,88.74Z"
+        android:fillColor="#000000" />
+    <path
+        android:pathData="M100.27,96.58C109.54,91.32 118.75,85.94 128,80.64C137.3,85.95 146.57,91.32 155.88,96.61C146.57,101.93 137.29,107.27 128,112.6C118.77,107.24 109.47,101.98 100.27,96.58Z"
+        android:fillColor="#000000" />
+    <path
+        android:pathData="M59.99,88.74C82.66,75.68 105.33,62.64 128.01,49.63C150.68,62.65 173.38,75.63 196.02,88.7C195.99,114.81 195.98,140.92 196.03,167.03C173.4,180.12 150.67,193.01 128,206.02C105.27,192.9 82.42,179.99 59.76,166.76C68.8,161.61 77.83,156.45 86.89,151.33C100.59,159.23 114.33,167.08 128,175.03C141.64,167.02 155.46,159.32 169.05,151.23C168.93,140.78 169.04,130.34 168.99,119.89C155.34,127.81 141.67,135.71 128,143.6C105.31,130.69 82.69,117.65 60,104.72C60,99.39 60.01,94.06 59.99,88.74M100.27,96.58C109.47,101.98 118.77,107.24 128,112.6C137.29,107.27 146.57,101.93 155.88,96.61C146.57,91.32 137.3,85.95 128,80.64C118.75,85.94 109.54,91.32 100.27,96.58Z"
+        android:fillColor="#ffffff" />
+</vector>

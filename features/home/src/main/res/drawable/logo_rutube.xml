@@ -1,0 +1,28 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="332.295dp"
+    android:height="79.543dp"
+    android:viewportWidth="87.9197"
+    android:viewportHeight="21.0458">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M39.6303,5.3086L39.6303,0.3416l-4.6725,0.6056v4.3611h-1.8185v4.1103h1.8185v11.2012h4.6725L39.6303,9.4186h3.3878v-4.11zM14.0933,12.6807c1.4235,-1.148 2.3368,-2.7191 2.3368,-4.691v-0.8579c0,-3.4626 -2.8067,-6.0068 -6.2677,-6.0068L0.2646,1.0864 0.2704,20.517l4.6752,0.0368v-6.595L9.751,13.9588l3.1324,6.595h5.4715zM11.653,7.7539c0,1.3793 -1.1184,2.1616 -2.4971,2.1616L4.9456,9.9155L4.9456,5.2491h4.2103c1.3787,0 2.4971,0.9686 2.4971,2.3479zM66.6133,5.2274h-2.4722L64.1411,0.2646L59.5699,0.87l-0.0008,19.6839h7.0442c3.4621,0 6.268,-2.658 6.268,-6.119v-2.939c0,-3.462 -2.8059,-6.2685 -6.268,-6.2685zM68.4022,14.0412c0,1.4578 -0.984,2.3228 -2.4416,2.3228L64.156,16.364L64.156,9.4205h1.8047c1.4576,0 2.4416,0.8657 2.4416,2.3233zM53.0106,5.3086v8.8424c0,1.4576 -0.5302,2.442 -1.9878,2.442h-0.0725c-1.4568,0 -1.9881,-0.9847 -1.9881,-2.442L48.9622,5.3086h-4.612v9.1797c0,3.462 1.515,6.269 6.1196,6.269h0.8845c4.8495,0 6.2693,-2.807 6.2693,-6.269L57.6236,5.3086zM27.015,5.3086v8.8424c0,1.4576 -0.5305,2.442 -1.988,2.442h-0.0723c-1.4568,0 -1.9878,-0.9847 -1.9878,-2.442L22.9669,5.3086h-4.6122v9.1797c0,3.462 1.5144,6.269 6.1187,6.269h0.8853c4.8482,0 6.2688,-2.807 6.2688,-6.269L31.6275,5.3086zM84.5812,15.4204s-1.3496,1.654 -3.7216,1.4685c-1.4783,-0.1156 -2.3543,-0.8663 -2.3543,-2.3236v-0.508h9.048v-2.6239c0,-3.3766 -2.4742,-6.338 -6.6818,-6.338 -4.2069,0 -6.6868,2.8127 -6.6868,6.1896v3.1565c0,3.378 2.4749,6.3397 6.6818,6.3397 4.7558,0 6.7886,-3.3168 6.7886,-3.3168zM78.505,10.5696c0,-1.4232 0.9073,-2.2802 2.2575,-2.3196h0.1161c1.4058,0 2.3543,0.8657 2.3543,2.3228v0.1283h-4.7281v-0.1315z" />
+</vector>
