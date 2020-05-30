@@ -111,7 +111,12 @@ class FoundVideosAdapter : RecyclerView.Adapter<FoundVideosAdapter.FoundVideosVi
                 binding.apply {
                     foundVideoName.text = itemView.resources.getString(
                             R.string.found_video_item_name, foundVideo.name, foundVideo.ext)
-                    foundVideoSize.text = Formatter.formatFileSize(context, foundVideo.size.toLong())
+
+                    if (foundVideo.size == "0")
+                        foundVideoSize.text = context.getString(R.string.unknown_size)
+                    else
+                        foundVideoSize.text = Formatter.formatFileSize(context, foundVideo.size.toLong())
+
                     if (isSelectionMode) {
                         foundVideoMore.visibility = GONE
                         foundVideoCheckbox.visibility = VISIBLE
