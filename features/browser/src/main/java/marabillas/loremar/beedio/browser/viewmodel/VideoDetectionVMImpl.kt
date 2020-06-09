@@ -56,7 +56,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         get() = _foundVideos
 
     private val _foundVideos = mutableListOf<FoundVideo>()
-    private val filters = arrayOf("mp4", "video", "googleusercontent", "embed")
+    private val filters = arrayOf("mp4", "video", "googleusercontent", "embed", "m3u8")
     private val network = HttpNetwork()
     private val detailsFetcher = VideoDetailsFetcher()
     private val downloadFileValidator = DownloadFileValidator(context)
