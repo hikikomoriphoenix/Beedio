@@ -119,9 +119,8 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     }
 
     private suspend fun filter(url: String, doIfTrue: suspend (String) -> Unit) {
-        for (filter in filters)
-            if (url.contains(filter, true))
-                doIfTrue(url)
+        if (filters.any { url.contains(it, true) })
+            doIfTrue(url)
     }
 
     private suspend fun HttpNetwork.Connection.contentType() = getResponseHeader("Content-Type")?.toLowerCase(Locale.US)
