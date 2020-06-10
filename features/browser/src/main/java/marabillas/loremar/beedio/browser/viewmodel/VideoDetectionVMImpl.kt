@@ -252,16 +252,21 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                     return
                 }
                 host.contains("twitch.tv") -> {
-                    FoundVideo(
-                            name = name,
-                            url = urlHandler.url ?: return,
-                            ext = "ts",
-                            size = "0",
-                            sourceWebPage = sourceWebPage,
-                            sourceWebsite = "twitch.tv",
-                            isChunked = true
-                    ).apply { onFoundVideo(this) }
-                    return
+                    if (urlHandler.url?.endsWith("index-dvr.m3u8") == true) {
+                        FoundVideo(
+                                name = name,
+                                url = urlHandler.url ?: return,
+                                ext = "ts",
+                                size = "0",
+                                sourceWebPage = sourceWebPage,
+                                sourceWebsite = "twitch.tv",
+                                isChunked = true
+                        ).apply { onFoundVideo(this) }
+                        return
+                    } else {
+                        sourceWebsite = "twitch.tv"
+                        ext = "ts"
+                    }
                 }
             }
 
