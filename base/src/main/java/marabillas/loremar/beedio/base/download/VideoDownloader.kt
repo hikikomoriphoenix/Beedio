@@ -234,6 +234,7 @@ class VideoDownloader(private val context: Context) {
                         "twitter.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
                         "metacafe.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
                         "myspace.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
+                        "twitch.tv" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
                     }
                     if (chunkUrl == null) {
                         if (!progressFile.delete()) {
@@ -307,7 +308,8 @@ class VideoDownloader(private val context: Context) {
                     if (line == null)
                         break
 
-                    if ((website == "twitter.com" || website == "myspace.com") && line!!.endsWith(".ts")) {
+                    if ((website == "twitter.com" || website == "myspace.com" || website == "twitch.tv")
+                            && line!!.endsWith(".ts")) {
                         break
                     } else if (website == "metacafe.com" && line!!.endsWith(".mp4")) {
                         break
@@ -335,7 +337,7 @@ class VideoDownloader(private val context: Context) {
                     prefix = url.substring(0, url.lastIndexOf("/") + 1)
                     prefix + line
                 }
-                "myspace.com" -> {
+                "myspace.com", "twitch.tv" -> {
                     prefix = url.substring(0, url.lastIndexOf("/") + 1)
                     prefix + line
                 }

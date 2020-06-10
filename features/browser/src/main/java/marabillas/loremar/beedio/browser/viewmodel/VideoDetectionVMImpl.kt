@@ -95,9 +95,10 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             filter(url) {
                 Timber.i("Analyzing $url")
                 connect(url) {
-                    if (contentType().containsVideoOrAudio())
+                    val contentType = contentType()
+                    if (contentType.containsVideoOrAudio() || contentType.isOctetStreamWithVideo(url))
                         extractVideo(title, sourceWebPage)
-                    else if (contentType().isM3U8())
+                    else if (contentType.isM3U8())
                         extractM3U8Video(title, sourceWebPage)
                 }
             }
@@ -129,6 +130,10 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
     private fun String.isM3U8() = equals("application/x-mpegurl") || equals("application/vnd.apple.mpegurl")
+
+    private fun String.isOctetStreamWithVideo(url: String): Boolean {
+        return equals("binary/octet-stream") && url.endsWith(".mp4")
+    }
 
     private suspend fun HttpNetwork.Connection.extractVideo(
             title: String,
@@ -215,7 +220,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
 
         val host = URL(sourceWebPage).host
         if (host.contains("twitter.com") || host.contains("metacafe.com")
-                || host.contains("myspace.com")) {
+                || host.contains("myspace.com") || host.contains("twitch.tv")) {
 
             val name = if (title.isNotBlank()) title else "video"
 
@@ -242,6 +247,18 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                             size = "0",
                             sourceWebPage = sourceWebPage,
                             sourceWebsite = "myspace.com",
+                            isChunked = true
+                    ).apply { onFoundVideo(this) }
+                    return
+                }
+                host.contains("twitch.tv") -> {
+                    FoundVideo(
+                            name = name,
+                            url = urlHandler.url ?: return,
+                            ext = "ts",
+                            size = "0",
+                            sourceWebPage = sourceWebPage,
+                            sourceWebsite = "twitch.tv",
                             isChunked = true
                     ).apply { onFoundVideo(this) }
                     return
