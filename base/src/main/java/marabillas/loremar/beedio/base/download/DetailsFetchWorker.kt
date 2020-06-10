@@ -24,12 +24,14 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.runBlocking
 import marabillas.loremar.beedio.base.database.DownloadListDatabase
 import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.AUDIO_DETAILS_FILE
 import marabillas.loremar.beedio.base.download.DownloadQueueManager.Companion.VIDEO_DETAILS_FILE
 import marabillas.loremar.beedio.base.media.VideoDetails
 import marabillas.loremar.beedio.base.media.VideoDetailsFetcher
 import marabillas.loremar.beedio.base.media.VideoDetailsTypeAdapter
+import marabillas.loremar.beedio.base.web.HttpNetwork
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
@@ -69,7 +71,47 @@ class DetailsFetchWorker(
         )
         val fetchCdLatch = CountDownLatch(1)
 
-        videoDetailsFetcher.fetchDetails(first.videoUrl, object : VideoDetailsFetcher.FetchListener {
+        val targetUrl = (if (first.isChunked) {
+            when (first.sourceWebsite) {
+                "dailymotion.com" -> {
+                    first.videoUrl.replace("FRAGMENT".toRegex(), "frag(1)")
+                }
+                "vimeo.com" -> {
+                    first.videoUrl.replace("SEGMENT".toRegex(), "segment-1")
+                }
+                "twitter.com", "metacafe.com", "myspace.com", "twitch.tv" -> {
+                    var line: String? = null
+                    runBlocking {
+                        val m3u8Conn = HttpNetwork().open(first.videoUrl)
+                        m3u8Conn.stream
+                                ?.bufferedReader()
+                                ?.apply {
+                                    while (true) {
+                                        line = readLine() ?: break
+
+                                        if ((first.sourceWebsite == "twitter.com"
+                                                        || first.sourceWebsite == "myspace.com"
+                                                        || first.sourceWebsite == "twitch.tv")
+                                                && line!!.endsWith(".ts")) {
+                                            break
+                                        } else if (first.sourceWebsite == "metacafe.com"
+                                                && line!!.endsWith(".mp4")) {
+                                            break
+                                        }
+                                    }
+                                    close()
+                                }
+                        m3u8Conn.stream?.close()
+                    }
+                    line
+                }
+                else -> throw RuntimeException("Invalid source website: ${first.sourceWebsite}")
+            }
+        } else
+            first.videoUrl)
+                ?: return Result.success(data)
+
+        videoDetailsFetcher.fetchDetails(targetUrl, object : VideoDetailsFetcher.FetchListener {
             override fun onUnFetched(error: Throwable) {
                 fetchCdLatch.countDown()
             }
