@@ -1,0 +1,28 @@
+<!--
+  ~ Beedio is an Android app for downloading videos
+  ~ Copyright (C) 2019 Loremar Marabillas
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="811.7dp"
+    android:height="500.1dp"
+    android:viewportWidth="811.7"
+    android:viewportHeight="500.1">
+    <path
+        android:pathData="m269.7,387.7v-95.5h50.6v115.2l-33.7,33.7L129.2,441.1L129.2,292.2h53.4v95.5h19.7v-95.5h47.8v95.5zM339.9,292.2h47.7L387.6,441h-47.7zM516.9,407.4v-84.3l30.9,-30.9h78.7v50.6h-56.2v44.9h56.2v53.4h-75.9zM19.7,407.4L19.7,250h50.6v42.1h39.3v50.6L70.3,342.7v44.9h39.3L109.6,441h-59zM339.9,250h47.7v22.5h-47.7zM407.3,407.4L407.3,250h50.6v42.1h39.3v50.6h-39.3v44.9h39.3L497.2,441h-59zM646,250h53.4v42.1h59L792.1,323L792.1,441L738.7,441L738.7,342.7L699.4,342.7L699.4,441L646,441ZM629.2,230.4 L587.1,272.5L539.3,272.5L516.9,295L516.9,272.6L477.6,272.6L477.6,230.5L320.2,230.5v42.1h-191L87.1,230.4L0,230.4v185.4l42.1,42.1 67.5,42.2h61.8v-11.3l22.4,11.3 112.4,-0.2 19.6,-22.3 2.8,22.3 73.1,0.2 2.8,-22.5 25.4,22.3 64.5,0.2 5.6,-22.5 22.4,22.5h73l25.3,-22.5v22.5L660,500.1l33.7,-22.5v22.5h44.9l73.1,-50.6v-132l-45,-44.9L719,272.6L719,230.5L629.2,230.5ZM573,112.4h19.7L592.7,56.2L573,56.2ZM623.6,112.4h19.7L643.3,56.2L623.6,56.2ZM522.5,19.7h151.7v101.1l-30.9,30.9h-50.6l-28.1,28.1v-28.1h-42.1zM505.6,0.1 L494.4,36.6 494.7,205.1h41.9v22.4h22.5l22.4,-22.4h39.3L693.9,132L693.9,0L505.6,0Z"
+        android:fillColor="#6459A2" />
+</vector>

@@ -42,6 +42,7 @@ class HomeRecommendedAdapter @Inject constructor() :
             "vimeo.com" to R.drawable.logo_vimeo,
             "archive.org" to R.drawable.logo_internet_archive,
             "ted.com" to R.drawable.logo_ted,
+            "twitch.tv" to R.drawable.logo_twitch,
             "tiktok.com" to R.drawable.logo_tiktok,
             "metacafe.com" to R.drawable.logo_metacafe,
             "bitchute.com" to R.drawable.logo_bitchute,
