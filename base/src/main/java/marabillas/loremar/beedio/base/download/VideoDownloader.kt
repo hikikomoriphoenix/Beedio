@@ -303,24 +303,17 @@ class VideoDownloader(private val context: Context) {
         try {
             val m3u8Con = http.open(url)
             m3u8Con.stream?.bufferedReader()?.apply {
-                while (!isStopped) {
+                var i = 0
+                while (i <= totalChunks && !isStopped) {
                     line = readLine()
                     if (line == null)
                         break
 
                     if ((website == "twitter.com" || website == "myspace.com" || website == "twitch.tv")
                             && line!!.endsWith(".ts")) {
-                        break
+                        i++
                     } else if (website == "metacafe.com" && line!!.endsWith(".mp4")) {
-                        break
-                    }
-                }
-                if (line != null) {
-                    var l: Long = 1
-                    while (l < totalChunks + 1 && !isStopped) {
-                        readLine()
-                        line = readLine()
-                        l++
+                        i++
                     }
                 }
                 close()
