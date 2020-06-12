@@ -20,6 +20,7 @@
 package marabillas.loremar.beedio.browser.viewmodel
 
 import android.content.Context
+import android.webkit.URLUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -226,7 +227,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
 
             var prefix = ""
             var ext = "mp4"
-            var sourceWebsite = ""
+            var sourceWebsite = host
             when {
                 host.contains("twitter.com") -> {
                     prefix = "https://video.twimg.com"
@@ -268,20 +269,43 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                         ext = "ts"
                     }
                 }
+                else -> {
+                    stream?.reader()?.apply {
+                        while (true) {
+                            val line = readLine() ?: break
+                            if (line.endsWith(".ts", true)
+                                    || line.endsWith(".mp4", true)) {
+                                ext = if (line.endsWith(".ts")) "ts" else "mp4"
+                                FoundVideo(
+                                        name = name,
+                                        url = urlHandler.url ?: return,
+                                        ext = ext,
+                                        size = "0",
+                                        sourceWebPage = sourceWebPage,
+                                        sourceWebsite = sourceWebsite,
+                                        isChunked = true
+                                ).apply { onFoundVideo(this) }
+                                return
+                            }
+                        }
+                    }
+                }
             }
 
             stream?.reader()?.readLines()?.forEach {
                 if (it.endsWith(".m3u8")) {
                     val url = "$prefix$it"
-                    FoundVideo(
-                            name = name,
-                            url = url,
-                            ext = ext,
-                            size = "0",
-                            sourceWebPage = sourceWebPage,
-                            sourceWebsite = sourceWebsite,
-                            isChunked = true
-                    ).apply { onFoundVideo(this) }
+                    if (URLUtil.isValidUrl(url)) {
+                        FoundVideo(
+                                name = name,
+                                url = url,
+                                ext = ext,
+                                size = "0",
+                                sourceWebPage = sourceWebPage,
+                                sourceWebsite = sourceWebsite,
+                                isChunked = true
+                        ).apply { onFoundVideo(this) }
+                    }
                 }
             }
         }
