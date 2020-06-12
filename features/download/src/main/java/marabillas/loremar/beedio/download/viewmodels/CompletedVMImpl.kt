@@ -55,7 +55,7 @@ class CompletedVMImpl(downloadDB: DownloadListDatabase) : CompletedVM() {
             completedDao.load().forEachIndexed { i, it ->
                 detailsFetcher.fetchMiniDetails(it.filepath, object : VideoDetailsFetcher.FetchListener {
                     override fun onUnFetched(error: Throwable) {
-                        TODO("Not yet implemented")
+                        // Do nothing
                     }
 
                     override fun onFetched(details: VideoDetails) {
