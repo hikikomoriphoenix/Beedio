@@ -143,7 +143,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         val host = URL(sourceWebPage).host
         val contentType = contentType()
 
-        if (host.contains("twitter.com") && contentType == "video/mp2t")
+        if (contentType == "video/mp2t" && (host.contains("twitter.com") || host.contains("ted.com")))
             return
 
         var url = getResponseHeader("Location") ?: urlHandler.url ?: return
@@ -274,8 +274,12 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                         while (true) {
                             val line = readLine() ?: break
                             if (line.endsWith(".ts", true)
-                                    || line.endsWith(".mp4", true)) {
-                                ext = if (line.endsWith(".ts")) "ts" else "mp4"
+                                    || line.endsWith(".mp4", true)
+                                    || line.contains(".ts?", true)
+                                    || line.contains(".mp4?", true)) {
+
+                                ext = if (line.endsWith(".ts", true)
+                                        || line.contains(".ts?", true)) "ts" else "mp4"
                                 FoundVideo(
                                         name = name,
                                         url = urlHandler.url ?: return,

@@ -309,10 +309,19 @@ class VideoDownloader(private val context: Context) {
             m3u8Con.stream?.bufferedReader()?.apply {
                 var i = 0
                 while (i <= totalChunks && !isStopped) {
+                    val prevLine = line
                     line = readLine()
                     if (line == null)
                         break
-                    else if (line!!.endsWith(".ts") || line!!.endsWith(".mp4"))
+
+                    if (line!!.contains(".ts?") && item.sourceWebsite.contains("ted.com")) {
+                        // The ranged url might fail to download. Hence use full/non-ranged content
+                        line = line!!.substringBeforeLast("?")
+                        // Avoid downloading duplicate chunk
+                        if (line == prevLine) continue
+                    }
+
+                    if (line!!.endsWith(".ts") || line!!.endsWith(".mp4"))
                         i++
                 }
                 close()
