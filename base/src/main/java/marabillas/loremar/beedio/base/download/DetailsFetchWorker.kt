@@ -79,33 +79,34 @@ class DetailsFetchWorker(
                 "vimeo.com" -> {
                     first.videoUrl.replace("SEGMENT".toRegex(), "segment-1")
                 }
-                "twitter.com", "metacafe.com", "myspace.com", "twitch.tv" -> {
+                else -> {
                     var line: String? = null
                     runBlocking {
-                        val m3u8Conn = HttpNetwork().open(first.videoUrl)
-                        m3u8Conn.stream
-                                ?.bufferedReader()
-                                ?.apply {
-                                    while (true) {
-                                        line = readLine() ?: break
+                        val conn = HttpNetwork().open(first.videoUrl)
+                        val contentType = conn.getResponseHeader("Content-Type")
+                        if (contentType?.contains("application/x-mpegurl") == true
+                                || contentType?.contains("application/vnd.apple.mpegurl") == true) {
 
-                                        if ((first.sourceWebsite == "twitter.com"
-                                                        || first.sourceWebsite == "myspace.com"
-                                                        || first.sourceWebsite == "twitch.tv")
-                                                && line!!.endsWith(".ts")) {
-                                            break
-                                        } else if (first.sourceWebsite == "metacafe.com"
-                                                && line!!.endsWith(".mp4")) {
-                                            break
+                            conn.stream
+                                    ?.bufferedReader()
+                                    ?.apply {
+                                        while (true) {
+                                            line = readLine() ?: break
+                                            if (line!!.contains(".ts?")
+                                                    && first.sourceWebsite.contains("ted.com"))
+                                                line = line!!.substringBeforeLast("?")
+                                            if (line!!.endsWith(".ts") || line!!.endsWith(".mp4"))
+                                                break
                                         }
                                     }
-                                    close()
-                                }
-                        m3u8Conn.stream?.close()
+                        } else {
+                            throw IllegalStateException("Does not belong to any case where fetching " +
+                                    "details is possible")
+                        }
+                        conn.stream?.close()
                     }
                     line
                 }
-                else -> throw RuntimeException("Invalid source website: ${first.sourceWebsite}")
             }
         } else
             first.videoUrl)

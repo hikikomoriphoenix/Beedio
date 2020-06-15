@@ -101,6 +101,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                         extractVideo(title, sourceWebPage)
                     else if (contentType.isM3U8())
                         extractM3U8Video(title, sourceWebPage)
+                    close()
                 }
             }
 
@@ -130,7 +131,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
 
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
-    private fun String.isM3U8() = equals("application/x-mpegurl") || equals("application/vnd.apple.mpegurl")
+    private fun String.isM3U8() = contains("application/x-mpegurl") || contains("application/vnd.apple.mpegurl")
 
     private fun String.isOctetStreamWithVideo(url: String): Boolean {
         return equals("binary/octet-stream") && url.endsWith(".mp4")
@@ -220,96 +221,94 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
     ) {
 
         val host = URL(sourceWebPage).host
-        if (host.contains("twitter.com") || host.contains("metacafe.com")
-                || host.contains("myspace.com") || host.contains("twitch.tv")) {
 
-            val name = if (title.isNotBlank()) title else "video"
+        val name = if (title.isNotBlank()) title else "video"
 
-            var prefix = ""
-            var ext = "mp4"
-            var sourceWebsite = host
-            when {
-                host.contains("twitter.com") -> {
-                    prefix = "https://video.twimg.com"
-                    ext = "ts"
-                    sourceWebsite = "twitter.com"
-                }
-                host.contains("metacafe.com") -> {
-                    val url = urlHandler.url ?: return
-                    prefix = "${url.substringBeforeLast("/")}/"
-                    sourceWebsite = "metacafe.com"
-                    ext = "mp4"
-                }
-                host.contains("myspace.com") -> {
+        var prefix = ""
+        var ext = "mp4"
+        var sourceWebsite = host
+        when {
+            host.contains("twitter.com") -> {
+                prefix = "https://video.twimg.com"
+                ext = "ts"
+                sourceWebsite = "twitter.com"
+            }
+            host.contains("metacafe.com") -> {
+                val url = urlHandler.url ?: return
+                prefix = "${url.substringBeforeLast("/")}/"
+                sourceWebsite = "metacafe.com"
+                ext = "mp4"
+            }
+            host.contains("myspace.com") -> {
+                FoundVideo(
+                        name = name,
+                        url = urlHandler.url ?: return,
+                        ext = "ts",
+                        size = "0",
+                        sourceWebPage = sourceWebPage,
+                        sourceWebsite = "myspace.com",
+                        isChunked = true
+                ).apply { onFoundVideo(this) }
+                return
+            }
+            host.contains("twitch.tv") -> {
+                if (urlHandler.url?.endsWith("index-dvr.m3u8") == true) {
                     FoundVideo(
                             name = name,
                             url = urlHandler.url ?: return,
                             ext = "ts",
                             size = "0",
                             sourceWebPage = sourceWebPage,
-                            sourceWebsite = "myspace.com",
+                            sourceWebsite = "twitch.tv",
                             isChunked = true
                     ).apply { onFoundVideo(this) }
                     return
+                } else {
+                    sourceWebsite = "twitch.tv"
+                    ext = "ts"
                 }
-                host.contains("twitch.tv") -> {
-                    if (urlHandler.url?.endsWith("index-dvr.m3u8") == true) {
-                        FoundVideo(
-                                name = name,
-                                url = urlHandler.url ?: return,
-                                ext = "ts",
-                                size = "0",
-                                sourceWebPage = sourceWebPage,
-                                sourceWebsite = "twitch.tv",
-                                isChunked = true
-                        ).apply { onFoundVideo(this) }
-                        return
-                    } else {
-                        sourceWebsite = "twitch.tv"
-                        ext = "ts"
-                    }
-                }
-                else -> {
-                    stream?.reader()?.apply {
-                        while (true) {
-                            val line = readLine() ?: break
-                            if (line.endsWith(".ts", true)
-                                    || line.endsWith(".mp4", true)
-                                    || line.contains(".ts?", true)
-                                    || line.contains(".mp4?", true)) {
+            }
+            else -> {
+                stream?.reader()?.buffered()?.apply {
+                    while (true) {
+                        val line = readLine() ?: break
+                        if (line.endsWith(".ts", true)
+                                || line.endsWith(".mp4", true)
+                                || line.contains(".ts?", true)
+                                || line.contains(".mp4?", true)) {
 
-                                ext = if (line.endsWith(".ts", true)
-                                        || line.contains(".ts?", true)) "ts" else "mp4"
-                                FoundVideo(
-                                        name = name,
-                                        url = urlHandler.url ?: return,
-                                        ext = ext,
-                                        size = "0",
-                                        sourceWebPage = sourceWebPage,
-                                        sourceWebsite = sourceWebsite,
-                                        isChunked = true
-                                ).apply { onFoundVideo(this) }
-                                return
-                            }
+                            ext = if (line.endsWith(".ts", true)
+                                    || line.contains(".ts?", true)) "ts" else "mp4"
+                            FoundVideo(
+                                    name = name,
+                                    url = urlHandler.url ?: return,
+                                    ext = ext,
+                                    size = "0",
+                                    sourceWebPage = sourceWebPage,
+                                    sourceWebsite = sourceWebsite,
+                                    isChunked = true
+                            ).apply { onFoundVideo(this) }
+                            close()
+                            return
                         }
                     }
                 }
             }
+        }
 
-            stream?.reader()?.readLines()?.forEach {
-                if (it.endsWith(".m3u8")) {
-                    val url = "$prefix$it"
-                    if (URLUtil.isValidUrl(url)) {
-                        FoundVideo(
-                                name = name,
-                                url = url,
-                                ext = ext,
-                                size = "0",
-                                sourceWebPage = sourceWebPage,
-                                sourceWebsite = sourceWebsite,
-                                isChunked = true
-                        ).apply { onFoundVideo(this) }
-                    }
+        stream?.reader()?.readLines()?.forEach {
+            if (it.endsWith(".m3u8")) {
+                val url = "$prefix$it"
+                if (URLUtil.isValidUrl(url)) {
+                    FoundVideo(
+                            name = name,
+                            url = url,
+                            ext = ext,
+                            size = "0",
+                            sourceWebPage = sourceWebPage,
+                            sourceWebsite = sourceWebsite,
+                            isChunked = true
+                    ).apply { onFoundVideo(this) }
                 }
             }
         }
