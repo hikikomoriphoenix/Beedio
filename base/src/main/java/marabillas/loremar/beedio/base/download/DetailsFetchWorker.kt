@@ -84,8 +84,8 @@ class DetailsFetchWorker(
                     runBlocking {
                         val conn = HttpNetwork().open(first.videoUrl)
                         val contentType = conn.getResponseHeader("Content-Type")
-                        if (contentType?.contains("application/x-mpegurl") == true
-                                || contentType?.contains("application/vnd.apple.mpegurl") == true) {
+                        if (contentType?.contains("application/x-mpegURL", true) == true
+                                || contentType?.contains("application/vnd.apple.mpegurl", true) == true) {
 
                             conn.stream
                                     ?.bufferedReader()

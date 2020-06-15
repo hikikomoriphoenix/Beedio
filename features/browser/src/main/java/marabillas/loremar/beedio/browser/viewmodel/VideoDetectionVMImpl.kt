@@ -131,7 +131,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
 
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
-    private fun String.isM3U8() = contains("application/x-mpegurl") || contains("application/vnd.apple.mpegurl")
+    private fun String.isM3U8() = contains("application/x-mpegURL", true) || contains("application/vnd.apple.mpegurl", true)
 
     private fun String.isOctetStreamWithVideo(url: String): Boolean {
         return equals("binary/octet-stream") && url.endsWith(".mp4")
