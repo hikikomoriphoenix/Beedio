@@ -342,7 +342,7 @@ class VideoDownloader(private val context: Context) {
                     prefix = url.substring(0, url.lastIndexOf("/") + 1)
                     prefix + line
                 }
-                else -> null
+                else -> line
             }
         } else {
             null
