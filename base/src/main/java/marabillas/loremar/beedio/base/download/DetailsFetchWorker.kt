@@ -20,6 +20,7 @@
 package marabillas.loremar.beedio.base.download
 
 import android.content.Context
+import android.webkit.URLUtil
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -71,7 +72,7 @@ class DetailsFetchWorker(
         )
         val fetchCdLatch = CountDownLatch(1)
 
-        val targetUrl = (if (first.isChunked) {
+        var targetUrl = (if (first.isChunked) {
             when (first.sourceWebsite) {
                 "dailymotion.com" -> {
                     first.videoUrl.replace("FRAGMENT".toRegex(), "frag(1)")
@@ -111,6 +112,11 @@ class DetailsFetchWorker(
         } else
             first.videoUrl)
                 ?: return Result.success(data)
+
+        if (!URLUtil.isValidUrl(targetUrl)) {
+            targetUrl = first.videoUrl.substringBeforeLast('/') +
+                    if (targetUrl.startsWith('/')) "" else "/$targetUrl"
+        }
 
         videoDetailsFetcher.fetchDetails(targetUrl, object : VideoDetailsFetcher.FetchListener {
             override fun onUnFetched(error: Throwable) {

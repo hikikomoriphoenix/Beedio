@@ -21,6 +21,7 @@ package marabillas.loremar.beedio.base.download
 
 import android.content.Context
 import android.os.Environment
+import android.webkit.URLUtil
 import kotlinx.coroutines.*
 import marabillas.loremar.beedio.base.database.DownloadItem
 import marabillas.loremar.beedio.base.media.VideoAudioMuxer
@@ -342,7 +343,13 @@ class VideoDownloader(private val context: Context) {
                     prefix = url.substring(0, url.lastIndexOf("/") + 1)
                     prefix + line
                 }
-                else -> line
+                else -> {
+                    if (URLUtil.isValidUrl(line))
+                        line
+                    else
+                        item.videoUrl.substringBeforeLast('/') +
+                                (if (line!!.startsWith('/')) "" else "/") + line
+                }
             }
         } else {
             null
