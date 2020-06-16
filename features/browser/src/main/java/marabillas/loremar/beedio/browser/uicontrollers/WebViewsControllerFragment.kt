@@ -187,6 +187,11 @@ class WebViewsControllerFragment @Inject constructor() : DaggerFragment() {
                 settings.javaScriptCanOpenWindowsAutomatically = true
                 settings.allowUniversalAccessFromFileURLs = true
                 settings.domStorageEnabled = true
+                settings.setAppCacheEnabled(true)
+                settings.mediaPlaybackRequiresUserGesture = true
+                settings.databaseEnabled = true
+                settings.allowContentAccess = true
+                settings.allowFileAccess = true
 
                 webViews.add(this)
                 activeWebViewIndex = webViews.indexOf(this)
