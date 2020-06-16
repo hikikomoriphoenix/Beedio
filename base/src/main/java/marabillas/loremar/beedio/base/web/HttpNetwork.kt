@@ -26,6 +26,7 @@ import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.Reader
 import java.net.URL
@@ -62,6 +63,7 @@ class HttpNetwork {
             val request = requestBuilder.build()
             response = okhttp.newCall(request).execute()
             headers = response.headers
+            if (response.code >= 400) throw FileNotFoundException()
         }
 
         override suspend fun getResponseHeader(name: String): String? = headers[name]

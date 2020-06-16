@@ -167,12 +167,12 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         } else if (host.contains("dailymotion.com")) {
             isChunked = true
             sourceWebsite = "dailymotion.com"
-            url = url.replace("(frag\\()+(\\d+)+(\\))", "FRAGMENT")
+            url = url.replace("frag\\(\\d+\\)".toRegex(), "FRAGMENT")
             size = "0"
         } else if (host.contains("vimeo.com") && url.endsWith("m4s")) {
             isChunked = true
             sourceWebsite = "vimeo.com"
-            url = url.replace("(segment-)+(\\d+)", "SEGMENT")
+            url = url.replace("segment-\\d+".toRegex(), "SEGMENT")
             size = "0"
         } else if (host.contains("facebook.com") && url.contains("bytestart")) {
             url = "https://video.xx.fbcdn${url.substringAfter("fbcdn").substringBeforeLast("&bytestart")}"
@@ -228,6 +228,7 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         var ext = "mp4"
         var sourceWebsite = host
         when {
+            host.contains("dailymotion.com") -> return
             host.contains("twitter.com") -> {
                 prefix = "https://video.twimg.com"
                 ext = "ts"

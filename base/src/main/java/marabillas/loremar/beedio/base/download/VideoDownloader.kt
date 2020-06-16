@@ -273,7 +273,7 @@ class VideoDownloader(private val context: Context) {
                             readChannel.close()
                             conn.stream?.close()
                             bytesOfChunk.close()
-                        }
+                        } ?: throw FileNotFoundException()
                     } catch (e: FileNotFoundException) {
                         if (!progressFile.delete()) {
                             TODO("Log can't delete progressFile")
