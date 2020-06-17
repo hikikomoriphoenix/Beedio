@@ -297,7 +297,7 @@ class VideoDownloader(private val context: Context) {
     }
 
     private fun getNextChunkWithVimeoRule(url: String, totalChunks: Long): String? {
-        return url.replace("SEGMENT".toRegex(), "segment-${totalChunks + 1}")
+        return url.replace("SEGMENT".toRegex(), "segment-$totalChunks")
     }
 
     private suspend fun getNextChunkWithM3U8Rule(item: DownloadItem, totalChunks: Long): String? {
