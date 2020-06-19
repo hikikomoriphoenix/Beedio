@@ -39,7 +39,7 @@ class HomeRecommendedAdapter @Inject constructor() :
             "instagram.com" to R.drawable.logo_instagram,
             "www.dailymotion.com" to R.drawable.logo_dailymotion,
             "www.veoh.com" to R.drawable.logo_veoh,
-            "vimeo.com" to R.drawable.logo_vimeo,
+            "vimeo.com/watch" to R.drawable.logo_vimeo,
             "archive.org" to R.drawable.logo_internet_archive,
             "ted.com" to R.drawable.logo_ted,
             "twitch.tv" to R.drawable.logo_twitch,
