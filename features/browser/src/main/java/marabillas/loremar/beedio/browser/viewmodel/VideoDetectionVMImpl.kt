@@ -97,10 +97,10 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                 Timber.i("Analyzing $url")
                 connect(url) {
                     val contentType = contentType()
-                    if (contentType.containsVideoOrAudio() || contentType.isOctetStreamWithVideo(url))
-                        extractVideo(title, sourceWebPage)
-                    else if (contentType.isM3U8())
+                    if (contentType.isM3U8())
                         extractM3U8Video(title, sourceWebPage)
+                    else if (contentType.containsVideoOrAudio() || contentType.isOctetStreamWithVideo(url))
+                        extractVideo(title, sourceWebPage)
                     close()
                 }
             }
@@ -131,7 +131,11 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
 
     private fun String.containsVideoOrAudio() = contains("video") || contains("audio")
 
-    private fun String.isM3U8() = contains("application/x-mpegURL", true) || contains("application/vnd.apple.mpegurl", true)
+    private fun String.isM3U8() = contains("application/x-mpegURL", true)
+            || contains("application/vnd.apple.mpegurl", true)
+            || contains("application/mpegurl", true)
+            || contains("audio/x-mpegurl", true)
+            || contains("audio/mpegurl", true)
 
     private fun String.isOctetStreamWithVideo(url: String): Boolean {
         return equals("binary/octet-stream") && url.endsWith(".mp4")
@@ -234,12 +238,6 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
                 ext = "ts"
                 sourceWebsite = "twitter.com"
             }
-            host.contains("metacafe.com") -> {
-                val url = urlHandler.url ?: return
-                prefix = "${url.substringBeforeLast("/")}/"
-                sourceWebsite = "metacafe.com"
-                ext = "mp4"
-            }
             host.contains("myspace.com") -> {
                 FoundVideo(
                         name = name,
@@ -297,21 +295,30 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             }
         }
 
-        stream?.reader()?.readLines()?.forEach {
-            if (it.endsWith(".m3u8")) {
-                val url = "$prefix$it"
-                if (URLUtil.isValidUrl(url)) {
-                    FoundVideo(
-                            name = name,
-                            url = url,
-                            ext = ext,
-                            size = "0",
-                            sourceWebPage = sourceWebPage,
-                            sourceWebsite = sourceWebsite,
-                            isChunked = true
-                    ).apply { onFoundVideo(this) }
+        urlHandler.url?.let { parentUrl ->
+            val m3u8Stream = network.open(parentUrl).stream
+            m3u8Stream?.bufferedReader()?.readLines()?.forEach { line ->
+                if (line.endsWith(".m3u8")) {
+                    val childUrl = if (prefix == "" && !URLUtil.isValidUrl(line))
+                        parentUrl.substringBeforeLast('/') +
+                                if (line.startsWith('/')) line else "/$line"
+                    else
+                        "$prefix$line"
+
+                    if (URLUtil.isValidUrl(childUrl)) {
+                        FoundVideo(
+                                name = name,
+                                url = childUrl,
+                                ext = ext,
+                                size = "0",
+                                sourceWebPage = sourceWebPage,
+                                sourceWebsite = sourceWebsite,
+                                isChunked = true
+                        ).apply { onFoundVideo(this) }
+                    }
                 }
             }
+            m3u8Stream?.close()
         }
     }
 
