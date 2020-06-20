@@ -335,10 +335,6 @@ class VideoDownloader(private val context: Context) {
             val prefix: String
             when (website) {
                 "twitter.com" -> "https://video.twimg.com$line"
-                "metacafe.com" -> {
-                    prefix = url.substring(0, url.lastIndexOf("/") + 1)
-                    prefix + line
-                }
                 "myspace.com", "twitch.tv" -> {
                     prefix = url.substring(0, url.lastIndexOf("/") + 1)
                     prefix + line
@@ -348,7 +344,7 @@ class VideoDownloader(private val context: Context) {
                         line
                     else
                         item.videoUrl.substringBeforeLast('/') +
-                                (if (line!!.startsWith('/')) "" else "/") + line
+                                if (line!!.startsWith('/')) line else "/$line"
                 }
             }
         } else {

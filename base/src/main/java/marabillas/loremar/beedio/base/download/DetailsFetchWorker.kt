@@ -86,7 +86,10 @@ class DetailsFetchWorker(
                         val conn = HttpNetwork().open(first.videoUrl)
                         val contentType = conn.getResponseHeader("Content-Type")
                         if (contentType?.contains("application/x-mpegURL", true) == true
-                                || contentType?.contains("application/vnd.apple.mpegurl", true) == true) {
+                                || contentType?.contains("application/vnd.apple.mpegurl", true) == true
+                                || contentType?.contains("application/mpegurl", true) == true
+                                || contentType?.contains("audio/x-mpegurl", true) == true
+                                || contentType?.contains("audio/mpegurl", true) == true) {
 
                             conn.stream
                                     ?.bufferedReader()
@@ -115,7 +118,7 @@ class DetailsFetchWorker(
 
         if (!URLUtil.isValidUrl(targetUrl)) {
             targetUrl = first.videoUrl.substringBeforeLast('/') +
-                    if (targetUrl.startsWith('/')) "" else "/$targetUrl"
+                    if (targetUrl.startsWith('/')) targetUrl else "/$targetUrl"
         }
 
         videoDetailsFetcher.fetchDetails(targetUrl, object : VideoDetailsFetcher.FetchListener {
