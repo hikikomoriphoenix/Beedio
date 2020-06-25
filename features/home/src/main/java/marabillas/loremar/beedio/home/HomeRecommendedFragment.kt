@@ -21,23 +21,25 @@ package marabillas.loremar.beedio.home
 
 import android.app.Dialog
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import dagger.android.support.AndroidSupportInjection
+import marabillas.loremar.beedio.base.extensions.toPixels
 import marabillas.loremar.beedio.base.mvvm.MainViewModel
 import marabillas.loremar.beedio.base.web.WebNavigation
 import javax.inject.Inject
 
 class HomeRecommendedFragment : BottomSheetDialogFragment(), HomeRecommendedAdapter.OnWebsiteSelectedListener {
-    @Inject
-    lateinit var homeRecommendedCallback: HomeRecommendedCallback
-
     @Inject
     lateinit var homeRecommendedAdapter: HomeRecommendedAdapter
 
@@ -54,6 +56,11 @@ class HomeRecommendedFragment : BottomSheetDialogFragment(), HomeRecommendedAdap
         super.onAttach(context)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.TransparentBottomSheetTheme)
+    }
+
     override fun setupDialog(dialog: Dialog, style: Int) {
         dialog.setContentView(R.layout.home_recommended)
         val view = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
@@ -61,10 +68,16 @@ class HomeRecommendedFragment : BottomSheetDialogFragment(), HomeRecommendedAdap
             val params = view.layoutParams
             params.height = ViewGroup.LayoutParams.MATCH_PARENT
             view.layoutParams = params
-            val behavior = BottomSheetBehavior.from(view)
-            behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-            behavior.setBottomSheetCallback(homeRecommendedCallback)
-            homeRecommendedCallback.actionWhenHidden = this::dismiss
+        }
+
+        dialog.findViewById<View>(R.id.home_recommended_header).apply {
+            background = MaterialShapeDrawable().apply {
+                fillColor = ColorStateList.valueOf(Color.WHITE)
+                shapeAppearanceModel = ShapeAppearanceModel.Builder()
+                        .setTopLeftCorner(CornerFamily.ROUNDED, 20.toPixels(resources).toFloat())
+                        .setTopRightCorner(CornerFamily.ROUNDED, 20.toPixels(resources).toFloat())
+                        .build()
+            }
         }
 
         dialog.findViewById<RecyclerView>(R.id.recycler_home_recommended).apply {
