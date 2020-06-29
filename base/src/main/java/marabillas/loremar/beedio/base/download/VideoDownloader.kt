@@ -232,6 +232,7 @@ class VideoDownloader(private val context: Context) {
                     when (website) {
                         "dailymotion.com" -> chunkUrl = getNextChunkWithDailymotionRule(item.videoUrl, totalChunks)
                         "vimeo.com" -> chunkUrl = getNextChunkWithVimeoRule(item.videoUrl, totalChunks)
+                        "vlive.tv" -> chunkUrl = getNextChunkWithVliveRule(item.videoUrl, totalChunks)
                         "twitter.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
                         "metacafe.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
                         "myspace.com" -> chunkUrl = getNextChunkWithM3U8Rule(item, totalChunks)
@@ -298,6 +299,10 @@ class VideoDownloader(private val context: Context) {
 
     private fun getNextChunkWithVimeoRule(url: String, totalChunks: Long): String? {
         return url.replace("SEGMENT".toRegex(), "segment-$totalChunks")
+    }
+
+    private fun getNextChunkWithVliveRule(url: String, totalChunks: Long): String? {
+        return url.replace("CHUNK.ts", "${totalChunks.toString().padStart(6, '0')}.ts")
     }
 
     private suspend fun getNextChunkWithM3U8Rule(item: DownloadItem, totalChunks: Long): String? {

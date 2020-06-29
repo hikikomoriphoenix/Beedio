@@ -57,7 +57,8 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         get() = _foundVideos
 
     private val _foundVideos = mutableListOf<FoundVideo>()
-    private val filters = arrayOf("mp4", "video", "m3u8", "webm", "googleusercontent", "embed")
+    private val filters = arrayOf("mp4", "video", "m3u8", "webm", ".ts",
+            "googleusercontent", "embed")
     private val network = HttpNetwork()
     private val detailsFetcher = VideoDetailsFetcher()
     private val downloadFileValidator = DownloadFileValidator(context)
@@ -184,6 +185,11 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
             connect(url) {
                 size = getResponseHeader("Content-Length") ?: "0"
             }
+        } else if (host.contains("vlive.tv")) {
+            isChunked = true
+            sourceWebsite = "vlive.tv"
+            url = url.replace("""\d{6}.ts""".toRegex(), "CHUNK.ts")
+            size = "0"
         }
 
         val ext = getExtensionFor(contentType)

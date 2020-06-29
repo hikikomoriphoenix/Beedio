@@ -80,6 +80,9 @@ class DetailsFetchWorker(
                 "vimeo.com" -> {
                     first.videoUrl.replace("SEGMENT".toRegex(), "segment-1")
                 }
+                "vlive.tv" -> {
+                    first.videoUrl.replace("CHUNK.ts", "000000.ts")
+                }
                 else -> {
                     var line: String? = null
                     runBlocking {
