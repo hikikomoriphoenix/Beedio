@@ -73,7 +73,10 @@ class VideoDownloadWorker(
 
     private fun VideoDownloader.DownloadException.save() {
         val json = gson.toJson(this)
-        File(applicationContext.filesDir, "queue_download_exception.json").writeText(json)
+        val file = File(applicationContext.filesDir, "queue_download_exception.json")
+        if (!file.exists() && file.createNewFile()) {
+            file.writeText(json)
+        }
     }
 
     override fun onStopped() {
