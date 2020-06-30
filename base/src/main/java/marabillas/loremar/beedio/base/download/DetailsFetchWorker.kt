@@ -102,7 +102,10 @@ class DetailsFetchWorker(
                                             if (line!!.contains(".ts?")
                                                     && first.sourceWebsite.contains("ted.com"))
                                                 line = line!!.substringBeforeLast("?")
-                                            if (line!!.endsWith(".ts") || line!!.endsWith(".mp4"))
+                                            if (line!!.endsWith(".ts")
+                                                    || line!!.endsWith(".mp4")
+                                                    || line!!.contains(".ts?")
+                                                    || line!!.contains(".mp4?"))
                                                 break
                                         }
                                     }

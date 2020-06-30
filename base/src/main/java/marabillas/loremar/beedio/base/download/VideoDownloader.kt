@@ -327,7 +327,10 @@ class VideoDownloader(private val context: Context) {
                         if (line == prevLine) continue
                     }
 
-                    if (line!!.endsWith(".ts") || line!!.endsWith(".mp4"))
+                    if (line!!.endsWith(".ts")
+                            || line!!.endsWith(".mp4")
+                            || line!!.contains(".ts?")
+                            || line!!.contains(".mp4?"))
                         i++
                 }
                 close()
