@@ -369,6 +369,15 @@ class InProgressVMImpl(private val context: Context, downloadDB: DownloadListDat
         private fun onVideoDetailsFetched() {
             viewModelScope.launch(listOperationDispatcher) {
                 val file = File(context.filesDir, VIDEO_DETAILS_FILE)
+
+                if (!file.exists()) {
+                    if (_isDownloading.value == true) {
+                        pauseDownload()
+                        startDownload()
+                    }
+                    return@launch
+                }
+
                 val fileReader = FileReader(file)
                 val details = gson.fromJson(fileReader, VideoDetails::class.java)
 
