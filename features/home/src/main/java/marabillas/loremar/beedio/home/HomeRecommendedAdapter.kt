@@ -54,7 +54,6 @@ class HomeRecommendedAdapter @Inject constructor() :
             "m.vk.com" to R.drawable.logo_vk,
             "m.youku.com" to R.drawable.logo_youku,
             "bilibili.com" to R.drawable.logo_bilibili,
-            "www.tudou.com" to R.drawable.logo_tudou,
             "video.fc2.com" to R.drawable.logo_fc2)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeRecommendedViewHolder {
