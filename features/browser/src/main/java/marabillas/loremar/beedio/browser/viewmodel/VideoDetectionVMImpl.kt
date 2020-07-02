@@ -152,7 +152,8 @@ class VideoDetectionVMImpl(private val context: Context) : VideoDetectionVM() {
         if (contentType == "video/mp2t" && (host.contains("twitter.com")
                         || host.contains("ted.com")
                         || host.contains("tv.naver.com")
-                        || host.contains("rutube.ru")))
+                        || host.contains("rutube.ru")
+                        || host.contains("afreecatv.com")))
             return
 
         var url = getResponseHeader("Location") ?: urlHandler.url ?: return
